@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://twhhld7du3lq"]
+
+[ext_resource type="Script" uid="uid://drw1cp0w5ceh6" path="res://Character/Character.gd" id="1_vx5l7"]
+[ext_resource type="Script" uid="uid://thix1oakc52r" path="res://Character/CharacterRenderer.gd" id="2_ptld2"]
+[ext_resource type="SpriteFrames" uid="uid://750ochum2vjs" path="res://Resources/Character/none.tres" id="3_vbi5m"]
+
+[node name="Character" type="Node2D" node_paths=PackedStringArray("renderer")]
+script = ExtResource("1_vx5l7")
+renderer = NodePath("Renderer")
+
+[node name="Renderer" type="Node2D" parent="." node_paths=PackedStringArray("_bodyAnimatedSprite", "_headAnimatedSprite", "_helmetAnimatedSprite", "_weaponAnimatedSprite", "_shieldAnimatedSprite")]
+script = ExtResource("2_ptld2")
+_bodyAnimatedSprite = NodePath("Body")
+_headAnimatedSprite = NodePath("Head")
+_helmetAnimatedSprite = NodePath("Helmet")
+_weaponAnimatedSprite = NodePath("Weapon")
+_shieldAnimatedSprite = NodePath("Shield")
+
+[node name="Body" type="AnimatedSprite2D" parent="Renderer"]
+sprite_frames = ExtResource("3_vbi5m")
+animation = &"idle_north"
+
+[node name="Head" type="AnimatedSprite2D" parent="Renderer"]
+sprite_frames = ExtResource("3_vbi5m")
+animation = &"idle_north"
+
+[node name="Helmet" type="AnimatedSprite2D" parent="Renderer"]
+sprite_frames = ExtResource("3_vbi5m")
+animation = &"idle_north"
+
+[node name="Shield" type="AnimatedSprite2D" parent="Renderer"]
+sprite_frames = ExtResource("3_vbi5m")
+animation = &"idle_north"
+
+[node name="Weapon" type="AnimatedSprite2D" parent="Renderer"]
+sprite_frames = ExtResource("3_vbi5m")
+animation = &"idle_north"
