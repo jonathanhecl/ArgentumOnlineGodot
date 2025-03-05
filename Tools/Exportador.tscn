@@ -7,16 +7,46 @@ script = ExtResource("1_46j3f")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Button" type="Button" parent="CanvasLayer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -75.0
-offset_top = -23.5
-offset_right = 75.0
-offset_bottom = 23.5
+offset_left = -72.0
+offset_top = -103.0
+offset_right = 72.0
+offset_bottom = 103.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "Exportar Mapa"
+
+[node name="Button" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Mapas"
+
+[node name="Button2" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Cuerpos"
+
+[node name="Button3" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Cascos"
+
+[node name="Button4" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Cabezas"
+
+[node name="Button5" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Armas"
+
+[node name="Button6" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Escudos"
+
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button" to="." method="_ExportMaps"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button2" to="." method="_Bodies"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button3" to="." method="_Helmets"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button4" to="." method="_Heads"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button5" to="." method="_Weapons"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button6" to="." method="_Shields"]

@@ -1,7 +1,5 @@
 extends Node
 
-func _ready() -> void:
-	_ExportMaps()
 	
 func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	var sprite = Sprite2D.new()
@@ -109,3 +107,117 @@ func _ExportMap(fileId:int) -> void:
 		
 	if packedScene.pack(mainNode) == OK:
 		ResourceSaver.save(packedScene, "res://Maps/Map%d.tscn" % fileId) 
+
+
+func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
+	var frame = GameAssets.GrhDataList[grhId]
+	var atlasTexture = AtlasTexture.new()
+	
+	atlasTexture.region = frame.region
+	atlasTexture.atlas = GameAssets.GetTexture(frame.fileId)
+
+	spriteFrames.add_animation(name);
+	spriteFrames.add_frame(name, atlasTexture);
+
+func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
+	spriteFrames.add_animation("idle_" + name)
+	spriteFrames.add_animation("walk_" + name)
+
+	spriteFrames.set_animation_speed("idle_" + name, 1)
+	spriteFrames.set_animation_speed("walk_" + name, 12.0)
+	
+	var frames = GameAssets.GrhDataList[grhId].frames
+	for i in range(1, frames.size()):
+		var frame = GameAssets.GrhDataList[frames[i]]
+		
+		if frame.fileId == 0:
+			push_error("Frame {%d} has no file" % frames[i]) 
+		
+		var atlasTexture = AtlasTexture.new();
+		atlasTexture.region = frame.region
+		atlasTexture.atlas = GameAssets.GetTexture(frame.fileId)
+		
+		spriteFrames.add_frame("walk_" + name, atlasTexture)
+		if i == 1:
+			spriteFrames.add_frame("idle_" + name, atlasTexture)
+	
+	
+func _Bodies() -> void:
+	for i in range(1, GameAssets.BodyAnimationList.size()):
+		var data = GameAssets.BodyAnimationList[i]
+		var spriteFrames = SpriteFrames.new()
+		
+		spriteFrames.set_meta("offsetX", data.offsetX);
+		spriteFrames.set_meta("offsetY", data.offsetY);
+		
+		spriteFrames.remove_animation("default")
+		_AttachAnimation(spriteFrames, "west", data.west);
+		_AttachAnimation(spriteFrames, "east", data.east);
+		_AttachAnimation(spriteFrames, "south", data.south);
+		_AttachAnimation(spriteFrames, "north", data.north);
+		
+		ResourceSaver.save(spriteFrames, "res://Resources/Character/Bodies/body_%d.tres" % i);	
+	
+func _Weapons() -> void:
+	for i in range(1, GameAssets.WeaponAnimationList.size()):
+		if i == Global.NoAnim:
+			continue
+			
+		var data = GameAssets.WeaponAnimationList[i]
+		var spriteFrames = SpriteFrames.new()
+
+		spriteFrames.remove_animation("default")
+		_AttachAnimation(spriteFrames, "west", data.west);
+		_AttachAnimation(spriteFrames, "east", data.east);
+		_AttachAnimation(spriteFrames, "south", data.south);
+		_AttachAnimation(spriteFrames, "north", data.north);
+		
+		ResourceSaver.save(spriteFrames, "res://Resources/Character/Weapons/weapon_%d.tres" % i);	
+
+func _Shields() -> void:
+	for i in range(1, GameAssets.ShieldAnimationList.size()):
+		if i == Global.NoAnim:
+			continue
+			
+		var data = GameAssets.ShieldAnimationList[i]
+		var spriteFrames = SpriteFrames.new()
+
+		spriteFrames.remove_animation("default")
+		_AttachAnimation(spriteFrames, "west", data.west);
+		_AttachAnimation(spriteFrames, "east", data.east);
+		_AttachAnimation(spriteFrames, "south", data.south);
+		_AttachAnimation(spriteFrames, "north", data.north);
+		
+		ResourceSaver.save(spriteFrames, "res://Resources/Character/Shields/shield_%d.tres" % i);	
+		
+func _Heads() -> void:
+	for i in range(1, GameAssets.HeadAnimationList.size()):
+		var data = GameAssets.HeadAnimationList[i]
+		var spriteFrames = SpriteFrames.new()
+		
+		if 0 in [data.east, data.north, data.south, data.west]:
+			continue
+			
+		spriteFrames.remove_animation("default")
+		_AttachHeadAnimation(spriteFrames, "west", data.west);
+		_AttachHeadAnimation(spriteFrames, "east", data.east);
+		_AttachHeadAnimation(spriteFrames, "south", data.south);
+		_AttachHeadAnimation(spriteFrames, "north", data.north);
+		
+		ResourceSaver.save(spriteFrames, "res://Resources/Character/Heads/head_%d.tres" % i);	
+
+func _Helmets() -> void:
+	for i in range(1, GameAssets.HelmetAnimationList.size()):
+		var data = GameAssets.HelmetAnimationList[i]
+		var spriteFrames = SpriteFrames.new()
+		
+		if 0 in [data.east, data.north, data.south, data.west]:
+			continue
+			
+		spriteFrames.remove_animation("default")
+		_AttachHeadAnimation(spriteFrames, "west", data.west);
+		_AttachHeadAnimation(spriteFrames, "east", data.east);
+		_AttachHeadAnimation(spriteFrames, "south", data.south);
+		_AttachHeadAnimation(spriteFrames, "north", data.north);
+		
+		ResourceSaver.save(spriteFrames, "res://Resources/Character/Helmets/helmet_%d.tres" % i);	
