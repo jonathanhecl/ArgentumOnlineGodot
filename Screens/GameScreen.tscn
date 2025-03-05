@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2dyxo3826bub"]
+
+[ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen.gd" id="1_p7x0p"]
+[ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameInput.gd" id="2_b7a1e"]
+
+[node name="GameScreen" type="Node"]
+script = ExtResource("1_p7x0p")
+
+[node name="GameInput" type="CanvasLayer" parent="."]
+script = ExtResource("2_b7a1e")

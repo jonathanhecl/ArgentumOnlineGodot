@@ -1,0 +1,29 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="ArgentumOnlineGodot"
+run/main_scene="uid://do2mqxkqcbws8"
+config/features=PackedStringArray("4.4", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameAssets="*res://Engine/Singleton/GameAssets.gd"
+AudioManager="*res://Engine/Singleton/AudioManager.gd"
+ScreenController="*res://Engine/Singleton/ScreenController.gd"
+ClientInterface="*res://Engine/Singleton/ClientInterface.gd"
+Global="*res://Engine/Singleton/Global.gd"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

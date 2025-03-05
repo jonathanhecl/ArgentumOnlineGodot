@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://dqe3dktm053jv"]
+
+[ext_resource type="Script" uid="uid://hwxh41kn7bbx" path="res://Tools/Exportador.gd" id="1_46j3f"]
+
+[node name="Exportador" type="Node"]
+script = ExtResource("1_46j3f")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Button" type="Button" parent="CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -75.0
+offset_top = -23.5
+offset_right = 75.0
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Exportar Mapa"
