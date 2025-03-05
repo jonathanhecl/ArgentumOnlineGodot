@@ -116,8 +116,8 @@ func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> 
 	atlasTexture.region = frame.region
 	atlasTexture.atlas = GameAssets.GetTexture(frame.fileId)
 
-	spriteFrames.add_animation(name);
-	spriteFrames.add_frame(name, atlasTexture);
+	spriteFrames.add_animation("idle_" + name);
+	spriteFrames.add_frame("idle_" + name, atlasTexture);
 
 func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
 	spriteFrames.add_animation("idle_" + name)
