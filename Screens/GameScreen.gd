@@ -73,11 +73,11 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			Enums.ServerPacketID.Logged:
 				pass
 			Enums.ServerPacketID.RemoveDialogs:
-				_HandleRemoveDialogs(RemoveDialogs.new(stream))
+				_HandleRemoveDialogs()
 			_:
 				print(name)
 
-func _HandleRemoveDialogs(p:RemoveDialogs) -> void:
+func _HandleRemoveDialogs() -> void:
 	pass
 
 func _HandleLevelUp(p:LevelUp) -> void:
