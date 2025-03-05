@@ -25,7 +25,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_3n6xq")
 }],
 "loop": true,
-"name": &"east",
+"name": &"idle_east",
 "speed": 5.0
 }, {
 "frames": [{
@@ -33,7 +33,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_vmfyk")
 }],
 "loop": true,
-"name": &"north",
+"name": &"idle_north",
 "speed": 5.0
 }, {
 "frames": [{
@@ -41,7 +41,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_skqbd")
 }],
 "loop": true,
-"name": &"south",
+"name": &"idle_south",
 "speed": 5.0
 }, {
 "frames": [{
@@ -49,6 +49,6 @@ animations = [{
 "texture": SubResource("AtlasTexture_ok52e")
 }],
 "loop": true,
-"name": &"west",
+"name": &"idle_west",
 "speed": 5.0
 }]

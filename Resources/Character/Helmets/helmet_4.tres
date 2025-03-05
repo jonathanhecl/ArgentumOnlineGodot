@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://bkkgkxbeudf04"]
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
 
-[ext_resource type="Texture2D" uid="uid://7s61aew0a3ym" path="res://Assets/Gfx/18003.png" id="1_cx1fg"]
+[ext_resource type="Texture2D" path="res://Assets/Gfx/18003.png" id="1_cx1fg"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vcv1c"]
 atlas = ExtResource("1_cx1fg")
@@ -25,7 +25,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_vcv1c")
 }],
 "loop": true,
-"name": &"east",
+"name": &"idle_east",
 "speed": 5.0
 }, {
 "frames": [{
@@ -33,7 +33,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_fu33o")
 }],
 "loop": true,
-"name": &"north",
+"name": &"idle_north",
 "speed": 5.0
 }, {
 "frames": [{
@@ -41,7 +41,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_rh1qm")
 }],
 "loop": true,
-"name": &"south",
+"name": &"idle_south",
 "speed": 5.0
 }, {
 "frames": [{
@@ -49,6 +49,6 @@ animations = [{
 "texture": SubResource("AtlasTexture_oyf0y")
 }],
 "loop": true,
-"name": &"west",
+"name": &"idle_west",
 "speed": 5.0
 }]
