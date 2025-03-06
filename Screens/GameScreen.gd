@@ -95,8 +95,13 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleRemoveDialogs()
 			Enums.ServerPacketID.UpdateSta:
 				_HandleUpdateSta(UpdateSta.new(stream))
+			Enums.ServerPacketID.ConsoleMsg:
+				_HandleConsoleMessage(ConsoleMessage.new(stream))
 			_:
 				print(name)
+
+func _HandleConsoleMessage(p:ConsoleMessage) -> void:
+	_gameInput.ShowConsoleMessage(p.message, GameAssets.FontDataList[p.fontIndex])
 
 func _HandleUpdateSta(p:UpdateSta) -> void:
 	pass
