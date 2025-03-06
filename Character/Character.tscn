@@ -4,9 +4,12 @@
 [ext_resource type="Script" uid="uid://thix1oakc52r" path="res://Character/CharacterRenderer.gd" id="2_ptld2"]
 [ext_resource type="SpriteFrames" uid="uid://750ochum2vjs" path="res://Resources/Character/none.tres" id="3_vbi5m"]
 
-[node name="Character" type="Node2D" node_paths=PackedStringArray("renderer")]
+[node name="Character" type="Node2D" node_paths=PackedStringArray("renderer", "_dialogLabel", "_nameLabel", "_dialogClearTimer")]
 script = ExtResource("1_vx5l7")
 renderer = NodePath("Renderer")
+_dialogLabel = NodePath("Dialog")
+_nameLabel = NodePath("Name")
+_dialogClearTimer = NodePath("DialogClearTimer")
 
 [node name="Renderer" type="Node2D" parent="." node_paths=PackedStringArray("_bodyAnimatedSprite", "_headAnimatedSprite", "_helmetAnimatedSprite", "_weaponAnimatedSprite", "_shieldAnimatedSprite")]
 script = ExtResource("2_ptld2")
@@ -35,3 +38,16 @@ animation = &"idle_north"
 [node name="Weapon" type="AnimatedSprite2D" parent="Renderer"]
 sprite_frames = ExtResource("3_vbi5m")
 animation = &"idle_north"
+
+[node name="Name" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Dialog" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="DialogClearTimer" type="Timer" parent="."]
+wait_time = 6.0
+
+[connection signal="timeout" from="DialogClearTimer" to="." method="_OnDialogClearTimerTimeout"]
