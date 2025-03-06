@@ -160,7 +160,7 @@ func _Bodies() -> void:
 	
 func _Weapons() -> void:
 	for i in range(1, GameAssets.WeaponAnimationList.size()):
-		if i == Global.NoAnim:
+		if i == Consts.NoAnim:
 			continue
 			
 		var data = GameAssets.WeaponAnimationList[i]
@@ -176,7 +176,7 @@ func _Weapons() -> void:
 
 func _Shields() -> void:
 	for i in range(1, GameAssets.ShieldAnimationList.size()):
-		if i == Global.NoAnim:
+		if i == Consts.NoAnim:
 			continue
 			
 		var data = GameAssets.ShieldAnimationList[i]

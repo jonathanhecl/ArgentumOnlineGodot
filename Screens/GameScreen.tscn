@@ -1,12 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=6 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameInput.gd" id="2_b7a1e"]
+[ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameWorld.gd" id="2_nvp4f"]
+[ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 
-[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput")]
+[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
 _gameInput = NodePath("GameInput")
+_gameWorld = NodePath("GameWorld")
+_camera = NodePath("GameWorld/Camera2D")
+
+[node name="GameWorld" type="Node2D" parent="." node_paths=PackedStringArray("_mapContainer")]
+script = ExtResource("2_nvp4f")
+_mapContainer = NodePath("MapContainer")
+
+[node name="Camera2D" type="Camera2D" parent="GameWorld"]
+
+[node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
 
 [node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer")]
 script = ExtResource("2_b7a1e")

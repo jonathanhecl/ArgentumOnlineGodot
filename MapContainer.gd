@@ -11,9 +11,7 @@ var _tiles:PackedByteArray
 
 func _ready() -> void:
 	_tiles.resize(100 * 100)
-	_tiles.fill(Enums.TileState.Blocked) 
-	
-	LoadMap(290)
+	_tiles.fill(Enums.TileState.Blocked)  
 	
 func LoadMap(id:int) -> void:
 	_DeleteEntities()
@@ -92,7 +90,7 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	return sprite
 
 func _GetLayer(layerName: String) -> Node2D:
-	for node in _view.get_children():
+	for node in _view.get_child(0).get_children():
 		if node.name == layerName: 
 			return node
 			

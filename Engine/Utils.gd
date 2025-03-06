@@ -46,6 +46,16 @@ static func VectorToHeading(vector:Vector2) -> int:
 		return Enums.Heading.East;
 
 	return Enums.Heading.None; 
+	
+static func GetCameraBounds(camera:Camera2D) -> Rect2:
+	return camera.get_canvas_transform().affine_inverse() * camera.get_viewport_rect()
+
+static func Sgn(x:int) -> int:
+	if x > 0:
+		return 1
+	if x < 0:
+		return -1
+	return 0
 
 static func GetUnicodeString(stream:StreamPeer) -> String:
 	var size = stream.get_16()
