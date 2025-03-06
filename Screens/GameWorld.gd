@@ -32,7 +32,7 @@ func MoveCharacter(instanceId:int, heading:int) -> void:
 	
 	var offset = Utils.HeadingToVector(heading)
 	character.renderer.heading = heading
-	character.gridPosition += offset
+	character.gridPosition += Vector2i(offset)
 	character.MoveTo(heading)
 	
 	_PlayerWalkSound(character)

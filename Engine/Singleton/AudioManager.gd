@@ -1,7 +1,7 @@
 extends Node
 
 func PlayAudio(waveId:int) -> void:
-	if ResourceLoader.exists("res://Assets/Sfx/%d.wav" % waveId):
+	if !ResourceLoader.exists("res://Assets/Sfx/%d.wav" % waveId):
 		push_error("AudioManager: Audio resource not found: %d" % waveId)
 		return
 		

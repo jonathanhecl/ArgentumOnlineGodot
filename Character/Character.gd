@@ -26,7 +26,7 @@ func MoveTo(heading:int) -> void:
 	
 	var offset = Utils.HeadingToVector(heading)
 	isMoving = true
-	_targetPosition = position + (offset * Consts.TileSize1)
+	_targetPosition = position + (offset * Consts.TileSize)
  
 func GetBoundaries() -> Rect2:
 	return Rect2(global_position.x - 16, global_position.y - 64, 32, 64)

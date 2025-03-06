@@ -9,6 +9,6 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 	if reader: Deserialize(reader)
 
 func Deserialize(reader:StreamPeerBuffer) -> void:
-	charIndex = reader.get_u8()
+	charIndex = reader.get_16()
 	x = reader.get_u8()
 	y = reader.get_u8()
