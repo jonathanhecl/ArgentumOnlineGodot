@@ -1,5 +1,8 @@
 extends Node
 class_name GameScreen
+@export var _gameInput:GameInput
+
+var _gameContext:GameContext = GameContext.new()
 
 func _ready() -> void:
 	ClientInterface.connected.connect(_OnConnected)
@@ -7,6 +10,7 @@ func _ready() -> void:
 	ClientInterface.dataReceived.connect(_OnDataReceived)
 	
 	ClientInterface.ConnectToHost("127.0.0.1", 7666)
+	_gameInput.Init(_gameContext)
 	
 func _OnConnected() -> void:
 	GameProtocol.WriteLoginExistingCharacter("shak", "123")
@@ -129,7 +133,21 @@ func _HandleChangeSpellSlot(p:ChangeSpellSlot) -> void:
 	pass
 
 func _HandleChangeInventorySlot(p:ChangeInventorySlot) -> void:
-	pass
+	var item = Item.new()
+	item.index = p.index
+	item.name = p.name
+	item.type = p.type
+	item.maxHit = p.maxHit
+	item.minHit = p.minHit
+	item.maxDef = p.maxDef
+	item.minDef = p.minDef
+	item.salePrice = p.salePrice
+	
+	if p.grhId > 0:
+		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)
+	
+	var itemStack = ItemStack.new(p.amount, p.equipped, item)
+	_gameContext.playerInventory.SetSlot(p.slot -1, itemStack)
 
 func _HandleMultiMessage(p:MultiMessage) -> void:
 	pass

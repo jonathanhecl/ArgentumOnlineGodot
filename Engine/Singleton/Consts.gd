@@ -1,9 +1,17 @@
 extends Node
 
+const MapSize = 100
 const TileSize = 32
-
 const MaxSkills = 20
+
 const NoAnim = 2
+const InfiniteLoops = -1
+
+const MaxNormalInventorySlots = 20
+const MaxInventorySlots = 30
+const MaxInventoryObjs = 10000
+const Flagoro = MaxInventorySlots + 1
+const MaxBankInventorySlots = 40
 
 const CabezaCasper = 500
 const CuerpoFragataFantasmal = 87

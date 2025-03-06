@@ -1,10 +1,28 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=4 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameInput.gd" id="2_b7a1e"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 
-[node name="GameScreen" type="Node"]
+[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput")]
 script = ExtResource("1_p7x0p")
+_gameInput = NodePath("GameInput")
 
-[node name="GameInput" type="CanvasLayer" parent="."]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer")]
 script = ExtResource("2_b7a1e")
+_inventoryContainer = NodePath("InventoryContainer")
+
+[node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
+custom_minimum_size = Vector2(200, 240)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 0.0
+offset_bottom = 100.0
+grow_horizontal = 0
+grow_vertical = 2
+columns = 5
