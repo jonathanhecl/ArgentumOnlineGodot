@@ -4,3 +4,12 @@ class_name GameContext
 var playerInventory:Inventory = Inventory.new(Consts.MaxInventorySlots)
 var merchantInventory:Inventory = Inventory.new(Consts.MaxInventorySlots)
 var bankInventory:Inventory = Inventory.new(Consts.MaxBankInventorySlots) 
+
+var traveling:bool
+var trading:bool
+var pause:bool
+var mirandoForo:bool
+var userParalizado:bool
+var userDescansar:bool
+var userMeditar:bool
+var userNavegando:bool

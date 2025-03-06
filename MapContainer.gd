@@ -3,7 +3,7 @@ class_name MapContainer
 
 const GridPositionKey = "GridPosition"
 
-@onready var _view: Node2D = $View
+var _view:Node2D
 
 var _characterCollection:Array[Character]
 var _objectCollection:Array[Node2D]
@@ -16,12 +16,12 @@ func _ready() -> void:
 func LoadMap(id:int) -> void:
 	_DeleteEntities()
 	
-	if _view.get_child_count():
-		_view.get_child(0).queue_free()
+	if _view:
+		_view.queue_free()
 		
-	var mapView = load("res://Maps/Map%d.tscn" % id).instantiate()
-	_tiles = mapView.get_meta("data")
-	_view.add_child(mapView)
+	_view = load("res://Maps/Map%d.tscn" % id).instantiate()
+	_tiles = _view.get_meta("data")
+	%MapView.add_child(_view)
 
 func GetTile(x:int, y:int) -> int:
 	return _tiles[x + y * 100]
@@ -90,7 +90,7 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	return sprite
 
 func _GetLayer(layerName: String) -> Node2D:
-	for node in _view.get_child(0).get_children():
+	for node in _view.get_children():
 		if node.name == layerName: 
 			return node
 			

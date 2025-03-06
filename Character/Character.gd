@@ -10,14 +10,22 @@ const Speed = 120.0
 
 var _pasoDerecho:bool
 var _targetPosition:Vector2
+var _charInvisible:bool
 
 var instanceId:int
 var gridPosition:Vector2i
 var isMoving:bool
+var priv:int
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
 	_ProcessMovement(delta)
+
+func GetCharacterInvisible() -> bool:
+	return _charInvisible
+	
+func SetCharacterInvisible(v:bool) -> void:
+	_charInvisible = v
 
 func MoveTo(heading:int) -> void:
 	if isMoving:

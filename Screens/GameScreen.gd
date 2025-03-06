@@ -7,6 +7,13 @@ class_name GameScreen
 var _gameContext:GameContext = GameContext.new()
 var _mainCharacterInstanceId:int = -1
 
+var _input:Dictionary[String, int] = {
+	"ui_left" = Enums.Heading.West,
+	"ui_right" = Enums.Heading.East,
+	"ui_up" = Enums.Heading.North,
+	"ui_down" = Enums.Heading.South,
+}
+ 
 func _ready() -> void:
 	ClientInterface.connected.connect(_OnConnected)
 	ClientInterface.disconnected.connect(_OnDisconnected)
@@ -16,7 +23,7 @@ func _ready() -> void:
 	_gameInput.Init(_gameContext)
 	
 func _OnConnected() -> void:
-	GameProtocol.WriteLoginExistingCharacter("shak", "123")
+	GameProtocol.WriteLoginExistingCharacter("jorge", "ea")
 	
 func _OnDisconnected() -> void:
 	pass
@@ -25,6 +32,7 @@ func _OnDataReceived(data:PackedByteArray) -> void:
 	_HandleIncomingData(data)
 
 func _process(_delta: float) -> void:
+	_CheckKeys()	
 	_UpdateCameraPosition()
 	_FlushData()
 	
@@ -33,6 +41,75 @@ func _UpdateCameraPosition() -> void:
 	if character && _camera:
 		_camera.position = character.position
 
+func _CheckKeys() -> void:
+	if _gameContext.traveling || _gameContext.mirandoForo ||\
+		_gameContext.trading  || _gameContext.pause:
+		return
+	
+	for k in _input:
+		if Input.is_action_pressed(k):
+			_MovePlayer(_input[k])
+			return
+
+func _MovePlayer(heading:int) -> void:
+	if heading == Enums.Heading.None:
+		return
+
+	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
+	if character == null || character.isMoving:
+		return
+		
+	var newGridLocation = character.gridPosition + Vector2i(Utils.HeadingToVector(heading))
+	if _CanMoveTo(newGridLocation.x, newGridLocation.y) && !_gameContext.userParalizado:
+		GameProtocol.WriteWalk(heading)
+		if !_gameContext.userDescansar && !_gameContext.userMeditar:
+			_gameWorld.MoveCharacter(_mainCharacterInstanceId, heading)
+	else:
+		if character.renderer.heading != heading:
+			GameProtocol.WriteChangeHeading(heading)
+		  
+func _CanMoveTo(x:int, y:int) -> bool:
+	var map = _gameWorld.GetMapContainer()
+	
+	#Limites del mapa
+	#If X < MinXBorder Or X > MaxXBorder Or Y < MinYBorder Or Y > MaxYBorder Then
+	#    Exit Function
+	#End If
+	
+	#Tile Bloqueado?
+	if map.GetTile(x - 1, y - 1) & Enums.TileState.Blocked:
+		return false 
+	
+	var character = map.GetCharacterAt(x, y)
+	var mainCharacter = map.GetCharacter(_mainCharacterInstanceId)
+	var playerPos = Vector2i(mainCharacter.gridPosition)
+	
+	if character:
+		if map.GetTile(playerPos.x - 1, playerPos.y - 1) & Enums.TileState.Blocked:
+			return false
+			
+		#Si no es casper, no puede pasar
+		if character.renderer.head != Consts.CabezaCasper && character.renderer.body != Consts.CuerpoFragataFantasmal:
+			return false
+		else:
+			#No puedo intercambiar con un casper que este en la orilla (Lado tierra)
+			if map.GetTile(playerPos.x - 1, playerPos.y - 1) & Enums.TileState.Water:
+				if !bool(map.GetTile(x - 1, y -1) & Enums.TileState.Water):
+					return false
+			else:
+				#No puedo intercambiar con un casper que este en la orilla (Lado agua)
+				if map.GetTile(x - 1, y -1) & Enums.TileState.Water:
+					return false
+			#Los admins no pueden intercambiar pos con caspers cuando estan invisibles
+			if mainCharacter.priv > 0 && mainCharacter.priv < 6:
+				if mainCharacter.GetCharacterInvisible():
+					return false 
+		 
+	if _gameContext.userNavegando != bool(map.GetTile(x - 1, y -1) & Enums.TileState.Water):
+		return false
+	
+	return true
+
 #region Network
 func _HandleIncomingData(data:PackedByteArray) -> void:
 	var stream = StreamPeerBuffer.new()
@@ -40,10 +117,13 @@ func _HandleIncomingData(data:PackedByteArray) -> void:
 	
 	while stream.get_position() < stream.get_size(): 
 		_HandleOnePacket(stream)
-	
+
+var pcg = []
+
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 		var packetId = stream.get_u8()
 		var name = Enums.ServerPacketID.keys()[packetId] 
+		pcg.append(name)
 		match packetId: 
 			Enums.ServerPacketID.MultiMessage:
 				_HandleMultiMessage(MultiMessage.new(stream))
@@ -57,6 +137,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleChangeMap(ChangeMap.new(stream))
 			Enums.ServerPacketID.PlayMIDI:
 				_HandlePlayMidi(PlayMidi.new(stream))
+			Enums.ServerPacketID.PlayWave:
+				_HandlePlayWave(PlayWave.new(stream))
 			Enums.ServerPacketID.AreaChanged:
 				_HandleAreaChanged(AreaChanged.new(stream))
 			Enums.ServerPacketID.ObjectCreate:
@@ -88,7 +170,7 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			Enums.ServerPacketID.LevelUp:
 				_HandleLevelUp(LevelUp.new(stream))
 			Enums.ServerPacketID.Logged:
-				pass
+				_HandleLogged(Logged.new(stream))
 			Enums.ServerPacketID.RainToggle:
 				pass
 			Enums.ServerPacketID.RemoveDialogs:
@@ -97,8 +179,39 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleUpdateSta(UpdateSta.new(stream))
 			Enums.ServerPacketID.ConsoleMsg:
 				_HandleConsoleMessage(ConsoleMessage.new(stream))
+			Enums.ServerPacketID.RemoveCharDialog:
+				_HandleRemoveCharDialog(RemoveCharDialog.new(stream))
+			Enums.ServerPacketID.CharacterRemove:
+				_HandleCharacterRemove(CharacterRemove.new(stream))
+			Enums.ServerPacketID.UpdateHP:
+				_HandleUpdateHP(UpdateHP.new(stream))
+			Enums.ServerPacketID.CharacterChange:
+				_HandleCharacterChange(CharacterChange.new(stream))
 			_:
 				print(name)
+
+func _HandleLogged(p:Logged) -> void:
+	pass
+
+func _HandleCharacterChange(p:CharacterChange) -> void:
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character == null: return
+	
+	character.renderer.body = p.body
+	character.renderer.head = p.head
+	character.renderer.helmet = p.helmet
+	character.renderer.weapon = p.weapon
+	character.renderer.shield = p.shield
+	character.renderer.heading = p.heading
+	
+func _HandleUpdateHP(p:UpdateHP) -> void:
+	pass
+
+func _HandleCharacterRemove(p:CharacterRemove) -> void:
+	_gameWorld.DeleteCharacter(p.charIndex)
+
+func _HandleRemoveCharDialog(p:RemoveCharDialog) -> void:
+	pass
 
 func _HandleConsoleMessage(p:ConsoleMessage) -> void:
 	_gameInput.ShowConsoleMessage(p.message, GameAssets.FontDataList[p.fontIndex])
@@ -173,6 +286,9 @@ func _HandleAreaChanged(_p:AreaChanged) -> void:
 
 func _HandlePlayMidi(p:PlayMidi) -> void:
 	pass
+	
+func _HandlePlayWave(p:PlayWave) -> void:
+	AudioManager.PlayAudio(p.wave)
 
 func _HandleChangeMap(p:ChangeMap) -> void:
 	_gameWorld.SwitchMap(p.mapId)

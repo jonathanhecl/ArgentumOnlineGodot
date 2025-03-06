@@ -5,4 +5,5 @@
 [node name="MapContainer" type="Node2D"]
 script = ExtResource("1_lswi7")
 
-[node name="View" type="Node2D" parent="."]
+[node name="MapView" type="Node2D" parent="."]
+unique_name_in_owner = true
