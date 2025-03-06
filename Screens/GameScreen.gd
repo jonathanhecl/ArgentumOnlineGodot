@@ -93,8 +93,13 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				pass
 			Enums.ServerPacketID.RemoveDialogs:
 				_HandleRemoveDialogs()
+			Enums.ServerPacketID.UpdateSta:
+				_HandleUpdateSta(UpdateSta.new(stream))
 			_:
 				print(name)
+
+func _HandleUpdateSta(p:UpdateSta) -> void:
+	pass
 
 func _HandleRemoveDialogs() -> void:
 	pass
