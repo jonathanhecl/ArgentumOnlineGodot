@@ -13,3 +13,4 @@ var userParalizado:bool
 var userDescansar:bool
 var userMeditar:bool
 var userNavegando:bool
+var usingSkill:int
