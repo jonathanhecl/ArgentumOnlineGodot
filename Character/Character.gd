@@ -46,6 +46,9 @@ func GetBoundaries() -> Rect2:
 		
 func SetCharacterName(text:String) -> void:
 	_nameLabel.text = text
+	
+func SetCharacterNameColor(color:Color) -> void:
+	_nameLabel.self_modulate = color
 
 func GetCharacterName() -> String:
 	return _nameLabel.text

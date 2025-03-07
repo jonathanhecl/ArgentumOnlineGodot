@@ -23,7 +23,7 @@ func _ready() -> void:
 	_gameInput.Init(_gameContext)
 	
 func _OnConnected() -> void:
-	GameProtocol.WriteLoginExistingCharacter("jorge", "ea")
+	GameProtocol.WriteLoginExistingCharacter("ZXCZXC", "123123")
 	
 func _OnDisconnected() -> void:
 	pass
@@ -191,8 +191,17 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleForceCharMove(ForceCharMove.new(stream))
 			Enums.ServerPacketID.PosUpdate:
 				_HandlePosUpdate(PosUpdate.new(stream))
+			Enums.ServerPacketID.UpdateTagAndStatus:
+				_HandleUpdateTagAndStatus(UpdateTagAndStatus.new(stream))
+				
 			_:
 				print(name)
+				
+func _HandleUpdateTagAndStatus(p:UpdateTagAndStatus) -> void:
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character:
+		character.SetCharacterName(p.userTag)
+		character.SetCharacterNameColor(Utils.GetNickColor(p.nickColor, character.priv))
 
 func _HandlePosUpdate(p:PosUpdate) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
@@ -267,6 +276,20 @@ func _HandleSetInvisible(p:SetInvisible) -> void:
 	pass
 				
 func _HandleCharacterCreate(p:CharacterCreate) -> void:
+	var privileges = p.privileges
+	if privileges != 0:
+		if (privileges & Enums.PlayerType.ChaosCouncil) != 0 && (privileges & Enums.PlayerType.User) == 0:
+			privileges  = privileges ^ Enums.PlayerType.ChaosCouncil
+		
+		if (privileges & Enums.PlayerType.RoyalCouncil) != 0 && (privileges & Enums.PlayerType.User) == 0: 
+			privileges  = privileges ^ Enums.PlayerType.RoyalCouncil
+		
+		if (privileges & Enums.PlayerType.RoleMaster) != 0:
+			privileges = Enums.PlayerType.RoleMaster
+		
+		privileges = log(privileges) / log(2)
+		
+	p.privileges = privileges 
 	_gameWorld.CreateCharacter(p)
 
 func _HandleCharacterMove(p:CharacterMove) -> void:

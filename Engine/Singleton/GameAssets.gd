@@ -29,6 +29,9 @@ func GetTexture(fileId:int) -> Texture2D:
 	_textureList.set(fileId, texture)
 
 	return texture
+	
+func GetNickColor(id:int) -> Color:
+	return ColoresPJ[id]
 
 func GetMap(fileId:int) -> MapData:
 	var mapData = MapData.new()

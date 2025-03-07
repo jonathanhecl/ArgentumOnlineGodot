@@ -14,9 +14,11 @@ func CreateCharacter(data:CharacterCreate) -> Character:
 	_mapContainer.AddCharacter(character)
 	
 	character.SetCharacterName(data.name)
+	character.SetCharacterNameColor(Utils.GetNickColor(data.nickColor, data.privileges))
 	character.instanceId = data.charIndex
 	character.position = Vector2((data.x - 1) * 32, (data.y - 1) * 32) + Vector2(16, 32);
 	character.gridPosition = Vector2(data.x, data.y)
+	character.priv = data.privileges
 	
 	character.renderer.body = data.body 
 	character.renderer.head = data.head;

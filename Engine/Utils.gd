@@ -56,6 +56,18 @@ static func Sgn(x:int) -> int:
 	if x < 0:
 		return -1
 	return 0
+	
+static func GetNickColor(nickColor:int, privileges:int) -> Color:
+	if privileges == 0:
+		if nickColor & Enums.NickColor.IeAtacable:
+			return GameAssets.GetNickColor(49)
+		else:
+			if nickColor & Enums.NickColor.IeCriminal:
+				return GameAssets.GetNickColor(50)
+			else:
+				return GameAssets.GetNickColor(49)
+	else:
+		return GameAssets.GetNickColor(privileges) 
 
 static func GetUnicodeString(stream:StreamPeer) -> String:
 	var size = stream.get_16()

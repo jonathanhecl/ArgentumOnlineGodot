@@ -158,6 +158,25 @@ enum FontTypeNames {
 	FontType_Dios
 }
 
+enum PlayerType {
+	None = 0,
+	User = 1 << 0,         # 1
+	Consejero = 1 << 1,    # 2
+	SemiDios = 1 << 2,     # 4
+	Dios = 1 << 3,         # 8
+	Admin = 1 << 4,        # 16
+	RoleMaster = 1 << 5,   # 32
+	ChaosCouncil = 1 << 6, # 64
+	RoyalCouncil = 1 << 7  # 128
+}
+
+enum NickColor {
+	None = 0,
+	IeCriminal = 1 << 0,  # 1
+	IeCiudadano = 1 << 1, # 2
+	IeAtacable = 1 << 2   # 4
+}
+
 enum ServerPacketID {
 	Logged,
 	RemoveDialogs,
