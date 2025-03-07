@@ -20,10 +20,11 @@ _mapContainer = NodePath("MapContainer")
 
 [node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_camera")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("InventoryContainer")
-_consoleRichTextLabel = NodePath("RichTextLabel")
+_consoleRichTextLabel = NodePath("Console")
+_consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("../GameWorld/Camera2D")
 
 [node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
@@ -41,8 +42,16 @@ grow_horizontal = 0
 grow_vertical = 2
 columns = 5
 
-[node name="RichTextLabel" type="RichTextLabel" parent="GameInput"]
+[node name="Console" type="RichTextLabel" parent="GameInput"]
 offset_right = 486.0
 offset_bottom = 217.0
 bbcode_enabled = true
 scroll_following = true
+
+[node name="ConsoleInput" type="LineEdit" parent="GameInput"]
+visible = false
+offset_top = 217.0
+offset_right = 486.0
+offset_bottom = 248.0
+
+[connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]

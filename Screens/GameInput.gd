@@ -3,6 +3,7 @@ class_name GameInput
 
 @export var _inventoryContainer:InventoryContainer
 @export var _consoleRichTextLabel:RichTextLabel
+@export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
 
 var _gameContext:GameContext
@@ -10,6 +11,8 @@ var _gameContext:GameContext
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_HandleMouseInput(event)
+	if event is InputEventKey:
+		_HandleKeyEvent(event)		
 
 
 func Init(gameContext:GameContext) -> void:
@@ -43,3 +46,16 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 			else:
 				GameProtocol.WriteWorkLeftClick(tilePosition.x, tilePosition.y, _gameContext.usingSkill)
 				_gameContext.usingSkill = 0
+				  
+func _HandleKeyEvent(event:InputEventKey) -> void: 
+	if event.pressed && event.keycode == KEY_ENTER:
+		_consoleInputLineEdit.show() 
+		_consoleInputLineEdit.grab_focus() 
+	
+func _OnConsoleInputTextSubmitted(newText: String) -> void:
+	if newText.is_empty():
+		return
+	
+	GameProtocol.WriteTalk(newText)
+	_consoleInputLineEdit.text = ""
+	_consoleInputLineEdit.visible = false
