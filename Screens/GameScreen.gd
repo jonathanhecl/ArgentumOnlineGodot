@@ -189,8 +189,17 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleCharacterChange(CharacterChange.new(stream))
 			Enums.ServerPacketID.ForceCharMove:
 				_HandleForceCharMove(ForceCharMove.new(stream))
+			Enums.ServerPacketID.PosUpdate:
+				_HandlePosUpdate(PosUpdate.new(stream))
 			_:
 				print(name)
+
+func _HandlePosUpdate(p:PosUpdate) -> void:
+	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
+	if character:
+		character.StopMoving()
+		character.gridPosition = Vector2i(p.x, p.y)
+		character.position = Vector2((p.x - 1) * 32, (p.y - 1) * 32) + Vector2(16, 32);
 
 func _HandleForceCharMove(p:ForceCharMove) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
