@@ -35,6 +35,11 @@ func MoveTo(heading:int) -> void:
 	var offset = Utils.HeadingToVector(heading)
 	isMoving = true
 	_targetPosition = position + (offset * Consts.TileSize)
+	
+func StopMoving() -> void:
+	if isMoving:
+		position = _targetPosition
+	isMoving = false
  
 func GetBoundaries() -> Rect2:
 	return Rect2(global_position.x - 16, global_position.y - 64, 32, 64)

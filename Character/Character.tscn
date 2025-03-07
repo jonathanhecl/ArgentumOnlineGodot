@@ -12,6 +12,8 @@ _nameLabel = NodePath("Name")
 _dialogClearTimer = NodePath("DialogClearTimer")
 
 [node name="Renderer" type="Node2D" parent="." node_paths=PackedStringArray("_bodyAnimatedSprite", "_headAnimatedSprite", "_helmetAnimatedSprite", "_weaponAnimatedSprite", "_shieldAnimatedSprite")]
+texture_filter = 1
+position = Vector2(-1, -1)
 script = ExtResource("2_ptld2")
 _verticalAlign = true
 _bodyAnimatedSprite = NodePath("Body")

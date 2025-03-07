@@ -187,8 +187,16 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandleUpdateHP(UpdateHP.new(stream))
 			Enums.ServerPacketID.CharacterChange:
 				_HandleCharacterChange(CharacterChange.new(stream))
+			Enums.ServerPacketID.ForceCharMove:
+				_HandleForceCharMove(ForceCharMove.new(stream))
 			_:
 				print(name)
+
+func _HandleForceCharMove(p:ForceCharMove) -> void:
+	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
+	if character:
+		character.StopMoving()
+		_gameWorld.MoveCharacter(_mainCharacterInstanceId, p.heading)
 
 func _HandleLogged(p:Logged) -> void:
 	pass
