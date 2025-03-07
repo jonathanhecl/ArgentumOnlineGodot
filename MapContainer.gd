@@ -25,6 +25,17 @@ func LoadMap(id:int) -> void:
 
 func GetTile(x:int, y:int) -> int:
 	return _tiles[x + y * 100]
+	
+func SetTile(x:int, y:int, state:int) -> void:
+	_tiles[x + y * 100] = state
+	
+func BlockTile(x:int, y:int) -> void:
+	var tile = GetTile(x, y) | Enums.TileState.Blocked
+	SetTile(x, y, tile) 
+		
+func UnblockTile (x:int, y:int) -> void:
+	var tile = GetTile(x, y) & ~Enums.TileState.Blocked
+	SetTile(x, y, tile) 
 
 func AddCharacter(character:Character) -> void:
 	_characterCollection.append(character)

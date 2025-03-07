@@ -319,7 +319,10 @@ func _HandleCharacterMove(p:CharacterMove) -> void:
 	_gameWorld.MoveCharacter(p.charIndex, heading)
 
 func _HandleBlockPosition(p:BlockPosition) -> void:
-	pass
+	if p.blocked:
+		_gameWorld.GetMapContainer().BlockTile(p.x -1, p.y - 1)
+	else:
+		_gameWorld.GetMapContainer().UnblockTile(p.x -1, p.y - 1)
 
 func _HandleObjectCreate(p:ObjectCreate) -> void:
 	_gameWorld.AddObject(p.grhId, p.x, p.y)
