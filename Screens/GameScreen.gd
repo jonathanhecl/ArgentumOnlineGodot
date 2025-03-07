@@ -193,9 +193,15 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 				_HandlePosUpdate(PosUpdate.new(stream))
 			Enums.ServerPacketID.UpdateTagAndStatus:
 				_HandleUpdateTagAndStatus(UpdateTagAndStatus.new(stream))
-				
+			Enums.ServerPacketID.ChatOverHead:
+				_HandleChatOverHead(ChatOverHead.new(stream))
 			_:
 				print(name)
+				
+func _HandleChatOverHead(p:ChatOverHead) -> void:
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character:
+		character.Say(p.chat, p.color)
 				
 func _HandleUpdateTagAndStatus(p:UpdateTagAndStatus) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)

@@ -20,10 +20,11 @@ _mapContainer = NodePath("MapContainer")
 
 [node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("InventoryContainer")
 _consoleRichTextLabel = NodePath("RichTextLabel")
+_camera = NodePath("../GameWorld/Camera2D")
 
 [node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(200, 240)
@@ -33,9 +34,9 @@ anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -100.0
+offset_top = -120.0
 offset_right = 0.0
-offset_bottom = 100.0
+offset_bottom = 120.0
 grow_horizontal = 0
 grow_vertical = 2
 columns = 5
