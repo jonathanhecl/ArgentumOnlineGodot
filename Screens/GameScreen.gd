@@ -243,7 +243,9 @@ func _HandleCharacterRemove(p:CharacterRemove) -> void:
 	_gameWorld.DeleteCharacter(p.charIndex)
 
 func _HandleRemoveCharDialog(p:RemoveCharDialog) -> void:
-	pass
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character:
+		character.Say("", Color.WHITE)
 
 func _HandleConsoleMessage(p:ConsoleMessage) -> void:
 	_gameInput.ShowConsoleMessage(p.message, GameAssets.FontDataList[p.fontIndex])
