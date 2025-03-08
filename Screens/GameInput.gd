@@ -1,12 +1,15 @@
 extends CanvasLayer
 class_name GameInput
 
+const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
+
 @export var _inventoryContainer:InventoryContainer
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
 
 var _gameContext:GameContext
+var _currentPanel:Node
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -28,7 +31,21 @@ func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.W
 		bbcode = "[b]%s[/b]" % bbcode;
 	
 	_consoleRichTextLabel.append_text(bbcode + "\n")
-
+	
+func OpenMerchant() -> void:
+	var merchantPanel = MerchantPanelScene.instantiate() as MerchantPanel
+	_currentPanel = merchantPanel
+	add_child(merchantPanel)
+	
+	merchantPanel.SetMerchantInventory(_gameContext.merchantInventory)
+	merchantPanel.SetPlayerInventory(_gameContext.playerInventory)
+	_gameContext.trading = true
+	
+func CloseMerchant() -> void:
+	if _currentPanel:
+		_currentPanel.queue_free()
+	
+	_gameContext.trading = false
 
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec

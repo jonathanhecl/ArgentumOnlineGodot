@@ -1,0 +1,117 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5q8b0u4jmm2b"]
+
+[ext_resource type="Script" uid="uid://de3jg50cg7tyi" path="res://MerchantPanel.gd" id="1_j83ap"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="2_cer8s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j83ap"]
+bg_color = Color(0.388235, 0.0627451, 0.0980392, 1)
+
+[node name="MerchantPanel" type="Panel" node_paths=PackedStringArray("_merchantInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_quantitySpinBox")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -305.0
+offset_top = -215.0
+offset_right = 305.0
+offset_bottom = 215.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_j83ap")
+script = ExtResource("1_j83ap")
+_merchantInventoryContainer = NodePath("HBoxContainer/ScrollContainer/MerchantInventory")
+_playerInventoryContainer = NodePath("HBoxContainer/PlayerInventory")
+_infoLabel = NodePath("Info")
+_quantitySpinBox = NodePath("Quantity")
+
+[node name="Close" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -48.0
+offset_bottom = 48.0
+grow_horizontal = 0
+text = "❌"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -209.5
+offset_top = -120.0
+offset_right = 209.5
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(215, 240)
+layout_mode = 2
+metadata/_edit_group_ = true
+
+[node name="MerchantInventory" parent="HBoxContainer/ScrollContainer" instance=ExtResource("2_cer8s")]
+layout_mode = 2
+columns = 5
+
+[node name="PlayerInventory" parent="HBoxContainer" instance=ExtResource("2_cer8s")]
+custom_minimum_size = Vector2(200, 240)
+layout_mode = 2
+columns = 5
+
+[node name="Info" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -188.0
+offset_top = 22.0
+offset_right = 188.0
+offset_bottom = 77.0
+grow_horizontal = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="Quantity" type="SpinBox" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = 128.0
+offset_right = 54.0
+offset_bottom = 159.0
+grow_horizontal = 2
+grow_vertical = 2
+min_value = 1.0
+max_value = 10000.0
+value = 1.0
+
+[node name="Buy" type="Button" parent="."]
+layout_mode = 0
+offset_left = 117.0
+offset_top = 343.0
+offset_right = 231.0
+offset_bottom = 374.0
+text = "Comprar"
+
+[node name="Sell" type="Button" parent="."]
+layout_mode = 0
+offset_left = 376.0
+offset_top = 343.0
+offset_right = 490.0
+offset_bottom = 374.0
+text = "Vender
+"
+
+[connection signal="pressed" from="Close" to="." method="_OnClosePressed"]
+[connection signal="pressed" from="Buy" to="." method="_OnBuyButtonPressed"]
+[connection signal="pressed" from="Sell" to="." method="_OnSellButtonPressed"]

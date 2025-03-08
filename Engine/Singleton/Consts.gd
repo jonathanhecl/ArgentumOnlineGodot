@@ -9,6 +9,7 @@ const InfiniteLoops = -1
 
 const MaxNormalInventorySlots = 20
 const MaxInventorySlots = 30
+const MaxNpcInventorySlots = 50
 const MaxInventoryObjs = 10000
 const Flagoro = MaxInventorySlots + 1
 const MaxBankInventorySlots = 40
