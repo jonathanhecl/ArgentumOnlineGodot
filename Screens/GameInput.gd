@@ -22,6 +22,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
 	_inventoryContainer.SetInventory(_gameContext.playerInventory)
+	_inventoryContainer.slotPressed.connect(func(_v): 
+		_UseObject())
 
 func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.WHITE)) -> void:
 	var bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), message]
@@ -87,6 +89,17 @@ func _HandleKeyEvent(event:InputEventKey) -> void:
 	if event.pressed && event.keycode == KEY_ENTER:
 		_consoleInputLineEdit.show() 
 		_consoleInputLineEdit.grab_focus() 
+		
+	if event.is_action_pressed("EquipObject"):
+		_EquipObject()
+	if event.is_action_pressed("UseObject"):
+		_UseObject()
+	if event.is_action_pressed("Pickup"):
+		_PickupObject()
+	if event.is_action_pressed("Attack"):
+		_Attack()
+	if event.is_action_pressed("Hide"):
+		_Hide()
 	
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
@@ -95,3 +108,23 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
+
+func _EquipObject() -> void:
+	var slot = _inventoryContainer.GetSelectedSlot()
+	if slot == -1 || _gameContext.trading: return
+
+	GameProtocol.WriteEquipItem(slot + 1)
+
+func _UseObject() -> void:
+	var slot = _inventoryContainer.GetSelectedSlot() 
+	if slot == -1 || _gameContext.trading || _gameContext.pause: return
+	GameProtocol.WriteUseItem(slot + 1)
+	
+func _PickupObject() -> void:
+	GameProtocol.WritePickup()
+
+func _Attack() -> void:
+	GameProtocol.WriteAttack()
+
+func _Hide() -> void:
+	GameProtocol.WriteWork(Enums.Skill.Ocultarse)

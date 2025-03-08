@@ -215,8 +215,18 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleUpdateBankGold(UpdateBankGold.new(stream))
 		Enums.ServerPacketID.UpdateGold:
 			_HandleUpdateGold(UpdateGold.new(stream))
+		Enums.ServerPacketID.UpdateStrenght:
+			_HandleUpdateStrenght(UpdateStrenght.new(stream))
+		Enums.ServerPacketID.UpdateDexterity:
+			_HandleUpdateDexterity(UpdateDexterity.new(stream))
 		_:
 			print(name)
+
+func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
+	pass
+	
+func _HandleUpdateStrenght(p:UpdateStrenght) -> void:
+	pass
 
 func _HandleUpdateGold(p:UpdateGold) -> void:
 	pass
