@@ -13,6 +13,7 @@ const MaxNpcInventorySlots = 50
 const MaxInventoryObjs = 10000
 const Flagoro = MaxInventorySlots + 1
 const MaxBankInventorySlots = 40
+const MaxUserHechizos = 35
 
 const CabezaCasper = 500
 const CuerpoFragataFantasmal = 87

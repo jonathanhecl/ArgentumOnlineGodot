@@ -5,6 +5,7 @@ const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
 
 @export var _inventoryContainer:InventoryContainer
+@export var _spellList:SpellList
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
@@ -67,6 +68,9 @@ func CloseBank() -> void:
 func SetBankGold(gold:int) -> void:
 	if _currentPanel && _currentPanel is BankPanel:
 		_currentPanel.SetBankGold(gold)
+		
+func SetSpellName(index:int, text:String) -> void:
+	_spellList.SetSlotText(index, text)
 		
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec

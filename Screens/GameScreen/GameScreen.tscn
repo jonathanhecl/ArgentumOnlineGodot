@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=7 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
 [ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameScreen/GameWorld.gd" id="2_nvp4f"]
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
+[ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
 
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
@@ -20,9 +21,10 @@ _mapContainer = NodePath("MapContainer")
 
 [node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("InventoryContainer")
+_spellList = NodePath("SpellList")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("../GameWorld/Camera2D")
@@ -34,10 +36,10 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -120.0
-offset_right = 0.0
-offset_bottom = 120.0
+offset_left = -203.0
+offset_top = -259.0
+offset_right = -3.0
+offset_bottom = -19.0
 grow_horizontal = 0
 grow_vertical = 2
 columns = 5
@@ -53,6 +55,19 @@ visible = false
 offset_top = 217.0
 offset_right = 486.0
 offset_bottom = 248.0
+
+[node name="SpellList" parent="GameInput" instance=ExtResource("6_f6bd2")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -242.0
+offset_top = -282.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 0
 
 [node name="Timers" type="Node" parent="."]
 

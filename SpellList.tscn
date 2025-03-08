@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvubk20lc20ic"]
+
+[ext_resource type="Script" uid="uid://2pvvl48p27tx" path="res://SpellList.gd" id="1_aotid"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_10t2q"]
+bg_color = Color(0, 0, 0, 1)
+
+[node name="SpellList" type="Panel" node_paths=PackedStringArray("_itemList")]
+offset_right = 242.0
+offset_bottom = 282.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_10t2q")
+script = ExtResource("1_aotid")
+_itemList = NodePath("ItemList")
+
+[node name="ItemList" type="ItemList" parent="."]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 11.0
+offset_right = 194.0
+offset_bottom = 230.0
+focus_mode = 0
+
+[node name="Cast" type="Button" parent="."]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 240.0
+offset_right = 139.0
+offset_bottom = 271.0
+focus_mode = 0
+text = "Lanzar"
+
+[node name="Info" type="Button" parent="."]
+layout_mode = 0
+offset_left = 145.0
+offset_top = 240.0
+offset_right = 193.0
+offset_bottom = 271.0
+focus_mode = 0
+text = "Info"
+
+[node name="Up" type="Button" parent="."]
+layout_mode = 0
+offset_left = 204.0
+offset_top = 15.0
+offset_right = 227.0
+offset_bottom = 46.0
+focus_mode = 0
+text = "🢁"
+
+[node name="Down" type="Button" parent="."]
+layout_mode = 0
+offset_left = 204.0
+offset_top = 58.0
+offset_right = 227.0
+offset_bottom = 89.0
+focus_mode = 0
+text = "🢃"
+
+[connection signal="pressed" from="Cast" to="." method="_OnCastPressed"]
+[connection signal="pressed" from="Info" to="." method="_OnInfoPressed"]
+[connection signal="pressed" from="Up" to="." method="_OnMoveUpPressed"]
+[connection signal="pressed" from="Down" to="." method="_OnMoveDownPressed"]

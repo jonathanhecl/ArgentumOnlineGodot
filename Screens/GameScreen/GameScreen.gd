@@ -434,7 +434,7 @@ func _HandleChangeMap(p:ChangeMap) -> void:
 	_gameWorld.SwitchMap(p.mapId)
 		
 func _HandleChangeSpellSlot(p:ChangeSpellSlot) -> void:
-	pass
+	_gameInput.SetSpellName(p.slot -1, p.name)
 
 func _HandleChangeInventorySlot(p:ChangeInventorySlot) -> void:
 	var item = Item.new()

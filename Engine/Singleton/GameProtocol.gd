@@ -110,3 +110,16 @@ static func WriteTalk(text:String) -> void:
 
 static func WritePing() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Ping) 
+
+static func WriteSpellInfo(slot:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.SpellInfo) 
+	_writer.put_u8(slot) 
+
+static func WriteCastSpell(slot:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.CastSpell) 
+	_writer.put_u8(slot) 
+	
+static func WriteMoveSpell(upwards:bool, slot:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.MoveSpell) 
+	_writer.put_u8(upwards) 
+	_writer.put_u8(slot) 
