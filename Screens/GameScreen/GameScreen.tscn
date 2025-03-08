@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://b2dyxo3826bub"]
 
-[ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen.gd" id="1_p7x0p"]
-[ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameInput.gd" id="2_b7a1e"]
-[ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameWorld.gd" id="2_nvp4f"]
+[ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
+[ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
+[ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameScreen/GameWorld.gd" id="2_nvp4f"]
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 
