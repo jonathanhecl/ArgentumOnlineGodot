@@ -203,14 +203,56 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleCommerceEnd()
 		Enums.ServerPacketID.TradeOK:
 			pass
+		Enums.ServerPacketID.BankOK:
+			pass
+		Enums.ServerPacketID.ChangeBankSlot:
+			_HandleChangeBankSlot(ChangeBankSlot.new(stream))
+		Enums.ServerPacketID.BankInit:
+			_HandleBankInit(BankInit.new(stream))
+		Enums.ServerPacketID.BankEnd:
+			_HandleBankEnd()
+		Enums.ServerPacketID.UpdateBankGold:
+			_HandleUpdateBankGold(UpdateBankGold.new(stream))
+		Enums.ServerPacketID.UpdateGold:
+			_HandleUpdateGold(UpdateGold.new(stream))
 		_:
 			print(name)
+
+func _HandleUpdateGold(p:UpdateGold) -> void:
+	pass
+
+func _HandleUpdateBankGold(p:UpdateBankGold) -> void:
+	_gameInput.SetBankGold(p.gold)
+
+func _HandleChangeBankSlot(p:ChangeBankSlot) -> void:
+	var item = Item.new()
+	item.index = p.index
+	item.name = p.name
+	item.type = p.type
+	item.maxHit = p.maxHit
+	item.minHit = p.minHit
+	item.maxDef = p.maxDef
+	item.minDef = p.minDef
+	item.salePrice = p.salePrice
+	
+	if p.grhId > 0:
+		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)
+	
+	var itemStack = ItemStack.new(p.amount, false, item)
+	_gameContext.bankInventory.SetSlot(p.slot -1, itemStack)
 
 func _HandleCommerceInit() -> void:
 	_gameInput.OpenMerchant()
 	
 func _HandleCommerceEnd() -> void:
 	_gameInput.CloseMerchant()
+	
+func _HandleBankInit(p:BankInit) -> void:
+	_gameInput.OpenBank()
+	_gameInput.SetBankGold(p.gold)
+
+func _HandleBankEnd() -> void:
+	_gameInput.CloseBank()
 
 func _HandleChangeNPCInventorySlot(p:ChangeNPCInventorySlot) -> void:
 	var item = Item.new()

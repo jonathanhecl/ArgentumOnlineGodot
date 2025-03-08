@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name GameInput
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
+const BankPanelScene = preload("uid://c4skiho4j6vjn")
 
 @export var _inventoryContainer:InventoryContainer
 @export var _consoleRichTextLabel:RichTextLabel
@@ -46,7 +47,25 @@ func CloseMerchant() -> void:
 		_currentPanel.queue_free()
 	
 	_gameContext.trading = false
+	
+func OpenBank() -> void:
+	var bankPanel = BankPanelScene.instantiate() as BankPanel
+	_currentPanel = bankPanel
+	add_child(bankPanel)
+	
+	bankPanel.SetBankInventory(_gameContext.bankInventory)
+	bankPanel.SetPlayerInventory(_gameContext.playerInventory)
+	_gameContext.trading = true
 
+func CloseBank() -> void:
+	if _currentPanel:
+		_currentPanel.queue_free()
+	_gameContext.trading = false
+	
+func SetBankGold(gold:int) -> void:
+	if _currentPanel && _currentPanel is BankPanel:
+		_currentPanel.SetBankGold(gold)
+		
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec
 

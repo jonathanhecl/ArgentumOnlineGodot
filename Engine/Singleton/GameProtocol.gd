@@ -79,6 +79,14 @@ static func WriteBankDepositItem(slot:int, quantity:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.BankDeposit) 
 	_writer.put_u8(slot)
 	_writer.put_16(quantity) 
+	
+static func WriteBankDepositGold(quantity:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.BankDepositGold) 
+	_writer.put_32(quantity)
+	
+static func WriteBankExtractGold(quantity:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.BankExtractGold) 
+	_writer.put_32(quantity)
 
 static func WriteAttack() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Attack) 

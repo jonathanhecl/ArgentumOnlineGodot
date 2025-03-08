@@ -1,0 +1,170 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4skiho4j6vjn"]
+
+[ext_resource type="Script" uid="uid://cfiou2t86w2ko" path="res://BankPanel.gd" id="1_x0502"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="2_udis2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j83ap"]
+bg_color = Color(0.388235, 0.0627451, 0.0980392, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_x0502"]
+font_size = 14
+
+[node name="BankPanel" type="Panel" node_paths=PackedStringArray("_bankInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_quantitySpinBox", "_goldLabel", "_quantityGoldSpinBox")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -305.0
+offset_top = -215.0
+offset_right = 305.0
+offset_bottom = 215.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_j83ap")
+script = ExtResource("1_x0502")
+_bankInventoryContainer = NodePath("HBoxContainer/ScrollContainer/BankInventory")
+_playerInventoryContainer = NodePath("HBoxContainer/PlayerInventory")
+_infoLabel = NodePath("Info")
+_quantitySpinBox = NodePath("Quantity")
+_goldLabel = NodePath("Gold")
+_quantityGoldSpinBox = NodePath("QuantityGold")
+
+[node name="Close" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -48.0
+offset_bottom = 48.0
+grow_horizontal = 0
+text = "❌"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -209.5
+offset_top = -120.0
+offset_right = 209.5
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(215, 240)
+layout_mode = 2
+metadata/_edit_group_ = true
+
+[node name="BankInventory" parent="HBoxContainer/ScrollContainer" instance=ExtResource("2_udis2")]
+layout_mode = 2
+columns = 5
+
+[node name="PlayerInventory" parent="HBoxContainer" instance=ExtResource("2_udis2")]
+custom_minimum_size = Vector2(200, 240)
+layout_mode = 2
+columns = 5
+
+[node name="Info" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -188.0
+offset_top = 22.0
+offset_right = 188.0
+offset_bottom = 77.0
+grow_horizontal = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="Quantity" type="SpinBox" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.0
+offset_top = 128.0
+offset_right = 54.0
+offset_bottom = 159.0
+grow_horizontal = 2
+grow_vertical = 2
+min_value = 1.0
+max_value = 10000.0
+value = 1.0
+rounded = true
+
+[node name="QuantityGold" type="SpinBox" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -21.0
+offset_top = 180.0
+offset_right = 103.0
+offset_bottom = 211.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 1e+07
+rounded = true
+
+[node name="Extract" type="Button" parent="."]
+layout_mode = 0
+offset_left = 117.0
+offset_top = 343.0
+offset_right = 231.0
+offset_bottom = 374.0
+text = "Extraer"
+
+[node name="Deposit" type="Button" parent="."]
+layout_mode = 0
+offset_left = 376.0
+offset_top = 343.0
+offset_right = 490.0
+offset_bottom = 374.0
+text = "Depositar"
+
+[node name="ExtractGold" type="Button" parent="."]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 395.0
+offset_right = 264.0
+offset_bottom = 426.0
+text = "Retirar Oro"
+
+[node name="DepositGold" type="Button" parent="."]
+layout_mode = 0
+offset_left = 422.0
+offset_top = 395.0
+offset_right = 539.0
+offset_bottom = 426.0
+text = "Depositar Oro"
+
+[node name="Gold" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -35.0
+offset_right = 150.0
+grow_vertical = 0
+text = "🏦: 0"
+label_settings = SubResource("LabelSettings_x0502")
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[connection signal="pressed" from="Close" to="." method="_OnClosePressed"]
+[connection signal="pressed" from="Extract" to="." method="_OnExtractButtonPressed"]
+[connection signal="pressed" from="Deposit" to="." method="_OnDepositButtonPressed"]
+[connection signal="pressed" from="ExtractGold" to="." method="_OnExtractGoldButtonPressed"]
+[connection signal="pressed" from="DepositGold" to="." method="_OnDepositGoldButtonPressed"]
