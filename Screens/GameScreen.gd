@@ -23,7 +23,7 @@ func _ready() -> void:
 	_gameInput.Init(_gameContext)
 	
 func _OnConnected() -> void:
-	GameProtocol.WriteLoginExistingCharacter("ZXCZXC", "123123")
+	GameProtocol.WriteLoginExistingCharacter("motorola", "123123")
 	
 func _OnDisconnected() -> void:
 	pass
@@ -219,8 +219,14 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleUpdateStrenght(UpdateStrenght.new(stream))
 		Enums.ServerPacketID.UpdateDexterity:
 			_HandleUpdateDexterity(UpdateDexterity.new(stream))
+		Enums.ServerPacketID.Pong:
+			_HandlePong()
 		_:
 			print(name)
+
+func _HandlePong() -> void:
+	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
+	_gameContext.pingTime = 0
 
 func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
 	pass
@@ -454,3 +460,10 @@ func _FlushData() -> void:
 	var data = GameProtocol.Flush()
 	ClientInterface.Send(data)
 #endregion
+
+
+func _OnPingTimerTimeout() -> void:
+	if _gameContext.pingTime != 0: return
+	GameProtocol.WritePing()
+	_FlushData()
+	_gameContext.pingTime = Time.get_ticks_msec()

@@ -54,4 +54,11 @@ offset_top = 217.0
 offset_right = 486.0
 offset_bottom = 248.0
 
+[node name="Timers" type="Node" parent="."]
+
+[node name="PingTimer" type="Timer" parent="Timers"]
+wait_time = 5.0
+autostart = true
+
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
+[connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]

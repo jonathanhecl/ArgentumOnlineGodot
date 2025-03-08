@@ -14,3 +14,5 @@ var userDescansar:bool
 var userMeditar:bool
 var userNavegando:bool
 var usingSkill:int
+
+var pingTime:int

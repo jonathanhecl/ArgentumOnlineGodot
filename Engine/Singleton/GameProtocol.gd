@@ -107,3 +107,6 @@ static func WriteWork(skill:int) -> void:
 static func WriteTalk(text:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.Talk) 
 	Utils.PutUnicodeString(_writer, text)
+
+static func WritePing() -> void:
+	_writer.put_u8(Enums.ClientPacketID.Ping) 
