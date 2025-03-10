@@ -221,8 +221,13 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleUpdateDexterity(UpdateDexterity.new(stream))
 		Enums.ServerPacketID.Pong:
 			_HandlePong()
+		Enums.ServerPacketID.ShowMessageBox:
+			_HandleShowMessageBox(ShowMessageBox.new(stream))
 		_:
 			print(name)
+			
+func _HandleShowMessageBox(p:ShowMessageBox) -> void:
+	Utils.ShowAlertDialog("Server", p.message, get_parent())
 
 func _HandlePong() -> void:
 	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
