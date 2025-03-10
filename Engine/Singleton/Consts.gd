@@ -29,6 +29,13 @@ const bBrazoDerecho = 4
 const bBrazoIzquierdo = 5
 const bTorso = 6
 
+const NumSkills = 20
+const NumAtributos = 5
+const NumClases = 12
+const NumRazas = 5
+const NumCiudades = 6
+const MaxSkillpoints = 100
+
 const MessageUserHittedByUser:Dictionary[int, String] =  {
 	bCabeza : "!!{0} te ha pegado en la cabeza por {1}!!",
 	bPiernaIzquierda :  "!!{0} te ha pegado el brazo izquierdo por {1}!!",
@@ -71,3 +78,35 @@ const ShipIds:Array[int] = [
 	# Embarcaciones caos
 	551, 559, 555
 ]
+
+const RaceNames:Dictionary[int, String] = {
+	Enums.Race.Human: "Humano",
+	Enums.Race.Elf: "Elfo",
+	Enums.Race.Drow: "Drow",
+	Enums.Race.Gnome: "Gnomo",
+	Enums.Race.Dwarf: "Enano"
+}
+
+const ClassNames:Dictionary[int, String] = {
+	Enums.Class.Mage: "Mago",
+	Enums.Class.Cleric: "Clérigo",
+	Enums.Class.Warrior: "Guerrero",
+	Enums.Class.Assassin: "Asesino",
+	Enums.Class.Thief: "Ladrón",
+	Enums.Class.Bard: "Bardo",
+	Enums.Class.Druid: "Druida",
+	Enums.Class.Bandit: "Bandido",
+	Enums.Class.Paladin: "Paladín",
+	Enums.Class.Hunter: "Cazador",
+	Enums.Class.Worker: "Trabajador",
+	Enums.Class.Pirat: "Pirata"
+}
+
+const HomeNames:Dictionary[int, String] = {
+	Enums.Home.Arghal: "Arghal",
+	Enums.Home.Arkhein: "Arkhein",
+	Enums.Home.Lindos: "Lindos",
+	Enums.Home.Ullathorpe: "Ullathorpe",
+	Enums.Home.Banderbill: "Banderbill",
+	Enums.Home.Nix: "Nix"
+}

@@ -26,6 +26,17 @@ enum Race{
 	Dwarf
 }
 
+enum Home{
+	None = 0,
+	Ullathorpe = 1,
+	Nix,
+	Banderbill,
+	Lindos,
+	Arghal,
+	Arkhein,
+	LastCity
+};
+
 enum TileState {
 	None = 0,
 	Blocked = 1 << 0, 
