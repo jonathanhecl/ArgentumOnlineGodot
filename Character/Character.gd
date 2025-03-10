@@ -26,6 +26,8 @@ func GetCharacterInvisible() -> bool:
 	
 func SetCharacterInvisible(v:bool) -> void:
 	_charInvisible = v
+	renderer.visible = v
+	_nameLabel.visible = v
 
 func MoveTo(heading:int) -> void:
 	if isMoving:

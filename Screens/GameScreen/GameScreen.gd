@@ -370,7 +370,9 @@ func _HandleCreateFx(p:CreateFx) -> void:
 	pass
 
 func _HandleSetInvisible(p:SetInvisible) -> void:
-	pass
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character:
+		character.SetCharacterInvisible(!p.invisible)
 				
 func _HandleCharacterCreate(p:CharacterCreate) -> void:
 	var privileges = p.privileges
