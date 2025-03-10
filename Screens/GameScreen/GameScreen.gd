@@ -454,8 +454,87 @@ func _HandleChangeInventorySlot(p:ChangeInventorySlot) -> void:
 	_gameContext.playerInventory.SetSlot(p.slot -1, itemStack)
 
 func _HandleMultiMessage(p:MultiMessage) -> void:
-	pass
-
+	match p.index:
+		Enums.Messages.SafeModeOn:
+			_gameInput.ShowConsoleMessage(">>SEGURO ACTIVADO<<", FontData.new(Color.GREEN, true))
+		Enums.Messages.SafeModeOff:
+			_gameInput.ShowConsoleMessage(">>SEGURO DESACTIVADO<<", FontData.new(Color.RED, true))
+		Enums.Messages.ResuscitationSafeOn:
+			_gameInput.ShowConsoleMessage("SEGURO DE RESURRECCION ACTIVADO", FontData.new(Color.GREEN, true))
+		Enums.Messages.ResuscitationSafeOff:
+			_gameInput.ShowConsoleMessage("SEGURO DE RESURRECCION DESACTIVADO", FontData.new(Color.RED, true))
+		Enums.Messages.DontSeeAnything:
+			_gameInput.ShowConsoleMessage("No ves nada interesante.", FontData.new(Color.from_rgba8(65, 190, 156)))
+		Enums.Messages.NPCSwing:
+			_gameInput.ShowConsoleMessage("¡¡¡La criatura falló el golpe!!!", FontData.new(Color.RED, true))
+		Enums.Messages.NPCKillUser:
+			_gameInput.ShowConsoleMessage("¡¡¡La criatura te ha matado!!!", FontData.new(Color.RED, true))
+		Enums.Messages.BlockedWithShieldUser:
+			_gameInput.ShowConsoleMessage("¡¡¡Has rechazado el ataque con el escudo!!!", FontData.new(Color.RED, true))
+		Enums.Messages.BlockedWithShieldother:
+			_gameInput.ShowConsoleMessage("¡¡¡El usuario rechazó el ataque con su escudo!!!", FontData.new(Color.RED, true))
+		Enums.Messages.UserSwing:
+			_gameInput.ShowConsoleMessage("¡¡¡Has fallado el golpe!!!", FontData.new(Color.RED, true))
+		Enums.Messages.NobilityLost:
+			_gameInput.ShowConsoleMessage("¡Has perdido nobleza y ganado criminalidad! Sigue así y las tropas te perseguirán.", FontData.new(Color.RED))
+		Enums.Messages.CantUseWhileMeditating:
+			_gameInput.ShowConsoleMessage("¡Estás meditando! Debes dejar de meditar para usar objetos.", FontData.new(Color.RED))
+		Enums.Messages.NPCHitUser:
+			match p.arg1:
+				Consts.bCabeza:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado en la cabeza por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+				Consts.bBrazoIzquierdo:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado el brazo izquierdo por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+				Consts.bBrazoDerecho:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado el brazo derecho por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+				Consts.bPiernaIzquierda:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado la pierna izquierda por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+				Consts.bPiernaDerecha:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado la pierna derecha por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+				Consts.bTorso:
+					_gameInput.ShowConsoleMessage("¡¡La criatura te ha pegado en el torso por " + str(p.arg2) + "!!", FontData.new(Color.RED, true))
+		Enums.Messages.UserHitNPC:
+			_gameInput.ShowConsoleMessage("¡¡Le has pegado a la criatura por " + str(p.arg1) + "!!", FontData.new(Color.RED, true))
+		Enums.Messages.UserAttackedSwing:
+			_gameInput.ShowConsoleMessage("¡¡ " + _gameWorld.GetCharacter(p.arg1).GetCharacterName() + " te atacó y falló!!", FontData.new(Color.RED, true))
+		Enums.Messages.UserHittedByUser:
+			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName() 
+			_gameInput.ShowConsoleMessage(Consts.MessageUserHittedByUser[p.arg2].format([charName, p.arg3]), FontData.new(Color.RED)) 
+		Enums.Messages.UserHittedUser:
+			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName()
+			_gameInput.ShowConsoleMessage(Consts.MessageUserHittedUser[p.arg2].format([charName, p.arg3]), FontData.new(Color.RED)) 
+		Enums.Messages.WorkRequestTarget:
+			_gameContext.usingSkill = p.arg1
+			_gameInput.ShowConsoleMessage(Consts.MessageWorkRequestTarget[p.arg1], FontData.new(Color.from_rgba8(100, 100, 120))) 
+		Enums.Messages.HaveKilledUser:
+			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName()
+			_gameInput.ShowConsoleMessage("Has matado a {0}!".format([charName]), FontData.new(Color.RED, true)) 
+			_gameInput.ShowConsoleMessage("Has ganado {0} puntos de experiencia.".format([p.arg2]), FontData.new(Color.RED, true)) 
+		Enums.Messages.UserKill:
+			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName()
+			_gameInput.ShowConsoleMessage("{0} te ha matado!".format([charName]), FontData.new(Color.RED, true)) 
+		Enums.Messages.Home:
+			var distance = p.arg1
+			var time = p.arg2
+			var home = p.string_arg1
+			var message = ""
+			
+			if time >= 60:
+				if time % 60 == 0:
+					message = "{0} minutos.".format([time / 60])
+				else:
+					message = "{0} minutos y {1} segundos.".format([int(time / 60), time % 60]) 
+			else:
+				message = "{0} segundos.".format([time])
+			_gameInput.ShowConsoleMessage("Te encuentras a {0} mapas de la {1}, este viaje durará {2}".format([distance, home, message]), FontData.new(Color.RED, true)) 
+			_gameContext.traveling = true
+		Enums.Messages.FinishHome:
+			_gameInput.ShowConsoleMessage("Has llegado a tu hogar. El viaje ha finalizado.", FontData.new(Color.WHITE)) 
+			_gameContext.traveling = false
+		Enums.Messages.CancelHome:
+			_gameInput.ShowConsoleMessage("Tu viaje ha sido cancelado.", FontData.new(Color.RED)) 
+			_gameContext.traveling = false
+	
 func _FlushData() -> void:
 	var data = GameProtocol.Flush()
 	ClientInterface.Send(data)
