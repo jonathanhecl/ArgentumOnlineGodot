@@ -100,6 +100,27 @@ static func PutUnicodeString(stream:StreamPeer, text:String) -> void:
 	stream.put_16(data.size())
 	stream.put_data(data)
 
+static func IsEmailValid(email:String) -> bool:
+	var regex = RegEx.new();
+	regex.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+
+	return regex.search(email) != null
+
+static func LegalCharacter(str:String) -> bool:
+	var code = str.unicode_at(0)
+	if code == 8:
+		return true
+		
+	if code < 32 || code == 44:
+		return false
+	
+	if code > 126:
+		return false
+		
+	if code in [34, 42, 47, 58, 60, 62, 63, 92, 124]:
+		return false 
+	return true
+	
 static func ShowAlertDialog(title:String, message:String, parent:Node) -> AcceptDialog:
 	var dialog = AcceptDialog.new()
 	parent.add_child(dialog)

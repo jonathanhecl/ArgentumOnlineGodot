@@ -19,6 +19,21 @@ static func WriteLoginExistingCharacter(username:String, password:String) -> voi
 	_writer.put_u8(13)
 	_writer.put_u8(0)
 	
+static func WriteLoginNewChar(username:String, password:String, email:String, job:int, race:int, gender:int, home:int, head:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.LoginNewChar)
+	Utils.PutUnicodeString(_writer, username)
+	Utils.PutUnicodeString(_writer, password)
+	_writer.put_u8(0)
+	_writer.put_u8(13)
+	_writer.put_u8(0)
+	
+	_writer.put_u8(race)
+	_writer.put_u8(gender)
+	_writer.put_u8(job)
+	_writer.put_16(head)
+	Utils.PutUnicodeString(_writer, email)
+	_writer.put_u8(home)
+	
 static func WriteThrowDice() -> void:
 	_writer.put_u8(Enums.ClientPacketID.ThrowDices)
 	

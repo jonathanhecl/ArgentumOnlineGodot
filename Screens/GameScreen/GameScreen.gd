@@ -6,6 +6,7 @@ class_name GameScreen
 
 var _gameContext:GameContext = GameContext.new()
 var _mainCharacterInstanceId:int = -1
+var networkMessages:Array[PackedByteArray]
 
 var _input:Dictionary[String, int] = {
 	"ui_left" = Enums.Heading.West,
@@ -14,24 +15,20 @@ var _input:Dictionary[String, int] = {
 	"ui_down" = Enums.Heading.South,
 }
  
-func _ready() -> void:
-	ClientInterface.connected.connect(_OnConnected)
+func _ready() -> void: 
 	ClientInterface.disconnected.connect(_OnDisconnected)
-	ClientInterface.dataReceived.connect(_OnDataReceived)
+	ClientInterface.dataReceived.connect(_OnDataReceived) 
 	
-	ClientInterface.ConnectToHost("127.0.0.1", 7666)
 	_gameInput.Init(_gameContext)
-	
-func _OnConnected() -> void:
-	GameProtocol.WriteLoginExistingCharacter("motorola", "123123")
-	
+	 
 func _OnDisconnected() -> void:
 	pass
 	
 func _OnDataReceived(data:PackedByteArray) -> void:
-	_HandleIncomingData(data)
+	networkMessages.append(data)
 
 func _process(_delta: float) -> void:
+	_ProccessMessages()
 	_CheckKeys()
 	_UpdateCameraPosition()
 	_FlushData()
@@ -111,6 +108,11 @@ func _CanMoveTo(x:int, y:int) -> bool:
 	return true
 
 #region Network
+func _ProccessMessages() -> void:
+	while !networkMessages.is_empty():
+		var data = networkMessages.pop_front()
+		_HandleIncomingData(data)
+
 func _HandleIncomingData(data:PackedByteArray) -> void:
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = data
