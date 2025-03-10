@@ -99,3 +99,16 @@ static func PutUnicodeString(stream:StreamPeer, text:String) -> void:
 	var data = Utf8ToLatin1(text)
 	stream.put_16(data.size())
 	stream.put_data(data)
+
+static func ShowAlertDialog(title:String, message:String, parent:Node) -> AcceptDialog:
+	var dialog = AcceptDialog.new()
+	parent.add_child(dialog)
+	
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.confirmed.connect(dialog.queue_free)
+	dialog.dialog_hide_on_ok = false;
+	dialog.title = title;
+	dialog.dialog_text = message;
+	dialog.popup_centered();
+	
+	return dialog
