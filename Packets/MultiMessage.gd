@@ -14,25 +14,32 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	index = reader.get_u8()
 	
 	match index:
-		12:
+		Enums.Messages.NPCHitUser:
 			arg1 = reader.get_u8()
 			arg2 = reader.get_16()
-		13:
+			
+		Enums.Messages.UserHitNPC:
 			arg1 = reader.get_32()
-		14:
+			
+		Enums.Messages.UserAttackedSwing:
 			arg1 = reader.get_16()
-		15, 16:
+			
+		Enums.Messages.UserHittedByUser, Enums.Messages.UserHittedUser:
 			arg1 = reader.get_16()
 			arg2 = reader.get_u8()
 			arg3 = reader.get_16()
-		17:
-			arg1 = reader.get_16()
-		18:
+			
+		Enums.Messages.WorkRequestTarget:
+			arg1 = reader.get_u8()
+			
+		Enums.Messages.HaveKilledUser:
 			arg1 = reader.get_16()
 			arg2 = reader.get_32()
-		19:
+			
+		Enums.Messages.UserKill:
 			arg1 = reader.get_16()
-		21:
+			
+		Enums.Messages.Home:
 			arg1 = reader.get_u8()
 			arg2 = reader.get_16()
-			string_arg1 = reader.get_utf8_string()
+			string_arg1 = Utils.GetUnicodeString(reader)
