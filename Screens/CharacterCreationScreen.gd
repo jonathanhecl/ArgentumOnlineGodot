@@ -15,9 +15,7 @@ extends Node
 
 func _ready() -> void:
 	ClientInterface.disconnected.connect(_OnDisconnected)
-	ClientInterface.dataReceived.connect(_OnDataReceivedd)
-	ClientInterface.connected.connect(_OnConnected)
-	ClientInterface.ConnectToHost("127.0.0.1", 7666)
+	ClientInterface.dataReceived.connect(_OnDataReceivedd) 
 	
 	_Init()
 
@@ -30,12 +28,12 @@ func _Init() -> void:
 		
 	for i in range(1, Consts.NumCiudades):
 		_homeOptionButton.add_item(Consts.HomeNames[i])
-
-func _OnConnected() -> void:
+		
 	_ThrowDice()
-
+  
 func _OnDisconnected() -> void:
-	pass
+	var screen = load("uid://cd452cndcck7v").instantiate()  
+	ScreenController.SwitchScreen(screen) 
 
 func _OnDataReceivedd(data:PackedByteArray) -> void:
 	var stream = StreamPeerBuffer.new()
@@ -57,8 +55,7 @@ func _HandleLogged(data:PackedByteArray) -> void:
 	screen.networkMessages.append(data)
 	
 	ScreenController.SwitchScreen(screen)
-	ClientInterface.dataReceived.disconnect(_OnDataReceivedd) 
-	queue_free()
+	ClientInterface.dataReceived.disconnect(_OnDataReceivedd)  
 
 func _HandleDiceRoll(collection:Array[int]) -> void:
 	const names = ["Fuerza", "Agilidad", "Inteligencia", "Carisma", "Constitucion"]

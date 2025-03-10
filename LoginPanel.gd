@@ -1,0 +1,56 @@
+extends PanelContainer
+class_name LoginPanel
+
+signal submit 
+signal register
+signal error(message:String)
+
+func _ready() -> void:
+	%Reg.pressed.connect(func(): register.emit())
+
+func GetUsername() -> String:
+	return %Username.text
+	
+func GetPassword() -> String:
+	return %Password.text
+
+func EnableAuthControls() -> void:
+	%Submit.disabled = false
+	%Reg.disabled = false
+	%Username.editable = true
+	%Password.editable = true
+	
+func DisableAuthControls() -> void:
+	%Submit.disabled = true
+	%Reg.disabled = true
+	%Username.editable = false
+	%Password.editable = false
+
+func _OnButtonLoginPressed() -> void:
+	if %Username.text.is_empty():
+		error.emit("Escriba el nombre del usuario")
+		return 
+		
+	if %Username.text.length() < 3 || %Username.text.length() > 15:
+		error.emit("El nombre del usuario tiene que tener un minimo de 3 caracteres y un maximo de 15 caracteres")
+		return
+	
+	for i in %Username.text:
+		if !Utils.LegalCharacter(i):
+			error.emit("Nombre invalido: El caracter [{0}] no esta permitido".format([i]))
+			return
+		
+	if %Password.text.is_empty():
+		error.emit("Escriba la contraseña del usuario")
+		return
+		
+	if %Password.text.length() < 3 || %Password.text.length() > 15:
+		error.emit("La contraseña del usuario tiene que tener un minimo de 3 caracteres y un maximo de 15 caracteres")
+		return
+		
+	for i in %Password.text:
+		if !Utils.LegalCharacter(i):
+			error.emit("Contraseña invalida: El caracter [{0}] no esta permitido".format([i]))
+			return
+	
+	submit.emit()

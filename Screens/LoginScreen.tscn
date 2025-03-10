@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://cd452cndcck7v"]
+
+[ext_resource type="Script" uid="uid://1y0cwxd2hj2r" path="res://Screens/LoginScreen.gd" id="1_n65iu"]
+[ext_resource type="PackedScene" uid="uid://bea3h14qh8jve" path="res://LoginPanel.tscn" id="2_tjwxy"]
+
+[node name="LoginScreen" type="Node" node_paths=PackedStringArray("_loginPanel")]
+script = ExtResource("1_n65iu")
+_loginPanel = NodePath("CanvasLayer/LoginPanel")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="LoginPanel" parent="CanvasLayer" instance=ExtResource("2_tjwxy")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -153.0
+offset_top = -118.0
+offset_right = 153.0
+offset_bottom = 118.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -151.0
+offset_top = -166.0
+offset_right = 152.0
+offset_bottom = -125.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_group_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Ip" type="LineEdit" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "127.0.0.1"
+alignment = 1
+
+[node name="Port" type="SpinBox" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 65535.0
+value = 7666.0
+rounded = true
+
+[connection signal="register" from="CanvasLayer/LoginPanel" to="." method="_OnLoginPanelRegister"]
+[connection signal="submit" from="CanvasLayer/LoginPanel" to="." method="_OnLoginPanelSubmit"]

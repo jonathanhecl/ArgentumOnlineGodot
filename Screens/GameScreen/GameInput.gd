@@ -10,6 +10,8 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
 
+@export var _levelProgressBar:LevelProgressBar
+
 var _gameContext:GameContext
 var _currentPanel:Node
 
@@ -35,6 +37,15 @@ func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.W
 		bbcode = "[b]%s[/b]" % bbcode;
 	
 	_consoleRichTextLabel.append_text(bbcode + "\n")
+	
+func SetMaxExperience(value:int) -> void:
+	_levelProgressBar.SetMaxExperience(value)
+	
+func SetExperience(value:int) -> void:
+	_levelProgressBar.SetExperience(value)
+	
+func SetLevel(level:int) -> void:
+	_levelProgressBar.SetLevel(level)
 	
 func OpenMerchant() -> void:
 	var merchantPanel = MerchantPanelScene.instantiate() as MerchantPanel

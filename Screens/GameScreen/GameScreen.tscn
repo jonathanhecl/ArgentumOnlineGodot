@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=8 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 [ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
+[ext_resource type="PackedScene" uid="uid://bk2g077duc5k7" path="res://LevelProgressBar.tscn" id="7_baam4"]
 
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
@@ -21,13 +22,14 @@ _mapContainer = NodePath("MapContainer")
 
 [node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera", "_levelProgressBar")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("InventoryContainer")
 _spellList = NodePath("SpellList")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("../GameWorld/Camera2D")
+_levelProgressBar = NodePath("LevelProgressBar")
 
 [node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(200, 240)
@@ -69,11 +71,18 @@ offset_bottom = 0.0
 grow_horizontal = 0
 grow_vertical = 0
 
+[node name="LevelProgressBar" parent="GameInput" instance=ExtResource("7_baam4")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -44.0
+offset_bottom = 0.0
+grow_vertical = 0
+animate = true
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="PingTimer" type="Timer" parent="Timers"]
-wait_time = 5.0
-autostart = true
 
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
 [connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]

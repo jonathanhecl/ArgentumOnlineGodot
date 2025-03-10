@@ -42,7 +42,7 @@ func _process(_delta: float) -> void:
 	if _status == StreamPeerTCP.STATUS_CONNECTED:
 		var availableBytes = _socket.get_available_bytes()
 		if availableBytes > 0:
-			var response = _socket.get_data(availableBytes)
+			var response = _socket.get_partial_data(availableBytes)
 			
 			if response[0] != OK:
 				disconnected.emit()

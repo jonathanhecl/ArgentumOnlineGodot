@@ -24,8 +24,8 @@ func _ready() -> void:
 func _OnDisconnected() -> void:
 	pass
 	
-func _OnDataReceived(data:PackedByteArray) -> void:
-	networkMessages.append(data)
+func _OnDataReceived(data:PackedByteArray) -> void: 
+	networkMessages.push_back(data)
 
 func _process(_delta: float) -> void:
 	_ProccessMessages()
@@ -108,10 +108,10 @@ func _CanMoveTo(x:int, y:int) -> bool:
 	return true
 
 #region Network
-func _ProccessMessages() -> void:
+func _ProccessMessages() -> void: 
 	while !networkMessages.is_empty():
 		var data = networkMessages.pop_front()
-		_HandleIncomingData(data)
+		_HandleIncomingData(data) 
 
 func _HandleIncomingData(data:PackedByteArray) -> void:
 	var stream = StreamPeerBuffer.new()
@@ -119,13 +119,11 @@ func _HandleIncomingData(data:PackedByteArray) -> void:
 	
 	while stream.get_position() < stream.get_size():
 		_HandleOnePacket(stream)
-
-var pcg = []
-
+ 
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	var packetId = stream.get_u8()
-	var name = Enums.ServerPacketID.keys()[packetId]
-	pcg.append(name)
+	#var name = Enums.ServerPacketID.keys()[packetId]
+	#pcg.append(name)
 	match packetId:
 		Enums.ServerPacketID.MultiMessage:
 			_HandleMultiMessage(MultiMessage.new(stream))
@@ -225,8 +223,13 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandlePong()
 		Enums.ServerPacketID.ShowMessageBox:
 			_HandleShowMessageBox(ShowMessageBox.new(stream))
+		Enums.ServerPacketID.UpdateExp:
+			_HandelUpdateExp(UpdateExp.new(stream))
 		_:
 			print(name)
+			
+func _HandelUpdateExp(p:UpdateExp) -> void:
+	_gameInput.SetExperience(p.experience)
 			
 func _HandleShowMessageBox(p:ShowMessageBox) -> void:
 	Utils.ShowAlertDialog("Server", p.message, get_parent())
@@ -368,7 +371,9 @@ func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void:
 	pass
 
 func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
-	pass
+	_gameInput.SetMaxExperience(p.elu)
+	_gameInput.SetExperience(p.experience)
+	_gameInput.SetLevel(p.elv)
 
 func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
 	_mainCharacterInstanceId = p.charIndex
@@ -545,8 +550,8 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 			_gameContext.traveling = false
 	
 func _FlushData() -> void:
-	var data = GameProtocol.Flush()
-	ClientInterface.Send(data)
+	if !GameProtocol.IsEmpty(): 
+		ClientInterface.Send(GameProtocol.Flush())
 #endregion
 
 

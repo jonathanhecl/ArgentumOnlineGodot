@@ -7,6 +7,9 @@ static func Flush() -> PackedByteArray:
 	var data = _writer.data_array
 	_writer.clear() 
 	return data
+	
+static func IsEmpty() -> bool:
+	return _writer.get_size() == 0
 
 static func Clear() -> void:
 	_writer.clear()
