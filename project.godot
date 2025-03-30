@@ -23,6 +23,12 @@ ScreenController="*res://Engine/Singleton/ScreenController.gd"
 ClientInterface="*res://Engine/Singleton/ClientInterface.gd"
 Consts="*res://Engine/Singleton/Consts.gd"
 
+[display]
+
+window/size/viewport_width=1024
+window/size/viewport_height=768
+window/stretch/mode="canvas_items"
+
 [input]
 
 EquipObject={
