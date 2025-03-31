@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=29 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
@@ -12,6 +12,9 @@
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
 [ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
 [ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://Minimapa.tscn" id="12_s70vx"]
+[ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://StatBar.tscn" id="13_u317p"]
+[ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
+[ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://StatBar.gd" id="15_dlj5t"]
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -30,6 +33,33 @@ bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
 
 [sub_resource type="FontVariation" id="FontVariation_ayhfv"]
 base_font = ExtResource("7_rqp22")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gwwhr"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 3, 89, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ehycb"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 19, 89, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2d6d"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 35, 89, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dlj5t"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 51, 89, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ce3ml"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 67, 89, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ceix"]
+atlas = ExtResource("14_7ceix")
+region = Rect2(3, 85, 175, 18)
+
+[sub_resource type="LabelSettings" id="LabelSettings_ehycb"]
+font_size = 12
 
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
@@ -126,7 +156,9 @@ grow_vertical = 0
 
 [node name="Minimap" parent="GameInput" instance=ExtResource("12_s70vx")]
 
-[node name="LblGold" type="Label" parent="GameInput"]
+[node name="Labels" type="Node" parent="GameInput"]
+
+[node name="LblGold" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 715.0
 offset_top = 388.0
@@ -140,7 +172,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblStrength" type="Label" parent="GameInput"]
+[node name="LblStrength" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 511.0
 offset_top = 566.0
@@ -153,7 +185,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblAgility" type="Label" parent="GameInput"]
+[node name="LblAgility" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 453.0
 offset_top = 566.0
@@ -166,7 +198,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblLevel" type="Label" parent="GameInput"]
+[node name="LblLevel" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 574.0
 offset_top = 59.0
@@ -178,7 +210,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblName" type="Label" parent="GameInput"]
+[node name="LblName" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 620.0
 offset_top = 40.0
@@ -190,7 +222,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblArmor" type="Label" parent="GameInput"]
+[node name="LblArmor" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 34.0
 offset_top = 566.0
@@ -203,7 +235,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblHelmet" type="Label" parent="GameInput"]
+[node name="LblHelmet" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 91.0
 offset_top = 566.0
@@ -216,7 +248,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblWeapon" type="Label" parent="GameInput"]
+[node name="LblWeapon" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 149.0
 offset_top = 565.0
@@ -229,7 +261,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblShield" type="Label" parent="GameInput"]
+[node name="LblShield" type="Label" parent="GameInput/Labels"]
 unique_name_in_owner = true
 offset_left = 207.0
 offset_top = 565.0
@@ -242,10 +274,76 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
+[node name="StatBars" type="Node" parent="GameInput"]
+
+[node name="StaminaStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+offset_left = 574.0
+offset_top = 402.0
+offset_right = 663.0
+offset_bottom = 413.0
+texture_progress = SubResource("AtlasTexture_gwwhr")
+metadata/_edit_lock_ = true
+
+[node name="HealthStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+offset_left = 574.0
+offset_top = 432.0
+offset_right = 663.0
+offset_bottom = 443.0
+texture_progress = SubResource("AtlasTexture_ehycb")
+metadata/_edit_lock_ = true
+
+[node name="ManaStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+offset_left = 574.0
+offset_top = 464.0
+offset_right = 663.0
+offset_bottom = 475.0
+texture_progress = SubResource("AtlasTexture_t2d6d")
+metadata/_edit_lock_ = true
+
+[node name="HungerStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+offset_left = 574.0
+offset_top = 496.0
+offset_right = 663.0
+offset_bottom = 507.0
+texture_progress = SubResource("AtlasTexture_dlj5t")
+
+[node name="ThirstStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+offset_left = 574.0
+offset_top = 526.0
+offset_right = 663.0
+offset_bottom = 537.0
+texture_progress = SubResource("AtlasTexture_ce3ml")
+metadata/_edit_lock_ = true
+
+[node name="ExperienceStatBar" type="TextureProgressBar" parent="GameInput/StatBars"]
+offset_left = 610.0
+offset_top = 72.0
+offset_right = 785.0
+offset_bottom = 90.0
+max_value = 0.0
+texture_progress = SubResource("AtlasTexture_7ceix")
+script = ExtResource("15_dlj5t")
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Label" type="Label" parent="GameInput/StatBars/ExperienceStatBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "0/0"
+label_settings = SubResource("LabelSettings_ehycb")
+horizontal_alignment = 1
+clip_text = true
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="PingTimer" type="Timer" parent="Timers"]
 
 [connection signal="gui_input" from="GameInput/MainViewportContainer" to="GameInput" method="_on_main_viewport_container_gui_input"]
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
+[connection signal="changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_changed"]
+[connection signal="value_changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_value_changed"]
 [connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]

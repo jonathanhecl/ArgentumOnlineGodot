@@ -12,6 +12,14 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 
 @onready var minimap: Minimap = $Minimap
 
+@onready var experience_stat_bar: StatBar = $StatBars/ExperienceStatBar
+@onready var stamina_stat_bar: StatBar = $StatBars/StaminaStatBar
+@onready var health_stat_bar: StatBar = $StatBars/HealthStatBar
+@onready var mana_stat_bar: StatBar = $StatBars/ManaStatBar 
+@onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
+@onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
+
+
 var _gameContext:GameContext
 var _currentPanel:Node
 

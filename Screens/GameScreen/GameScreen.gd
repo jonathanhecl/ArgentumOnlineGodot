@@ -232,11 +232,14 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 		_:
 			print(name)
 			
+			
 func _HandelUpdateExp(p:UpdateExp) -> void:
-	_gameInput.SetExperience(p.experience)
+	_gameInput.experience_stat_bar.value = p.experience
+			
 			
 func _HandleShowMessageBox(p:ShowMessageBox) -> void:
 	Utils.ShowAlertDialog("Server", p.message, get_parent())
+
 
 func _HandlePong() -> void:
 	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
@@ -258,6 +261,7 @@ func _HandleUpdateGold(p:UpdateGold) -> void:
 func _HandleUpdateBankGold(p:UpdateBankGold) -> void:
 	_gameInput.SetBankGold(p.gold)
 
+
 func _HandleChangeBankSlot(p:ChangeBankSlot) -> void:
 	var item = Item.new()
 	item.index = p.index
@@ -274,6 +278,7 @@ func _HandleChangeBankSlot(p:ChangeBankSlot) -> void:
 	
 	var itemStack = ItemStack.new(p.amount, false, item)
 	_gameContext.bankInventory.SetSlot(p.slot -1, itemStack)
+
 
 func _HandleCommerceInit() -> void:
 	_gameInput.OpenMerchant()
@@ -309,12 +314,14 @@ func _HandleChatOverHead(p:ChatOverHead) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
 	if character:
 		character.Say(p.chat, p.color)
+			
 				
 func _HandleUpdateTagAndStatus(p:UpdateTagAndStatus) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
 	if character:
 		character.SetCharacterName(p.userTag)
 		character.SetCharacterNameColor(Utils.GetNickColor(p.nickColor, character.priv))
+
 
 func _HandlePosUpdate(p:PosUpdate) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
@@ -324,14 +331,17 @@ func _HandlePosUpdate(p:PosUpdate) -> void:
 		character.position = Vector2((p.x - 1) * 32, (p.y - 1) * 32) + Vector2(16, 32);
 		_gameInput.minimap.update_player_position(p.x, p.y)
 
+
 func _HandleForceCharMove(p:ForceCharMove) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
 	if character:
 		character.StopMoving()
 		_gameWorld.MoveCharacter(_mainCharacterInstanceId, p.heading)
 
-func _HandleLogged(p:Logged) -> void:
+
+func _HandleLogged(_p:Logged) -> void:
 	pass
+
 
 func _HandleCharacterChange(p:CharacterChange) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
@@ -345,7 +355,7 @@ func _HandleCharacterChange(p:CharacterChange) -> void:
 	character.renderer.heading = p.heading
 	
 func _HandleUpdateHP(p:UpdateHP) -> void:
-	pass
+	_gameInput.health_stat_bar.value = p.hp
 
 func _HandleCharacterRemove(p:CharacterRemove) -> void:
 	_gameWorld.DeleteCharacter(p.charIndex)
@@ -359,7 +369,7 @@ func _HandleConsoleMessage(p:ConsoleMessage) -> void:
 	_gameInput.ShowConsoleMessage(p.message, GameAssets.FontDataList[p.fontIndex])
 
 func _HandleUpdateSta(p:UpdateSta) -> void:
-	pass
+	_gameInput.stamina_stat_bar.value = p.stamina
 
 func _HandleRemoveDialogs() -> void:
 	pass
@@ -379,13 +389,29 @@ func _HandleUpdateStrengthAndDexterity(p:UpdateStrengthAndDexterity) -> void:
 	_gameInput.update_strength_label(p.strength)
 
 
-func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void:
-	pass
-
-
+func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void: 
+	_gameInput.hunger_stat_bar.max_value = p.maxHam
+	_gameInput.hunger_stat_bar.value = p.minHam
+	
+	_gameInput.thirst_stat_bar.max_value = p.maxAgua
+	_gameInput.thirst_stat_bar.value = p.minAgua
+	
+	
 func _HandleUpdateUserStats(p:UpdateUserStats) -> void: 
 	_gameInput.update_gold_label(p.gold)
 	_gameInput.update_level_label(p.elv)
+	
+	_gameInput.experience_stat_bar.max_value = p.elu
+	_gameInput.experience_stat_bar.value = p.experience
+	
+	_gameInput.health_stat_bar.max_value = p.maxHp
+	_gameInput.health_stat_bar.value = p.minHp
+	
+	_gameInput.mana_stat_bar.max_value = p.maxMana
+	_gameInput.mana_stat_bar.value = p.minMana
+	
+	_gameInput.stamina_stat_bar.max_value = p.maxSta
+	_gameInput.stamina_stat_bar.value = p.minSta
 
 
 func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:

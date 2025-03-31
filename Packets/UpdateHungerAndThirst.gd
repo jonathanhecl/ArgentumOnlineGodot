@@ -8,9 +8,9 @@ var maxHam:int
 var minHam:int
 
 func _init(reader:StreamPeerBuffer = null) -> void:
-	if reader: Deserialize(reader)
+	if reader: deserialize(reader)
 
-func Deserialize(reader:StreamPeerBuffer) -> void:
+func deserialize(reader:StreamPeerBuffer) -> void:
 	maxAgua = reader.get_u8();
 	minAgua = reader.get_u8();
 	maxHam  = reader.get_u8();

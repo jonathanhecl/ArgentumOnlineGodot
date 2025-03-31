@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://7gtb4htuo6c8"]
+
+[ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://StatBar.gd" id="2_85vri"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_u317p"]
+font_size = 10
+
+[node name="StatBar" type="TextureProgressBar"]
+offset_right = 89.0
+offset_bottom = 11.0
+max_value = 0.0
+rounded = true
+script = ExtResource("2_85vri")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "0/0"
+label_settings = SubResource("LabelSettings_u317p")
+horizontal_alignment = 1
+clip_text = true
+
+[connection signal="changed" from="." to="." method="_on_changed"]
+[connection signal="value_changed" from="." to="." method="_on_value_changed"]
