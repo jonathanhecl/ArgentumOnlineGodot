@@ -4,8 +4,7 @@ class_name GameInput
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
 
-@export var _inventoryContainer:InventoryContainer
-@export var _spellList:SpellList
+@export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
@@ -18,6 +17,8 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @onready var mana_stat_bar: StatBar = $StatBars/ManaStatBar 
 @onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
+
+@onready var spell_list_panel: SpellListPanel = $SpellListPanel
 
 
 var _gameContext:GameContext
@@ -77,11 +78,7 @@ func CloseBank() -> void:
 func SetBankGold(gold:int) -> void:
 	if _currentPanel && _currentPanel is BankPanel:
 		_currentPanel.SetBankGold(gold)
-		
-func SetSpellName(index:int, text:String) -> void:
-	_spellList.SetSlotText(index, text)
-	
-	
+		 
 func update_agility_label(value:int) -> void:
 	%LblAgility.text = str(value)
 	
@@ -209,3 +206,7 @@ func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 		_HandleMouseInput(event)
 	if event is InputEventKey:
 		_HandleKeyEvent(event)		
+
+
+func _on_texture_button_pressed() -> void:
+	print("dwdwd")

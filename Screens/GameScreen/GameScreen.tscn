@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=31 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
 [ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://Assets/UI/VentanaPrincipal.jpg" id="3_6rrxf"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
-[ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
@@ -15,6 +14,8 @@
 [ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://StatBar.tscn" id="13_u317p"]
 [ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
 [ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://StatBar.gd" id="15_dlj5t"]
+[ext_resource type="Texture2D" uid="uid://dkhonpkjanea7" path="res://Assets/UI/panel_inventario.jpg" id="16_t2d6d"]
+[ext_resource type="PackedScene" uid="uid://cmwexlttk8ltw" path="res://SpellListPanel.tscn" id="17_t2d6d"]
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -27,6 +28,9 @@ base_font = ExtResource("9_u317p")
 
 [sub_resource type="FontVariation" id="FontVariation_t2d6d"]
 base_font = ExtResource("10_7ceix")
+
+[sub_resource type="FontVariation" id="FontVariation_gwwhr"]
+base_font = ExtResource("7_rqp22")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rrxf"]
 bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
@@ -67,10 +71,9 @@ _gameInput = NodePath("GameInput")
 _gameWorld = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld")
 _camera = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld/Camera2D")
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
-_inventoryContainer = NodePath("InventoryContainer")
-_spellList = NodePath("SpellList")
+_inventoryContainer = NodePath("InventoryPanel/InventoryContainer")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
@@ -105,21 +108,6 @@ _mapContainer = NodePath("MapContainer")
 
 [node name="MapContainer" parent="GameInput/MainViewportContainer/Viewport/GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
-custom_minimum_size = Vector2(160, 160)
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -198.0
-offset_top = -127.0
-offset_right = -38.0
-offset_bottom = 33.0
-grow_horizontal = 0
-grow_vertical = 2
-columns = 5
-
 [node name="Console" type="RichTextLabel" parent="GameInput"]
 offset_left = 11.0
 offset_top = 5.0
@@ -135,24 +123,13 @@ metadata/_edit_lock_ = true
 
 [node name="ConsoleInput" type="LineEdit" parent="GameInput"]
 visible = false
-offset_left = 40.0
-offset_top = 118.0
-offset_right = 630.0
-offset_bottom = 149.0
+offset_left = 11.0
+offset_top = 108.0
+offset_right = 553.0
+offset_bottom = 132.0
+theme_override_fonts/font = SubResource("FontVariation_gwwhr")
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")
-
-[node name="SpellList" parent="GameInput" instance=ExtResource("6_f6bd2")]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 123.0
-offset_top = -300.0
-offset_right = 365.0
-offset_bottom = -18.0
-grow_horizontal = 0
-grow_vertical = 0
 
 [node name="Minimap" parent="GameInput" instance=ExtResource("12_s70vx")]
 
@@ -306,6 +283,7 @@ offset_top = 496.0
 offset_right = 663.0
 offset_bottom = 507.0
 texture_progress = SubResource("AtlasTexture_dlj5t")
+metadata/_edit_lock_ = true
 
 [node name="ThirstStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
@@ -338,6 +316,53 @@ label_settings = SubResource("LabelSettings_ehycb")
 horizontal_alignment = 1
 clip_text = true
 
+[node name="InventoryPanel" type="TextureRect" parent="GameInput"]
+offset_left = 561.0
+offset_top = 98.0
+offset_right = 789.0
+offset_bottom = 350.0
+texture = ExtResource("16_t2d6d")
+metadata/_edit_group_ = true
+
+[node name="InventoryContainer" parent="GameInput/InventoryPanel" instance=ExtResource("3_q7e6u")]
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -189.0
+offset_top = -47.0
+offset_right = -29.0
+offset_bottom = 113.0
+grow_horizontal = 0
+grow_vertical = 2
+columns = 5
+
+[node name="SpellListPanel" parent="GameInput" instance=ExtResource("17_t2d6d")]
+visible = false
+offset_left = 561.0
+offset_top = 98.0
+offset_right = 789.0
+offset_bottom = 350.0
+
+[node name="ShowInventory" type="TextureButton" parent="GameInput"]
+offset_left = 574.0
+offset_top = 138.0
+offset_right = 674.0
+offset_bottom = 166.0
+focus_mode = 0
+metadata/_edit_lock_ = true
+
+[node name="ShowSpells" type="TextureButton" parent="GameInput"]
+offset_left = 677.0
+offset_top = 138.0
+offset_right = 776.0
+offset_bottom = 166.0
+focus_mode = 0
+metadata/_edit_lock_ = true
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="PingTimer" type="Timer" parent="Timers"]
@@ -346,4 +371,8 @@ clip_text = true
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
 [connection signal="changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_changed"]
 [connection signal="value_changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_value_changed"]
+[connection signal="pressed" from="GameInput/ShowInventory" to="GameInput/InventoryPanel" method="set_visible" binds= [true]]
+[connection signal="pressed" from="GameInput/ShowInventory" to="GameInput/SpellListPanel" method="set_visible" binds= [false]]
+[connection signal="pressed" from="GameInput/ShowSpells" to="GameInput/InventoryPanel" method="set_visible" binds= [false]]
+[connection signal="pressed" from="GameInput/ShowSpells" to="GameInput/SpellListPanel" method="set_visible" binds= [true]]
 [connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]

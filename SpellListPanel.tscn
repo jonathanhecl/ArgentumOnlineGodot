@@ -1,0 +1,61 @@
+[gd_scene load_steps=5 format=3 uid="uid://cmwexlttk8ltw"]
+
+[ext_resource type="Texture2D" uid="uid://4hy5qk36hm24" path="res://Assets/UI/panel_hechizos.jpg" id="1_7u2u0"]
+[ext_resource type="Script" uid="uid://cbjxdog1ocdak" path="res://SpellListPanel.gd" id="2_be4pa"]
+[ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="2_wgl1s"]
+
+[sub_resource type="FontVariation" id="FontVariation_ce3ml"]
+base_font = ExtResource("2_wgl1s")
+
+[node name="SpellListPanel" type="TextureRect"]
+offset_right = 228.0
+offset_bottom = 252.0
+texture = ExtResource("1_7u2u0")
+script = ExtResource("2_be4pa")
+
+[node name="ItemList" type="ItemList" parent="."]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 74.0
+offset_right = 200.0
+offset_bottom = 204.0
+focus_mode = 0
+theme_override_fonts/font = SubResource("FontVariation_ce3ml")
+theme_override_font_sizes/font_size = 13
+
+[node name="BtnCast" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 222.0
+offset_right = 216.0
+offset_bottom = 251.0
+focus_mode = 0
+
+[node name="BtnInfo" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 206.0
+offset_top = 164.0
+offset_right = 226.0
+offset_bottom = 190.0
+focus_mode = 0
+
+[node name="BtnMoveUp" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 209.0
+offset_top = 98.0
+offset_right = 222.0
+offset_bottom = 120.0
+focus_mode = 0
+
+[node name="BtnMoveDown" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 209.0
+offset_top = 125.0
+offset_right = 222.0
+offset_bottom = 147.0
+focus_mode = 0
+
+[connection signal="pressed" from="BtnCast" to="." method="_on_btn_cast_pressed"]
+[connection signal="pressed" from="BtnInfo" to="." method="_on_btn_info_pressed"]
+[connection signal="pressed" from="BtnMoveUp" to="." method="_on_btn_move_up_pressed"]
+[connection signal="pressed" from="BtnMoveDown" to="." method="_on_btn_move_down_pressed"]
