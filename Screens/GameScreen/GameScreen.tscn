@@ -7,7 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://VentanaPrincipal.jpg" id="3_6rrxf"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 [ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
-[ext_resource type="PackedScene" uid="uid://bk2g077duc5k7" path="res://LevelProgressBar.tscn" id="7_baam4"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
@@ -28,20 +27,22 @@ base_font = ExtResource("10_7ceix")
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rrxf"]
 bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
 
+[sub_resource type="FontVariation" id="FontVariation_ayhfv"]
+base_font = ExtResource("7_rqp22")
+
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
 _gameInput = NodePath("GameInput")
 _gameWorld = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld")
 _camera = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld/Camera2D")
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera", "_levelProgressBar")]
+[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("InventoryContainer")
 _spellList = NodePath("SpellList")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
-_levelProgressBar = NodePath("LevelProgressBar")
 
 [node name="TextureRect" type="TextureRect" parent="GameInput"]
 offset_right = 800.0
@@ -116,22 +117,11 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 123.0
-offset_top = -301.0
+offset_top = -300.0
 offset_right = 365.0
-offset_bottom = -19.0
+offset_bottom = -18.0
 grow_horizontal = 0
 grow_vertical = 0
-
-[node name="LevelProgressBar" parent="GameInput" instance=ExtResource("7_baam4")]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 1103.0
-offset_top = -723.0
-offset_right = 1305.0
-offset_bottom = -679.0
-grow_vertical = 0
-animate = true
 
 [node name="Minimap" type="TextureRect" parent="GameInput"]
 custom_minimum_size = Vector2(100, 100)
@@ -142,13 +132,116 @@ offset_bottom = 105.0
 metadata/_edit_lock_ = true
 
 [node name="LblGold" type="Label" parent="GameInput"]
+unique_name_in_owner = true
 offset_left = 715.0
 offset_top = 388.0
 offset_right = 788.0
 offset_bottom = 408.0
 theme_override_colors/font_color = Color(0.886754, 0.581706, 0, 1)
 theme_override_fonts/font = ExtResource("7_rqp22")
-theme_override_font_sizes/font_size = 14
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblStrength" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 511.0
+offset_top = 566.0
+offset_right = 539.0
+offset_bottom = 589.0
+theme_override_colors/font_color = Color(0, 0.54902, 0, 1)
+text = "38"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblAgility" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 453.0
+offset_top = 566.0
+offset_right = 481.0
+offset_bottom = 589.0
+theme_override_colors/font_color = Color(0, 0.854902, 0, 1)
+text = "38"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblLevel" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 574.0
+offset_top = 59.0
+offset_right = 602.0
+offset_bottom = 82.0
+text = "99"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblName" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 620.0
+offset_top = 40.0
+offset_right = 776.0
+offset_bottom = 63.0
+text = "Dummy"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblArmor" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 34.0
+offset_top = 566.0
+offset_right = 69.0
+offset_bottom = 589.0
+theme_override_fonts/font = SubResource("FontVariation_ayhfv")
+text = "0/0"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblHelmet" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 91.0
+offset_top = 566.0
+offset_right = 126.0
+offset_bottom = 589.0
+theme_override_fonts/font = SubResource("FontVariation_ayhfv")
+text = "0/0"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblWeapon" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 149.0
+offset_top = 565.0
+offset_right = 184.0
+offset_bottom = 588.0
+theme_override_fonts/font = SubResource("FontVariation_ayhfv")
+text = "0/0"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="LblShield" type="Label" parent="GameInput"]
+unique_name_in_owner = true
+offset_left = 207.0
+offset_top = 565.0
+offset_right = 242.0
+offset_bottom = 588.0
+theme_override_fonts/font = SubResource("FontVariation_ayhfv")
+text = "0/0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
@@ -158,5 +251,6 @@ metadata/_edit_lock_ = true
 
 [node name="PingTimer" type="Timer" parent="Timers"]
 
+[connection signal="gui_input" from="GameInput/MainViewportContainer" to="GameInput" method="_on_main_viewport_container_gui_input"]
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
 [connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]

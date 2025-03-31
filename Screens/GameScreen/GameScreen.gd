@@ -20,6 +20,8 @@ func _ready() -> void:
 	ClientInterface.dataReceived.connect(_OnDataReceived) 
 	
 	_gameInput.Init(_gameContext)
+	_gameInput.update_name_label(Global.username)
+	
 	 
 func _OnDisconnected() -> void:
 	pass
@@ -238,14 +240,18 @@ func _HandlePong() -> void:
 	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
 	_gameContext.pingTime = 0
 
+
 func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
-	pass
+	_gameInput.update_agility_label(p.dexterity)
+
 	
 func _HandleUpdateStrenght(p:UpdateStrenght) -> void:
-	pass
+	_gameInput.update_strength_label(p.strenght)
+
 
 func _HandleUpdateGold(p:UpdateGold) -> void:
-	pass
+	_gameInput.update_gold_label(p.gold)
+
 
 func _HandleUpdateBankGold(p:UpdateBankGold) -> void:
 	_gameInput.SetBankGold(p.gold)
@@ -364,16 +370,20 @@ func _HandleSendSkills(p:SendSkills) -> void:
 func _HandleGuildChat(p:GuildChat) -> void:
 	pass
 
+
 func _HandleUpdateStrengthAndDexterity(p:UpdateStrengthAndDexterity) -> void:
-	pass
+	_gameInput.update_agility_label(p.dexterity)
+	_gameInput.update_strength_label(p.strength)
+
 
 func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void:
 	pass
 
-func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
-	_gameInput.SetMaxExperience(p.elu)
-	_gameInput.SetExperience(p.experience)
-	_gameInput.SetLevel(p.elv)
+
+func _HandleUpdateUserStats(p:UpdateUserStats) -> void: 
+	_gameInput.update_gold_label(p.gold)
+	_gameInput.update_level_label(p.elv)
+
 
 func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
 	_mainCharacterInstanceId = p.charIndex
@@ -466,6 +476,7 @@ func _HandleChangeInventorySlot(p:ChangeInventorySlot) -> void:
 	
 	var itemStack = ItemStack.new(p.amount, p.equipped, item)
 	_gameContext.playerInventory.SetSlot(p.slot -1, itemStack)
+	_gameInput.update_equipment_label(p.slot - 1, itemStack)
 
 func _HandleMultiMessage(p:MultiMessage) -> void:
 	match p.index:

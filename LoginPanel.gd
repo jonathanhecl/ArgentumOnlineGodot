@@ -52,5 +52,6 @@ func _OnButtonLoginPressed() -> void:
 		if !Utils.LegalCharacter(i):
 			error.emit("Contraseña invalida: El caracter [{0}] no esta permitido".format([i]))
 			return
-	
+			
+	Global.username = %Username.text
 	submit.emit()

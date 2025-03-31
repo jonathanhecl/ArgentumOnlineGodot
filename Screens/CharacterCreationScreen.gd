@@ -97,6 +97,8 @@ func _OnSubmitButtonPressed() -> void:
 		Utils.ShowAlertDialog("Error", "Email invalido", self)
 		return
 	
+	Global.username = _usernameLineEdit.text
+	
 	GameProtocol.WriteLoginNewChar(_usernameLineEdit.text, \
 		_passwordLineEdit.text, \
 		_emailLineEdit.text, \

@@ -9,24 +9,20 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
-
-@export var _levelProgressBar:LevelProgressBar
-
+  
 var _gameContext:GameContext
 var _currentPanel:Node
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		_HandleMouseInput(event)
-	if event is InputEventKey:
-		_HandleKeyEvent(event)		
-
+var _user_weapon_slot:int
+var _user_shield_slot:int
+var _user_helmet_slot:int
+var _user_armor_slot:int
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
 	_inventoryContainer.SetInventory(_gameContext.playerInventory)
 	_inventoryContainer.slotPressed.connect(func(_v): 
-		_UseObject())
+		_use_object())
 
 func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.WHITE)) -> void:
 	var bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), message]
@@ -38,15 +34,7 @@ func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.W
 	
 	_consoleRichTextLabel.append_text(bbcode + "\n")
 	
-func SetMaxExperience(value:int) -> void:
-	_levelProgressBar.SetMaxExperience(value)
-	
-func SetExperience(value:int) -> void:
-	_levelProgressBar.SetExperience(value)
-	
-func SetLevel(level:int) -> void:
-	_levelProgressBar.SetLevel(level)
-	
+
 func OpenMerchant() -> void:
 	var merchantPanel = MerchantPanelScene.instantiate() as MerchantPanel
 	_currentPanel = merchantPanel
@@ -82,7 +70,64 @@ func SetBankGold(gold:int) -> void:
 		
 func SetSpellName(index:int, text:String) -> void:
 	_spellList.SetSlotText(index, text)
+	
+	
+func update_agility_label(value:int) -> void:
+	%LblAgility.text = str(value)
+	
+	
+func update_strength_label(value:int) -> void:
+	%LblStrength.text = str(value)
 		
+
+func update_gold_label(value:int) -> void:
+	%LblGold.text = str(value)
+	
+
+func update_level_label(value:int) -> void:
+	%LblLevel.text = str(value)
+		
+
+func update_name_label(value:String) -> void:
+	%LblName.text = str(value)
+	
+	
+func update_equipment_label(slot:int, item_stack:ItemStack) -> void:
+	if item_stack.equipped:
+		match item_stack.item.type:
+			Enums.eOBJType.eOBJType_otWeapon:
+				%LblWeapon.text = "%d/%d" % [item_stack.item.minHit, item_stack.item.maxHit]
+				_user_weapon_slot = slot
+			
+			Enums.eOBJType.eOBJType_otESCUDO:
+				%LblShield.text = "%d/%d" % [item_stack.item.minDef, item_stack.item.maxDef]
+				_user_shield_slot = slot
+			
+			Enums.eOBJType.eOBJType_otArmadura:
+				%LblArmor.text = "%d/%d" % [item_stack.item.minDef, item_stack.item.maxDef]
+				_user_armor_slot = slot
+			
+			Enums.eOBJType.eOBJType_otCASCO:
+				%LblHelmet.text = "%d/%d" % [item_stack.item.minDef, item_stack.item.maxDef]
+				_user_helmet_slot = slot 
+	else:
+		match slot:
+			_user_weapon_slot:
+				%LblWeapon.text = "0/0"
+				_user_weapon_slot = 0
+			
+			_user_shield_slot:
+				%LblShield.text = "0/0"
+				_user_shield_slot = 0
+			
+			_user_armor_slot:
+				%LblArmor.text = "0/0"
+				_user_armor_slot = 0
+			
+			_user_helmet_slot:
+				%LblHelmet.text = "0/0"
+				_user_helmet_slot = 0
+	
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec
 
@@ -104,17 +149,18 @@ func _HandleKeyEvent(event:InputEventKey) -> void:
 	if event.pressed && event.keycode == KEY_ENTER:
 		_consoleInputLineEdit.show() 
 		_consoleInputLineEdit.grab_focus() 
+		return
 		
 	if event.is_action_pressed("EquipObject"):
-		_EquipObject()
+		_equip_object()
 	if event.is_action_pressed("UseObject"):
-		_UseObject()
+		_use_object()
 	if event.is_action_pressed("Pickup"):
-		_PickupObject()
+		_pickup_object()
 	if event.is_action_pressed("Attack"):
-		_Attack()
+		_attack()
 	if event.is_action_pressed("Hide"):
-		_Hide()
+		_hide()
 	
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
@@ -124,22 +170,32 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
 
-func _EquipObject() -> void:
+func _equip_object() -> void:
 	var slot = _inventoryContainer.GetSelectedSlot()
 	if slot == -1 || _gameContext.trading: return
 
 	GameProtocol.WriteEquipItem(slot + 1)
 
-func _UseObject() -> void:
+func _use_object() -> void:
 	var slot = _inventoryContainer.GetSelectedSlot() 
 	if slot == -1 || _gameContext.trading || _gameContext.pause: return
 	GameProtocol.WriteUseItem(slot + 1)
 	
-func _PickupObject() -> void:
+	
+func _pickup_object() -> void:
 	GameProtocol.WritePickup()
 
-func _Attack() -> void:
+
+func _attack() -> void:
 	GameProtocol.WriteAttack()
 
-func _Hide() -> void:
+
+func _hide() -> void:
 	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
+
+
+func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		_HandleMouseInput(event)
+	if event is InputEventKey:
+		_HandleKeyEvent(event)		
