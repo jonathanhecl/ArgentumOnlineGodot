@@ -1,26 +1,38 @@
-[gd_scene load_steps=8 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=18 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
 [ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameScreen/GameWorld.gd" id="2_nvp4f"]
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
+[ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://VentanaPrincipal.jpg" id="3_6rrxf"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 [ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
 [ext_resource type="PackedScene" uid="uid://bk2g077duc5k7" path="res://LevelProgressBar.tscn" id="7_baam4"]
+[ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
+[ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
+[ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
+[ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
+
+[sub_resource type="FontVariation" id="FontVariation_ltsmt"]
+base_font = ExtResource("7_rqp22")
+
+[sub_resource type="FontVariation" id="FontVariation_dlj5t"]
+base_font = ExtResource("8_s70vx")
+
+[sub_resource type="FontVariation" id="FontVariation_ehycb"]
+base_font = ExtResource("9_u317p")
+
+[sub_resource type="FontVariation" id="FontVariation_t2d6d"]
+base_font = ExtResource("10_7ceix")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rrxf"]
+bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
 
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
 _gameInput = NodePath("GameInput")
-_gameWorld = NodePath("GameWorld")
-_camera = NodePath("GameWorld/Camera2D")
-
-[node name="GameWorld" type="Node2D" parent="." node_paths=PackedStringArray("_mapContainer")]
-script = ExtResource("2_nvp4f")
-_mapContainer = NodePath("MapContainer")
-
-[node name="Camera2D" type="Camera2D" parent="GameWorld"]
-
-[node name="MapContainer" parent="GameWorld" instance=ExtResource("2_sne8m")]
+_gameWorld = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld")
+_camera = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld/Camera2D")
 
 [node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_spellList", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera", "_levelProgressBar")]
 script = ExtResource("2_b7a1e")
@@ -28,35 +40,74 @@ _inventoryContainer = NodePath("InventoryContainer")
 _spellList = NodePath("SpellList")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
-_camera = NodePath("../GameWorld/Camera2D")
+_camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
 _levelProgressBar = NodePath("LevelProgressBar")
 
+[node name="TextureRect" type="TextureRect" parent="GameInput"]
+offset_right = 800.0
+offset_bottom = 600.0
+texture = ExtResource("3_6rrxf")
+metadata/_edit_lock_ = true
+
+[node name="MainViewportContainer" type="SubViewportContainer" parent="GameInput"]
+custom_minimum_size = Vector2(544, 416)
+offset_left = 10.0
+offset_top = 134.0
+offset_right = 554.0
+offset_bottom = 550.0
+stretch = true
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Viewport" type="SubViewport" parent="GameInput/MainViewportContainer"]
+handle_input_locally = false
+size = Vector2i(544, 416)
+render_target_update_mode = 4
+
+[node name="GameWorld" type="Node2D" parent="GameInput/MainViewportContainer/Viewport" node_paths=PackedStringArray("_mapContainer")]
+position = Vector2(0, -1)
+script = ExtResource("2_nvp4f")
+_mapContainer = NodePath("MapContainer")
+
+[node name="Camera2D" type="Camera2D" parent="GameInput/MainViewportContainer/Viewport/GameWorld"]
+
+[node name="MapContainer" parent="GameInput/MainViewportContainer/Viewport/GameWorld" instance=ExtResource("2_sne8m")]
+
 [node name="InventoryContainer" parent="GameInput" instance=ExtResource("3_q7e6u")]
-custom_minimum_size = Vector2(200, 240)
+custom_minimum_size = Vector2(160, 160)
 anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -203.0
-offset_top = -259.0
-offset_right = -3.0
-offset_bottom = -19.0
+offset_left = -198.0
+offset_top = -127.0
+offset_right = -38.0
+offset_bottom = 33.0
 grow_horizontal = 0
 grow_vertical = 2
 columns = 5
 
 [node name="Console" type="RichTextLabel" parent="GameInput"]
-offset_right = 486.0
-offset_bottom = 217.0
+offset_left = 11.0
+offset_top = 5.0
+offset_right = 446.0
+offset_bottom = 105.0
+theme_override_fonts/normal_font = SubResource("FontVariation_ltsmt")
+theme_override_fonts/italics_font = SubResource("FontVariation_dlj5t")
+theme_override_fonts/bold_italics_font = SubResource("FontVariation_ehycb")
+theme_override_fonts/bold_font = SubResource("FontVariation_t2d6d")
 bbcode_enabled = true
 scroll_following = true
+metadata/_edit_lock_ = true
 
 [node name="ConsoleInput" type="LineEdit" parent="GameInput"]
 visible = false
-offset_top = 217.0
-offset_right = 486.0
-offset_bottom = 248.0
+offset_left = 40.0
+offset_top = 118.0
+offset_right = 630.0
+offset_bottom = 149.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")
 
 [node name="SpellList" parent="GameInput" instance=ExtResource("6_f6bd2")]
 anchors_preset = 3
@@ -64,10 +115,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -242.0
-offset_top = -282.0
-offset_right = 0.0
-offset_bottom = 0.0
+offset_left = 123.0
+offset_top = -301.0
+offset_right = 365.0
+offset_bottom = -19.0
 grow_horizontal = 0
 grow_vertical = 0
 
@@ -75,10 +126,33 @@ grow_vertical = 0
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -44.0
-offset_bottom = 0.0
+offset_left = 1103.0
+offset_top = -723.0
+offset_right = 1305.0
+offset_bottom = -679.0
 grow_vertical = 0
 animate = true
+
+[node name="Minimap" type="TextureRect" parent="GameInput"]
+custom_minimum_size = Vector2(100, 100)
+offset_left = 454.0
+offset_top = 5.0
+offset_right = 554.0
+offset_bottom = 105.0
+metadata/_edit_lock_ = true
+
+[node name="LblGold" type="Label" parent="GameInput"]
+offset_left = 715.0
+offset_top = 388.0
+offset_right = 788.0
+offset_bottom = 408.0
+theme_override_colors/font_color = Color(0.886754, 0.581706, 0, 1)
+theme_override_fonts/font = ExtResource("7_rqp22")
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+metadata/_edit_lock_ = true
 
 [node name="Timers" type="Node" parent="."]
 
