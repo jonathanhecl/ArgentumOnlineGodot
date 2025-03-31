@@ -1,16 +1,17 @@
-[gd_scene load_steps=18 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene load_steps=19 format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
 [ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameScreen/GameWorld.gd" id="2_nvp4f"]
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
-[ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://VentanaPrincipal.jpg" id="3_6rrxf"]
+[ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://Assets/UI/VentanaPrincipal.jpg" id="3_6rrxf"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
 [ext_resource type="PackedScene" uid="uid://cvubk20lc20ic" path="res://SpellList.tscn" id="6_f6bd2"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
 [ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
+[ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://Minimapa.tscn" id="12_s70vx"]
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -123,13 +124,7 @@ offset_bottom = -18.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Minimap" type="TextureRect" parent="GameInput"]
-custom_minimum_size = Vector2(100, 100)
-offset_left = 454.0
-offset_top = 5.0
-offset_right = 554.0
-offset_bottom = 105.0
-metadata/_edit_lock_ = true
+[node name="Minimap" parent="GameInput" instance=ExtResource("12_s70vx")]
 
 [node name="LblGold" type="Label" parent="GameInput"]
 unique_name_in_owner = true

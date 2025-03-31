@@ -66,7 +66,9 @@ func _MovePlayer(heading:int) -> void:
 	else:
 		if character.renderer.heading != heading:
 			GameProtocol.WriteChangeHeading(heading)
-		  
+	
+	_gameInput.minimap.update_player_position(character.gridPosition.x, character.gridPosition.y)
+	 
 func _CanMoveTo(x:int, y:int) -> bool:
 	var map = _gameWorld.GetMapContainer()
 	
@@ -320,6 +322,7 @@ func _HandlePosUpdate(p:PosUpdate) -> void:
 		character.StopMoving()
 		character.gridPosition = Vector2i(p.x, p.y)
 		character.position = Vector2((p.x - 1) * 32, (p.y - 1) * 32) + Vector2(16, 32);
+		_gameInput.minimap.update_player_position(p.x, p.y)
 
 func _HandleForceCharMove(p:ForceCharMove) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
@@ -387,6 +390,12 @@ func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
 
 func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
 	_mainCharacterInstanceId = p.charIndex
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	
+	if character:
+		_gameInput.minimap.update_player_position(
+			character.gridPosition.x,\
+			 character.gridPosition.y)
 
 func _HandleCreateFx(p:CreateFx) -> void:
 	pass
@@ -454,8 +463,11 @@ func _HandlePlayMidi(p:PlayMidi) -> void:
 func _HandlePlayWave(p:PlayWave) -> void:
 	AudioManager.PlayAudio(p.wave)
 
+
 func _HandleChangeMap(p:ChangeMap) -> void:
 	_gameWorld.SwitchMap(p.mapId)
+	_gameInput.minimap.load_thumbnail(p.mapId)
+		
 		
 func _HandleChangeSpellSlot(p:ChangeSpellSlot) -> void:
 	_gameInput.SetSpellName(p.slot -1, p.name)

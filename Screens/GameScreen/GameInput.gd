@@ -9,7 +9,9 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
-  
+
+@onready var minimap: Minimap = $Minimap
+
 var _gameContext:GameContext
 var _currentPanel:Node
 

@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://bx1gpuqy2er8h"]
+
+[ext_resource type="Script" uid="uid://cerr7rk4uulii" path="res://Minimap.gd" id="1_x4hbv"]
+
+[node name="Minimap" type="TextureRect"]
+custom_minimum_size = Vector2(100, 100)
+offset_left = 454.0
+offset_top = 5.0
+offset_right = 554.0
+offset_bottom = 105.0
+script = ExtResource("1_x4hbv")
+metadata/_edit_lock_ = true
