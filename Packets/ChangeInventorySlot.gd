@@ -32,4 +32,4 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	minHit = reader.get_16();
 	maxDef = reader.get_16();
 	minDef = reader.get_16();
-	salePrice = reader.get_float();
+	salePrice = int(reader.get_float());

@@ -474,17 +474,22 @@ func _HandleBlockPosition(p:BlockPosition) -> void:
 	else:
 		_gameWorld.GetMapContainer().UnblockTile(p.x -1, p.y - 1)
 
+
 func _HandleObjectCreate(p:ObjectCreate) -> void:
 	_gameWorld.AddObject(p.grhId, p.x, p.y)
+
 
 func _HandleObjectDelete(p:ObjectDelete) -> void:
 	_gameWorld.DeleteObject(p.x, p.y)
 
+
 func _HandleAreaChanged(_p:AreaChanged) -> void:
 	pass
 
+
 func _HandlePlayMidi(p:PlayMidi) -> void:
 	pass
+	
 	
 func _HandlePlayWave(p:PlayWave) -> void:
 	AudioManager.PlayAudio(p.wave)
@@ -584,9 +589,9 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 			
 			if time >= 60:
 				if time % 60 == 0:
-					message = "{0} minutos.".format([time / 60])
+					message = "{0} minutos.".format([time / 60.0])
 				else:
-					message = "{0} minutos y {1} segundos.".format([int(time / 60), time % 60]) 
+					message = "{0} minutos y {1} segundos.".format([int(time / 60.0), int(time % 60)]) 
 			else:
 				message = "{0} segundos.".format([time])
 			_gameInput.ShowConsoleMessage("Te encuentras a {0} mapas de la {1}, este viaje durará {2}".format([distance, home, message]), FontData.new(Color.RED, true)) 

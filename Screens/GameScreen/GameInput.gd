@@ -10,6 +10,7 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @export var _camera:Camera2D
 
 @onready var minimap: Minimap = $Minimap
+@onready var spell_list_panel: SpellListPanel = $"Inventory-Spell/SpellListPanel" 
 
 @onready var experience_stat_bar: StatBar = $StatBars/ExperienceStatBar
 @onready var stamina_stat_bar: StatBar = $StatBars/StaminaStatBar
@@ -17,9 +18,6 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @onready var mana_stat_bar: StatBar = $StatBars/ManaStatBar 
 @onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
-
-@onready var spell_list_panel: SpellListPanel = $SpellListPanel
-
 
 var _gameContext:GameContext
 var _currentPanel:Node
@@ -210,3 +208,11 @@ func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 
 func _on_texture_button_pressed() -> void:
 	print("dwdwd")
+
+
+func _on_btn_quit_pressed() -> void:
+	get_tree().quit()
+ 
+
+func _on_btn_minimize_pressed() -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)

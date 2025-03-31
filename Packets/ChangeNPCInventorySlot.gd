@@ -24,7 +24,7 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	slot = reader.get_u8();
 	name = Utils.GetUnicodeString(reader)
 	amount = reader.get_16();
-	salePrice = reader.get_float();
+	salePrice = int(reader.get_float());
 	grhId = reader.get_16();
 	index = reader.get_16();
 	type = reader.get_u8();

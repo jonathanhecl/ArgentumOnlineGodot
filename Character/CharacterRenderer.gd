@@ -90,7 +90,7 @@ func _set_body(id:int) -> void:
 			var offset_y = _bodyAnimatedSprite \
 				.sprite_frames \
 				.get_frame_texture("idle_south", 0) \
-				.get_height() / 2
+				.get_height() / 2.0
 			position = Vector2(position.x, -offset_y)
 
 func _LoadSpriteFrames(path:String) -> SpriteFrames:

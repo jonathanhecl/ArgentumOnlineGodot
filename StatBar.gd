@@ -8,7 +8,7 @@ func _on_changed() -> void:
 	_update_label()
 
 
-func _on_value_changed(value: float) -> void:
+func _on_value_changed(_v: float) -> void:
 	_update_label()
 
 

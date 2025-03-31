@@ -79,8 +79,8 @@ static func GetUnicodeString(stream:StreamPeer) -> String:
 static func Utf8ToLatin1(text:String) -> PackedByteArray:
 	var latin1_bytes = PackedByteArray()
 	
-	for char in text:
-		var code = char.unicode_at(0)
+	for c in text:
+		var code = c.unicode_at(0)
 		
 		# Latin-1 solo admite caracteres entre 0-255
 		if code <= 255:
@@ -106,8 +106,8 @@ static func IsEmailValid(email:String) -> bool:
 
 	return regex.search(email) != null
 
-static func LegalCharacter(str:String) -> bool:
-	var code = str.unicode_at(0)
+static func LegalCharacter(text:String) -> bool:
+	var code = text.unicode_at(0)
 	if code == 8:
 		return true
 		
