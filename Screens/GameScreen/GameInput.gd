@@ -169,6 +169,10 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_talk()
 	if event.is_action_pressed("TakeScreenShot"):
 		_take_screenshot()
+	if event.is_action_pressed("TamAnimal"):
+		_tam_animal()
+	if event.is_action_pressed("Steal"):
+		_steal()
 		
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
@@ -216,6 +220,19 @@ func _drop_object() -> void:
 func _attack() -> void:
 	GameProtocol.WriteAttack()
 
+func _tam_animal() -> void:
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return 
+	GameProtocol.WriteWork(Enums.Skill.Domar)
+	
+	
+func _steal() -> void:
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return 
+	GameProtocol.WriteWork(Enums.Skill.Robar)
+
 func _talk() -> void:
 	if _consoleInputLineEdit.visible:
 		return
@@ -250,6 +267,10 @@ func _take_screenshot() -> void:
 		pass
 		
 func _hide() -> void:
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return 
+		
 	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
 
 func _meditate() -> void:

@@ -58,6 +58,7 @@ const MessageWorkRequestTarget:Dictionary[int, String] = {
 	Enums.Skill.Magia: "Haz click sobre el objetivo...",
 	Enums.Skill.Pesca: "Haz click sobre el sitio donde quieres pescar...",
 	Enums.Skill.Robar: "Haz click sobre la víctima...",
+	Enums.Skill.Domar: "Haz click sobre la criatura...",
 	Enums.Skill.Talar: "Haz click sobre el árbol...",
 	Enums.Skill.Mineria: "HHaz click sobre el yacimiento...", 
 	Enums.Skill.FundirMetal: "Haz click sobre la fragua...",
