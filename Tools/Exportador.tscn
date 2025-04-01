@@ -44,9 +44,14 @@ text = "Exportar Armas"
 layout_mode = 2
 text = "Exportar Escudos"
 
+[node name="Button7" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Exportar Fxs"
+
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button" to="." method="_ExportMaps"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button2" to="." method="_Bodies"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button3" to="." method="_Helmets"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button4" to="." method="_Heads"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button5" to="." method="_Weapons"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button6" to="." method="_Shields"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button7" to="." method="_Fxs"]

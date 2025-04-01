@@ -1,0 +1,83 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/Gfx/3070.png" id="1_7mote"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vxofu"]
+atlas = ExtResource("1_7mote")
+region = Rect2(0, 0, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rgnlt"]
+atlas = ExtResource("1_7mote")
+region = Rect2(40, 0, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hh0vf"]
+atlas = ExtResource("1_7mote")
+region = Rect2(80, 0, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8wyrp"]
+atlas = ExtResource("1_7mote")
+region = Rect2(120, 0, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d7n6u"]
+atlas = ExtResource("1_7mote")
+region = Rect2(160, 0, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bqeep"]
+atlas = ExtResource("1_7mote")
+region = Rect2(0, 85, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vbhdc"]
+atlas = ExtResource("1_7mote")
+region = Rect2(40, 85, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_alo0u"]
+atlas = ExtResource("1_7mote")
+region = Rect2(80, 85, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mgrqv"]
+atlas = ExtResource("1_7mote")
+region = Rect2(120, 85, 40, 85)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e4hd4"]
+atlas = ExtResource("1_7mote")
+region = Rect2(160, 85, 40, 85)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vxofu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rgnlt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hh0vf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8wyrp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d7n6u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bqeep")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vbhdc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_alo0u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mgrqv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e4hd4")
+}],
+"loop": false,
+"name": &"default",
+"speed": 12.0
+}]
+metadata/offset_x = 0
+metadata/offset_y = 0

@@ -147,8 +147,8 @@ func _Bodies() -> void:
 		var data = GameAssets.BodyAnimationList[i]
 		var spriteFrames = SpriteFrames.new()
 		
-		spriteFrames.set_meta("offsetX", data.offsetX);
-		spriteFrames.set_meta("offsetY", data.offsetY);
+		spriteFrames.set_meta("offset_x", data.offsetX);
+		spriteFrames.set_meta("offset_y", data.offsetY);
 		
 		spriteFrames.remove_animation("default")
 		_AttachAnimation(spriteFrames, "west", data.west);
@@ -221,3 +221,38 @@ func _Helmets() -> void:
 		_AttachHeadAnimation(spriteFrames, "north", data.north);
 		
 		ResourceSaver.save(spriteFrames, "res://Resources/Character/Helmets/helmet_%d.tres" % i);	
+
+
+func _Fxs() -> void: 
+	var stream = StreamPeerBuffer.new()
+	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Init/fxs.ind")
+	
+	#Get header
+	stream.get_data(255)
+	stream.get_32()
+	stream.get_32()
+	
+	var count = stream.get_16()
+	for i in count:
+		var grh_id = stream.get_16()
+		var offset_x = stream.get_16()
+		var offset_y = stream.get_16()
+		
+		var frames = GameAssets.GrhDataList[grh_id].frames 
+		var spriteFrames = SpriteFrames.new()
+		
+		spriteFrames.set_animation_speed("default", 12.0)
+		spriteFrames.set_animation_loop("default", false)
+		
+		spriteFrames.set_meta("offset_x", offset_x);
+		spriteFrames.set_meta("offset_y", offset_y);
+		
+		for f in range(1, frames.size()):
+			var grh_data = GameAssets.GrhDataList[frames[f]]
+			var atlas_texture = AtlasTexture.new()
+			atlas_texture.region = grh_data.region
+			atlas_texture.atlas = GameAssets.GetTexture(grh_data.fileId)
+			
+			spriteFrames.add_frame("default", atlas_texture)
+			
+		ResourceSaver.save(spriteFrames, "res://Resources/Fxs/fx_%d.tres" % (i + 1))	

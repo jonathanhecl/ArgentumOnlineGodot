@@ -1,0 +1,83 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3 uid="uid://c5yypwcvka6ou"]
+
+[ext_resource type="Texture2D" uid="uid://d3orbsvs64aas" path="res://Assets/Gfx/4074.png" id="1_qg7jq"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2op2n"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(0, 0, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_il1vo"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(80, 0, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tyxgd"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(160, 0, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5sxkc"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(240, 0, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_31kmr"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(320, 0, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h8nky"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(0, 170, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pht7m"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(80, 170, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qbxwt"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(160, 170, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yxkld"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(240, 170, 80, 170)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3sr3c"]
+atlas = ExtResource("1_qg7jq")
+region = Rect2(320, 170, 80, 170)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2op2n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_il1vo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tyxgd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5sxkc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31kmr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h8nky")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pht7m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qbxwt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yxkld")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3sr3c")
+}],
+"loop": false,
+"name": &"default",
+"speed": 12.0
+}]
+metadata/offset_x = 0
+metadata/offset_y = 0
