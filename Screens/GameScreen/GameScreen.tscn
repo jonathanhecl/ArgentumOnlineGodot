@@ -395,6 +395,7 @@ metadata/_edit_lock_ = true
 [node name="PingTimer" type="Timer" parent="Timers"]
 
 [connection signal="gui_input" from="GameInput/MainViewportContainer" to="GameInput" method="_on_main_viewport_container_gui_input"]
+[connection signal="meta_clicked" from="GameInput/Console" to="GameInput" method="_on_console_meta_clicked"]
 [connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
 [connection signal="changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_changed"]
 [connection signal="value_changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_value_changed"]

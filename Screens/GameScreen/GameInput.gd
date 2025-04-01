@@ -238,8 +238,16 @@ func _take_screenshot() -> void:
 	var path = "user://screenshots/%s.png" % date_time
 	var absolute_path = ProjectSettings.globalize_path("user://screenshots/%s.png" % date_time) 
 	
+	var meta_data = {
+		"type" : "screenshot",
+		"path" : absolute_path
+	} 
+	
+	var meta_string = JSON.stringify(meta_data)
+	
 	if image.save_png(path) == OK:
-		ShowConsoleMessage("[Screen] %s" % absolute_path, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Dios]) 		
+		ShowConsoleMessage("[url=%s]¡Screen Capturada![/url]" % meta_string, FontData.new(Color.WHITE)) 		
+		pass
 		
 func _hide() -> void:
 	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
@@ -279,3 +287,12 @@ func _show_drop_panel(slot:int) -> void:
 	
 	drop_panel.slot = slot
 	drop_panel.popup_centered()
+
+
+func _on_console_meta_clicked(meta: Variant) -> void:
+	var data = JSON.parse_string(meta)
+	if data == null: return
+	
+	if data["type"] == "screenshot":
+		OS.shell_open(data["path"])
+	
