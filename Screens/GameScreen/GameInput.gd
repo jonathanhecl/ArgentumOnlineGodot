@@ -150,7 +150,7 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 				GameProtocol.WriteWorkLeftClick(tilePosition.x, tilePosition.y, _gameContext.usingSkill)
 				_gameContext.usingSkill = 0
 				  
-func _HandleKeyEvent(event:InputEventKey) -> void: 
+func _handle_key_event(event:InputEventKey) -> void: 
 	if event.pressed && event.keycode == KEY_ENTER:
 		_consoleInputLineEdit.show() 
 		_consoleInputLineEdit.grab_focus() 
@@ -166,6 +166,11 @@ func _HandleKeyEvent(event:InputEventKey) -> void:
 		_attack()
 	if event.is_action_pressed("Hide"):
 		_hide()
+	
+func _unhandled_key_input(event: InputEvent) -> void: 
+	if event is InputEventKey:
+		_handle_key_event(event)	
+	
 	
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
@@ -202,12 +207,6 @@ func _hide() -> void:
 func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_HandleMouseInput(event)
-	if event is InputEventKey:
-		_HandleKeyEvent(event)		
-
-
-func _on_texture_button_pressed() -> void:
-	print("dwdwd")
 
 
 func _on_btn_quit_pressed() -> void:
