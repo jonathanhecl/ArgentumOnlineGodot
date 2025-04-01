@@ -60,6 +60,9 @@ func _MovePlayer(heading:int) -> void:
 		
 	var newGridLocation = character.gridPosition + Vector2i(Utils.HeadingToVector(heading))
 	if _CanMoveTo(newGridLocation.x, newGridLocation.y) && !_gameContext.userParalizado:
+		#TODO 
+		#No se porque esto esta asi. Lo unico que logra es que el personaje pegue un salto cuando camina
+		#Obligando al usuario a presionar la tecla L(PosUpdate)
 		GameProtocol.WriteWalk(heading)
 		if !_gameContext.userDescansar && !_gameContext.userMeditar:
 			_gameWorld.MoveCharacter(_mainCharacterInstanceId, heading)
@@ -123,11 +126,13 @@ func _HandleIncomingData(data:PackedByteArray) -> void:
 	
 	while stream.get_position() < stream.get_size():
 		_HandleOnePacket(stream)
- 
+
+var pcg:Array[String] 
+
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	var packetId = stream.get_u8()
-	#var name = Enums.ServerPacketID.keys()[packetId]
-	#pcg.append(name)
+	var pname = Enums.ServerPacketID.keys()[packetId]
+	pcg.append(name)
 	match packetId:
 		Enums.ServerPacketID.MultiMessage:
 			_HandleMultiMessage(MultiMessage.new(stream))
@@ -229,8 +234,17 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleShowMessageBox(ShowMessageBox.new(stream))
 		Enums.ServerPacketID.UpdateExp:
 			_HandelUpdateExp(UpdateExp.new(stream))
+		Enums.ServerPacketID.MeditateToggle:
+			_handle_meditate_toggle()
+		Enums.ServerPacketID.UpdateMana:
+			_handle_update_mana(UpdateMana.new(stream))
 		_:
-			print(name)
+			print(pname)
+			
+			
+func _handle_update_mana(p:UpdateMana) -> void:
+	_gameInput.mana_stat_bar.value = p.min_mana
+	_gameContext.player_stats.mana = p.min_mana
 			
 			
 func _HandelUpdateExp(p:UpdateExp) -> void:
@@ -260,6 +274,10 @@ func _HandleUpdateGold(p:UpdateGold) -> void:
 
 func _HandleUpdateBankGold(p:UpdateBankGold) -> void:
 	_gameInput.SetBankGold(p.gold)
+
+
+func _handle_meditate_toggle() -> void:
+	_gameContext.userMeditar = !_gameContext.userMeditar
 
 
 func _HandleChangeBankSlot(p:ChangeBankSlot) -> void:
@@ -310,6 +328,7 @@ func _HandleChangeNPCInventorySlot(p:ChangeNPCInventorySlot) -> void:
 	var itemStack = ItemStack.new(p.amount, false, item)
 	_gameContext.merchantInventory.SetSlot(p.slot -1, itemStack)
 		
+		
 func _HandleChatOverHead(p:ChatOverHead) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
 	if character:
@@ -354,22 +373,29 @@ func _HandleCharacterChange(p:CharacterChange) -> void:
 	character.renderer.shield = p.shield
 	character.renderer.heading = p.heading
 	
+	
 func _HandleUpdateHP(p:UpdateHP) -> void:
 	_gameInput.health_stat_bar.value = p.hp
+	_gameContext.player_stats.hp = p.hp
+
 
 func _HandleCharacterRemove(p:CharacterRemove) -> void:
 	_gameWorld.DeleteCharacter(p.charIndex)
+
 
 func _HandleRemoveCharDialog(p:RemoveCharDialog) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
 	if character:
 		character.Say("", Color.WHITE)
 
+
 func _HandleConsoleMessage(p:ConsoleMessage) -> void:
 	_gameInput.ShowConsoleMessage(p.message, GameAssets.FontDataList[p.fontIndex])
 
+
 func _HandleUpdateSta(p:UpdateSta) -> void:
 	_gameInput.stamina_stat_bar.value = p.stamina
+	_gameContext.player_stats.sta = p.stamina
 
 func _HandleRemoveDialogs() -> void:
 	pass
@@ -407,11 +433,20 @@ func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
 	_gameInput.health_stat_bar.max_value = p.maxHp
 	_gameInput.health_stat_bar.value = p.minHp
 	
+	_gameContext.player_stats.max_hp = p.maxHp
+	_gameContext.player_stats.hp = p.minHp
+	
 	_gameInput.mana_stat_bar.max_value = p.maxMana
 	_gameInput.mana_stat_bar.value = p.minMana
 	
+	_gameContext.player_stats.max_mana = p.maxMana
+	_gameContext.player_stats.mana = p.minMana
+	
 	_gameInput.stamina_stat_bar.max_value = p.maxSta
 	_gameInput.stamina_stat_bar.value = p.minSta
+	
+	_gameContext.player_stats.max_sta = p.maxSta
+	_gameContext.player_stats.sta = p.minSta
 
 
 func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
@@ -423,8 +458,12 @@ func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
 			character.gridPosition.x,\
 			 character.gridPosition.y)
 
+
 func _HandleCreateFx(p:CreateFx) -> void:
-	pass
+	var character = _gameWorld.GetCharacter(p.charIndex)
+	if character:
+		character.effect.play_effect(p.fx, p.fxLoops)
+
 
 func _HandleSetInvisible(p:SetInvisible) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
@@ -502,6 +541,7 @@ func _HandleChangeMap(p:ChangeMap) -> void:
 		
 func _HandleChangeSpellSlot(p:ChangeSpellSlot) -> void:
 	_gameInput.spell_list_panel.set_slot_text(p.slot - 1, p.name) 
+
 
 func _HandleChangeInventorySlot(p:ChangeInventorySlot) -> void:
 	var item = Item.new()

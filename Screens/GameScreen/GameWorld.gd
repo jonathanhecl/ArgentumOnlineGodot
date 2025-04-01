@@ -37,6 +37,9 @@ func MoveCharacter(instanceId:int, heading:int) -> void:
 	character.gridPosition += Vector2i(offset)
 	character.MoveTo(heading)
 	
+	if character.effect.effect_id >= 40 && character.effect.effect_id <= 49:
+		character.effect.stop_effect()
+	
 	_PlayerWalkSound(character)
 	
 func GetCharacter(instanceId:int) -> Character:

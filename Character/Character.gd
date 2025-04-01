@@ -2,8 +2,10 @@ extends Node2D
 class_name Character
 
 const Speed = 120.0
+ 
+@onready var renderer: CharacterRenderer = $Renderer 
+@onready var effect: Effect = $Effect
 
-@export var renderer:CharacterRenderer
 @export var _dialogLabel:Label
 @export var _nameLabel:Label
 @export var _dialogClearTimer:Timer

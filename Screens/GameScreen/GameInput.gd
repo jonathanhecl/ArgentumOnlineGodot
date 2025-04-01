@@ -154,7 +154,7 @@ func _handle_key_event(event:InputEventKey) -> void:
 	if event.pressed && event.keycode == KEY_ENTER:
 		_consoleInputLineEdit.show() 
 		_consoleInputLineEdit.grab_focus() 
-		return
+		return  
 		
 	if event.is_action_pressed("EquipObject"):
 		_equip_object()
@@ -166,6 +166,10 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_attack()
 	if event.is_action_pressed("Hide"):
 		_hide()
+	if event.is_action_pressed("Meditate"):
+		_meditate()
+		
+		
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
 	if event is InputEventKey:
@@ -203,6 +207,17 @@ func _attack() -> void:
 func _hide() -> void:
 	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
 
+func _meditate() -> void:
+	var stats = _gameContext.player_stats 
+	
+	if stats.mana == stats.max_mana:
+		return
+	
+	if !stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	GameProtocol.WriteMeditate()
 
 func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:

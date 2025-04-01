@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0ltc0bc8veon"]
+
+[ext_resource type="Script" uid="uid://d4j6qn2sifd27" path="res://Engine/Effect.gd" id="1_p5q0x"]
+
+[node name="Effect" type="AnimatedSprite2D"]
+self_modulate = Color(1, 1, 1, 0.588235)
+script = ExtResource("1_p5q0x")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]
