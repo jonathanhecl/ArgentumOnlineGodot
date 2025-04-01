@@ -168,7 +168,8 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_hide()
 	if event.is_action_pressed("Meditate"):
 		_meditate()
-		
+	if event.is_action_pressed("DropObject"):
+		_drop_object()
 		
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
@@ -200,6 +201,19 @@ func _pickup_object() -> void:
 	GameProtocol.WritePickup()
 
 
+func _drop_object() -> void:
+	if _gameContext.trading:
+		return
+	
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	if _inventoryContainer.GetSelectedSlot() == -1:
+		return
+		
+	_show_drop_panel(_inventoryContainer.GetSelectedSlot() + 1)
+
 func _attack() -> void:
 	GameProtocol.WriteAttack()
 
@@ -230,3 +244,15 @@ func _on_btn_quit_pressed() -> void:
 
 func _on_btn_minimize_pressed() -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)
+
+
+func _on_btn_drop_gold_pressed() -> void:
+	_show_drop_panel(Consts.Flagoro)
+	
+
+func _show_drop_panel(slot:int) -> void:
+	var drop_panel = load("uid://c107vd41m3j3s").instantiate() 
+	get_parent().add_child(drop_panel)
+	
+	drop_panel.slot = slot
+	drop_panel.popup_centered()

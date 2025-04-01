@@ -56,6 +56,11 @@ static func WriteUseItem(slot:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.UseItem) 
 	_writer.put_u8(slot) 
 	
+static func WriteDrop(slot:int, quantity:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.Drop) 
+	_writer.put_u8(slot) 
+	_writer.put_16(quantity) 
+	
 static func WriteDoubleClick(x:int, y:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.DoubleClick) 
 	_writer.put_u8(x)

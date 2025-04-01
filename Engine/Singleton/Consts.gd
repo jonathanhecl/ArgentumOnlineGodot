@@ -11,7 +11,7 @@ const MaxNormalInventorySlots = 20
 const MaxInventorySlots = 25
 const MaxNpcInventorySlots = 50
 const MaxInventoryObjs = 10000
-const Flagoro = MaxInventorySlots + 1
+const Flagoro = 31
 const MaxBankInventorySlots = 40
 const MaxUserHechizos = 35
 
