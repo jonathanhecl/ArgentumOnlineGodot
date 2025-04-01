@@ -151,11 +151,6 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 				_gameContext.usingSkill = 0
 				  
 func _handle_key_event(event:InputEventKey) -> void: 
-	if event.pressed && event.keycode == KEY_ENTER:
-		_consoleInputLineEdit.show() 
-		_consoleInputLineEdit.grab_focus() 
-		return  
-		
 	if event.is_action_pressed("EquipObject"):
 		_equip_object()
 	if event.is_action_pressed("UseObject"):
@@ -170,6 +165,10 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_meditate()
 	if event.is_action_pressed("DropObject"):
 		_drop_object()
+	if event.is_action_pressed("Talk"):
+		_talk()
+	if event.is_action_pressed("TakeScreenShot"):
+		_take_screenshot()
 		
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
@@ -217,7 +216,31 @@ func _drop_object() -> void:
 func _attack() -> void:
 	GameProtocol.WriteAttack()
 
+func _talk() -> void:
+	if _consoleInputLineEdit.visible:
+		return
+	if _gameContext.trading:
+		return
+	
+	_consoleInputLineEdit.show()
+	_consoleInputLineEdit.grab_focus()
+	
 
+func _take_screenshot() -> void: 
+	await RenderingServer.frame_post_draw
+	
+	var viewport = get_viewport()
+	var image = viewport.get_texture().get_image()
+	
+	var now = Time.get_datetime_dict_from_system()
+	var date_time = "%04d_%02d_%02d %02d_%02d_%02d" % [now.year, now.month, now.day, now.hour, now.minute, now.second]
+	
+	var path = "user://screenshots/%s.png" % date_time
+	var absolute_path = ProjectSettings.globalize_path("user://screenshots/%s.png" % date_time) 
+	
+	if image.save_png(path) == OK:
+		ShowConsoleMessage("[Screen] %s" % absolute_path, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Dios]) 		
+		
 func _hide() -> void:
 	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
 
