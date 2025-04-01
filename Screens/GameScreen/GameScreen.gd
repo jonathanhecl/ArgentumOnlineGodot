@@ -571,8 +571,8 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 			_gameInput.ShowConsoleMessage("SEGURO DE RESURRECCION ACTIVADO", FontData.new(Color.GREEN, true))
 		Enums.Messages.ResuscitationSafeOff:
 			_gameInput.ShowConsoleMessage("SEGURO DE RESURRECCION DESACTIVADO", FontData.new(Color.RED, true))
-		Enums.Messages.DontSeeAnything:
-			_gameInput.ShowConsoleMessage("No ves nada interesante.", FontData.new(Color.from_rgba8(65, 190, 156)))
+		#Enums.Messages.DontSeeAnything:
+		#	_gameInput.ShowConsoleMessage("No ves nada interesante.", FontData.new(Color.from_rgba8(65, 190, 156)))
 		Enums.Messages.NPCSwing:
 			_gameInput.ShowConsoleMessage("¡¡¡La criatura falló el golpe!!!", FontData.new(Color.RED, true))
 		Enums.Messages.NPCKillUser:
