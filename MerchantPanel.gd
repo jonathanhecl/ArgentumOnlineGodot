@@ -1,4 +1,4 @@
-extends Panel
+extends TextureRect
 class_name MerchantPanel
 
 @export var _merchantInventoryContainer:InventoryContainer
@@ -24,10 +24,7 @@ func SetMerchantInventory(inventory:Inventory) -> void:
 func SetPlayerInventory(inventory:Inventory) -> void:
 	_playerInventoryContainer.SetInventory(inventory)
 	_playerInventory = inventory
-
-func _OnClosePressed() -> void:
-	GameProtocol.WriteCommerceEnd()
-
+ 
 func _UpdateInfo(item:Item) -> void:
 	var infoText = item.name
 	if !infoText.is_empty():
@@ -50,3 +47,7 @@ func _OnBuyButtonPressed() -> void:
 func _OnSellButtonPressed() -> void:
 	if _playerInventoryContainer.GetSelectedSlot() == -1: return
 	GameProtocol.WriteCommerceSell(_playerInventoryContainer.GetSelectedSlot() + 1, _GetQuantity());
+
+
+func _on_btn_close_pressed() -> void:
+	GameProtocol.WriteCommerceEnd()
