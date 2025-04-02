@@ -155,3 +155,11 @@ static func WriteMoveSpell(upwards:bool, slot:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.MoveSpell) 
 	_writer.put_u8(upwards) 
 	_writer.put_u8(slot) 
+
+static func WriteWarpChar(username:String, map_id:int, x:int, y:int) -> void:
+	_writer.put_u8(Enums.ClientPacketID.GMCommands) 
+	_writer.put_u8(Enums.EGMCommands.WARP_CHAR) 
+	Utils.PutUnicodeString(_writer, username)
+	_writer.put_16(map_id) 
+	_writer.put_u8(x) 
+	_writer.put_u8(y) 

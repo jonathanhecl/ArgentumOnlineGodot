@@ -352,3 +352,7 @@ func _on_console_meta_clicked(meta: Variant) -> void:
 	if data["type"] == "screenshot":
 		OS.shell_open(data["path"])
 	
+	
+func _on_minimap_click(mouse_position: Vector2) -> void:
+	if _gameContext.player_map > 0:
+		GameProtocol.WriteWarpChar("YO", _gameContext.player_map, int(mouse_position.x), int(mouse_position.y))

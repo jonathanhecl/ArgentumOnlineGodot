@@ -1,6 +1,8 @@
 extends TextureRect
 class_name Minimap
 
+signal click(mouse_position:Vector2)
+
 var _player_position_x:int
 var _player_position_y:int
 
@@ -19,3 +21,9 @@ func update_player_position(x:int, y:int) -> void:
 	
 func _draw() -> void:
 	draw_rect(Rect2(_player_position_x, _player_position_y, 5, 5), Color.RED, true)
+
+
+func _on_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed:
+			click.emit(event.position.ceil())

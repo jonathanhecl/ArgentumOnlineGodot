@@ -19,3 +19,5 @@ var userNavegando:bool
 var usingSkill:int
 
 var pingTime:int
+
+var player_map:int 

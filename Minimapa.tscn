@@ -4,9 +4,8 @@
 
 [node name="Minimap" type="TextureRect"]
 custom_minimum_size = Vector2(100, 100)
-offset_left = 454.0
-offset_top = 5.0
-offset_right = 554.0
-offset_bottom = 105.0
+offset_right = 100.0
+offset_bottom = 100.0
 script = ExtResource("1_x4hbv")
-metadata/_edit_lock_ = true
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]

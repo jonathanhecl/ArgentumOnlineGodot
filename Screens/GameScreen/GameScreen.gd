@@ -536,6 +536,7 @@ func _HandlePlayWave(p:PlayWave) -> void:
 
 func _HandleChangeMap(p:ChangeMap) -> void:
 	_gameWorld.SwitchMap(p.mapId)
+	_gameContext.player_map = p.mapId
 	_gameInput.minimap.load_thumbnail(p.mapId)
 		
 		
