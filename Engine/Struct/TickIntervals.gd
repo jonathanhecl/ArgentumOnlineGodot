@@ -65,6 +65,8 @@ func request_pos_update() -> bool:
 func request_macro_work() -> bool:
 	return _request_timer(ActionTimers.MACRO_WORK)
 
+func request_work() -> bool:
+	return _request_timer(ActionTimers.WORK)
 
 func request_macro_spells() -> bool:
 	return _request_timer(ActionTimers.MACRO_SPELLS)

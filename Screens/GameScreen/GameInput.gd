@@ -137,18 +137,42 @@ func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec
 
 func _HandleMouseInput(event:InputEventMouseButton) -> void:
-	var tilePosition = Vector2i((_CameraTransformVector(event.position) / 32.0).ceil()) 
+	var mouse_tile_position = Vector2i((_CameraTransformVector(event.position) / 32.0).ceil()) 
 	
-	if event.double_click:
-		if !_gameContext.mirandoForo && !_gameContext.trading:
-			GameProtocol.WriteDoubleClick(tilePosition.x, tilePosition.y)
-	else:
-		if event.pressed: 
-			if _gameContext.usingSkill == 0:
-				GameProtocol.WriteLeftClick(tilePosition.x, tilePosition.y)
-			else:
-				GameProtocol.WriteWorkLeftClick(tilePosition.x, tilePosition.y, _gameContext.usingSkill)
-				_gameContext.usingSkill = 0
+	if _gameContext.trading:
+		return
+	  
+	if event.pressed && event.button_index == MOUSE_BUTTON_LEFT:
+		if event.double_click:
+			GameProtocol.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
+			return
+		
+		if _gameContext.usingSkill == 0:
+			GameProtocol.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
+		else:
+			if _gameContext.usingSkill == Enums.Skill.Proyectiles:
+				if !_gameContext.tick_intervals.request_attack_with_bow():
+					_gameContext.usingSkill = 0
+					ShowConsoleMessage("No puedes lanzar proyectiles tan rápido.", \
+						GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
+					return
+			
+			if _gameContext.usingSkill == Enums.Skill.Magia:
+				if !_gameContext.tick_intervals.request_cast_spell():
+					_gameContext.usingSkill = 0
+					ShowConsoleMessage("No puedes lanzar hechizos tan rápido.", \
+						GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
+					return
+			
+			if _gameContext.usingSkill in [Enums.Skill.Mineria, Enums.Skill.Robar, Enums.Skill.Pesca, Enums.Skill.Talar, Enums.Skill.FundirMetal]:
+				if !_gameContext.tick_intervals.request_work():
+					_gameContext.usingSkill = 0
+					 
+					return
+		
+			GameProtocol.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
+			_gameContext.usingSkill = 0
+	
 				  
 func _handle_key_event(event:InputEventKey) -> void: 
 	if event.is_action_pressed("EquipObject"):
