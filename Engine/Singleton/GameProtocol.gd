@@ -56,6 +56,15 @@ static func WriteUseItem(slot:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.UseItem) 
 	_writer.put_u8(slot) 
 	
+static func WriteQuit() -> void:
+	_writer.put_u8(Enums.ClientPacketID.Quit)
+	
+static func WriteSafeToggle() -> void:
+	_writer.put_u8(Enums.ClientPacketID.SafeToggle)
+	
+static func WriteResuscitationToggle() -> void:
+	_writer.put_u8(Enums.ClientPacketID.ResuscitationSafeToggle)
+	
 static func WriteDrop(slot:int, quantity:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.Drop) 
 	_writer.put_u8(slot) 

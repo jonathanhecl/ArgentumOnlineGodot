@@ -31,7 +31,7 @@ func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
 	_inventoryContainer.SetInventory(_gameContext.playerInventory)
 	_inventoryContainer.slotPressed.connect(func(_v): 
-		_use_object())
+		_use_object(true))
 
 func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.WHITE)) -> void:
 	var bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), message]
@@ -173,7 +173,14 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_tam_animal()
 	if event.is_action_pressed("Steal"):
 		_steal()
-		
+	if event.is_action_pressed("RequestRefresh"):
+		_request_position_update()
+	if event.is_action_released("ExitGame"):
+		_exit_game()
+	if event.is_action_pressed("ToggleSafeMode"):
+		GameProtocol.WriteSafeToggle()
+	if event.is_action_pressed("ToggleResuscitationSafe"):
+		GameProtocol.WriteResuscitationToggle()
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
 	if event is InputEventKey:
@@ -189,18 +196,33 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	_consoleInputLineEdit.visible = false
 
 func _equip_object() -> void:
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return  
+	
 	var slot = _inventoryContainer.GetSelectedSlot()
 	if slot == -1 || _gameContext.trading: return
 
 	GameProtocol.WriteEquipItem(slot + 1)
 
-func _use_object() -> void:
+func _use_object(double_click = false) -> void:
+	if double_click:
+		if !_gameContext.tick_intervals.request_use_item_with_double_click():
+			return
+	else:
+		if !_gameContext.tick_intervals.request_use_item_with_u():
+			return
+	 
 	var slot = _inventoryContainer.GetSelectedSlot() 
 	if slot == -1 || _gameContext.trading || _gameContext.pause: return
+	
 	GameProtocol.WriteUseItem(slot + 1)
 	
 	
 func _pickup_object() -> void:
+	if !_gameContext.player_stats.is_alive():
+		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return  
 	GameProtocol.WritePickup()
 
 
@@ -218,7 +240,20 @@ func _drop_object() -> void:
 	_show_drop_panel(_inventoryContainer.GetSelectedSlot() + 1)
 
 func _attack() -> void:
-	GameProtocol.WriteAttack()
+	if _gameContext.userMeditar || _gameContext.userDescansar:
+		return
+	
+	if _gameContext.tick_intervals.request_attack():
+		GameProtocol.WriteAttack()
+
+
+func _request_position_update() -> void:
+	if _gameContext.tick_intervals.request_pos_update():
+		GameProtocol.WriteRequestPositionUpdate()
+
+
+func _exit_game() -> void:
+	GameProtocol.WriteQuit()
 
 func _tam_animal() -> void:
 	if !_gameContext.player_stats.is_alive():
