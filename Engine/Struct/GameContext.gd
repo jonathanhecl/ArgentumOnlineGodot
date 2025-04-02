@@ -6,6 +6,7 @@ var merchantInventory:Inventory = Inventory.new(Consts.MaxNpcInventorySlots)
 var bankInventory:Inventory = Inventory.new(Consts.MaxBankInventorySlots) 
 
 var player_stats:PlayerStats = PlayerStats.new()
+var tick_intervals:TickIntervals = TickIntervals.new()
 
 var traveling:bool
 var trading:bool
