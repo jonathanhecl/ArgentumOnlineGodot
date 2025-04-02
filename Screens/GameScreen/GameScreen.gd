@@ -238,6 +238,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_meditate_toggle()
 		Enums.ServerPacketID.UpdateMana:
 			_handle_update_mana(UpdateMana.new(stream))
+		Enums.ServerPacketID.NavigateToggle:
+			_handle_navigate_toggle()
 		_:
 			print(pname)
 			
@@ -258,6 +260,10 @@ func _HandleShowMessageBox(p:ShowMessageBox) -> void:
 func _HandlePong() -> void:
 	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
 	_gameContext.pingTime = 0
+
+
+func _handle_navigate_toggle() -> void:
+	_gameContext.userNavegando = !_gameContext.userNavegando
 
 
 func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
