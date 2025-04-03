@@ -234,6 +234,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_user_offer_confirm()
 		Enums.ServerPacketID.CommerceChat:
 			_handle_commerce_chat(CommerceChat.new(stream))
+		Enums.ServerPacketID.CancelOfferItem:
+			_handle_cancel_offer_item(CancelOfferItem.new(stream))
 		Enums.ServerPacketID.ParalizeOK:
 			_handle_paralize_ok()
 		Enums.ServerPacketID.SendNight:
@@ -285,6 +287,10 @@ func _handle_commerce_end() -> void:
 
 #TODO Completar
 func _handle_user_offer_confirm() -> void:
+	pass
+
+
+func _handle_cancel_offer_item(p:CancelOfferItem) -> void:
 	pass
 
 
