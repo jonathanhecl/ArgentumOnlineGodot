@@ -146,6 +146,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleChangeMap(ChangeMap.new(stream))
 		Enums.ServerPacketID.PlayMIDI:
 			_HandlePlayMidi(PlayMidi.new(stream))
+		Enums.ServerPacketID.ShowSignal:
+			_handle_show_signal(ShowSignal.new(stream))
 		Enums.ServerPacketID.PlayWave:
 			_HandlePlayWave(PlayWave.new(stream))
 		Enums.ServerPacketID.AreaChanged:
@@ -533,6 +535,10 @@ func _HandleAreaChanged(_p:AreaChanged) -> void:
 
 
 func _HandlePlayMidi(p:PlayMidi) -> void:
+	pass
+	
+	
+func _handle_show_signal(p:ShowSignal) -> void:
 	pass
 	
 	
