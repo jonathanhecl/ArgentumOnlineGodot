@@ -228,6 +228,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_dumb_no_more()
 		Enums.ServerPacketID.UserCommerceInit:
 			_handle_user_commerce_init(UserCommerceInit.new(stream))
+		Enums.ServerPacketID.UserCommerceEnd:
+			_handle_commerce_end()
 		Enums.ServerPacketID.ParalizeOK:
 			_handle_paralize_ok()
 		Enums.ServerPacketID.SendNight:
@@ -270,7 +272,12 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	
 func _handle_user_commerce_init(p:UserCommerceInit) -> void:
 	pass
-			
+
+
+#TODO Completar
+func _handle_commerce_end() -> void:
+	_gameContext.trading = false
+
 
 func _handle_update_mana(p:UpdateMana) -> void:
 	_gameInput.mana_stat_bar.value = p.min_mana
