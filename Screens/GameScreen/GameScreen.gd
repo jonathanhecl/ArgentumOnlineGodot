@@ -216,6 +216,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			pass
 		Enums.ServerPacketID.BankOK:
 			pass
+		Enums.ServerPacketID.Blind:
+			_handle_blind()
+		Enums.ServerPacketID.BlindNoMore:
+			_handle_blind_no_more()
 		Enums.ServerPacketID.RestOK:
 			_handle_rest_ok()
 		Enums.ServerPacketID.ParalizeOK:
@@ -304,6 +308,13 @@ func _handle_meditate_toggle() -> void:
 
 func _handle_rest_ok() -> void:
 	_gameContext.userDescansar = !_gameContext.userDescansar
+
+func _handle_blind() -> void:
+	_gameContext.userCiego = true
+
+	
+func _handle_blind_no_more() -> void:
+	_gameContext.userCiego = false
 
 
 func _handle_paralize_ok() -> void:
