@@ -274,6 +274,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_stop_working()
 		Enums.ServerPacketID.ShowBlacksmithForm:
 			_handle_show_blacksmith_form()
+		Enums.ServerPacketID.ShowCarpenterForm:
+			_handle_show_carpenter_form()
 		_:
 			print(pname)
 	
@@ -287,7 +289,6 @@ func _handle_commerce_end() -> void:
 	_gameContext.trading = false
 
 
-#TODO Completar
 func _handle_user_offer_confirm() -> void:
 	pass
 
@@ -301,6 +302,10 @@ func _handle_commerce_chat(p:CommerceChat) -> void:
 
 
 func _handle_show_blacksmith_form() -> void:
+	pass
+	
+
+func _handle_show_carpenter_form() -> void:
 	pass
 	
 	
