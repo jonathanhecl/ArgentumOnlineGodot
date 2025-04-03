@@ -218,6 +218,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			pass
 		Enums.ServerPacketID.RestOK:
 			_handle_rest_ok()
+		Enums.ServerPacketID.ParalizeOK:
+			_handle_paralize_ok()
 		Enums.ServerPacketID.ErrorMsg:
 			_handle_error_message(ErrorMsg.new(stream))
 		Enums.ServerPacketID.ChangeBankSlot:
@@ -300,6 +302,10 @@ func _handle_meditate_toggle() -> void:
 
 func _handle_rest_ok() -> void:
 	_gameContext.userDescansar = !_gameContext.userDescansar
+
+
+func _handle_paralize_ok() -> void:
+	_gameContext.userParalizado = !_gameContext.userParalizado
 
 
 func _handle_error_message(p:ErrorMsg) -> void:
