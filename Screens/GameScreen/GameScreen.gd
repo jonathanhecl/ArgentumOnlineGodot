@@ -242,6 +242,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_update_mana(UpdateMana.new(stream))
 		Enums.ServerPacketID.NavigateToggle:
 			_handle_navigate_toggle()
+		Enums.ServerPacketID.PauseToggle:
+			_handle_pause_toggle()
 		_:
 			print(pname)
 			
@@ -266,6 +268,10 @@ func _HandlePong() -> void:
 
 func _handle_navigate_toggle() -> void:
 	_gameContext.userNavegando = !_gameContext.userNavegando
+
+
+func _handle_pause_toggle() -> void:
+	_gameContext.pause = !_gameContext.pause
 
 
 func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
