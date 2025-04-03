@@ -261,6 +261,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_navigate_toggle()
 		Enums.ServerPacketID.PauseToggle:
 			_handle_pause_toggle()
+		Enums.ServerPacketID.StopWorking:
+			_handle_stop_working()
 		_:
 			print(pname)
 			
@@ -289,6 +291,13 @@ func _handle_navigate_toggle() -> void:
 
 func _handle_pause_toggle() -> void:
 	_gameContext.pause = !_gameContext.pause
+
+
+func _handle_stop_working() -> void:
+	_gameInput.ShowConsoleMessage("¡Has terminado de trabajar!", \
+		GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	#TODO Completar
+	#If frmMain.macrotrabajo.Enabled Then Call frmMain.DesactivarMacroTrabajo
 
 
 func _HandleUpdateDexterity(p:UpdateDexterity) -> void:
