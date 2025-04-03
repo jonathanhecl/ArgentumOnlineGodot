@@ -272,6 +272,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_pause_toggle()
 		Enums.ServerPacketID.StopWorking:
 			_handle_stop_working()
+		Enums.ServerPacketID.ShowBlacksmithForm:
+			_handle_show_blacksmith_form()
 		_:
 			print(pname)
 	
@@ -298,6 +300,10 @@ func _handle_commerce_chat(p:CommerceChat) -> void:
 	pass
 
 
+func _handle_show_blacksmith_form() -> void:
+	pass
+	
+	
 func _handle_update_mana(p:UpdateMana) -> void:
 	_gameInput.mana_stat_bar.value = p.min_mana
 	_gameContext.player_stats.mana = p.min_mana
