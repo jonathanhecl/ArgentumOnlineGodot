@@ -216,6 +216,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			pass
 		Enums.ServerPacketID.BankOK:
 			pass
+		Enums.ServerPacketID.ErrorMsg:
+			_handle_error_message(ErrorMsg.new(stream))
 		Enums.ServerPacketID.ChangeBankSlot:
 			_HandleChangeBankSlot(ChangeBankSlot.new(stream))
 		Enums.ServerPacketID.BankInit:
@@ -292,6 +294,11 @@ func _HandleUpdateBankGold(p:UpdateBankGold) -> void:
 
 func _handle_meditate_toggle() -> void:
 	_gameContext.userMeditar = !_gameContext.userMeditar
+
+
+func _handle_error_message(p:ErrorMsg) -> void:
+	Utils.ShowAlertDialog("Server", p.message, get_tree().root)
+	ClientInterface.DisconnectFromHost()
 
 
 func _HandleChangeBankSlot(p:ChangeBankSlot) -> void:
