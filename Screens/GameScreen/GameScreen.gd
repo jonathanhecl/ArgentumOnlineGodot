@@ -222,6 +222,11 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_blind_no_more()
 		Enums.ServerPacketID.RestOK:
 			_handle_rest_ok()
+		Enums.ServerPacketID.Dumb:
+			_handle_dumb()
+		Enums.ServerPacketID.DumbNoMore:
+			_handle_dumb_no_more()
+			
 		Enums.ServerPacketID.ParalizeOK:
 			_handle_paralize_ok()
 		Enums.ServerPacketID.SendNight:
@@ -315,6 +320,14 @@ func _handle_blind() -> void:
 	
 func _handle_blind_no_more() -> void:
 	_gameContext.userCiego = false
+
+
+func _handle_dumb() -> void:
+	_gameContext.userEstupido = true
+
+
+func _handle_dumb_no_more() -> void:
+	_gameContext.userEstupido = false 
 
 
 func _handle_paralize_ok() -> void:

@@ -14,6 +14,7 @@ var pause:bool
 var mirandoForo:bool
 var userParalizado:bool
 var userCiego:bool
+var userEstupido:bool
 var userDescansar:bool
 var userMeditar:bool
 var userNavegando:bool
