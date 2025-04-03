@@ -276,6 +276,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_show_blacksmith_form()
 		Enums.ServerPacketID.ShowCarpenterForm:
 			_handle_show_carpenter_form()
+		Enums.ServerPacketID.CarpenterObjects:
+			_handle_carpenter_objects(CarpenterObjects.new(stream))
 		Enums.ServerPacketID.BlacksmithWeapons:
 			_handle_blacksmith_weapons(BlacksmithWeapons.new(stream))
 		Enums.ServerPacketID.BlacksmithArmors:
@@ -312,11 +314,16 @@ func _handle_show_blacksmith_form() -> void:
 func _handle_blacksmith_weapons(p:BlacksmithWeapons) -> void:
 	pass
 
+
 func _handle_blacksmith_armors(p:BlacksmithArmors) -> void:
 	pass
 
 
 func _handle_show_carpenter_form() -> void:
+	pass
+
+
+func _handle_carpenter_objects(p:CarpenterObjects) -> void:
 	pass
 	
 	
