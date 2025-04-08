@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://c4skiho4j6vjn"]
 
 [ext_resource type="Texture2D" uid="uid://c3pbnw16wyg28" path="res://Assets/UI/Boveda.jpg" id="1_udis2"]
-[ext_resource type="Script" uid="uid://cfiou2t86w2ko" path="res://BankPanel.gd" id="1_x0502"]
-[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="2_udis2"]
+[ext_resource type="Script" uid="uid://cfiou2t86w2ko" path="res://ui/hub/bank_panel.gd" id="1_x0502"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://ui/hub/inventory_container.tscn" id="2_udis2"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="4_e1jaj"]
 
 [sub_resource type="FontVariation" id="FontVariation_7ls34"]

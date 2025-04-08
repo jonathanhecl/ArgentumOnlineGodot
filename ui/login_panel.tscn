@@ -1,11 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://bea3h14qh8jve"]
 
-[ext_resource type="Script" uid="uid://c3544f3wcfksc" path="res://LoginPanel.gd" id="1_jrlf2"]
+[ext_resource type="Script" uid="uid://c3544f3wcfksc" path="res://ui/login_panel.gd" id="1_6a27a"]
 
 [node name="LoginPanel" type="PanelContainer"]
 offset_right = 306.0
 offset_bottom = 236.0
-script = ExtResource("1_jrlf2")
+script = ExtResource("1_6a27a")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2

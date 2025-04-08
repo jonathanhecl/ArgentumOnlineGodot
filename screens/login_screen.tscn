@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cd452cndcck7v"]
 
-[ext_resource type="Script" uid="uid://1y0cwxd2hj2r" path="res://Screens/LoginScreen.gd" id="1_n65iu"]
-[ext_resource type="PackedScene" uid="uid://bea3h14qh8jve" path="res://LoginPanel.tscn" id="2_tjwxy"]
+[ext_resource type="Script" uid="uid://1y0cwxd2hj2r" path="res://screens/login_screen.gd" id="1_n65iu"]
+[ext_resource type="PackedScene" uid="uid://bea3h14qh8jve" path="res://ui/login_panel.tscn" id="2_tjwxy"]
 
 [node name="LoginScreen" type="Node" node_paths=PackedStringArray("_loginPanel")]
 script = ExtResource("1_n65iu")

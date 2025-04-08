@@ -1,6 +1,6 @@
 extends Node
 class_name GameScreen
-@export var _gameInput:GameInput
+@export var _gameInput:HubController
 @export var _gameWorld:GameWorld
 @export var _camera:Camera2D
 

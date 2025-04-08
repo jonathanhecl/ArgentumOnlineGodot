@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bp35uafwebjdb"]
 
-[ext_resource type="Script" uid="uid://jq4g00j8tbc4" path="res://Screens/CharacterCreationScreen.gd" id="1_tkq11"]
-[ext_resource type="PackedScene" path="res://Maps/Map1.tscn" id="2_hwus4"]
+[ext_resource type="Script" uid="uid://jq4g00j8tbc4" path="res://screens/character_creation_screen.gd" id="1_tkq11"]
+[ext_resource type="PackedScene" path="res://maps/Map1.tscn" id="2_hwus4"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_hwus4"]
 font_size = 20

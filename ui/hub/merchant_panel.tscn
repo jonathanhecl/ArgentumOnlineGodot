@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://b5q8b0u4jmm2b"]
 
 [ext_resource type="Texture2D" uid="uid://b8gq7ac6ilpak" path="res://Assets/UI/VentanaComercio.jpg" id="1_850gq"]
-[ext_resource type="Script" uid="uid://de3jg50cg7tyi" path="res://MerchantPanel.gd" id="1_j83ap"]
-[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="2_cer8s"]
+[ext_resource type="Script" uid="uid://de3jg50cg7tyi" path="res://ui/hub/merchant_panel.gd" id="1_j83ap"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://ui/hub/inventory_container.tscn" id="2_cer8s"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="4_co15t"]
 
 [sub_resource type="FontVariation" id="FontVariation_nqjup"]

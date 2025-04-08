@@ -17,12 +17,12 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GameAssets="*res://Engine/Singleton/GameAssets.gd"
-AudioManager="*res://Engine/Singleton/AudioManager.gd"
-ScreenController="*res://Engine/Singleton/ScreenController.gd"
-ClientInterface="*res://Engine/Singleton/ClientInterface.gd"
-Consts="*res://Engine/Singleton/Consts.gd"
-Global="*res://Engine/Singleton/Global.gd"
+GameAssets="*res://engine/autoload/game_assets.gd"
+AudioManager="*res://engine/autoload/audio_manager.gd"
+ScreenController="*res://engine/autoload/screen_controller.gd"
+ClientInterface="*res://engine/autoload/client_interface.gd"
+Consts="*res://engine/autoload/consts.gd"
+Global="*res://engine/autoload/global.gd"
 
 [display]
 

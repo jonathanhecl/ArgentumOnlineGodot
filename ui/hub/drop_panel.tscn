@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c107vd41m3j3s"]
 
-[ext_resource type="Script" uid="uid://chyt6ogw3mbo8" path="res://DropPanel.gd" id="1_83gs4"]
-[ext_resource type="Texture2D" uid="uid://b0xxwj2wsn0nu" path="res://Assets/UI/VentanaTirarOro.jpg" id="1_k3w7d"]
+[ext_resource type="Script" uid="uid://chyt6ogw3mbo8" path="res://ui/hub/drop_panel.gd" id="1_jb56n"]
+[ext_resource type="Texture2D" uid="uid://b0xxwj2wsn0nu" path="res://Assets/UI/VentanaTirarOro.jpg" id="2_hbpst"]
 
 [node name="DropPanel" type="Window"]
 size = Vector2i(216, 100)
@@ -10,12 +10,12 @@ transient = true
 exclusive = true
 unresizable = true
 borderless = true
-script = ExtResource("1_83gs4")
+script = ExtResource("1_jb56n")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 offset_right = 216.0
 offset_bottom = 100.0
-texture = ExtResource("1_k3w7d")
+texture = ExtResource("2_hbpst")
 metadata/_edit_lock_ = true
 
 [node name="SpinBox" type="SpinBox" parent="."]

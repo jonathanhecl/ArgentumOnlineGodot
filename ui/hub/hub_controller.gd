@@ -1,5 +1,5 @@
 extends CanvasLayer
-class_name GameInput
+class_name HubController
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")

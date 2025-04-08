@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bx1gpuqy2er8h"]
 
-[ext_resource type="Script" uid="uid://cerr7rk4uulii" path="res://Minimap.gd" id="1_x4hbv"]
+[ext_resource type="Script" uid="uid://cerr7rk4uulii" path="res://ui/hub/minimap.gd" id="1_x4hbv"]
 
 [node name="Minimap" type="TextureRect"]
 custom_minimum_size = Vector2(100, 100)

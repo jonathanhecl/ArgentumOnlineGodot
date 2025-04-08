@@ -1,8 +1,12 @@
 extends AnimatedSprite2D
-class_name Effect
+class_name CharacterEffect
 
 var effect_id:int
 var effect_loops:int
+
+func _ready() -> void:
+	animation_finished.connect(_on_animation_finished)
+
 
 func play_effect(id:int, loops:int) -> void:
 	effect_id = id
@@ -18,12 +22,14 @@ func play_effect(id:int, loops:int) -> void:
 	else:
 		stop_effect()
 		
+		
 func stop_effect() -> void:
 	stop()
 	
 	effect_id = 0
 	effect_loops = 0
 	visible = false
+	
 
 func _on_animation_finished() -> void:
 	if effect_loops == Consts.InfiniteLoops:

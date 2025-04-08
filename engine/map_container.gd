@@ -19,7 +19,7 @@ func LoadMap(id:int) -> void:
 	if _view:
 		_view.queue_free()
 		
-	_view = load("res://Maps/Map%d.tscn" % id).instantiate()
+	_view = load("res://maps/Map%d.tscn" % id).instantiate()
 	_tiles = _view.get_meta("data")
 	%MapView.add_child(_view)
 

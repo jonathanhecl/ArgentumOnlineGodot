@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dqe3dktm053jv"]
 
-[ext_resource type="Script" uid="uid://hwxh41kn7bbx" path="res://Tools/Exportador.gd" id="1_46j3f"]
+[ext_resource type="Script" uid="uid://hwxh41kn7bbx" path="res://tools/Exportador.gd" id="1_46j3f"]
 
 [node name="Exportador" type="Node"]
 script = ExtResource("1_46j3f")

@@ -3,8 +3,8 @@ class_name Character
 
 const Speed = 120.0
  
-@onready var renderer: CharacterRenderer = $Renderer 
-@onready var effect: Effect = $Effect
+@onready var renderer: CharacterRenderer = $Renderer  
+@onready var effect: CharacterEffect = $CharacterEffect
 
 @export var _dialogLabel:Label
 @export var _nameLabel:Label

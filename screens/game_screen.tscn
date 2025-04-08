@@ -1,21 +1,21 @@
 [gd_scene load_steps=31 format=3 uid="uid://b2dyxo3826bub"]
 
-[ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://Screens/GameScreen/GameScreen.gd" id="1_p7x0p"]
-[ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://Screens/GameScreen/GameInput.gd" id="2_b7a1e"]
-[ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://Screens/GameScreen/GameWorld.gd" id="2_nvp4f"]
-[ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://MapContainer.tscn" id="2_sne8m"]
+[ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://screens/game_screen.gd" id="1_p7x0p"]
+[ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://ui/hub/hub_controller.gd" id="2_b7a1e"]
+[ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://engine/game_world.gd" id="2_nvp4f"]
+[ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://engine/map_container.tscn" id="2_sne8m"]
 [ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://Assets/UI/VentanaPrincipal.jpg" id="3_6rrxf"]
-[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://InventoryContainer.tscn" id="3_q7e6u"]
+[ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://ui/hub/inventory_container.tscn" id="3_q7e6u"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
 [ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
-[ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://Minimapa.tscn" id="12_s70vx"]
-[ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://StatBar.tscn" id="13_u317p"]
+[ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://ui/hub/minimap.tscn" id="12_s70vx"]
+[ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://ui/hub/stat_bar.tscn" id="13_u317p"]
 [ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
-[ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://StatBar.gd" id="15_dlj5t"]
+[ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://ui/hub/stat_bar.gd" id="15_dlj5t"]
 [ext_resource type="Texture2D" uid="uid://dkhonpkjanea7" path="res://Assets/UI/panel_inventario.jpg" id="16_t2d6d"]
-[ext_resource type="PackedScene" uid="uid://cmwexlttk8ltw" path="res://SpellListPanel.tscn" id="17_t2d6d"]
+[ext_resource type="PackedScene" uid="uid://cmwexlttk8ltw" path="res://ui/hub/spell_list_panel.tscn" id="17_t2d6d"]
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -67,24 +67,24 @@ font_size = 12
 
 [node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
 script = ExtResource("1_p7x0p")
-_gameInput = NodePath("GameInput")
-_gameWorld = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld")
-_camera = NodePath("GameInput/MainViewportContainer/Viewport/GameWorld/Camera2D")
+_gameInput = NodePath("HubController")
+_gameWorld = NodePath("HubController/MainViewportContainer/Viewport/GameWorld")
+_camera = NodePath("HubController/MainViewportContainer/Viewport/GameWorld/Camera2D")
 
-[node name="GameInput" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="HubController" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("Inventory-Spell/InventoryPanel/InventoryContainer")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
 
-[node name="TextureRect" type="TextureRect" parent="GameInput"]
+[node name="TextureRect" type="TextureRect" parent="HubController"]
 offset_right = 800.0
 offset_bottom = 600.0
 texture = ExtResource("3_6rrxf")
 metadata/_edit_lock_ = true
 
-[node name="MainViewportContainer" type="SubViewportContainer" parent="GameInput"]
+[node name="MainViewportContainer" type="SubViewportContainer" parent="HubController"]
 custom_minimum_size = Vector2(544, 416)
 offset_left = 10.0
 offset_top = 134.0
@@ -95,21 +95,21 @@ stretch = true
 metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
-[node name="Viewport" type="SubViewport" parent="GameInput/MainViewportContainer"]
+[node name="Viewport" type="SubViewport" parent="HubController/MainViewportContainer"]
 handle_input_locally = false
 size = Vector2i(544, 416)
 render_target_update_mode = 4
 
-[node name="GameWorld" type="Node2D" parent="GameInput/MainViewportContainer/Viewport" node_paths=PackedStringArray("_mapContainer")]
+[node name="GameWorld" type="Node2D" parent="HubController/MainViewportContainer/Viewport" node_paths=PackedStringArray("_mapContainer")]
 position = Vector2(0, -1)
 script = ExtResource("2_nvp4f")
 _mapContainer = NodePath("MapContainer")
 
-[node name="Camera2D" type="Camera2D" parent="GameInput/MainViewportContainer/Viewport/GameWorld"]
+[node name="Camera2D" type="Camera2D" parent="HubController/MainViewportContainer/Viewport/GameWorld"]
 
-[node name="MapContainer" parent="GameInput/MainViewportContainer/Viewport/GameWorld" instance=ExtResource("2_sne8m")]
+[node name="MapContainer" parent="HubController/MainViewportContainer/Viewport/GameWorld" instance=ExtResource("2_sne8m")]
 
-[node name="Console" type="RichTextLabel" parent="GameInput"]
+[node name="Console" type="RichTextLabel" parent="HubController"]
 offset_left = 11.0
 offset_top = 5.0
 offset_right = 446.0
@@ -122,7 +122,7 @@ bbcode_enabled = true
 scroll_following = true
 metadata/_edit_lock_ = true
 
-[node name="ConsoleInput" type="LineEdit" parent="GameInput"]
+[node name="ConsoleInput" type="LineEdit" parent="HubController"]
 visible = false
 offset_left = 11.0
 offset_top = 108.0
@@ -132,16 +132,16 @@ theme_override_fonts/font = SubResource("FontVariation_gwwhr")
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")
 
-[node name="Minimap" parent="GameInput" instance=ExtResource("12_s70vx")]
+[node name="Minimap" parent="HubController" instance=ExtResource("12_s70vx")]
 offset_left = 454.0
 offset_top = 5.0
 offset_right = 554.0
 offset_bottom = 105.0
 metadata/_edit_lock_ = true
 
-[node name="Labels" type="Node" parent="GameInput"]
+[node name="Labels" type="Node" parent="HubController"]
 
-[node name="LblGold" type="Label" parent="GameInput/Labels"]
+[node name="LblGold" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 715.0
 offset_top = 388.0
@@ -155,7 +155,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblStrength" type="Label" parent="GameInput/Labels"]
+[node name="LblStrength" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 511.0
 offset_top = 566.0
@@ -168,7 +168,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblAgility" type="Label" parent="GameInput/Labels"]
+[node name="LblAgility" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 453.0
 offset_top = 566.0
@@ -181,7 +181,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblLevel" type="Label" parent="GameInput/Labels"]
+[node name="LblLevel" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 574.0
 offset_top = 59.0
@@ -193,7 +193,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblName" type="Label" parent="GameInput/Labels"]
+[node name="LblName" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 620.0
 offset_top = 40.0
@@ -205,7 +205,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblArmor" type="Label" parent="GameInput/Labels"]
+[node name="LblArmor" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 34.0
 offset_top = 566.0
@@ -218,7 +218,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblHelmet" type="Label" parent="GameInput/Labels"]
+[node name="LblHelmet" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 91.0
 offset_top = 566.0
@@ -231,7 +231,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblWeapon" type="Label" parent="GameInput/Labels"]
+[node name="LblWeapon" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 149.0
 offset_top = 565.0
@@ -244,7 +244,7 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="LblShield" type="Label" parent="GameInput/Labels"]
+[node name="LblShield" type="Label" parent="HubController/Labels"]
 unique_name_in_owner = true
 offset_left = 207.0
 offset_top = 565.0
@@ -257,9 +257,9 @@ vertical_alignment = 1
 clip_text = true
 metadata/_edit_lock_ = true
 
-[node name="StatBars" type="Node" parent="GameInput"]
+[node name="StatBars" type="Node" parent="HubController"]
 
-[node name="StaminaStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+[node name="StaminaStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
 offset_top = 402.0
 offset_right = 663.0
@@ -267,7 +267,7 @@ offset_bottom = 413.0
 texture_progress = SubResource("AtlasTexture_gwwhr")
 metadata/_edit_lock_ = true
 
-[node name="HealthStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+[node name="HealthStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
 offset_top = 432.0
 offset_right = 663.0
@@ -275,7 +275,7 @@ offset_bottom = 443.0
 texture_progress = SubResource("AtlasTexture_ehycb")
 metadata/_edit_lock_ = true
 
-[node name="ManaStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+[node name="ManaStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
 offset_top = 464.0
 offset_right = 663.0
@@ -283,7 +283,7 @@ offset_bottom = 475.0
 texture_progress = SubResource("AtlasTexture_t2d6d")
 metadata/_edit_lock_ = true
 
-[node name="HungerStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+[node name="HungerStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
 offset_top = 496.0
 offset_right = 663.0
@@ -291,7 +291,7 @@ offset_bottom = 507.0
 texture_progress = SubResource("AtlasTexture_dlj5t")
 metadata/_edit_lock_ = true
 
-[node name="ThirstStatBar" parent="GameInput/StatBars" instance=ExtResource("13_u317p")]
+[node name="ThirstStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
 offset_left = 574.0
 offset_top = 526.0
 offset_right = 663.0
@@ -299,7 +299,7 @@ offset_bottom = 537.0
 texture_progress = SubResource("AtlasTexture_ce3ml")
 metadata/_edit_lock_ = true
 
-[node name="ExperienceStatBar" type="TextureProgressBar" parent="GameInput/StatBars"]
+[node name="ExperienceStatBar" type="TextureProgressBar" parent="HubController/StatBars"]
 offset_left = 610.0
 offset_top = 72.0
 offset_right = 785.0
@@ -310,7 +310,7 @@ script = ExtResource("15_dlj5t")
 metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
-[node name="Label" type="Label" parent="GameInput/StatBars/ExperienceStatBar"]
+[node name="Label" type="Label" parent="HubController/StatBars/ExperienceStatBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -322,32 +322,32 @@ label_settings = SubResource("LabelSettings_ehycb")
 horizontal_alignment = 1
 clip_text = true
 
-[node name="Buttons" type="Node" parent="GameInput"]
+[node name="Buttons" type="Node" parent="HubController"]
 
-[node name="BtnQuit" type="TextureButton" parent="GameInput/Buttons"]
+[node name="BtnQuit" type="TextureButton" parent="HubController/Buttons"]
 offset_left = 772.0
 offset_top = 12.0
 offset_right = 789.0
 offset_bottom = 29.0
 metadata/_edit_lock_ = true
 
-[node name="BtnDropGold" type="TextureButton" parent="GameInput/Buttons"]
+[node name="BtnDropGold" type="TextureButton" parent="HubController/Buttons"]
 offset_left = 695.0
 offset_top = 390.0
 offset_right = 714.0
 offset_bottom = 408.0
 metadata/_edit_lock_ = true
 
-[node name="BtnMinimize" type="TextureButton" parent="GameInput/Buttons"]
+[node name="BtnMinimize" type="TextureButton" parent="HubController/Buttons"]
 offset_left = 753.0
 offset_top = 12.0
 offset_right = 770.0
 offset_bottom = 29.0
 metadata/_edit_lock_ = true
 
-[node name="Inventory-Spell" type="Node" parent="GameInput"]
+[node name="Inventory-Spell" type="Node" parent="HubController"]
 
-[node name="InventoryPanel" type="TextureRect" parent="GameInput/Inventory-Spell"]
+[node name="InventoryPanel" type="TextureRect" parent="HubController/Inventory-Spell"]
 offset_left = 561.0
 offset_top = 98.0
 offset_right = 789.0
@@ -356,7 +356,7 @@ texture = ExtResource("16_t2d6d")
 metadata/_edit_group_ = true
 metadata/_edit_lock_ = true
 
-[node name="InventoryContainer" parent="GameInput/Inventory-Spell/InventoryPanel" instance=ExtResource("3_q7e6u")]
+[node name="InventoryContainer" parent="HubController/Inventory-Spell/InventoryPanel" instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(160, 160)
 layout_mode = 1
 anchors_preset = 6
@@ -372,7 +372,7 @@ grow_horizontal = 0
 grow_vertical = 2
 columns = 5
 
-[node name="SpellListPanel" parent="GameInput/Inventory-Spell" instance=ExtResource("17_t2d6d")]
+[node name="SpellListPanel" parent="HubController/Inventory-Spell" instance=ExtResource("17_t2d6d")]
 visible = false
 offset_left = 561.0
 offset_top = 98.0
@@ -380,7 +380,7 @@ offset_right = 789.0
 offset_bottom = 350.0
 metadata/_edit_lock_ = true
 
-[node name="ShowInventory" type="TextureButton" parent="GameInput/Inventory-Spell"]
+[node name="ShowInventory" type="TextureButton" parent="HubController/Inventory-Spell"]
 offset_left = 574.0
 offset_top = 138.0
 offset_right = 674.0
@@ -388,7 +388,7 @@ offset_bottom = 166.0
 focus_mode = 0
 metadata/_edit_lock_ = true
 
-[node name="ShowSpells" type="TextureButton" parent="GameInput/Inventory-Spell"]
+[node name="ShowSpells" type="TextureButton" parent="HubController/Inventory-Spell"]
 offset_left = 677.0
 offset_top = 138.0
 offset_right = 776.0
@@ -400,17 +400,17 @@ metadata/_edit_lock_ = true
 
 [node name="PingTimer" type="Timer" parent="Timers"]
 
-[connection signal="gui_input" from="GameInput/MainViewportContainer" to="GameInput" method="_on_main_viewport_container_gui_input"]
-[connection signal="meta_clicked" from="GameInput/Console" to="GameInput" method="_on_console_meta_clicked"]
-[connection signal="text_submitted" from="GameInput/ConsoleInput" to="GameInput" method="_OnConsoleInputTextSubmitted"]
-[connection signal="click" from="GameInput/Minimap" to="GameInput" method="_on_minimap_click"]
-[connection signal="changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_changed"]
-[connection signal="value_changed" from="GameInput/StatBars/ExperienceStatBar" to="GameInput/StatBars/ExperienceStatBar" method="_on_value_changed"]
-[connection signal="pressed" from="GameInput/Buttons/BtnQuit" to="GameInput" method="_on_btn_quit_pressed"]
-[connection signal="pressed" from="GameInput/Buttons/BtnDropGold" to="GameInput" method="_on_btn_drop_gold_pressed"]
-[connection signal="pressed" from="GameInput/Buttons/BtnMinimize" to="GameInput" method="_on_btn_minimize_pressed"]
-[connection signal="pressed" from="GameInput/Inventory-Spell/ShowInventory" to="GameInput/Inventory-Spell/InventoryPanel" method="set_visible" binds= [true]]
-[connection signal="pressed" from="GameInput/Inventory-Spell/ShowInventory" to="GameInput/Inventory-Spell/SpellListPanel" method="set_visible" binds= [false]]
-[connection signal="pressed" from="GameInput/Inventory-Spell/ShowSpells" to="GameInput/Inventory-Spell/InventoryPanel" method="set_visible" binds= [false]]
-[connection signal="pressed" from="GameInput/Inventory-Spell/ShowSpells" to="GameInput/Inventory-Spell/SpellListPanel" method="set_visible" binds= [true]]
+[connection signal="gui_input" from="HubController/MainViewportContainer" to="HubController" method="_on_main_viewport_container_gui_input"]
+[connection signal="meta_clicked" from="HubController/Console" to="HubController" method="_on_console_meta_clicked"]
+[connection signal="text_submitted" from="HubController/ConsoleInput" to="HubController" method="_OnConsoleInputTextSubmitted"]
+[connection signal="click" from="HubController/Minimap" to="HubController" method="_on_minimap_click"]
+[connection signal="changed" from="HubController/StatBars/ExperienceStatBar" to="HubController/StatBars/ExperienceStatBar" method="_on_changed"]
+[connection signal="value_changed" from="HubController/StatBars/ExperienceStatBar" to="HubController/StatBars/ExperienceStatBar" method="_on_value_changed"]
+[connection signal="pressed" from="HubController/Buttons/BtnQuit" to="HubController" method="_on_btn_quit_pressed"]
+[connection signal="pressed" from="HubController/Buttons/BtnDropGold" to="HubController" method="_on_btn_drop_gold_pressed"]
+[connection signal="pressed" from="HubController/Buttons/BtnMinimize" to="HubController" method="_on_btn_minimize_pressed"]
+[connection signal="pressed" from="HubController/Inventory-Spell/ShowInventory" to="HubController/Inventory-Spell/InventoryPanel" method="set_visible" binds= [true]]
+[connection signal="pressed" from="HubController/Inventory-Spell/ShowInventory" to="HubController/Inventory-Spell/SpellListPanel" method="set_visible" binds= [false]]
+[connection signal="pressed" from="HubController/Inventory-Spell/ShowSpells" to="HubController/Inventory-Spell/InventoryPanel" method="set_visible" binds= [false]]
+[connection signal="pressed" from="HubController/Inventory-Spell/ShowSpells" to="HubController/Inventory-Spell/SpellListPanel" method="set_visible" binds= [true]]
 [connection signal="timeout" from="Timers/PingTimer" to="." method="_OnPingTimerTimeout"]
