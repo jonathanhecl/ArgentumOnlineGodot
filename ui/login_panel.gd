@@ -7,6 +7,13 @@ signal error(message:String)
 
 func _ready() -> void:
 	%Reg.pressed.connect(func(): register.emit())
+	
+	# Load saved credentials if they exist
+	var credentials = SavedCredentials.load_credentials()
+	if credentials.username != "" and credentials.password != "":
+		%Username.text = credentials.username
+		%Password.text = credentials.password
+		%RememberPassword.button_pressed = true
 
 func GetUsername() -> String:
 	return %Username.text
@@ -54,4 +61,11 @@ func _OnButtonLoginPressed() -> void:
 			return
 			
 	Global.username = %Username.text
+	
+	# Save credentials if checkbox is checked
+	if %RememberPassword.button_pressed:
+		SavedCredentials.save_credentials(%Username.text, %Password.text)
+	else:
+		SavedCredentials.clear_credentials()
+	
 	submit.emit()
