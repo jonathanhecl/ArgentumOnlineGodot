@@ -1,13 +1,24 @@
-[gd_scene load_steps=5 format=3 uid="uid://twhhld7du3lq"]
+[gd_scene load_steps=7 format=3 uid="uid://twhhld7du3lq"]
 
 [ext_resource type="Script" uid="uid://drw1cp0w5ceh6" path="res://engine/character/character.gd" id="1_85j22"]
 [ext_resource type="Script" uid="uid://thix1oakc52r" path="res://engine/character/character_renderer.gd" id="2_v7p85"]
 [ext_resource type="SpriteFrames" uid="uid://750ochum2vjs" path="res://Resources/Character/none.tres" id="3_rhvfg"]
 [ext_resource type="Script" uid="uid://d4j6qn2sifd27" path="res://engine/character/character_effect.gd" id="4_54bh1"]
 
-[node name="Character" type="Node2D" node_paths=PackedStringArray("_dialogLabel", "_nameLabel", "_dialogClearTimer")]
+[sub_resource type="LabelSettings" id="LabelSettings_llxi2"]
+font_size = 12
+font_color = Color(0, 0, 0, 1)
+outline_size = 5
+outline_color = Color(0, 0, 0, 0.501961)
+
+[sub_resource type="LabelSettings" id="LabelSettings_5s0sa"]
+font_size = 12
+
+[node name="Character" type="Node2D" node_paths=PackedStringArray("_dialogLabel", "_dialogShadowLabel", "_nameLabel", "_dialogClearTimer")]
 script = ExtResource("1_85j22")
+_fontSize = 16
 _dialogLabel = NodePath("Dialog")
+_dialogShadowLabel = NodePath("DialogShadow")
 _nameLabel = NodePath("Name")
 _dialogClearTimer = NodePath("DialogClearTimer")
 
@@ -61,6 +72,26 @@ grow_vertical = 0
 horizontal_alignment = 1
 clip_text = true
 
+[node name="DialogShadow" type="Label" parent="."]
+z_index = 4
+z_as_relative = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -191.0
+offset_top = -380.0
+offset_right = 194.0
+offset_bottom = -59.0
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_llxi2")
+horizontal_alignment = 1
+vertical_alignment = 2
+autowrap_mode = 3
+clip_text = true
+
 [node name="Dialog" type="Label" parent="."]
 z_index = 4
 z_as_relative = false
@@ -75,6 +106,7 @@ offset_right = 192.5
 offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 0
+label_settings = SubResource("LabelSettings_5s0sa")
 horizontal_alignment = 1
 vertical_alignment = 2
 autowrap_mode = 3

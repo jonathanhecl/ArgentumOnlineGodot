@@ -6,7 +6,10 @@ const Speed = 120.0
 @onready var renderer: CharacterRenderer = $Renderer  
 @onready var effect: CharacterEffect = $CharacterEffect
 
+@export_range(10, 16) var _fontSize: int  # configurable 10 a 16
+
 @export var _dialogLabel:Label
+@export var _dialogShadowLabel:Label
 @export var _nameLabel:Label
 @export var _dialogClearTimer:Timer
 
@@ -71,12 +74,16 @@ func PlayNavigationSound() -> void:
 	AudioManager.PlayAudio(Consts.PasoNavegando);
 
 func Say(text:String, color:Color) -> void:
+	_dialogLabel.label_settings.font_size = _fontSize
 	_dialogLabel.text = text
+	_dialogShadowLabel.label_settings.font_size = _dialogLabel.label_settings.font_size 
+	_dialogShadowLabel.text = _dialogLabel.text
 	_dialogLabel.modulate = color
 	_dialogClearTimer.start()
 
 func _OnDialogClearTimerTimeout() -> void:
 	_dialogLabel.text = ""
+	_dialogShadowLabel.text = ""
 	
 func _ProcessAnimation() -> void:
 	if isMoving:
