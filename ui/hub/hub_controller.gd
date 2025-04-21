@@ -214,8 +214,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
 		return
-	
-	GameProtocol.WriteTalk(newText)
+	# Intercept '/est' to request stats instead of chat
+	if newText.to_lower().begins_with("/est"):
+		GameProtocol.WriteRequestStats()
+	else:
+		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
 
