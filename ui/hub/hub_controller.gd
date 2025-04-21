@@ -216,11 +216,23 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
 		return
 	
-	if newText.begins_with("-"):
-		var yell_text = newText.substr(1).strip_edges()
-		if yell_text.is_empty():
+	if newText.begins_with("\\"):
+		var msg = newText.substr(1).strip_edges()
+		var space_idx = msg.find(" ")
+		if space_idx > 0:
+			var receiver = msg.substr(0, space_idx)
+			var body = msg.substr(space_idx + 1).strip_edges()
+			GameProtocol.WriteWhisper(receiver, body)
+		else:
+			ShowConsoleMessage("Escribe un mensaje para susurrar. Ej. \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
-		GameProtocol.WriteYell(yell_text)
+	elif newText.begins_with("-"):
+		var yell_text = newText.substr(1).strip_edges()
+		if !yell_text.is_empty():
+			GameProtocol.WriteYell(yell_text)
+		else:
+			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			return
 	elif !ConsoleCommandProcessor.process(newText):
 		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""

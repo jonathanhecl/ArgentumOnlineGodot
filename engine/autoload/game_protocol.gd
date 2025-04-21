@@ -144,6 +144,11 @@ static func WriteYell(text:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.Yell)
 	Utils.PutUnicodeString(_writer, text)
 
+static func WriteWhisper(receiver:String, text:String) -> void:
+	_writer.put_u8(Enums.ClientPacketID.Whisper)
+	Utils.PutUnicodeString(_writer, receiver)
+	Utils.PutUnicodeString(_writer, text)
+
 static func WritePing() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Ping) 
 
