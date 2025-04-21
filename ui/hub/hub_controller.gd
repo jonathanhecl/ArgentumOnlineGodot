@@ -3,6 +3,7 @@ class_name HubController
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
+const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -214,10 +215,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
 		return
-	# Intercept '/est' to request stats instead of chat
-	if newText.to_lower().begins_with("/est"):
-		GameProtocol.WriteRequestStats()
-	else:
+	
+	if newText.begins_with("-"):
+		var yell_text = newText.substr(1).strip_edges()
+		if yell_text.is_empty():
+			return
+		GameProtocol.WriteYell(yell_text)
+	elif !ConsoleCommandProcessor.process(newText):
 		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
