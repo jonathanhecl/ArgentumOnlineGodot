@@ -3,6 +3,8 @@ class_name HubController
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
+const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
+const OptionsWindowScene = preload("res://ui/hub/OptionsWindow.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -19,13 +21,21 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 @onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
 
+@onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
+
 var _gameContext:GameContext
 var _currentPanel:Node
+var _options_window 
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
 var _user_helmet_slot:int
 var _user_armor_slot:int
+
+func _ready() -> void:
+	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
+	# Cambiar cursor al pasar sobre el botón de opciones
+	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
@@ -215,7 +225,25 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
 		return
 	
-	GameProtocol.WriteTalk(newText)
+	if newText.begins_with("\\"):
+		var msg = newText.substr(1).strip_edges()
+		var space_idx = msg.find(" ")
+		if space_idx > 0:
+			var receiver = msg.substr(0, space_idx)
+			var body = msg.substr(space_idx + 1).strip_edges()
+			GameProtocol.WriteWhisper(receiver, body)
+		else:
+			ShowConsoleMessage("Escribe un mensaje para susurrar. Ej. \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			return
+	elif newText.begins_with("-"):
+		var yell_text = newText.substr(1).strip_edges()
+		if !yell_text.is_empty():
+			GameProtocol.WriteYell(yell_text)
+		else:
+			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			return
+	elif !ConsoleCommandProcessor.process(newText):
+		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
 
@@ -380,3 +408,9 @@ func _on_console_meta_clicked(meta: Variant) -> void:
 func _on_minimap_click(mouse_position: Vector2) -> void:
 	if _gameContext.player_map > 0:
 		GameProtocol.WriteWarpChar("YO", _gameContext.player_map, int(mouse_position.x), int(mouse_position.y))
+
+func _on_btn_options_pressed() -> void:
+	if _options_window == null:
+		_options_window = OptionsWindowScene.instantiate()
+		add_child(_options_window)
+	_options_window.popup_centered()

@@ -140,6 +140,15 @@ static func WriteTalk(text:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.Talk) 
 	Utils.PutUnicodeString(_writer, text)
 
+static func WriteYell(text:String) -> void:
+	_writer.put_u8(Enums.ClientPacketID.Yell)
+	Utils.PutUnicodeString(_writer, text)
+
+static func WriteWhisper(receiver:String, text:String) -> void:
+	_writer.put_u8(Enums.ClientPacketID.Whisper)
+	Utils.PutUnicodeString(_writer, receiver)
+	Utils.PutUnicodeString(_writer, text)
+
 static func WritePing() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Ping) 
 
@@ -163,3 +172,6 @@ static func WriteWarpChar(username:String, map_id:int, x:int, y:int) -> void:
 	_writer.put_16(map_id) 
 	_writer.put_u8(x) 
 	_writer.put_u8(y) 
+
+static func WriteRequestStats() -> void:
+	_writer.put_u8(Enums.ClientPacketID.RequestStats)

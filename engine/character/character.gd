@@ -7,6 +7,7 @@ const Speed = 120.0
 @onready var effect: CharacterEffect = $CharacterEffect
 
 @export var _dialogLabel:Label
+@export var _dialogShadowLabel:Label
 @export var _nameLabel:Label
 @export var _dialogClearTimer:Timer
 
@@ -18,6 +19,9 @@ var instanceId:int
 var gridPosition:Vector2i
 var isMoving:bool
 var priv:int
+
+func _ready() -> void:
+	Global.connect("dialog_font_size_changed", Callable(self, "_on_dialog_font_size_changed"))
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
@@ -71,12 +75,16 @@ func PlayNavigationSound() -> void:
 	AudioManager.PlayAudio(Consts.PasoNavegando);
 
 func Say(text:String, color:Color) -> void:
+	_dialogLabel.label_settings.font_size = Global.dialogFontSize
 	_dialogLabel.text = text
+	_dialogShadowLabel.label_settings.font_size = _dialogLabel.label_settings.font_size
+	_dialogShadowLabel.text = _dialogLabel.text
 	_dialogLabel.modulate = color
 	_dialogClearTimer.start()
 
 func _OnDialogClearTimerTimeout() -> void:
 	_dialogLabel.text = ""
+	_dialogShadowLabel.text = ""
 	
 func _ProcessAnimation() -> void:
 	if isMoving:
@@ -91,3 +99,7 @@ func _ProcessMovement(delta:float) -> void:
 	position = position.move_toward(_targetPosition, Speed * delta)
 	if position == _targetPosition:
 		isMoving = false
+
+func _on_dialog_font_size_changed(value: int) -> void:
+	_dialogLabel.label_settings.font_size = value
+	_dialogShadowLabel.label_settings.font_size = value
