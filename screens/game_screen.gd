@@ -24,7 +24,9 @@ func _ready() -> void:
 	
 	 
 func _OnDisconnected() -> void:
-	pass
+	var screen = load("uid://cd452cndcck7v").instantiate() 
+	ScreenController.SwitchScreen(screen)
+	queue_free()
 	
 func _OnDataReceived(data:PackedByteArray) -> void: 
 	networkMessages.push_back(data)

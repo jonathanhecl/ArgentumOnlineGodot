@@ -101,6 +101,7 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	return sprite
 
 func _GetLayer(layerName: String) -> Node2D:
+
 	for node in _view.get_children():
 		if node.name == layerName: 
 			return node
