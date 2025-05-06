@@ -398,6 +398,12 @@ metadata/_edit_lock_ = true
 
 [node name="Buttons-Misc" type="Node" parent="HubController"]
 
+[node name="btnSkills" type="TextureButton" parent="HubController/Buttons-Misc"]
+offset_left = 578.0
+offset_top = 78.0
+offset_right = 597.0
+offset_bottom = 94.0
+
 [node name="btnStadistics" type="TextureButton" parent="HubController/Buttons-Misc"]
 offset_left = 693.0
 offset_top = 422.0

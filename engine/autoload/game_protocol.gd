@@ -175,3 +175,6 @@ static func WriteWarpChar(username:String, map_id:int, x:int, y:int) -> void:
 
 static func WriteRequestStats() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestStats)
+
+static func WriteRequestSkills() -> void:
+	_writer.put_u8(Enums.ClientPacketID.RequestSkills)
