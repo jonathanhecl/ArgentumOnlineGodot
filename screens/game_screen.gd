@@ -24,7 +24,8 @@ func _ready() -> void:
 	
 	 
 func _OnDisconnected() -> void:
-	pass
+	var screen = load("uid://cd452cndcck7v").instantiate() 
+	ScreenController.SwitchScreen(screen)
 	
 func _OnDataReceived(data:PackedByteArray) -> void: 
 	networkMessages.push_back(data)
@@ -534,7 +535,18 @@ func _HandleLevelUp(p:LevelUp) -> void:
 	pass
 
 func _HandleSendSkills(p:SendSkills) -> void:
-	pass
+	# Debug detallado de los skills recibidos
+	print("DEBUG: Skills recibidos del servidor - Cantidad: ", p.skills.size())
+	for i in range(min(p.skills.size(), 5)): # Mostrar solo los primeros 5 para no saturar
+		print("DEBUG: Skill[", i, "] = ", p.skills[i], " - Tipo: ", typeof(p.skills[i]))
+		if p.skills[i] is Object and p.skills[i].get("level") != null:
+			print("DEBUG: Skill[", i, "].level = ", p.skills[i].level)
+		if p.skills[i] is Object and p.skills[i].get("experience") != null:
+			print("DEBUG: Skill[", i, "].experience = ", p.skills[i].experience)
+	
+	# Enviar los skills a la ventana
+	_gameInput._show_skills_window(p.skills)
+
 				
 func _HandleGuildChat(p:GuildChat) -> void:
 	pass

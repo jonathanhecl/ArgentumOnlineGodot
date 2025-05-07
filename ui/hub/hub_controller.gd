@@ -4,7 +4,8 @@ class_name HubController
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
 const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
-const OptionsWindowScene = preload("res://ui/hub/OptionsWindow.tscn")
+const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
+const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -22,10 +23,12 @@ const OptionsWindowScene = preload("res://ui/hub/OptionsWindow.tscn")
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
 
 @onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
+@onready var _btnSkills = get_node("Buttons-Misc/btnSkills")
 
 var _gameContext:GameContext
 var _currentPanel:Node
 var _options_window 
+var _skills_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -34,8 +37,10 @@ var _user_armor_slot:int
 
 func _ready() -> void:
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
-	# Cambiar cursor al pasar sobre el botón de opciones
+	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
+	
 	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_btnSkills.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
@@ -414,3 +419,19 @@ func _on_btn_options_pressed() -> void:
 		_options_window = OptionsWindowScene.instantiate()
 		add_child(_options_window)
 	_options_window.popup_centered()
+
+var _waiting_for_skills_popup := false
+
+func _on_btn_skills_pressed() -> void:
+	_waiting_for_skills_popup = true
+	GameProtocol.WriteRequestSkills()
+
+func _show_skills_window(skills:Array) -> void:
+	if !_waiting_for_skills_popup:
+		return
+	_waiting_for_skills_popup = false
+	if _skills_window == null:
+		_skills_window = SkillsWindowScene.instantiate()
+		add_child(_skills_window)
+	_skills_window.set_skills(skills)
+	_skills_window.popup_centered()
