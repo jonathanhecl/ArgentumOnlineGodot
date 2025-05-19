@@ -2,6 +2,7 @@ extends Node2D
 class_name Character
 
 const Speed = 120.0
+const OUTLINE_SHADER = preload("res://shaders/outline.gdshader")
  
 @onready var renderer: CharacterRenderer = $Renderer  
 @onready var effect: CharacterEffect = $CharacterEffect
@@ -14,6 +15,7 @@ const Speed = 120.0
 var _pasoDerecho:bool
 var _targetPosition:Vector2
 var _charInvisible:bool
+var _isPlayer:bool = false
 
 var instanceId:int
 var gridPosition:Vector2i
@@ -22,10 +24,31 @@ var priv:int
 
 func _ready() -> void:
 	Global.connect("dialog_font_size_changed", Callable(self, "_on_dialog_font_size_changed"))
+	if _isPlayer:
+		_apply_outline_effect()
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
 	_ProcessMovement(delta)
+
+func SetAsPlayer(isPlayer: bool = true) -> void:
+	_isPlayer = isPlayer
+	if isPlayer and is_inside_tree():
+		_apply_outline_effect()
+
+func IsPlayer() -> bool:
+	return _isPlayer
+
+func _apply_outline_effect() -> void:
+	# Aplicar el shader de resaltado a todas las partes del personaje
+	for child in renderer.get_children():
+		if child is AnimatedSprite2D:
+			var material = ShaderMaterial.new()
+			material.shader = OUTLINE_SHADER
+			# Configurar el color y ancho del borde
+			material.set_shader_parameter("outline_color", Color(0.0, 0.5, 1.0, 0.7))  # Azul con transparencia
+			material.set_shader_parameter("outline_width", 2.0)
+			child.material = material
 
 func GetCharacterInvisible() -> bool:
 	return _charInvisible

@@ -596,6 +596,7 @@ func _HandleUserCharIndexInServer(p:UserCharIndexInServer) -> void:
 	var character = _gameWorld.GetCharacter(p.charIndex)
 	
 	if character:
+		character.SetAsPlayer(true)  # Marcar este personaje como el del jugador
 		_gameInput.minimap.update_player_position(
 			character.gridPosition.x,\
 			 character.gridPosition.y)
