@@ -7,6 +7,9 @@ signal error(message:String)
 
 func _ready() -> void:
 	%Reg.pressed.connect(func(): register.emit())
+	%ShowPasswordButton.toggled.connect(_on_show_password_toggled)
+	%ShowPasswordButton.toggle_mode = true
+	%ShowPasswordButton.button_pressed = false
 	
 	# Load saved credentials if they exist
 	var credentials = SavedCredentials.load_credentials()
@@ -14,6 +17,15 @@ func _ready() -> void:
 		%Username.text = credentials.username
 		%Password.text = credentials.password
 		%RememberPassword.button_pressed = true
+
+func _on_show_password_toggled(button_pressed: bool) -> void:
+	%Password.secret = !button_pressed
+	if button_pressed:
+		%ShowPasswordButton.text = "🙈"
+		%ShowPasswordButton.tooltip_text = "Ocultar contraseña"
+	else:
+		%ShowPasswordButton.text = "👁️"
+		%ShowPasswordButton.tooltip_text = "Mostrar contraseña"
 
 func GetUsername() -> String:
 	return %Username.text
