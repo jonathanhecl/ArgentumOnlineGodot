@@ -6,12 +6,15 @@ const SKILL_NAMES = [
 	"Defensa", "Pesca", "Mineria", "Carpinteria", "Herreria", "Liderazgo", "Domar", "Proyectiles", "Wrestling", "Navegacion"
 ]
 
+@onready var free_skills = $VBox/HBoxContainer/SkillsPts
 @onready var skills_container = $VBox/Scroll/SkillsContainer
 @onready var accept_button = $VBox/AcceptButton
 
 func _ready():
 	accept_button.pressed.connect(self.hide)
 	close_requested.connect(self.hide)
+	
+	free_skills.text = "3434"
 
 func set_skills(skills:Array):
 	# Eliminar todos los hijos existentes
