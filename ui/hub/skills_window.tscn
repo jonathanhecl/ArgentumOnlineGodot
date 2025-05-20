@@ -5,6 +5,7 @@
 [node name="SkillsWindow" type="Window"]
 position = Vector2i(0, 36)
 size = Vector2i(300, 300)
+unresizable = true
 script = ExtResource("1")
 
 [node name="VBox" type="VBoxContainer" parent="."]

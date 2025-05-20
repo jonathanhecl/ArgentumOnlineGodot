@@ -11,10 +11,11 @@ const SKILL_NAMES = [
 @onready var accept_button = $VBox/AcceptButton
 
 func _ready():
+
 	accept_button.pressed.connect(self.hide)
 	close_requested.connect(self.hide)
 	
-	free_skills.text = "3434"
+	free_skills.text = str(Global.skillPoints)
 
 func set_skills(skills:Array):
 	# Eliminar todos los hijos existentes

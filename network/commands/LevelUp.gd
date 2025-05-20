@@ -8,3 +8,6 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 
 func Deserialize(reader:StreamPeerBuffer) -> void:
 	skillPoints = reader.get_16()
+	
+	# Guardar los skill points en global.gd
+	Global.skillPoints = skillPoints
