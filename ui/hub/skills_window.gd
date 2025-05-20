@@ -69,7 +69,7 @@ func _on_accept_pressed():
 	var changes = []
 	for i in range(min(initial_skill_values.size(), skill_values.size())):
 		if initial_skill_values[i] != skill_values[i]:
-			changes.append("%s: +%d -> %d" % [SKILL_NAMES[i], initial_skill_values[i], skill_values[i]])
+			changes.append("%s: %d -> %d (diff: %d)" % [SKILL_NAMES[i], initial_skill_values[i], skill_values[i], skill_values[i] - initial_skill_values[i]])
 	
 	if changes.size() > 0:
 		print("Cambios en los skills:")
