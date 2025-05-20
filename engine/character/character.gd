@@ -40,7 +40,8 @@ func IsPlayer() -> bool:
 	return _isPlayer
 
 func _apply_outline_effect() -> void:
-	# Aplicar el shader de resaltado a todas las partes del personaje
+	return 
+	
 	for child in renderer.get_children():
 		if child is AnimatedSprite2D:
 			var material = ShaderMaterial.new()
