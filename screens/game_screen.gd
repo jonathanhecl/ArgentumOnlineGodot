@@ -283,8 +283,16 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_blacksmith_weapons(BlacksmithWeapons.new(stream))
 		Enums.ServerPacketID.BlacksmithArmors:
 			_handle_blacksmith_armors(BlacksmithArmors.new(stream))
+		Enums.ServerPacketID.CharacterChangeNick:
+			_handle_character_change_nick(CharacterChangeNick.new(stream))
 		_:
 			print(pname)
+	
+
+func _handle_character_change_nick(p:CharacterChangeNick) -> void:
+	var character = _gameWorld.GetCharacter(p.char_index)
+	if character:
+		character.SetCharacterName(p.char_name)
 	
 	
 func _handle_user_commerce_init(p:UserCommerceInit) -> void:
