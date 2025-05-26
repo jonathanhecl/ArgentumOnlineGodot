@@ -3,7 +3,8 @@ class_name ConsoleCommandProcessor
 
 static var command_handler:Dictionary[String, Callable] = {
 	"salir": quit,
-	"est": request_stats
+	"est": request_stats,
+	"invisible": invisible
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -32,3 +33,6 @@ static func quit(args:ChatCommandArgs) -> void:
 	
 static func request_stats(args:ChatCommandArgs) -> void:
 	GameProtocol.WriteRequestStats()
+	
+static func invisible(args:ChatCommandArgs) -> void:
+	GameProtocol.write_invisible()

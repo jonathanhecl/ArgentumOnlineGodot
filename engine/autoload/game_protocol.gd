@@ -178,3 +178,8 @@ static func WriteRequestStats() -> void:
 
 static func WriteRequestSkills() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestSkills)
+
+
+static func write_invisible() -> void:
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.INVISIBLE)
