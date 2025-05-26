@@ -4,7 +4,8 @@ class_name ConsoleCommandProcessor
 static var command_handler:Dictionary[String, Callable] = {
 	"salir": quit,
 	"est": request_stats,
-	"invisible": invisible
+	"invisible": invisible,
+	"meditar": meditate
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -33,6 +34,22 @@ static func quit(args:ChatCommandArgs) -> void:
 	
 static func request_stats(args:ChatCommandArgs) -> void:
 	GameProtocol.WriteRequestStats()
+
 	
 static func invisible(args:ChatCommandArgs) -> void:
 	GameProtocol.write_invisible()
+
+
+static func meditate(args:ChatCommandArgs) -> void:
+	if args.game_context.player_stats.mana == args.game_context.player_stats.max_mana:
+		return
+		
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estas muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteMeditate()
+	
+	
+		
+		
