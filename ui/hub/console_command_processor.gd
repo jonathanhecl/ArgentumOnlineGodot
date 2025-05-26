@@ -56,5 +56,5 @@ static func change_description(args:ChatCommandArgs) -> void:
 		args.hub_controller.ShowConsoleMessage("¡Estas muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return
 	
-	var description = args.parameters[0] if args.parameters.size() else ""
+	var description = " ".join(args.parameters) if args.parameters.size() else ""
 	GameProtocol.change_description(description)
