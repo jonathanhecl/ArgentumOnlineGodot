@@ -183,3 +183,7 @@ static func WriteRequestSkills() -> void:
 static func write_invisible() -> void:
 	_writer.put_u8(Enums.ClientPacketID.GMCommands)
 	_writer.put_u8(Enums.EGMCommands.INVISIBLE)
+
+static func change_description(description:String) -> void:
+	_writer.put_u8(Enums.ClientPacketID.ChangeDescription)
+	Utils.PutUnicodeString(_writer, description)

@@ -5,7 +5,8 @@ static var command_handler:Dictionary[String, Callable] = {
 	"salir": quit,
 	"est": request_stats,
 	"invisible": invisible,
-	"meditar": meditate
+	"meditar": meditate,
+	"desc": change_description
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -50,6 +51,10 @@ static func meditate(args:ChatCommandArgs) -> void:
 	
 	GameProtocol.WriteMeditate()
 	
+static func change_description(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estas muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
 	
-		
-		
+	var description = args.parameters[0] if args.parameters.size() else ""
+	GameProtocol.change_description(description)
