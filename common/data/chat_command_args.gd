@@ -1,0 +1,6 @@
+extends RefCounted
+class_name ChatCommandArgs
+
+var parameters:PackedStringArray
+var hub_controller:HubController
+var game_context:GameContext

@@ -247,7 +247,7 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 		else:
 			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
-	elif !ConsoleCommandProcessor.process(newText):
+	elif !ConsoleCommandProcessor.process(newText, self, _gameContext):
 		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
