@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://c1widn1tonh1l" path="res://ui/hub/skills_window.gd" id="1"]
 
 [node name="SkillsWindow" type="Window"]
+position = Vector2i(0, 36)
+size = Vector2i(300, 300)
+unresizable = true
 script = ExtResource("1")
 
 [node name="VBox" type="VBoxContainer" parent="."]
@@ -26,6 +29,20 @@ vertical_scroll_mode = 2
 [node name="SkillsContainer" type="VBoxContainer" parent="VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="SkillsLabel" type="Label" parent="VBox/HBoxContainer"]
+layout_mode = 2
+text = "Skills Disponibles:"
+horizontal_alignment = 3
+
+[node name="SkillsPts" type="Label" parent="VBox/HBoxContainer"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 3
+vertical_alignment = 1
 
 [node name="AcceptButton" type="Button" parent="VBox"]
 layout_mode = 2
