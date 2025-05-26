@@ -2,8 +2,7 @@ extends CanvasLayer
 class_name HubController
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
-const BankPanelScene = preload("uid://c4skiho4j6vjn")
-const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
+const BankPanelScene = preload("uid://c4skiho4j6vjn") 
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 
