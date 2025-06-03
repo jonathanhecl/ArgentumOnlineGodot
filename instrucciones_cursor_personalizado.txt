@@ -1,0 +1,21 @@
+INSTRUCCIONES PARA AÑADIR LA OPCIÓN DE CURSOR PERSONALIZADO
+
+1. Abre el archivo "options_window.tscn" en el editor de Godot.
+
+2. Añade un nuevo HBoxContainer como hijo del nodo "VBox" con el nombre "hbox_custom_cursor".
+   - Posiciónalo debajo del nodo "hbox_font_size"
+   - Configura su Layout/Mode como "2" (igual que los otros HBoxContainer)
+
+3. Añade un Label como hijo de "hbox_custom_cursor" con las siguientes propiedades:
+   - Nombre: "LabelCustomCursor"
+   - Text: "Cursor personalizado:"
+   - Layout/Mode: "2"
+
+4. Añade un CheckBox como hijo de "hbox_custom_cursor" con las siguientes propiedades:
+   - Nombre: "CheckCustomCursor"
+   - Layout/Mode: "2"
+   - Size Flags/Horizontal: "3" (para que se expanda)
+
+5. Guarda la escena.
+
+¡Listo! Ahora podrás activar o desactivar el cursor personalizado desde las opciones del juego.
