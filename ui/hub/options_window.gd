@@ -2,7 +2,6 @@ extends AcceptDialog
 class_name OptionsWindow
 
 @onready var sliderVolume = $VBox/hbox_volume/SliderVolume
-@onready var btn_close = $VBox/HBoxContainer/BtnClose
 @onready var sliderFontSize = $VBox/hbox_font_size/SliderFontSize
 
 # El checkbox se creará dinámicamente

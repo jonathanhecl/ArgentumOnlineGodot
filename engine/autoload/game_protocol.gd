@@ -179,8 +179,17 @@ static func WriteRequestStats() -> void:
 static func WriteRequestSkills() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestSkills)
 
+
 static func WriteModifySkills(skills: Array) -> void:
 	_writer.put_u8(Enums.ClientPacketID.ModifySkills)
 	for i in range(skills.size()):
 		print(i," - ",  skills[i])
 		_writer.put_u8(skills[i])
+
+static func write_invisible() -> void:
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.INVISIBLE)
+
+static func change_description(description:String) -> void:
+	_writer.put_u8(Enums.ClientPacketID.ChangeDescription)
+	Utils.PutUnicodeString(_writer, description)

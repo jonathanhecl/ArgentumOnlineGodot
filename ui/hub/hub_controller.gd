@@ -12,8 +12,7 @@ func _restore_default_cursor() -> void:
 		_gameContext.usingSkill = 0
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
-const BankPanelScene = preload("uid://c4skiho4j6vjn")
-const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
+const BankPanelScene = preload("uid://c4skiho4j6vjn") 
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 
@@ -258,7 +257,7 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 		else:
 			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
-	elif !ConsoleCommandProcessor.process(newText):
+	elif !ConsoleCommandProcessor.process(newText, self, _gameContext):
 		GameProtocol.WriteTalk(newText)
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
