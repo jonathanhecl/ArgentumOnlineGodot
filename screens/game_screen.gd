@@ -1,7 +1,9 @@
 extends Node
 class_name GameScreen
 
-# No necesitamos cargar un cursor personalizado, usaremos el del sistema
+# Cursor personalizado para selección de objetivo
+var _crosshair_cursor = preload("res://Assets/Cursors/crosshair.png")
+var _scaled_crosshair_cursor = null
 @export var _gameInput:HubController
 @export var _gameWorld:GameWorld
 @export var _camera:Camera2D
@@ -24,6 +26,22 @@ func _ready() -> void:
 	_gameInput.Init(_gameContext)
 	_gameInput.update_name_label(Global.username)
 	
+# Función para escalar el cursor a un tamaño más pequeño
+func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
+	# Obtener la imagen del cursor
+	var image = texture.get_image()
+	
+	# Calcular el nuevo tamaño
+	var original_size = image.get_size()
+	var new_size = original_size * scale_factor
+	
+	# Redimensionar la imagen
+	image.resize(int(new_size.x), int(new_size.y), Image.INTERPOLATE_BILINEAR)
+	
+	# Crear una nueva textura con la imagen redimensionada
+	var new_texture = ImageTexture.create_from_image(image)
+	
+	return new_texture
 	 
 func _OnDisconnected() -> void:
 	var screen = load("uid://cd452cndcck7v").instantiate() 
@@ -754,10 +772,28 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 		Enums.Messages.WorkRequestTarget:
 			_gameContext.usingSkill = p.arg1
 			_gameInput.ShowConsoleMessage(Consts.MessageWorkRequestTarget[p.arg1], FontData.new(Color.from_rgba8(100, 100, 120)))
-			# Cambiar al cursor de puntería del sistema
-			Input.set_default_cursor_shape(Input.CURSOR_CROSS)
 			# Asegurarse de que el mouse sea visible
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			
+			# Usar cursor personalizado o del sistema según la configuración
+			if Global.useCustomCursor and _crosshair_cursor:
+				# Escalar el cursor si aún no lo hemos hecho
+				if _scaled_crosshair_cursor == null:
+					_scaled_crosshair_cursor = _scale_cursor(_crosshair_cursor, 0.1) # Factor de escala 0.5 (50% del tamaño original)
+				
+				# Usar el cursor escalado
+				var cursor_to_use = _scaled_crosshair_cursor if _scaled_crosshair_cursor else _crosshair_cursor
+				
+				# Usar el centro de la imagen como punto de acción (hotspot)
+				var image_size = cursor_to_use.get_size()
+				var hotspot = Vector2(image_size.x / 2, image_size.y / 2)
+				
+				# Usar CURSOR_ARROW para evitar problemas con CURSOR_CROSS
+				Input.set_custom_mouse_cursor(cursor_to_use, Input.CURSOR_ARROW, hotspot)
+				print("Cursor personalizado activado. Tamaño: %s, Hotspot: %s" % [image_size, hotspot])
+			else:
+				# Usar cursor de puntería del sistema
+				Input.set_default_cursor_shape(Input.CURSOR_CROSS)
 		Enums.Messages.HaveKilledUser:
 			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName()
 			_gameInput.ShowConsoleMessage("Has matado a {0}!".format([charName]), FontData.new(Color.RED, true)) 

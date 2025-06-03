@@ -4,8 +4,11 @@ class_name HubController
 # Función para restaurar el cursor al predeterminado
 func _restore_default_cursor() -> void:
 	if _gameContext.usingSkill != 0:
-		# Restaurar el cursor predeterminado
+		Input.set_custom_mouse_cursor(null)
 		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+		print("Cursor restaurado al predeterminado")
+		
+		# Resetear el estado de la habilidad en uso
 		_gameContext.usingSkill = 0
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
@@ -192,7 +195,9 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 					return
 		
 			GameProtocol.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
+			# Restaurar el cursor al predeterminado después de hacer click
 			_restore_default_cursor()
+			print("Cursor restaurado después de hacer click en objetivo")
 	
 				  
 func _handle_key_event(event:InputEventKey) -> void: 

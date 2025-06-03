@@ -16,6 +16,10 @@ func _ready() -> void:
 		
 	_playerInventoryContainer.slotPressed.connect(func(index:int):
 		_UpdateInfo(_playerInventory.GetSlot(index).item))
+	
+	# Configurar para que la ventana tenga el foco y pueda recibir eventos de teclado
+	focus_mode = Control.FOCUS_ALL
+	grab_focus()
 
 func SetMerchantInventory(inventory:Inventory) -> void:
 	_merchantInventoryContainer.SetInventory(inventory)
@@ -51,3 +55,10 @@ func _OnSellButtonPressed() -> void:
 
 func _on_btn_close_pressed() -> void:
 	GameProtocol.WriteCommerceEnd()
+
+# Manejar eventos de teclado para cerrar con Escape
+func _input(event):
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		_on_btn_close_pressed()
+		# Consumir el evento para que no se propague
+		get_viewport().set_input_as_handled()
