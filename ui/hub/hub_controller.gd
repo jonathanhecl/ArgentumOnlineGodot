@@ -1,6 +1,13 @@
 extends CanvasLayer
 class_name HubController
 
+# Función para restaurar el cursor al predeterminado
+func _restore_default_cursor() -> void:
+	if _gameContext.usingSkill != 0:
+		# Restaurar el cursor predeterminado
+		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+		_gameContext.usingSkill = 0
+
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn")
 const ConsoleCommandProcessor = preload("res://ui/hub/ConsoleCommandProcessor.gd")
@@ -167,26 +174,25 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 		else:
 			if _gameContext.usingSkill == Enums.Skill.Proyectiles:
 				if !_gameContext.tick_intervals.request_attack_with_bow():
-					_gameContext.usingSkill = 0
+					_restore_default_cursor()
 					ShowConsoleMessage("No puedes lanzar proyectiles tan rápido.", \
-						GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
+					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
 					return
 			
 			if _gameContext.usingSkill == Enums.Skill.Magia:
 				if !_gameContext.tick_intervals.request_cast_spell():
-					_gameContext.usingSkill = 0
+					_restore_default_cursor()
 					ShowConsoleMessage("No puedes lanzar hechizos tan rápido.", \
-						GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
+					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
 					return
 			
 			if _gameContext.usingSkill in [Enums.Skill.Mineria, Enums.Skill.Robar, Enums.Skill.Pesca, Enums.Skill.Talar, Enums.Skill.FundirMetal]:
 				if !_gameContext.tick_intervals.request_work():
-					_gameContext.usingSkill = 0
-					 
+					_restore_default_cursor()
 					return
 		
 			GameProtocol.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
-			_gameContext.usingSkill = 0
+			_restore_default_cursor()
 	
 				  
 func _handle_key_event(event:InputEventKey) -> void: 

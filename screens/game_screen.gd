@@ -1,5 +1,7 @@
 extends Node
 class_name GameScreen
+
+# No necesitamos cargar un cursor personalizado, usaremos el del sistema
 @export var _gameInput:HubController
 @export var _gameWorld:GameWorld
 @export var _camera:Camera2D
@@ -751,7 +753,11 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 			_gameInput.ShowConsoleMessage(Consts.MessageUserHittedUser[p.arg2].format([charName, p.arg3]), FontData.new(Color.RED)) 
 		Enums.Messages.WorkRequestTarget:
 			_gameContext.usingSkill = p.arg1
-			_gameInput.ShowConsoleMessage(Consts.MessageWorkRequestTarget[p.arg1], FontData.new(Color.from_rgba8(100, 100, 120))) 
+			_gameInput.ShowConsoleMessage(Consts.MessageWorkRequestTarget[p.arg1], FontData.new(Color.from_rgba8(100, 100, 120)))
+			# Cambiar al cursor de puntería del sistema
+			Input.set_default_cursor_shape(Input.CURSOR_CROSS)
+			# Asegurarse de que el mouse sea visible
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		Enums.Messages.HaveKilledUser:
 			var charName = _gameWorld.GetCharacter(p.arg1).GetCharacterName()
 			_gameInput.ShowConsoleMessage("Has matado a {0}!".format([charName]), FontData.new(Color.RED, true)) 
