@@ -1,5 +1,20 @@
 extends Node
 
+@export var labelStatus: Label
+
+func _ensure_directory_exists(path: String) -> void:
+	var dir = DirAccess.open("res://")
+	var path_parts = path.trim_prefix("res://").split("/")
+	var current_path = "res://"
+	
+	for dir_name in path_parts:
+		if dir_name.get_extension() != "":  # Es un archivo, no un directorio
+			continue
+			
+		current_path = current_path.path_join(dir_name)
+		if !DirAccess.dir_exists_absolute(current_path):
+			dir.make_dir(current_path)
+			await get_tree().process_frame # Dar tiempo a Godot para crear el directorio
 	
 func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	var sprite = Sprite2D.new()
@@ -57,12 +72,37 @@ func _AddTileMapLayer(tiles:PackedInt32Array, tileSet:TileSet) -> TileMapLayer:
 			tileMapLayer.set_cell(Vector2i(x, y), grhData.fileId, Vector2i(grhData.region.position) / 32)
 	return tileMapLayer	
 			
+func _ExportAll() -> void:
+	labelStatus.text = "Iniciando exportación..."
+	await get_tree().process_frame
+	
+	await _Bodies()
+	await _Heads()
+	await _Weapons()
+	await _Shields()
+	await _ExportMaps()
+	
+	labelStatus.text = "¡Exportación completada con éxito!"
+	await get_tree().create_timer(2.0).timeout
+	labelStatus.text = "Listo"
+
 func _ExportMaps() -> void:
-	for fileName in Utils.GetFilesInDirectory("res://Assets/Maps/"):
-		fileName = fileName.substr(4)
-		fileName = fileName.substr(0, fileName.find("."))
+	var files = Utils.GetFilesInDirectory("res://Assets/Maps/")
+	var total = files.size()
+	var current = 0
+	
+	for fileName in files:
+		current += 1
+		var mapNumber = fileName.substr(4)
+		mapNumber = mapNumber.substr(0, mapNumber.find("."))
 		
-		_ExportMap(int(fileName))
+		labelStatus.text = "Exportando mapas... (%d/%d) Mapa %s" % [current, total, mapNumber]
+		# Forzar actualización de la UI
+		await get_tree().process_frame
+		
+		_ExportMap(int(mapNumber))
+		
+	labelStatus.text = "¡Exportación de mapas completada!"
 					
 func _ExportMap(fileId:int) -> void:
 	var mapData = GameAssets.GetMap(fileId)
@@ -106,7 +146,9 @@ func _ExportMap(fileId:int) -> void:
 			sprite.owner = mainNode
 		
 	if packedScene.pack(mainNode) == OK:
-		ResourceSaver.save(packedScene, "res://Maps/Map%d.tscn" % fileId) 
+		var save_path = "res://Maps/Map%d.tscn" % fileId
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(packedScene, save_path) 
 
 
 func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
@@ -143,7 +185,13 @@ func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void
 	
 	
 func _Bodies() -> void:
+	var total = GameAssets.BodyAnimationList.size() - 1
+	labelStatus.text = "Exportando cuerpos... (0/%d)" % total
+	
 	for i in range(1, GameAssets.BodyAnimationList.size()):
+		labelStatus.text = "Exportando cuerpos... (%d/%d)" % [i, total]
+		# Forzar actualización de la UI
+		await get_tree().process_frame
 		var data = GameAssets.BodyAnimationList[i]
 		var spriteFrames = SpriteFrames.new()
 		
@@ -156,10 +204,19 @@ func _Bodies() -> void:
 		_AttachAnimation(spriteFrames, "south", data.south);
 		_AttachAnimation(spriteFrames, "north", data.north);
 		
-		ResourceSaver.save(spriteFrames, "res://Resources/Character/Bodies/body_%d.tres" % i);	
+		var save_path = "res://Resources/Character/Bodies/body_%d.tres" % i
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(spriteFrames, save_path);	
 	
 func _Weapons() -> void:
+	var total = GameAssets.WeaponAnimationList.size() - 1
+	labelStatus.text = "Exportando armas... (0/%d)" % total
+	
 	for i in range(1, GameAssets.WeaponAnimationList.size()):
+		if i % 10 == 0:  # Actualizar cada 10 armas para no saturar
+			labelStatus.text = "Exportando armas... (%d/%d)" % [i, total]
+			# Forzar actualización de la UI
+			await get_tree().process_frame
 		if i == Consts.NoAnim:
 			continue
 			
@@ -172,10 +229,19 @@ func _Weapons() -> void:
 		_AttachAnimation(spriteFrames, "south", data.south);
 		_AttachAnimation(spriteFrames, "north", data.north);
 		
-		ResourceSaver.save(spriteFrames, "res://Resources/Character/Weapons/weapon_%d.tres" % i);	
+		var save_path = "res://Resources/Character/Weapons/weapon_%d.tres" % i
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(spriteFrames, save_path);	
 
 func _Shields() -> void:
+	var total = GameAssets.ShieldAnimationList.size() - 1
+	labelStatus.text = "Exportando escudos... (0/%d)" % total
+	
 	for i in range(1, GameAssets.ShieldAnimationList.size()):
+		if i % 10 == 0:  # Actualizar cada 10 escudos para no saturar
+			labelStatus.text = "Exportando escudos... (%d/%d)" % [i, total]
+			# Forzar actualización de la UI
+			await get_tree().process_frame
 		if i == Consts.NoAnim:
 			continue
 			
@@ -188,10 +254,19 @@ func _Shields() -> void:
 		_AttachAnimation(spriteFrames, "south", data.south);
 		_AttachAnimation(spriteFrames, "north", data.north);
 		
-		ResourceSaver.save(spriteFrames, "res://Resources/Character/Shields/shield_%d.tres" % i);	
+		var save_path = "res://Resources/Character/Shields/shield_%d.tres" % i
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(spriteFrames, save_path);	
 		
 func _Heads() -> void:
+	var total = GameAssets.HeadAnimationList.size() - 1
+	labelStatus.text = "Exportando cabezas... (0/%d)" % total
+	
 	for i in range(1, GameAssets.HeadAnimationList.size()):
+		if i % 10 == 0:  # Actualizar cada 10 cabezas para no saturar
+			labelStatus.text = "Exportando cabezas... (%d/%d)" % [i, total]
+			# Forzar actualización de la UI
+			await get_tree().process_frame
 		var data = GameAssets.HeadAnimationList[i]
 		var spriteFrames = SpriteFrames.new()
 		
@@ -204,7 +279,9 @@ func _Heads() -> void:
 		_AttachHeadAnimation(spriteFrames, "south", data.south);
 		_AttachHeadAnimation(spriteFrames, "north", data.north);
 		
-		ResourceSaver.save(spriteFrames, "res://Resources/Character/Heads/head_%d.tres" % i);	
+		var save_path = "res://Resources/Character/Heads/head_%d.tres" % i
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(spriteFrames, save_path);	
 
 func _Helmets() -> void:
 	for i in range(1, GameAssets.HelmetAnimationList.size()):
@@ -256,3 +333,409 @@ func _Fxs() -> void:
 			spriteFrames.add_frame("default", atlas_texture)
 			
 		ResourceSaver.save(spriteFrames, "res://Resources/Fxs/fx_%d.tres" % (i + 1))	
+
+func _createPkgMaps() -> void:
+	# Obtener lista de archivos de mapa
+	var map_files = []
+	var dir = DirAccess.open("res://Maps/")
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".tscn") and file_name.begins_with("Map"):
+				map_files.append(file_name)
+			file_name = dir.get_next()
+	else:
+		push_error("No se pudo abrir el directorio de mapas")
+		return
+
+	# Obtener miniaturas de mapas
+	var thumbnails_dir = DirAccess.open("res://Assets/minimap_thumbnails/")
+	var thumbnail_files = []
+	if thumbnails_dir:
+		thumbnails_dir.list_dir_begin()
+		var file_name = thumbnails_dir.get_next()
+		while file_name != "":
+			if not thumbnails_dir.current_is_dir():
+				thumbnail_files.append(file_name)
+			file_name = thumbnails_dir.get_next()
+
+	var total = map_files.size() + thumbnail_files.size()
+	if total == 0:
+		labelStatus.text = "No se encontraron mapas ni miniaturas para exportar"
+		return
+
+	labelStatus.text = "Exportando mapas y miniaturas PKG... (0/%d)" % total
+	await get_tree().process_frame
+
+	# Crear el archivo PKG
+	var packer = PCKPacker.new()
+	var output_path = "res://maps.pkg"
+	
+	if packer.pck_start(output_path) != OK:
+		push_error("Error al crear el archivo PKG de mapas")
+		labelStatus.text = "Error al crear el archivo PKG de mapas"
+		return
+
+	# Contador de archivos procesados
+	var processed = 0
+
+	# Agregar mapas al PKG
+	for i in range(map_files.size()):
+		var map_file = map_files[i]
+		var map_path = "res://Maps/" + map_file
+		var relative_path = "Maps/" + map_file  # Ruta relativa dentro del PKG
+		
+		processed += 1
+		labelStatus.text = "Exportando mapas PKG... (%d/%d) %s" % [processed, total, map_file]
+		await get_tree().process_frame
+		
+		if packer.add_file(relative_path, map_path) != OK:
+			push_error("Error al agregar el archivo: " + map_file)
+			continue
+
+	# Agregar miniaturas al PKG
+	for i in range(thumbnail_files.size()):
+		var thumb_file = thumbnail_files[i]
+		var thumb_path = "res://Assets/minimap_thumbnails/" + thumb_file
+		var relative_path = "Assets/minimap_thumbnails/" + thumb_file
+		
+		processed += 1
+		labelStatus.text = "Exportando miniaturas PKG... (%d/%d) %s" % [processed, total, thumb_file]
+		await get_tree().process_frame
+		
+		if packer.add_file(relative_path, thumb_path) != OK:
+			push_error("Error al agregar la miniatura: " + thumb_file)
+			continue
+	
+	# Finalizar y guardar el PKG
+	if packer.flush() == OK:
+		labelStatus.text = "PKG creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete de mapas creado con éxito con %d archivos" % processed)
+	else:
+		labelStatus.text = "Error al guardar el archivo PKG"
+		push_error("Error al guardar el archivo PKG")
+
+func _createPkgUI() -> void:
+	# Directorios a incluir en el paquete UI
+	var asset_dirs = [
+		{ "path": "res://Assets/Init/", "prefix": "Assets/Init/" },
+		{ "path": "res://Assets/UI/", "prefix": "Assets/UI/" },
+		{ "path": "res://Assets/Cursors/", "prefix": "Assets/Cursors/" },
+		{ "path": "res://Assets/Fonts/", "prefix": "Assets/Fonts/" },
+	]
+	
+	# Diccionario para almacenar archivos por directorio
+	var all_files = {}
+	var total_files = 0
+	
+	# Obtener lista de archivos de cada directorio
+	for dir_info in asset_dirs:
+		var dir_path = dir_info["path"]
+		var files = []
+		var dir = DirAccess.open(dir_path)
+		
+		if dir:
+			dir.list_dir_begin()
+			var file_name = dir.get_next()
+			while file_name != "":
+				if not dir.current_is_dir():
+					files.append(file_name)
+					total_files += 1
+				file_name = dir.get_next()
+		else:
+			push_warning("No se pudo abrir el directorio: " + dir_path)
+		
+		all_files[dir_path] = {
+			"prefix": dir_info["prefix"],
+			"files": files
+		}
+	
+	if total_files == 0:
+		labelStatus.text = "No se encontraron archivos para empaquetar"
+		return
+
+	labelStatus.text = "Preparando para empaquetar %d archivos..." % total_files
+	await get_tree().process_frame
+
+	# Crear el archivo PKG
+	var packer = PCKPacker.new()
+	var output_path = "res://ui.pkg"
+	
+	if packer.pck_start(output_path) != OK:
+		push_error("Error al crear el archivo PKG de UI")
+		labelStatus.text = "Error al crear el archivo PKG"
+		return
+
+	# Contador de archivos procesados
+	var processed = 0
+	
+	# Agregar cada archivo al PKG
+	for dir_path in all_files:
+		var dir_info = all_files[dir_path]
+		var file_prefix = dir_info["prefix"]
+		var files = dir_info["files"]
+		
+		for file_name in files:
+			var file_path = dir_path + file_name
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			
+			processed += 1
+			labelStatus.text = "Exportando UI... (%d/%d) %s" % [processed, total_files, file_name]
+			await get_tree().process_frame
+			
+			if packer.add_file(relative_path, file_path) != OK:
+				push_error("Error al agregar el archivo: " + file_path)
+				continue
+	
+	# Finalizar y guardar el PKG
+	if packer.flush() == OK:
+		labelStatus.text = "PKG de UI creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete UI creado con éxito con %d archivos" % processed)
+	else:
+		labelStatus.text = "Error al guardar el archivo PKG de UI"
+		push_error("Error al guardar el archivo PKG de UI")
+
+
+func _createPkgFx() -> void:
+	# Directorios a incluir en el paquete de sonidos
+	var asset_dirs = [
+		{ "path": "res://Assets/Sfx/", "prefix": "Assets/Sfx/" },
+		{ "path": "res://Assets/Music/", "prefix": "Assets/Music/" }
+	]
+	
+	# Diccionario para almacenar archivos por directorio
+	var all_files = {}
+	var total_files = 0
+	
+	# Obtener lista de archivos de cada directorio
+	for dir_info in asset_dirs:
+		var dir_path = dir_info["path"]
+		var files = []
+		var dir = DirAccess.open(dir_path)
+		
+		if dir:
+			dir.list_dir_begin()
+			var file_name = dir.get_next()
+			while file_name != "":
+				if not dir.current_is_dir():
+					# Solo incluir archivos de audio
+					var ext = file_name.get_extension().to_lower()
+					if ext in ["wav", "ogg", "mp3", "mp4"]:
+						files.append(file_name)
+						total_files += 1
+				file_name = dir.get_next()
+		else:
+			push_warning("No se pudo abrir el directorio: " + dir_path)
+		
+		all_files[dir_path] = {
+			"prefix": dir_info["prefix"],
+			"files": files
+		}
+	
+	if total_files == 0:
+		labelStatus.text = "No se encontraron archivos de audio para empaquetar"
+		return
+
+	labelStatus.text = "Preparando para empaquetar %d archivos de audio..." % total_files
+	await get_tree().process_frame
+
+	# Crear el archivo PKG
+	var packer = PCKPacker.new()
+	var output_path = "res://sound.pkg"
+	
+	if packer.pck_start(output_path) != OK:
+		push_error("Error al crear el archivo PKG de sonidos")
+		labelStatus.text = "Error al crear el archivo PKG de sonidos"
+		return
+
+	# Contador de archivos procesados
+	var processed = 0
+	
+	# Agregar cada archivo al PKG
+	for dir_path in all_files:
+		var dir_info = all_files[dir_path]
+		var file_prefix = dir_info["prefix"]
+		var files = dir_info["files"]
+		
+		for file_name in files:
+			var file_path = dir_path + file_name
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			
+			processed += 1
+			labelStatus.text = "Exportando sonidos... (%d/%d) %s" % [processed, total_files, file_name]
+			await get_tree().process_frame
+			
+			if packer.add_file(relative_path, file_path) != OK:
+				push_error("Error al agregar el archivo: " + file_path)
+				continue
+	
+	# Finalizar y guardar el PKG
+	if packer.flush() == OK:
+		labelStatus.text = "PKG de sonidos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete de sonidos creado con éxito con %d archivos" % processed)
+	else:
+		labelStatus.text = "Error al guardar el archivo PKG de sonidos"
+		push_error("Error al guardar el archivo PKG de sonidos")
+
+
+func _createPkgGrh() -> void:
+	# Directorio a incluir en el paquete de gráficos
+	var asset_dir = "res://Assets/Gfx/"
+	var dir_prefix = "Assets/Gfx/"
+	
+	# Diccionario para almacenar archivos
+	var all_files = {}
+	var total_files = 0
+	var files = []
+	
+	# Obtener lista de archivos del directorio
+	var dir = DirAccess.open(asset_dir)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if not dir.current_is_dir():
+				# Incluir archivos de imagen y otros recursos gráficos
+				var ext = file_name.get_extension().to_lower()
+				if ext in ["png", "jpg", "jpeg", "webp", "tga", "svg", "bmp", "dds", "exr", "hdr"]:
+					files.append(file_name)
+					total_files += 1
+			file_name = dir.get_next()
+	else:
+		push_warning("No se pudo abrir el directorio: " + asset_dir)
+		labelStatus.text = "Error: No se pudo abrir el directorio de gráficos"
+		return
+
+	all_files[asset_dir] = {
+		"prefix": dir_prefix,
+		"files": files
+	}
+
+	if total_files == 0:
+		labelStatus.text = "No se encontraron archivos gráficos para empaquetar"
+		return
+
+	labelStatus.text = "Preparando para empaquetar %d archivos gráficos..." % total_files
+	await get_tree().process_frame
+
+	# Crear el archivo PKG
+	var packer = PCKPacker.new()
+	var output_path = "res://graphics.pkg"
+	
+	if packer.pck_start(output_path) != OK:
+		push_error("Error al crear el archivo PKG de gráficos")
+		labelStatus.text = "Error al crear el archivo PKG de gráficos"
+		return
+
+	# Contador de archivos procesados
+	var processed = 0
+	
+	# Agregar cada archivo al PKG
+	for dir_path in all_files:
+		var dir_info = all_files[dir_path]
+		var file_prefix = dir_info["prefix"]
+		var dir_files = dir_info["files"]
+		
+		for file_name in dir_files:
+			var file_path = dir_path + file_name
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			
+			processed += 1
+			labelStatus.text = "Exportando gráficos... (%d/%d) %s" % [processed, total_files, file_name]
+			await get_tree().process_frame
+			
+			if packer.add_file(relative_path, file_path) != OK:
+				push_error("Error al agregar el archivo: " + file_path)
+				continue
+	
+	# Finalizar y guardar el PKG
+	if packer.flush() == OK:
+		labelStatus.text = "PKG de gráficos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete de gráficos creado con éxito con %d archivos" % processed)
+	else:
+		labelStatus.text = "Error al guardar el archivo PKG de gráficos"
+		push_error("Error al guardar el archivo PKG de gráficos")
+
+
+func _createPkgSprites() -> void:
+	# Directorio principal de recursos a incluir en el paquete
+	var resource_dir = "res://Resources/"
+	var dir_prefix = "Resources/"
+	
+	# Diccionario para almacenar archivos y subdirectorios recursivamente
+	var all_files = {}
+	var total_files = 0
+	
+	# Obtener todos los archivos recursivamente
+	var dir = DirAccess.open(resource_dir)
+	if dir:
+		var dirs_to_explore = [""]
+		
+		while not dirs_to_explore.is_empty():
+			var current_dir = dirs_to_explore.pop_front()
+			var full_dir = resource_dir.path_join(current_dir)
+			
+			dir = DirAccess.open(full_dir)
+			if not dir:
+				continue
+			
+			dir.list_dir_begin()
+			var file_name = dir.get_next()
+			
+			while file_name != "":
+				var path = current_dir.path_join(file_name)
+				
+				if dir.current_is_dir() and file_name != "." and file_name != "..":
+					dirs_to_explore.append(path)
+				else:
+					var ext = file_name.get_extension().to_lower()
+					if ext in ["png", "jpg", "jpeg", "tres", "res", "tscn"]:
+						all_files[path] = true
+						total_files += 1
+						
+						# Actualizar la interfaz periódicamente
+						if total_files % 10 == 0:
+							labelStatus.text = "Explorando recursos: %d archivos encontrados..." % total_files
+							await get_tree().process_frame
+				
+				file_name = dir.get_next()
+	
+	if all_files.is_empty():
+		labelStatus.text = "No se encontraron archivos de sprites para empaquetar"
+		push_error("No se encontraron archivos en el directorio de recursos")
+		return
+	
+	# Crear el archivo PKG
+	var output_path = "user://sprites.pkg"
+	var packer = PCKPacker.new()
+	var err = packer.pck_start(output_path)
+	
+	if err != OK:
+		labelStatus.text = "Error al crear el archivo PKG"
+		push_error("Error al crear el archivo PKG: %d" % err)
+		return
+	
+	# Procesar archivos
+	var processed = 0
+	for file_path in all_files.keys():
+		var full_path = resource_dir.path_join(file_path)
+		var pack_path = dir_prefix.path_join(file_path)
+		
+		err = packer.add_file(pack_path, full_path, false)
+		if err != OK:
+			push_warning("No se pudo agregar el archivo al paquete: %s (Error: %d)" % [file_path, err])
+			continue
+		
+		processed += 1
+		if processed % 10 == 0:
+			labelStatus.text = "Empaquetando sprites: %d/%d" % [processed, total_files]
+			await get_tree().process_frame
+	
+	# Finalizar y guardar el PKG
+	if packer.flush() == OK:
+		labelStatus.text = "PKG de sprites creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete de sprites creado con éxito con %d archivos" % processed)
+	else:
+		labelStatus.text = "Error al guardar el archivo PKG de sprites"
+		push_error("Error al guardar el archivo PKG de sprites")
