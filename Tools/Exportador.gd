@@ -336,7 +336,7 @@ func _Fxs() -> void:
 
 ### PACKAGES
 
-func _createPkgMaps() -> void:
+func _createPackageMaps() -> void:
 	# Obtener lista de archivos de mapa
 	var map_files = []
 	var dir = DirAccess.open("res://Maps/")
@@ -367,64 +367,61 @@ func _createPkgMaps() -> void:
 		labelStatus.text = "No se encontraron mapas ni miniaturas para exportar"
 		return
 
-	labelStatus.text = "Exportando mapas y miniaturas PKG... (0/%d)" % total
+	labelStatus.text = "Exportando mapas y miniaturas PCK... (0/%d)" % total
 	await get_tree().process_frame
 
-	# Crear el archivo PKG
+	# Crear el archivo PCK
 	var packer = PCKPacker.new()
-	var output_path = "res://maps.pkg"
+	var output_path = "res://maps.pck"
 	
 	if packer.pck_start(output_path) != OK:
-		push_error("Error al crear el archivo PKG de mapas")
-		labelStatus.text = "Error al crear el archivo PKG de mapas"
+		push_error("Error al crear el archivo PCK de mapas")
+		labelStatus.text = "Error al crear el archivo PCK de mapas"
 		return
 
 	# Contador de archivos procesados
 	var processed = 0
 
-	# Agregar mapas al PKG
+	# Agregar mapas al PCK
 	for i in range(map_files.size()):
 		var map_file = map_files[i]
 		var map_path = "res://Maps/" + map_file
-		var relative_path = "Maps/" + map_file  # Ruta relativa dentro del PKG
+		var relative_path = "Maps/" + map_file  # Ruta relativa dentro del PCK
 		
 		processed += 1
-		labelStatus.text = "Exportando mapas PKG... (%d/%d) %s" % [processed, total, map_file]
+		labelStatus.text = "Exportando mapas PCK... (%d/%d) %s" % [processed, total, map_file]
 		await get_tree().process_frame
 		
 		if packer.add_file(relative_path, map_path) != OK:
 			push_error("Error al agregar el archivo: " + map_file)
 			continue
 
-	# Agregar miniaturas al PKG
+	# Agregar miniaturas al PCK
 	for i in range(thumbnail_files.size()):
 		var thumb_file = thumbnail_files[i]
 		var thumb_path = "res://Assets/minimap_thumbnails/" + thumb_file
 		var relative_path = "Assets/minimap_thumbnails/" + thumb_file
 		
 		processed += 1
-		labelStatus.text = "Exportando miniaturas PKG... (%d/%d) %s" % [processed, total, thumb_file]
+		labelStatus.text = "Exportando miniaturas PCK... (%d/%d) %s" % [processed, total, thumb_file]
 		await get_tree().process_frame
 		
 		if packer.add_file(relative_path, thumb_path) != OK:
 			push_error("Error al agregar la miniatura: " + thumb_file)
 			continue
 	
-	# Finalizar y guardar el PKG
+	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
-		labelStatus.text = "PKG creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		labelStatus.text = "PCK creado exitosamente: %s (%d archivos)" % [output_path, processed]
 		print("Paquete de mapas creado con éxito con %d archivos" % processed)
 	else:
-		labelStatus.text = "Error al guardar el archivo PKG"
-		push_error("Error al guardar el archivo PKG")
+		labelStatus.text = "Error al guardar el archivo PCK"
+		push_error("Error al guardar el archivo PCK")
 
-func _createPkgUI() -> void:
-	# Directorios a incluir en el paquete UI
+func _createPackageIndex() -> void:
+	# Directorios a incluir en el paquete Index
 	var asset_dirs = [
 		{ "path": "res://Assets/Init/", "prefix": "Assets/Init/" },
-		{ "path": "res://Assets/UI/", "prefix": "Assets/UI/" },
-		{ "path": "res://Assets/Cursors/", "prefix": "Assets/Cursors/" },
-		{ "path": "res://Assets/Fonts/", "prefix": "Assets/Fonts/" },
 	]
 	
 	# Diccionario para almacenar archivos por directorio
@@ -460,19 +457,19 @@ func _createPkgUI() -> void:
 	labelStatus.text = "Preparando para empaquetar %d archivos..." % total_files
 	await get_tree().process_frame
 
-	# Crear el archivo PKG
+	# Crear el archivo PCK
 	var packer = PCKPacker.new()
-	var output_path = "res://ui.pkg"
+	var output_path = "res://index.pck"
 	
 	if packer.pck_start(output_path) != OK:
-		push_error("Error al crear el archivo PKG de UI")
-		labelStatus.text = "Error al crear el archivo PKG"
+		push_error("Error al crear el archivo PCK de Index")
+		labelStatus.text = "Error al crear el archivo PCK"
 		return
 
 	# Contador de archivos procesados
 	var processed = 0
 	
-	# Agregar cada archivo al PKG
+	# Agregar cada archivo al PCK
 	for dir_path in all_files:
 		var dir_info = all_files[dir_path]
 		var file_prefix = dir_info["prefix"]
@@ -480,7 +477,7 @@ func _createPkgUI() -> void:
 		
 		for file_name in files:
 			var file_path = dir_path + file_name
-			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PCK
 			
 			processed += 1
 			labelStatus.text = "Exportando UI... (%d/%d) %s" % [processed, total_files, file_name]
@@ -490,15 +487,15 @@ func _createPkgUI() -> void:
 				push_error("Error al agregar el archivo: " + file_path)
 				continue
 	
-	# Finalizar y guardar el PKG
+	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
-		labelStatus.text = "PKG de UI creado exitosamente: %s (%d archivos)" % [output_path, processed]
-		print("Paquete UI creado con éxito con %d archivos" % processed)
+		labelStatus.text = "PCK de Index creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		print("Paquete Index creado con éxito con %d archivos" % processed)
 	else:
-		labelStatus.text = "Error al guardar el archivo PKG de UI"
-		push_error("Error al guardar el archivo PKG de UI")
+		labelStatus.text = "Error al guardar el archivo PCK de Index"
+		push_error("Error al guardar el archivo PCK de Index")
 
-func _createPkgSound() -> void:
+func _createPackageSound() -> void:
 	# Directorios a incluir en el paquete de sonidos
 	var asset_dirs = [
 		{ "path": "res://Assets/Sfx/", "prefix": "Assets/Sfx/" },
@@ -541,19 +538,19 @@ func _createPkgSound() -> void:
 	labelStatus.text = "Preparando para empaquetar %d archivos de audio..." % total_files
 	await get_tree().process_frame
 
-	# Crear el archivo PKG
+	# Crear el archivo PCK
 	var packer = PCKPacker.new()
-	var output_path = "res://sound.pkg"
+	var output_path = "res://sounds.pck"
 	
 	if packer.pck_start(output_path) != OK:
-		push_error("Error al crear el archivo PKG de sonidos")
-		labelStatus.text = "Error al crear el archivo PKG de sonidos"
+		push_error("Error al crear el archivo PCK de sonidos")
+		labelStatus.text = "Error al crear el archivo PCK de sonidos"
 		return
 
 	# Contador de archivos procesados
 	var processed = 0
 	
-	# Agregar cada archivo al PKG
+	# Agregar cada archivo al PCK
 	for dir_path in all_files:
 		var dir_info = all_files[dir_path]
 		var file_prefix = dir_info["prefix"]
@@ -561,7 +558,7 @@ func _createPkgSound() -> void:
 		
 		for file_name in files:
 			var file_path = dir_path + file_name
-			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PCK
 			
 			processed += 1
 			labelStatus.text = "Exportando sonidos... (%d/%d) %s" % [processed, total_files, file_name]
@@ -571,16 +568,16 @@ func _createPkgSound() -> void:
 				push_error("Error al agregar el archivo: " + file_path)
 				continue
 	
-	# Finalizar y guardar el PKG
+	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
-		labelStatus.text = "PKG de sonidos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		labelStatus.text = "PCK de sonidos creado exitosamente: %s (%d archivos)" % [output_path, processed]
 		print("Paquete de sonidos creado con éxito con %d archivos" % processed)
 	else:
-		labelStatus.text = "Error al guardar el archivo PKG de sonidos"
-		push_error("Error al guardar el archivo PKG de sonidos")
+		labelStatus.text = "Error al guardar el archivo PCK de sonidos"
+		push_error("Error al guardar el archivo PCK de sonidos")
 
 
-func _createPkgGrh() -> void:
+func _createPackageGrh() -> void:
 	# Directorios a incluir en el paquete de gráficos
 	var asset_dirs = [
 		{ "path": "res://Assets/Gfx/", "prefix": "Assets/Gfx/" },
@@ -649,19 +646,19 @@ func _createPkgGrh() -> void:
 	labelStatus.text = "Preparando para empaquetar %d archivos gráficos..." % total_files
 	await get_tree().process_frame
 
-	# Crear el archivo PKG
+	# Crear el archivo PCK
 	var packer = PCKPacker.new()
-	var output_path = "res://graphics.pkg"
+	var output_path = "res://graphics.pck"
 	
 	if packer.pck_start(output_path) != OK:
-		push_error("Error al crear el archivo PKG de gráficos")
-		labelStatus.text = "Error al crear el archivo PKG de gráficos"
+		push_error("Error al crear el archivo PCK de gráficos")
+		labelStatus.text = "Error al crear el archivo PCK de gráficos"
 		return
 
 	# Contador de archivos procesados
 	var processed = 0
 	
-	# Agregar cada archivo al PKG
+	# Agregar cada archivo al PCK
 	for dir_path in all_files:
 		var dir_info = all_files[dir_path]
 		var file_prefix = dir_info["prefix"]
@@ -669,7 +666,7 @@ func _createPkgGrh() -> void:
 		
 		for file_name in dir_files:
 			var file_path = dir_path + file_name
-			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PKG
+			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PCK
 			
 			processed += 1
 			labelStatus.text = "Exportando gráficos... (%d/%d) %s" % [processed, total_files, file_name]
@@ -679,10 +676,10 @@ func _createPkgGrh() -> void:
 				push_error("Error al agregar el archivo: " + file_path)
 				continue
 	
-	# Finalizar y guardar el PKG
+	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
-		labelStatus.text = "PKG de gráficos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		labelStatus.text = "PCK de gráficos creado exitosamente: %s (%d archivos)" % [output_path, processed]
 		print("Paquete de gráficos creado con éxito con %d archivos" % processed)
 	else:
-		labelStatus.text = "Error al guardar el archivo PKG de gráficos"
-		push_error("Error al guardar el archivo PKG de gráficos")
+		labelStatus.text = "Error al guardar el archivo PCK de gráficos"
+		push_error("Error al guardar el archivo PCK de gráficos")

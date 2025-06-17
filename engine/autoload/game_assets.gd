@@ -12,6 +12,19 @@ var HelmetAnimationList:Array[GrhAnimationData] = []
 var BodyAnimationList:Array[GrhAnimationData] = []
 
 func _ready() -> void:
+	# Esperar a que Main termine de cargar sus recursos
+	if get_tree().get_root().has_node('Main'):
+		var main = get_node('/root/Main')
+		if main and main.has_signal('resources_loaded'):
+			main.resources_loaded.connect(_on_resources_loaded, CONNECT_ONE_SHOT)
+	else:
+		# Si por alguna razón no existe Main, cargar los recursos de inmediato
+		call_deferred("_load_all_resources")
+
+func _on_resources_loaded() -> void:
+	call_deferred("_load_all_resources")
+
+func _load_all_resources() -> void:
 	_LoadGrhData()
 	_LoadWeaponData()
 	_LoadShieldData()
@@ -20,6 +33,7 @@ func _ready() -> void:
 	_LoadHelmetData()
 	_LoadFonts()
 	_LoadColours()
+	print("GameAssets: Todos los recursos han sido cargados")
 	
 func GetTexture(fileId:int) -> Texture2D:
 	if _textureList.has(fileId):
