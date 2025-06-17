@@ -334,6 +334,8 @@ func _Fxs() -> void:
 			
 		ResourceSaver.save(spriteFrames, "res://Resources/Fxs/fx_%d.tres" % (i + 1))	
 
+### PACKAGES
+
 func _createPkgMaps() -> void:
 	# Obtener lista de archivos de mapa
 	var map_files = []
@@ -496,8 +498,7 @@ func _createPkgUI() -> void:
 		labelStatus.text = "Error al guardar el archivo PKG de UI"
 		push_error("Error al guardar el archivo PKG de UI")
 
-
-func _createPkgFx() -> void:
+func _createPkgSound() -> void:
 	# Directorios a incluir en el paquete de sonidos
 	var asset_dirs = [
 		{ "path": "res://Assets/Sfx/", "prefix": "Assets/Sfx/" },
@@ -521,7 +522,7 @@ func _createPkgFx() -> void:
 				if not dir.current_is_dir():
 					# Solo incluir archivos de audio
 					var ext = file_name.get_extension().to_lower()
-					if ext in ["wav", "ogg", "mp3", "mp4"]:
+					if ext in ["wav", "ogg", "mp3", "mp4", "import"]:
 						files.append(file_name)
 						total_files += 1
 				file_name = dir.get_next()
@@ -580,37 +581,66 @@ func _createPkgFx() -> void:
 
 
 func _createPkgGrh() -> void:
-	# Directorio a incluir en el paquete de gráficos
-	var asset_dir = "res://Assets/Gfx/"
-	var dir_prefix = "Assets/Gfx/"
+	# Directorios a incluir en el paquete de gráficos
+	var asset_dirs = [
+		{ "path": "res://Assets/Gfx/", "prefix": "Assets/Gfx/" },
+		{ "path": "res://Resources/", "prefix": "Resources/" }
+	]
 	
-	# Diccionario para almacenar archivos
+	# Diccionario para almacenar archivos por directorio
 	var all_files = {}
 	var total_files = 0
-	var files = []
-	
-	# Obtener lista de archivos del directorio
-	var dir = DirAccess.open(asset_dir)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if not dir.current_is_dir():
-				# Incluir archivos de imagen y otros recursos gráficos
-				var ext = file_name.get_extension().to_lower()
-				if ext in ["png", "jpg", "jpeg", "webp", "tga", "svg", "bmp", "dds", "exr", "hdr"]:
-					files.append(file_name)
-					total_files += 1
-			file_name = dir.get_next()
-	else:
-		push_warning("No se pudo abrir el directorio: " + asset_dir)
-		labelStatus.text = "Error: No se pudo abrir el directorio de gráficos"
-		return
 
-	all_files[asset_dir] = {
-		"prefix": dir_prefix,
-		"files": files
-	}
+	# Procesar cada directorio
+	for dir_info in asset_dirs:
+		var dir_path = dir_info["path"]
+		var prefix = dir_info["prefix"]
+		
+		var dir = DirAccess.open(dir_path)
+		if not dir:
+			push_warning("No se pudo abrir el directorio: " + dir_path)
+			continue
+		
+		var files = []
+		var dirs_to_explore = [""]  # Empezar con el directorio raíz
+		var dir_files_count = 0
+		
+		while not dirs_to_explore.is_empty():
+			var current_dir = dirs_to_explore.pop_front()
+			var full_dir = dir_path.path_join(current_dir) if current_dir else dir_path
+			
+			dir = DirAccess.open(full_dir)
+			if not dir:
+				continue
+			
+			dir.list_dir_begin()
+			var file_name = dir.get_next()
+			
+			while file_name != "":
+				var rel_path = current_dir.path_join(file_name) if current_dir else file_name
+				
+				if dir.current_is_dir():
+					if file_name != "." and file_name != "..":
+						dirs_to_explore.append(rel_path)
+				else:
+					# Incluir archivos de imagen y otros recursos gráficos
+					var ext = file_name.get_extension().to_lower()
+					if ext in ["png", "import", "tres"]:
+						files.append(rel_path)
+						dir_files_count += 1
+						total_files += 1
+						
+						# Actualizar la interfaz periódicamente
+						if total_files % 10 == 0:
+							labelStatus.text = "Explorando recursos gráficos: %d archivos encontrados..." % total_files
+							await get_tree().process_frame
+				
+				file_name = dir.get_next()
+		
+		all_files[dir_path] = {
+			"prefix": prefix,
+			"files": files
+		}
 
 	if total_files == 0:
 		labelStatus.text = "No se encontraron archivos gráficos para empaquetar"
@@ -656,86 +686,3 @@ func _createPkgGrh() -> void:
 	else:
 		labelStatus.text = "Error al guardar el archivo PKG de gráficos"
 		push_error("Error al guardar el archivo PKG de gráficos")
-
-
-func _createPkgSprites() -> void:
-	# Directorio principal de recursos a incluir en el paquete
-	var resource_dir = "res://Resources/"
-	var dir_prefix = "Resources/"
-	
-	# Diccionario para almacenar archivos y subdirectorios recursivamente
-	var all_files = {}
-	var total_files = 0
-	
-	# Obtener todos los archivos recursivamente
-	var dir = DirAccess.open(resource_dir)
-	if dir:
-		var dirs_to_explore = [""]
-		
-		while not dirs_to_explore.is_empty():
-			var current_dir = dirs_to_explore.pop_front()
-			var full_dir = resource_dir.path_join(current_dir)
-			
-			dir = DirAccess.open(full_dir)
-			if not dir:
-				continue
-			
-			dir.list_dir_begin()
-			var file_name = dir.get_next()
-			
-			while file_name != "":
-				var path = current_dir.path_join(file_name)
-				
-				if dir.current_is_dir() and file_name != "." and file_name != "..":
-					dirs_to_explore.append(path)
-				else:
-					var ext = file_name.get_extension().to_lower()
-					if ext in ["png", "jpg", "jpeg", "tres", "res", "tscn"]:
-						all_files[path] = true
-						total_files += 1
-						
-						# Actualizar la interfaz periódicamente
-						if total_files % 10 == 0:
-							labelStatus.text = "Explorando recursos: %d archivos encontrados..." % total_files
-							await get_tree().process_frame
-				
-				file_name = dir.get_next()
-	
-	if all_files.is_empty():
-		labelStatus.text = "No se encontraron archivos de sprites para empaquetar"
-		push_error("No se encontraron archivos en el directorio de recursos")
-		return
-	
-	# Crear el archivo PKG
-	var output_path = "user://sprites.pkg"
-	var packer = PCKPacker.new()
-	var err = packer.pck_start(output_path)
-	
-	if err != OK:
-		labelStatus.text = "Error al crear el archivo PKG"
-		push_error("Error al crear el archivo PKG: %d" % err)
-		return
-	
-	# Procesar archivos
-	var processed = 0
-	for file_path in all_files.keys():
-		var full_path = resource_dir.path_join(file_path)
-		var pack_path = dir_prefix.path_join(file_path)
-		
-		err = packer.add_file(pack_path, full_path, false)
-		if err != OK:
-			push_warning("No se pudo agregar el archivo al paquete: %s (Error: %d)" % [file_path, err])
-			continue
-		
-		processed += 1
-		if processed % 10 == 0:
-			labelStatus.text = "Empaquetando sprites: %d/%d" % [processed, total_files]
-			await get_tree().process_frame
-	
-	# Finalizar y guardar el PKG
-	if packer.flush() == OK:
-		labelStatus.text = "PKG de sprites creado exitosamente: %s (%d archivos)" % [output_path, processed]
-		print("Paquete de sprites creado con éxito con %d archivos" % processed)
-	else:
-		labelStatus.text = "Error al guardar el archivo PKG de sprites"
-		push_error("Error al guardar el archivo PKG de sprites")

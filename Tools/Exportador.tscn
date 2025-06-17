@@ -61,28 +61,28 @@ text = "Exportar Fxs -> Resources"
 
 [node name="Label2" type="Label" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "PKG"
+text = "Crear PKG"
 horizontal_alignment = 1
 
 [node name="Button8" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Crear PKG de Mapas (req. TSCN+Minimaps)"
+text = "PKG de Mapas (req. TSCN+Minimaps)"
 
 [node name="Button9" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Crear PKG de Inits/UI/Fonts/Cursors"
+text = "PKG de Inits/UI/Fonts/Cursors"
 
 [node name="Button10" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Crear PKG de FX/Music"
+text = "PKG de Sfx/Music"
 
 [node name="Button11" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Crear PKG de Graphics"
+text = "PKG de Graphics"
 
 [node name="Button12" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Crear PKG de Sprites"
+text = "PKG de Sprites"
 
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button" to="." method="_ExportMaps"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button2" to="." method="_Bodies"]
@@ -93,6 +93,6 @@ text = "Crear PKG de Sprites"
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button7" to="." method="_Fxs"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button8" to="." method="_createPkgMaps"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button9" to="." method="_createPkgUI"]
-[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button10" to="." method="_createPkgFx"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button10" to="." method="_createPkgSound"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button11" to="." method="_createPkgGrh"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button12" to="." method="_createPkgSprites"]
