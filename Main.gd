@@ -11,9 +11,9 @@ func _ready() -> void:
 		DirAccess.make_dir_absolute("user://screenshots")
 
 	var packages = {
-		"Index": "res://index.pck",
+		#"Index": "res://index.pck",
+		#"Graphics": "res://graphics.pck",
 		"Sounds": "res://sounds.pck",
-		"Graphics": "res://graphics.pck",
 		"Maps": "res://maps.pck",
 	}
 

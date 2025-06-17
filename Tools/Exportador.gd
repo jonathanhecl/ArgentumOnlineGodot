@@ -495,7 +495,101 @@ func _createPackageIndex() -> void:
 		labelStatus.text = "Error al guardar el archivo PCK de Index"
 		push_error("Error al guardar el archivo PCK de Index")
 
+# Función para procesar archivos .import y obtener sus dependencias
+func _process_import_file(import_path: String) -> Array:
+	var dependencies = []
+	var file = FileAccess.open(import_path, FileAccess.READ)
+	if not file:
+		push_error("No se pudo abrir el archivo: " + import_path)
+		return dependencies
+		
+	var content = file.get_as_text()
+	file.close()
+	
+	# Si es un archivo .import, buscar el archivo .sample correspondiente
+	if import_path.ends_with(".import"):
+		var base_path = import_path.get_basename()
+		var file_name = base_path.get_file()
+		
+		# Buscar archivos .sample en .godot/imported/ que coincidan con el nombre del archivo
+		var imported_dir = "res://.godot/imported/"
+		var dir = DirAccess.open(imported_dir)
+		
+		if dir:
+			dir.list_dir_begin()
+			var current_file = dir.get_next()
+			while current_file != "":
+				if current_file.begins_with(file_name) and current_file.ends_with(".sample"):
+					var full_path = imported_dir + current_file
+					if not full_path in dependencies and FileAccess.file_exists(full_path):
+						dependencies.append(full_path)
+						print("Archivo .sample encontrado: ", full_path)
+				current_file = dir.get_next()
+			dir.list_dir_end()
+	
+	# También buscar en el contenido del archivo .import
+	var lines = content.split("\n")
+	var in_dest_files = false
+	
+	for line in lines:
+		line = line.strip_edges()
+		
+		# Buscar la sección de dest_files
+		if line == "dest_files=[":
+			in_dest_files = true
+			continue
+		elif in_dest_files and line == "]":
+			in_dest_files = false
+			continue
+		
+		# Procesar dest_files
+		if in_dest_files and line.begins_with("\""):
+			var dep_path = line.trim_prefix("\"").split("\"")[0]
+			if dep_path.begins_with("res://"):
+				# Asegurarse de que la ruta sea correcta para el sistema de archivos
+				if not dep_path in dependencies and FileAccess.file_exists(dep_path):
+					dependencies.append(dep_path)
+					print("Dependencia encontrada en .import: ", dep_path)
+	
+	# Si no encontramos dependencias, intentar con el archivo .import.remap
+	if dependencies.size() == 0 and import_path.ends_with(".import"):
+		var remap_path = import_path + ".remap"
+		if FileAccess.file_exists(remap_path):
+			var remap_file = FileAccess.open(remap_path, FileAccess.READ)
+			if remap_file:
+				var remap_content = remap_file.get_as_text()
+				remap_file.close()
+				
+				# Buscar líneas que parezcan rutas de archivo
+				var remap_lines = remap_content.split("\n")
+				for line in remap_lines:
+					line = line.strip_edges()
+					if line.begins_with("res://.godot/imported/") and not line.begins_with("res://.godot/imported/.godot"):
+						if not line in dependencies and FileAccess.file_exists(line):
+							dependencies.append(line)
+							print("Dependencia encontrada en .remap: ", line)
+	
+	if dependencies.size() == 0:
+		print("Advertencia: No se encontraron dependencias en ", import_path)
+	else:
+		print("Se encontraron ", dependencies.size(), " dependencias para ", import_path)
+	
+	return dependencies
+
+# Función para agregar un archivo al PCK
+func _add_file_to_pack(packer: PCKPacker, path: String, relative_path: String) -> void:
+	if not FileAccess.file_exists(path):
+		push_error("El archivo no existe: " + path)
+		return
+		
+	if packer.add_file(relative_path, path) != OK:
+		push_error("Error al agregar el archivo al paquete: " + path)
+	else:
+		print("Archivo empaquetado: " + relative_path)
+
 func _createPackageSound() -> void:
+	print("Iniciando creación del paquete de sonidos...")
+
 	# Directorios a incluir en el paquete de sonidos
 	var asset_dirs = [
 		{ "path": "res://Assets/Sfx/", "prefix": "Assets/Sfx/" },
@@ -505,6 +599,8 @@ func _createPackageSound() -> void:
 	# Diccionario para almacenar archivos por directorio
 	var all_files = {}
 	var total_files = 0
+	
+	print("Buscando archivos de audio en los directorios...")
 	
 	# Obtener lista de archivos de cada directorio
 	for dir_info in asset_dirs:
@@ -517,23 +613,57 @@ func _createPackageSound() -> void:
 			var file_name = dir.get_next()
 			while file_name != "":
 				if not dir.current_is_dir():
-					# Solo incluir archivos de audio
+					# Solo incluir archivos de audio y sus .import
 					var ext = file_name.get_extension().to_lower()
-					if ext in ["wav", "ogg", "mp3", "mp4", "import"]:
+					if ext in ["wav", "ogg", "mp3", "mp4"] or file_name.ends_with(".import"):
 						files.append(file_name)
 						total_files += 1
 				file_name = dir.get_next()
+			
+			dir.list_dir_end()
+			all_files[dir_path] = { "files": files, "prefix": dir_info["prefix"] }
+			print("Encontrados ", files.size(), " archivos en ", dir_path)
 		else:
-			push_warning("No se pudo abrir el directorio: " + dir_path)
-		
-		all_files[dir_path] = {
-			"prefix": dir_info["prefix"],
-			"files": files
-		}
-	
+			push_error("No se pudo abrir el directorio: " + dir_path)
+
 	if total_files == 0:
 		labelStatus.text = "No se encontraron archivos de audio para empaquetar"
+		push_error("No se encontraron archivos de audio para empaquetar")
 		return
+
+	print("Buscando dependencias de importación...")
+	
+	# Crear una lista de archivos adicionales (dependencias de importación)
+	var additional_files = {}
+	
+	# Procesar archivos .import para encontrar dependencias
+	for dir_path in all_files:
+		var files = all_files[dir_path]["files"]
+		for file_name in files:
+			if file_name.ends_with(".import"):
+				var import_path = dir_path + file_name
+				print("Procesando archivo .import: ", import_path)
+				
+				# Procesar el archivo .import para encontrar dependencias
+				var deps = _process_import_file(import_path)
+				
+				# Asegurarse de que el archivo .import en sí se incluya
+				var import_relative_path = all_files[dir_path]["prefix"] + file_name
+				if not additional_files.has(import_path):
+					additional_files[import_path] = import_relative_path
+					total_files += 1
+					print("Añadido archivo .import: ", import_path, " como ", import_relative_path)
+				
+				# Procesar las dependencias encontradas
+				for dep in deps:
+					if not additional_files.has(dep) and FileAccess.file_exists(dep):
+						# Calcular la ruta relativa dentro del PCK
+						var relative_path = dep.replace("res://", "")
+						additional_files[dep] = relative_path
+						total_files += 1
+						print("Añadida dependencia: ", dep, " como ", relative_path)
+
+	print("Total de archivos a empaquetar: ", total_files)
 
 	labelStatus.text = "Preparando para empaquetar %d archivos de audio..." % total_files
 	await get_tree().process_frame
@@ -541,6 +671,8 @@ func _createPackageSound() -> void:
 	# Crear el archivo PCK
 	var packer = PCKPacker.new()
 	var output_path = "res://sounds.pck"
+	
+	print("Creando archivo PCK en: ", output_path)
 	
 	if packer.pck_start(output_path) != OK:
 		push_error("Error al crear el archivo PCK de sonidos")
@@ -550,7 +682,9 @@ func _createPackageSound() -> void:
 	# Contador de archivos procesados
 	var processed = 0
 	
-	# Agregar cada archivo al PCK
+	print("Agregando archivos de audio al paquete...")
+	
+	# Agregar archivos de audio y .import al PCK
 	for dir_path in all_files:
 		var dir_info = all_files[dir_path]
 		var file_prefix = dir_info["prefix"]
@@ -561,20 +695,51 @@ func _createPackageSound() -> void:
 			var relative_path = file_prefix + file_name  # Ruta relativa dentro del PCK
 			
 			processed += 1
-			labelStatus.text = "Exportando sonidos... (%d/%d) %s" % [processed, total_files, file_name]
-			await get_tree().process_frame
+			var status = "Exportando sonidos... (%d/%d) %s" % [processed, total_files, file_name]
+			labelStatus.text = status
+			print(status)
 			
-			if packer.add_file(relative_path, file_path) != OK:
-				push_error("Error al agregar el archivo: " + file_path)
-				continue
+			# Agregar el archivo al paquete
+			_add_file_to_pack(packer, file_path, relative_path)
+			
+			# Dar tiempo para actualizar la interfaz
+			if processed % 10 == 0:
+				await get_tree().process_frame
+	
+	print("Agregando archivos de dependencias...")
+	
+	# Agregar archivos adicionales (dependencias de importación)
+	for dep_path in additional_files:
+		var relative_path = additional_files[dep_path]
+		processed += 1
+		var status = "Exportando dependencias... (%d/%d) %s" % [processed, total_files, relative_path]
+		labelStatus.text = status
+		print(status)
+		
+		# Agregar el archivo de dependencia al paquete
+		if FileAccess.file_exists(dep_path):
+			_add_file_to_pack(packer, dep_path, relative_path)
+		else:
+			push_error("El archivo de dependencia no existe: " + dep_path)
+			print("Error: El archivo de dependencia no existe: ", dep_path)
+		
+		# Dar tiempo para actualizar la interfaz
+		if processed % 10 == 0:
+			await get_tree().process_frame
+
+	print("Finalizando creación del paquete...")
 	
 	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
-		labelStatus.text = "PCK de sonidos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		var success_msg = "PCK de sonidos creado exitosamente: %s (%d archivos)" % [output_path, processed]
+		labelStatus.text = success_msg
+		print(success_msg)
 		print("Paquete de sonidos creado con éxito con %d archivos" % processed)
 	else:
-		labelStatus.text = "Error al guardar el archivo PCK de sonidos"
-		push_error("Error al guardar el archivo PCK de sonidos")
+		var error_msg = "Error al guardar el archivo PCK de sonidos"
+		labelStatus.text = error_msg
+		push_error(error_msg)
+		print(error_msg)
 
 
 func _createPackageGrh() -> void:
