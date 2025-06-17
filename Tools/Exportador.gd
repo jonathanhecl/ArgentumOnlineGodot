@@ -392,9 +392,8 @@ func _createPackageMaps() -> void:
 		labelStatus.text = "Exportando mapas PCK... (%d/%d) %s" % [processed, total, map_file]
 		await get_tree().process_frame
 		
-		if packer.add_file(relative_path, map_path) != OK:
-			push_error("Error al agregar el archivo: " + map_file)
-			continue
+		# Usar _add_file_to_pack en lugar de packer.add_file directamente
+		_add_file_to_pack(packer, map_path, relative_path)
 
 	# Agregar miniaturas al PCK
 	for i in range(thumbnail_files.size()):
@@ -406,9 +405,8 @@ func _createPackageMaps() -> void:
 		labelStatus.text = "Exportando miniaturas PCK... (%d/%d) %s" % [processed, total, thumb_file]
 		await get_tree().process_frame
 		
-		if packer.add_file(relative_path, thumb_path) != OK:
-			push_error("Error al agregar la miniatura: " + thumb_file)
-			continue
+		# Usar _add_file_to_pack en lugar de packer.add_file directamente
+		_add_file_to_pack(packer, thumb_path, relative_path)
 	
 	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
@@ -422,6 +420,9 @@ func _createPackageIndex() -> void:
 	# Directorios a incluir en el paquete Index
 	var asset_dirs = [
 		{ "path": "res://Assets/Init/", "prefix": "Assets/Init/" },
+		{ "path": "res://Assets/UI/", "prefix": "Assets/UI/" },
+		{ "path": "res://Assets/Fonts/alegreya-sans/", "prefix": "Assets/Fonts/alegreya-sans/" },
+		{ "path": "res://Assets/Cursors/", "prefix": "Assets/Cursors/" },
 	]
 	
 	# Diccionario para almacenar archivos por directorio
@@ -483,9 +484,8 @@ func _createPackageIndex() -> void:
 			labelStatus.text = "Exportando UI... (%d/%d) %s" % [processed, total_files, file_name]
 			await get_tree().process_frame
 			
-			if packer.add_file(relative_path, file_path) != OK:
-				push_error("Error al agregar el archivo: " + file_path)
-				continue
+			# Usar _add_file_to_pack en lugar de packer.add_file directamente
+			_add_file_to_pack(packer, file_path, relative_path)
 	
 	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
@@ -495,64 +495,90 @@ func _createPackageIndex() -> void:
 		labelStatus.text = "Error al guardar el archivo PCK de Index"
 		push_error("Error al guardar el archivo PCK de Index")
 
-# Función para procesar archivos .import y obtener sus dependencias
-func _process_import_file(import_path: String) -> Array:
-	var dependencies = []
+# Función para procesar archivos .import y obtener sus recursos asociados
+func _process_import_file(import_path: String) -> Dictionary:
+	var result = {
+		"import_file": "",
+		"remap_path": "",
+		"dependencies": []
+	}
+	
+	# Verificar si el archivo .import existe
+	if not import_path.ends_with(".import"):
+		return result
+		
+	if not FileAccess.file_exists(import_path):
+		push_error("El archivo .import no existe: " + import_path)
+		return result
+		
+	result["import_file"] = import_path
+	
+	# Leer el contenido del archivo .import
 	var file = FileAccess.open(import_path, FileAccess.READ)
 	if not file:
 		push_error("No se pudo abrir el archivo: " + import_path)
-		return dependencies
+		return result
 		
 	var content = file.get_as_text()
 	file.close()
 	
-	# Si es un archivo .import, buscar el archivo .sample correspondiente
-	if import_path.ends_with(".import"):
-		var base_path = import_path.get_basename()
-		var file_name = base_path.get_file()
-		
-		# Buscar archivos .sample en .godot/imported/ que coincidan con el nombre del archivo
-		var imported_dir = "res://.godot/imported/"
-		var dir = DirAccess.open(imported_dir)
-		
-		if dir:
-			dir.list_dir_begin()
-			var current_file = dir.get_next()
-			while current_file != "":
-				if current_file.begins_with(file_name) and current_file.ends_with(".sample"):
-					var full_path = imported_dir + current_file
-					if not full_path in dependencies and FileAccess.file_exists(full_path):
-						dependencies.append(full_path)
-						print("Archivo .sample encontrado: ", full_path)
-				current_file = dir.get_next()
-			dir.list_dir_end()
-	
-	# También buscar en el contenido del archivo .import
+	# Buscar la sección [remap] y extraer el path
 	var lines = content.split("\n")
+	var in_remap_section = false
+	
+	for line in lines:
+		line = line.strip_edges()
+		
+		# Buscar la sección [remap]
+		if line == "[remap]":
+			in_remap_section = true
+			continue
+		elif line.begins_with("[") and line.ends_with("]"):
+			in_remap_section = false
+			continue
+			
+		# Procesar la sección [remap]
+		if in_remap_section and line.begins_with("path=\""):
+			var path = line.trim_prefix("path=\"").split("\"")[0]
+			if path.begins_with("res://") and FileAccess.file_exists(path):
+				result["remap_path"] = path
+				result["dependencies"].append(path)
+				print("Ruta remapeada encontrada: ", path)
+	
+	# Buscar dependencias en la sección [deps]
+	var in_deps_section = false
 	var in_dest_files = false
 	
 	for line in lines:
 		line = line.strip_edges()
 		
-		# Buscar la sección de dest_files
-		if line == "dest_files=[":
+		# Buscar la sección [deps]
+		if line == "[deps]":
+			in_deps_section = true
+			continue
+		elif line.begins_with("[") and line.ends_with("]"):
+			in_deps_section = false
+			in_dest_files = false
+			continue
+			
+		# Buscar la sección dest_files dentro de [deps]
+		if in_deps_section and line == "dest_files=[":
 			in_dest_files = true
 			continue
 		elif in_dest_files and line == "]":
 			in_dest_files = false
 			continue
-		
+			
 		# Procesar dest_files
 		if in_dest_files and line.begins_with("\""):
 			var dep_path = line.trim_prefix("\"").split("\"")[0]
-			if dep_path.begins_with("res://"):
-				# Asegurarse de que la ruta sea correcta para el sistema de archivos
-				if not dep_path in dependencies and FileAccess.file_exists(dep_path):
-					dependencies.append(dep_path)
+			if dep_path.begins_with("res://") and FileAccess.file_exists(dep_path):
+				if not dep_path in result["dependencies"]:
+					result["dependencies"].append(dep_path)
 					print("Dependencia encontrada en .import: ", dep_path)
 	
 	# Si no encontramos dependencias, intentar con el archivo .import.remap
-	if dependencies.size() == 0 and import_path.ends_with(".import"):
+	if result["dependencies"].size() == 0:
 		var remap_path = import_path + ".remap"
 		if FileAccess.file_exists(remap_path):
 			var remap_file = FileAccess.open(remap_path, FileAccess.READ)
@@ -562,30 +588,72 @@ func _process_import_file(import_path: String) -> Array:
 				
 				# Buscar líneas que parezcan rutas de archivo
 				var remap_lines = remap_content.split("\n")
-				for line in remap_lines:
-					line = line.strip_edges()
-					if line.begins_with("res://.godot/imported/") and not line.begins_with("res://.godot/imported/.godot"):
-						if not line in dependencies and FileAccess.file_exists(line):
-							dependencies.append(line)
-							print("Dependencia encontrada en .remap: ", line)
+				for remap_line in remap_lines:
+					remap_line = remap_line.strip_edges()
+					if remap_line.begins_with("res://.godot/imported/") and not remap_line.begins_with("res://.godot/imported/.godot"):
+						if not remap_line in result["dependencies"] and FileAccess.file_exists(remap_line):
+							result["dependencies"].append(remap_line)
+							print("Dependencia encontrada en .remap: ", remap_line)
 	
-	if dependencies.size() == 0:
-		print("Advertencia: No se encontraron dependencias en ", import_path)
-	else:
-		print("Se encontraron ", dependencies.size(), " dependencias para ", import_path)
-	
-	return dependencies
+	print("Procesado ", import_path, " - ", result["dependencies"].size(), " dependencias encontradas")
+	return result
 
-# Función para agregar un archivo al PCK
+# Función para agregar un archivo al PCK, incluyendo sus archivos .import y recursos asociados
 func _add_file_to_pack(packer: PCKPacker, path: String, relative_path: String) -> void:
+	# Verificar si el archivo principal existe
 	if not FileAccess.file_exists(path):
 		push_error("El archivo no existe: " + path)
 		return
-		
+	
+	# 1. Agregar el archivo principal
 	if packer.add_file(relative_path, path) != OK:
 		push_error("Error al agregar el archivo al paquete: " + path)
 	else:
 		print("Archivo empaquetado: " + relative_path)
+	
+	# 2. Verificar si existe un archivo .import correspondiente
+	var import_path = path + ".import"
+	if FileAccess.file_exists(import_path):
+		# Agregar el archivo .import
+		var import_relative_path = relative_path + ".import"
+		if packer.add_file(import_relative_path, import_path) != OK:
+			push_error("Error al agregar el archivo .import al paquete: " + import_path)
+		else:
+			print("Archivo .import empaquetado: " + import_relative_path)
+		
+		# Procesar el archivo .import para encontrar recursos adicionales
+		var import_info = _process_import_file(import_path)
+		
+		# 3. Agregar el archivo remapeado si existe
+		if import_info["remap_path"] != "" and FileAccess.file_exists(import_info["remap_path"]):
+			# Calcular la ruta relativa dentro del PCK para el archivo remapeado
+			# Mantenemos la estructura de directorios dentro de .godot/imported/
+			var remap_relative_path = import_info["remap_path"].replace("res://", "")
+			
+			if packer.add_file(remap_relative_path, import_info["remap_path"]) != OK:
+				push_error("Error al agregar el archivo remapeado al paquete: " + import_info["remap_path"])
+			else:
+				print("Archivo remapeado empaquetado: " + remap_relative_path)
+		
+		# 4. Agregar todas las dependencias encontradas
+		for dep_path in import_info["dependencies"]:
+			if dep_path != import_info["remap_path"] and FileAccess.file_exists(dep_path):
+				# Mantenemos la estructura de directorios original
+				var dep_relative_path = dep_path.replace("res://", "")
+				
+				# Verificar si ya se agregó este archivo para evitar duplicados
+				if not _is_file_in_pack(packer, dep_relative_path):
+					if packer.add_file(dep_relative_path, dep_path) != OK:
+						push_error("Error al agregar dependencia al paquete: " + dep_path)
+					else:
+						print("Dependencia empaquetada: " + dep_relative_path)
+
+# Función auxiliar para verificar si un archivo ya está en el paquete
+func _is_file_in_pack(_packer: PCKPacker, _relative_path: String) -> bool:
+	# Esta es una función auxiliar que podría necesitar ser implementada de manera diferente
+	# dependiendo de cómo se pueda verificar si un archivo ya está en el paquete
+	# En Godot 4, no hay una forma directa de verificar esto, así que por ahora asumimos que no está
+	return false
 
 func _createPackageSound() -> void:
 	print("Iniciando creación del paquete de sonidos...")
@@ -837,9 +905,8 @@ func _createPackageGrh() -> void:
 			labelStatus.text = "Exportando gráficos... (%d/%d) %s" % [processed, total_files, file_name]
 			await get_tree().process_frame
 			
-			if packer.add_file(relative_path, file_path) != OK:
-				push_error("Error al agregar el archivo: " + file_path)
-				continue
+			# Usar _add_file_to_pack en lugar de packer.add_file directamente
+			_add_file_to_pack(packer, file_path, relative_path)
 	
 	# Finalizar y guardar el PCK
 	if packer.flush() == OK:
