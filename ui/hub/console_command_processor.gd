@@ -6,7 +6,11 @@ static var command_handler:Dictionary[String, Callable] = {
 	"est": request_stats,
 	"invisible": invisible,
 	"meditar": meditate,
-	"desc": change_description
+	"desc": change_description,
+	"boveda": open_vault,
+	"depositar": deposit_gold,
+	"retirar": withdraw_gold,
+	"balance": request_balance
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -58,3 +62,63 @@ static func change_description(args:ChatCommandArgs) -> void:
 	
 	var description = " ".join(args.parameters) if args.parameters.size() else ""
 	GameProtocol.change_description(description)
+
+
+static func open_vault(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estás muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteBankStart()
+
+
+static func deposit_gold(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estás muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	if args.parameters.size() == 0:
+		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /depositar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount_str = args.parameters[0]
+	if !amount_str.is_valid_int():
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /depositar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount = amount_str.to_int()
+	if amount <= 0:
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /depositar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteBankDepositGold(amount)
+
+
+static func withdraw_gold(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estás muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	if args.parameters.size() == 0:
+		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /retirar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount_str = args.parameters[0]
+	if !amount_str.is_valid_int():
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /retirar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount = amount_str.to_int()
+	if amount <= 0:
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /retirar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteBankExtractGold(amount)
+
+
+static func request_balance(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Estás muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteRequestAccountState()

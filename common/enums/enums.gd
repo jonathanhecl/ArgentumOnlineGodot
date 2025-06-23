@@ -188,6 +188,7 @@ enum NickColor {
 	IeAtacable = 1 << 2   # 4
 }
 
+# ServerPacketID: Is the protocol from the server to the client
 enum ServerPacketID {
 	Logged,
 	RemoveDialogs,
@@ -301,6 +302,7 @@ enum ServerPacketID {
 	CancelOfferItem
 }
 
+# ClientPacketID: Is the protocol from the client to the server
 enum ClientPacketID {
 	LoginExistingChar,
 	ThrowDices,

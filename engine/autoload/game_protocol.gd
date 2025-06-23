@@ -99,6 +99,9 @@ static func WriteCommerceBuy(slot:int, quantity:int) -> void:
 	_writer.put_u8(slot)
 	_writer.put_16(quantity) 
 
+static func WriteBankStart() -> void:
+	_writer.put_u8(Enums.ClientPacketID.BankStart)
+	
 static func WriteBankEnd() -> void:
 	_writer.put_u8(Enums.ClientPacketID.BankEnd)  
 	
@@ -119,6 +122,9 @@ static func WriteBankDepositGold(quantity:int) -> void:
 static func WriteBankExtractGold(quantity:int) -> void:
 	_writer.put_u8(Enums.ClientPacketID.BankExtractGold) 
 	_writer.put_32(quantity)
+
+static func WriteRequestAccountState() -> void:
+	_writer.put_u8(Enums.ClientPacketID.RequestAccountState)
 
 static func WriteAttack() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Attack) 
