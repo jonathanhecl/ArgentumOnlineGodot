@@ -616,10 +616,6 @@ func _add_file_to_pack(packer: PCKPacker, path: String, relative_path: String) -
 	if FileAccess.file_exists(import_path):
 		# Agregar el archivo .import
 		var import_relative_path = relative_path + ".import"
-		if packer.add_file(import_relative_path, import_path) != OK:
-			push_error("Error al agregar el archivo .import al paquete: " + import_path)
-		else:
-			print("Archivo .import empaquetado: " + import_relative_path)
 		
 		# Procesar el archivo .import para encontrar recursos adicionales
 		var import_info = _process_import_file(import_path)
