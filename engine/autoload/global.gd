@@ -3,6 +3,9 @@ extends Node
 var username:String = ""
 var skillPoints:int = 0
 
+# Control de logging para paquetes salientes al servidor
+var log_outgoing_packets:bool = true
+
 signal dialog_font_size_changed(value:int)
 signal custom_cursor_changed(value:bool)
 

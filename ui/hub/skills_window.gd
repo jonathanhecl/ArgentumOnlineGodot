@@ -54,11 +54,11 @@ func update_buttons_state():
 			var plus_btn = child.get_child(3)
 			
 			if minus_btn is Button:
-				minus_btn.disabled = (i >= skill_values.size() or 
+				minus_btn.visible = !(i >= skill_values.size() or 
 					skill_values[i] <= initial_skill_values[i])
 			
 			if plus_btn is Button:
-				plus_btn.disabled = (i >= skill_values.size() or 
+				plus_btn.visible = !(i >= skill_values.size() or 
 					skill_values[i] >= 100 or Global.skillPoints <= 0)
 
 func update_free_skills():
@@ -67,7 +67,9 @@ func update_free_skills():
 func _on_accept_pressed():
 	# Mostrar diferencias en los skills
 	var changes = []
+	var skills_diff = []
 	for i in range(min(initial_skill_values.size(), skill_values.size())):
+		skills_diff.append(skill_values[i] - initial_skill_values[i])
 		if initial_skill_values[i] != skill_values[i]:
 			changes.append("%s: %d -> %d (diff: %d)" % [SKILL_NAMES[i], initial_skill_values[i], skill_values[i], skill_values[i] - initial_skill_values[i]])
 	
@@ -75,6 +77,9 @@ func _on_accept_pressed():
 		print("Cambios en los skills:")
 		for change in changes:
 			print("- ", change)
+		
+		# Enviar los skills modificados al servidor
+		GameProtocol.WriteModifySkills(skills_diff)
 	else:
 		print("No se realizaron cambios en los skills")
 	
@@ -86,9 +91,9 @@ func set_skills(skills:Array):
 	initial_skill_values.clear()
 	skill_labels.clear()
 	
-	# Eliminar todos los hijos existentes
+	# Eliminar todos los hijos existentes inmediatamente
 	for child in skills_container.get_children():
-		child.queue_free()
+		child.free()  # Usar free() en lugar de queue_free() para eliminación inmediata
 	
 	# Asegurarse de que la ventana tenga un tamaño adecuado y compacto
 	size = Vector2(300, 400)
@@ -106,6 +111,14 @@ func set_skills(skills:Array):
 		skill_values.append(skill_value)
 		initial_skill_values.append(skill_value)
 	
+	_create_skills_interface()
+	
+	# Actualizar el estado de los botones
+	update_buttons_state()
+	update_free_skills()
+
+# Nueva función para crear la interfaz de skills
+func _create_skills_interface():
 	for i in range(SKILL_NAMES.size()):
 		var hbox = HBoxContainer.new()
 		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -124,19 +137,9 @@ func set_skills(skills:Array):
 		minus_btn.pressed.connect(_on_minus_pressed.bind(i))
 
 		var value_label = Label.new()
-		# Acceder al valor de forma segura
-		if i < skills.size():
-			# Los skills vienen como objetos de la clase Skill con propiedades level y experience
-			if skills[i] is Object and skills[i].get("level") != null:
-				value_label.text = str(skills[i].level)
-			elif typeof(skills[i]) == TYPE_DICTIONARY and skills[i].has("level"):
-				value_label.text = str(skills[i].level)
-			elif typeof(skills[i]) == TYPE_INT or typeof(skills[i]) == TYPE_FLOAT:
-				value_label.text = str(skills[i])
-			else:
-				# Último recurso: intentar convertir directamente
-				value_label.text = str(skills[i])
-				print("Skill[" + str(i) + "] = ", skills[i], " tipo: ", typeof(skills[i]))
+		# Mostrar el valor del skill
+		if i < skill_values.size():
+			value_label.text = str(skill_values[i])
 		else:
 			value_label.text = "0"
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -155,5 +158,3 @@ func set_skills(skills:Array):
 		hbox.add_child(plus_btn)
 		skills_container.add_child(hbox)
 		skill_labels.append(value_label)
-		
-	update_buttons_state()
