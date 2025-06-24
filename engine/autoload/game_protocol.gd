@@ -124,6 +124,10 @@ static func WriteCommerceBuy(slot:int, quantity:int) -> void:
 	_writer.put_u8(slot)
 	_writer.put_16(quantity) 
 
+static func WriteCommerceStart() -> void:
+	_log_outgoing_packet("CommerceStart")
+	_writer.put_u8(Enums.ClientPacketID.CommerceStart)
+
 static func WriteBankStart() -> void:
 	_log_outgoing_packet("BankStart")
 	_writer.put_u8(Enums.ClientPacketID.BankStart)
@@ -157,6 +161,27 @@ static func WriteBankExtractGold(quantity:int) -> void:
 static func WriteRequestAccountState() -> void:
 	_log_outgoing_packet("RequestAccountState")
 	_writer.put_u8(Enums.ClientPacketID.RequestAccountState)
+
+static func WriteOnline() -> void:
+	_log_outgoing_packet("Online")
+	_writer.put_u8(Enums.ClientPacketID.Online)
+
+static func WriteGamble(amount:int) -> void:
+	_log_outgoing_packet("Gamble", "amount: " + str(amount))
+	_writer.put_u8(Enums.ClientPacketID.Gamble)
+	_writer.put_16(amount)
+
+static func WriteResucitate() -> void:
+	_log_outgoing_packet("Resucitate")
+	_writer.put_u8(Enums.ClientPacketID.Resucitate)
+
+static func WriteGuildLeave() -> void:
+	_log_outgoing_packet("GuildLeave")
+	_writer.put_u8(Enums.ClientPacketID.GuildLeave)
+
+static func WriteHeal() -> void:
+	_log_outgoing_packet("Heal")
+	_writer.put_u8(Enums.ClientPacketID.Heal)
 
 static func WriteAttack() -> void:
 	_log_outgoing_packet("Attack")

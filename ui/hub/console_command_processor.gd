@@ -10,7 +10,13 @@ static var command_handler:Dictionary[String, Callable] = {
 	"boveda": open_vault,
 	"depositar": deposit_gold,
 	"retirar": withdraw_gold,
-	"balance": request_balance
+	"balance": request_balance,
+	"online": request_online,
+	"apostar": gamble,
+	"resucitar": resucitate,
+	"salirclan": guild_leave,
+	"curar": heal,
+	"comerciar": start_commerce
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -55,6 +61,14 @@ static func meditate(args:ChatCommandArgs) -> void:
 	
 	GameProtocol.WriteMeditate()
 	
+static func resucitate(args:ChatCommandArgs) -> void:
+	if args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡Ya estás vivo!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteResucitate()
+
+
 static func change_description(args:ChatCommandArgs) -> void:
 	if !args.game_context.player_stats.is_alive():
 		args.hub_controller.ShowConsoleMessage("¡Estas muerto!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
@@ -122,3 +136,53 @@ static func request_balance(args:ChatCommandArgs) -> void:
 		return
 	
 	GameProtocol.WriteRequestAccountState()
+
+
+static func request_online(args:ChatCommandArgs) -> void:
+	GameProtocol.WriteOnline()
+
+
+static func guild_leave(args:ChatCommandArgs) -> void:
+	GameProtocol.WriteGuildLeave()
+
+
+static func heal(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		GameProtocol.WriteResucitate()
+		return
+	
+	GameProtocol.WriteHeal()
+
+
+static func start_commerce(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	if args.game_context.trading:
+		args.hub_controller.ShowConsoleMessage("Ya estás comerciando", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteCommerceStart()
+
+
+static func gamble(args:ChatCommandArgs) -> void:
+	if !args.game_context.player_stats.is_alive():
+		args.hub_controller.ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	if args.parameters.size() == 0:
+		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /apostar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount_str = args.parameters[0]
+	if !amount_str.is_valid_int():
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /apostar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	var amount = amount_str.to_int()
+	if amount <= 0:
+		args.hub_controller.ShowConsoleMessage("Cantidad incorrecta. Utilice /apostar CANTIDAD.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	GameProtocol.WriteGamble(amount)
