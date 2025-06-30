@@ -22,11 +22,15 @@ var skill_labels: Array[Label] = []
 var skill_names: Array[String] = []
 
 func _ready():
+	title = "Habilidades"
+	
 	free_skills = $VBox/HBoxContainer/SkillsPts
 	accept_button.pressed.connect(_on_accept_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
 	close_requested.connect(self.hide)
 	update_free_skills()
+	# Inicialmente deshabilitar el botón de aceptar ya que no hay cambios
+	accept_button.disabled = true
 
 # Se llama cuando se presiona el botón + de un skill
 func _on_plus_pressed(skill_index: int):
@@ -64,16 +68,33 @@ func update_buttons_state():
 			if plus_btn is Button:
 				plus_btn.visible = !(i >= skill_values.size() or 
 					skill_values[i] >= 100 or current_free_skills <= 0)
+	
+	# Actualizar el estado del botón de aceptar
+	accept_button.disabled = !has_skill_changes()
 
 func update_free_skills():
 	free_skills.text = str(current_free_skills)
+
+# Función para verificar si hay cambios en las habilidades
+func has_skill_changes() -> bool:
+	# Verificar si los puntos libres han cambiado
+	if current_free_skills != initial_free_skills:
+		return true
+	
+	# Verificar si algún valor de habilidad ha cambiado
+	for i in range(min(skill_values.size(), initial_skill_values.size())):
+		if skill_values[i] != initial_skill_values[i]:
+			return true
+	
+	# No hay cambios
+	return false
 
 func _on_cancel_pressed():
 	# Restaurar los valores originales
 	skill_values = initial_skill_values.duplicate()
 	current_free_skills = initial_free_skills
 	update_free_skills()
-	update_skills_display()
+	update_buttons_state()
 	hide()
 
 func _on_accept_pressed():
