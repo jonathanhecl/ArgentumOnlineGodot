@@ -11,9 +11,12 @@ const SKILL_NAMES = [
 
 @onready var free_skills: Label
 @onready var skills_container = $VBox/Scroll/SkillsContainer
-@onready var accept_button = $VBox/AcceptButton
+@onready var accept_button = $VBox/ButtonsContainer/AcceptButton
+@onready var cancel_button = $VBox/ButtonsContainer/CancelButton
 
 var skill_values: Array[int] = []
+var initial_free_skills: int 
+var current_free_skills: int  # Puntos de skills locales (no afectan Global hasta aceptar)
 var initial_skill_values: Array[int] = []
 var skill_labels: Array[Label] = []
 var skill_names: Array[String] = []
@@ -21,15 +24,16 @@ var skill_names: Array[String] = []
 func _ready():
 	free_skills = $VBox/HBoxContainer/SkillsPts
 	accept_button.pressed.connect(_on_accept_pressed)
+	cancel_button.pressed.connect(_on_cancel_pressed)
 	close_requested.connect(self.hide)
 	update_free_skills()
 
 # Se llama cuando se presiona el botón + de un skill
 func _on_plus_pressed(skill_index: int):
-	if Global.skillPoints > 0 and skill_index < skill_values.size() and skill_values[skill_index] < 100:
+	if current_free_skills > 0 and skill_index < skill_values.size() and skill_values[skill_index] < 100:
 		skill_values[skill_index] += 1
 		skill_labels[skill_index].text = str(skill_values[skill_index])
-		Global.skillPoints -= 1
+		current_free_skills -= 1
 		update_free_skills()
 		emit_signal("skill_updated", skill_index, skill_values[skill_index])
 		update_buttons_state()
@@ -40,7 +44,7 @@ func _on_minus_pressed(skill_index: int):
 		skill_values[skill_index] > initial_skill_values[skill_index]):
 		skill_values[skill_index] -= 1
 		skill_labels[skill_index].text = str(skill_values[skill_index])
-		Global.skillPoints += 1
+		current_free_skills += 1
 		update_free_skills()
 		emit_signal("skill_updated", skill_index, skill_values[skill_index])
 		update_buttons_state()
@@ -59,12 +63,23 @@ func update_buttons_state():
 			
 			if plus_btn is Button:
 				plus_btn.visible = !(i >= skill_values.size() or 
-					skill_values[i] >= 100 or Global.skillPoints <= 0)
+					skill_values[i] >= 100 or current_free_skills <= 0)
 
 func update_free_skills():
-	free_skills.text = str(Global.skillPoints)
+	free_skills.text = str(current_free_skills)
+
+func _on_cancel_pressed():
+	# Restaurar los valores originales
+	skill_values = initial_skill_values.duplicate()
+	current_free_skills = initial_free_skills
+	update_free_skills()
+	update_skills_display()
+	hide()
 
 func _on_accept_pressed():
+	# Aplicar los cambios al Global.skillPoints
+	Global.skillPoints = current_free_skills
+	
 	# Mostrar diferencias en los skills
 	var changes = []
 	var skills_diff = []
@@ -110,6 +125,10 @@ func set_skills(skills:Array):
 				skill_value = int(skills[i])
 		skill_values.append(skill_value)
 		initial_skill_values.append(skill_value)
+	
+	# Inicializar puntos de skills locales
+	initial_free_skills = Global.skillPoints
+	current_free_skills = Global.skillPoints
 	
 	_create_skills_interface()
 	

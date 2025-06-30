@@ -273,3 +273,210 @@ static func change_description(description:String) -> void:
 	_log_outgoing_packet("ChangeDescription", "description: " + description)
 	_writer.put_u8(Enums.ClientPacketID.ChangeDescription)
 	Utils.PutUnicodeString(_writer, description)
+
+
+# ===== COMANDOS DE MASCOTAS =====
+static func WritePetStand() -> void:
+	_log_outgoing_packet("PetStand")
+	_writer.put_u8(Enums.ClientPacketID.PetStand)
+
+
+static func WritePetFollow() -> void:
+	_log_outgoing_packet("PetFollow")
+	_writer.put_u8(Enums.ClientPacketID.PetFollow)
+
+
+static func WriteReleasePet() -> void:
+	_log_outgoing_packet("ReleasePet")
+	_writer.put_u8(Enums.ClientPacketID.ReleasePet)
+
+
+# ===== COMANDOS DE ENTRENAMIENTO Y DESCANSO =====
+static func WriteTrainList() -> void:
+	_log_outgoing_packet("TrainList")
+	_writer.put_u8(Enums.ClientPacketID.TrainList)
+
+
+static func WriteRest() -> void:
+	_log_outgoing_packet("Rest")
+	_writer.put_u8(Enums.ClientPacketID.Rest)
+
+
+# ===== COMANDOS DE INFORMACIÓN =====
+static func WriteConsultation() -> void:
+	_log_outgoing_packet("Consultation")
+	_writer.put_u8(Enums.ClientPacketID.Consultation)
+
+
+static func WriteHelp() -> void:
+	_log_outgoing_packet("Help")
+	_writer.put_u8(Enums.ClientPacketID.Help)
+
+
+static func WriteEnlist() -> void:
+	_log_outgoing_packet("Enlist")
+	_writer.put_u8(Enums.ClientPacketID.Enlist)
+
+
+static func WriteInformation() -> void:
+	_log_outgoing_packet("Information")
+	_writer.put_u8(Enums.ClientPacketID.Information)
+
+
+static func WriteReward() -> void:
+	_log_outgoing_packet("Reward")
+	_writer.put_u8(Enums.ClientPacketID.Reward)
+
+
+static func WriteRequestMOTD() -> void:
+	_log_outgoing_packet("RequestMOTD")
+	_writer.put_u8(Enums.ClientPacketID.RequestMOTD)
+
+
+static func WriteUpTime() -> void:
+	_log_outgoing_packet("UpTime")
+	_writer.put_u8(Enums.ClientPacketID.Uptime)
+
+
+# ===== COMANDOS DE PARTY =====
+static func WritePartyLeave() -> void:
+	_log_outgoing_packet("PartyLeave")
+	_writer.put_u8(Enums.ClientPacketID.PartyLeave)
+
+
+static func WritePartyCreate() -> void:
+	_log_outgoing_packet("PartyCreate")
+	_writer.put_u8(Enums.ClientPacketID.PartyCreate)
+
+
+static func WritePartyJoin() -> void:
+	_log_outgoing_packet("PartyJoin")
+	_writer.put_u8(Enums.ClientPacketID.PartyJoin)
+
+
+static func WriteShareNpc() -> void:
+	_log_outgoing_packet("ShareNpc")
+	_writer.put_u8(Enums.ClientPacketID.ShareNpc)
+
+
+static func WriteStopSharingNpc() -> void:
+	_log_outgoing_packet("StopSharingNpc")
+	_writer.put_u8(Enums.ClientPacketID.StopSharingNpc)
+
+
+static func WritePartyKick(nickname:String) -> void:
+	_log_outgoing_packet("PartyKick", "nickname: " + nickname)
+	_writer.put_u8(Enums.ClientPacketID.PartyKick)
+	Utils.PutUnicodeString(_writer, nickname)
+
+
+static func WritePartySetLeader(nickname:String) -> void:
+	_log_outgoing_packet("PartySetLeader", "nickname: " + nickname)
+	_writer.put_u8(Enums.ClientPacketID.PartySetLeader)
+	Utils.PutUnicodeString(_writer, nickname)
+
+
+static func WritePartyAcceptMember(nickname:String) -> void:
+	_log_outgoing_packet("PartyAcceptMember", "nickname: " + nickname)
+	_writer.put_u8(Enums.ClientPacketID.PartyAcceptMember)
+	Utils.PutUnicodeString(_writer, nickname)
+
+
+# ===== COMANDOS DE ENCUESTAS Y MENSAJES =====
+static func WriteInquiry() -> void:
+	_log_outgoing_packet("Inquiry")
+	_writer.put_u8(Enums.ClientPacketID.Inquiry)
+
+
+static func WriteInquiryVote(vote:int) -> void:
+	_log_outgoing_packet("InquiryVote", "vote: " + str(vote))
+	_writer.put_u8(Enums.ClientPacketID.InquiryVote)
+	_writer.put_u8(vote)
+
+
+static func WriteGuildMessage(message:String) -> void:
+	_log_outgoing_packet("GuildMessage", "message: " + message)
+	_writer.put_u8(Enums.ClientPacketID.GuildMessage)
+	Utils.PutUnicodeString(_writer, message)
+
+
+static func WritePartyMessage(message:String) -> void:
+	_log_outgoing_packet("PartyMessage", "message: " + message)
+	_writer.put_u8(Enums.ClientPacketID.PartyMessage)
+	Utils.PutUnicodeString(_writer, message)
+
+
+static func WriteCentinelReport(code:int) -> void:
+	_log_outgoing_packet("CentinelReport", "code: " + str(code))
+	_writer.put_u8(Enums.ClientPacketID.CentinelReport)
+	_writer.put_16(code)
+
+
+static func WriteGuildOnline() -> void:
+	_log_outgoing_packet("GuildOnline")
+	_writer.put_u8(Enums.ClientPacketID.GuildOnline)
+
+
+static func WritePartyOnline() -> void:
+	_log_outgoing_packet("PartyOnline")
+	_writer.put_u8(Enums.ClientPacketID.PartyOnline)
+
+
+static func WriteCouncilMessage(message:String) -> void:
+	_log_outgoing_packet("CouncilMessage", "message: " + message)
+	_writer.put_u8(Enums.ClientPacketID.CouncilMessage)
+	Utils.PutUnicodeString(_writer, message)
+
+
+static func WriteRoleMasterRequest(question:String) -> void:
+	_log_outgoing_packet("RoleMasterRequest", "question: " + question)
+	_writer.put_u8(Enums.ClientPacketID.RoleMasterRequest)
+	Utils.PutUnicodeString(_writer, question)
+
+
+static func WriteGMRequest() -> void:
+	_log_outgoing_packet("GMRequest")
+	_writer.put_u8(Enums.ClientPacketID.GMRequest)
+
+
+static func WriteBugReport(description:String) -> void:
+	_log_outgoing_packet("BugReport", "description: " + description)
+	_writer.put_u8(Enums.ClientPacketID.BugReport)
+	Utils.PutUnicodeString(_writer, description)
+
+
+# ===== COMANDOS DE CLAN =====
+static func WriteGuildVote(nickname:String) -> void:
+	_log_outgoing_packet("GuildVote", "nickname: " + nickname)
+	_writer.put_u8(Enums.ClientPacketID.GuildVote)
+	Utils.PutUnicodeString(_writer, nickname)
+
+
+static func WritePunishments(nickname:String) -> void:
+	_log_outgoing_packet("Punishments", "nickname: " + nickname)
+	_writer.put_u8(Enums.ClientPacketID.Punishments)
+	Utils.PutUnicodeString(_writer, nickname)
+
+
+static func WriteGuildFundate() -> void:
+	_log_outgoing_packet("GuildFundate")
+	_writer.put_u8(Enums.ClientPacketID.GuildFundate)
+
+
+# ===== COMANDOS VARIOS =====
+static func WriteLeaveFaction() -> void:
+	_log_outgoing_packet("LeaveFaction")
+	_writer.put_u8(Enums.ClientPacketID.LeaveFaction)
+
+
+static func WriteDenounce(denounce_text:String) -> void:
+	_log_outgoing_packet("Denounce", "denounce_text: " + denounce_text)
+	_writer.put_u8(Enums.ClientPacketID.Denounce)
+	Utils.PutUnicodeString(_writer, denounce_text)
+
+
+static func WriteChangePassword(current_password:String, new_password:String) -> void:
+	_log_outgoing_packet("ChangePassword", "current_password: [HIDDEN], new_password: [HIDDEN]")
+	_writer.put_u8(Enums.ClientPacketID.ChangePassword)
+	Utils.PutUnicodeString(_writer, current_password)
+	Utils.PutUnicodeString(_writer, new_password)

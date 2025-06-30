@@ -590,6 +590,7 @@ func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void:
 	
 	
 func _HandleUpdateUserStats(p:UpdateUserStats) -> void: 
+	# Actualizar la interfaz
 	_gameInput.update_gold_label(p.gold)
 	_gameInput.update_level_label(p.elv)
 	
@@ -598,6 +599,12 @@ func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
 	
 	_gameInput.health_stat_bar.max_value = p.maxHp
 	_gameInput.health_stat_bar.value = p.minHp
+	
+	# Actualizar el contexto del juego
+	_gameContext.player_level = p.elv
+	_gameContext.player_gold = p.gold
+	_gameContext.player_experience = p.experience
+	_gameContext.player_experience_to_next_level = p.elu
 	
 	_gameContext.player_stats.max_hp = p.maxHp
 	_gameContext.player_stats.hp = p.minHp

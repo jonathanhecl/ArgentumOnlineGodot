@@ -15,6 +15,7 @@ const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
 const BankPanelScene = preload("uid://c4skiho4j6vjn") 
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
+const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -38,6 +39,7 @@ var _gameContext:GameContext
 var _currentPanel:Node
 var _options_window 
 var _skills_window
+var _password_change_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -445,3 +447,9 @@ func _show_skills_window(skills:Array) -> void:
 		add_child(_skills_window)
 	_skills_window.set_skills(skills)
 	_skills_window.popup_centered()
+
+func show_password_change_window() -> void:
+	if _password_change_window == null:
+		_password_change_window = PasswordChangeWindowScene.instantiate()
+		add_child(_password_change_window)
+	_password_change_window.show_window(self)
