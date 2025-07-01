@@ -52,7 +52,8 @@ static var command_handler:Dictionary[String, Callable] = {
 	"fundarclan": guild_fundate,
 	"echarparty": party_kick,
 	"partylider": party_set_leader,
-	"acceptparty": party_accept_member
+	"acceptparty": party_accept_member,
+	"ping": ping
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -62,6 +63,7 @@ static func process(newText: String, hub_controller:HubController, game_context:
 		if text.length() == 1:
 			return false
 			
+		# Convertir a minúsculas para hacer comandos insensibles a mayúsculas/minúsculas
 		var command_name = text.substr(1).split(" ")[0].to_lower()
 		var args = ChatCommandArgs.new()
 		args.parameters = text.substr(1).split(" ")
@@ -69,9 +71,16 @@ static func process(newText: String, hub_controller:HubController, game_context:
 		args.game_context = game_context
 		args.hub_controller = hub_controller
 		
+		# Primero verificar comandos regulares
 		if command_handler.has(command_name): 
 			command_handler[command_name].call(args)
 			return true
+		
+		# Si no es un comando regular, intentar como comando GM
+		# El servidor validará permisos y ejecutará el comando
+		if _try_gm_command(command_name, args):
+			return true
+		
 	return false
 	
 		
@@ -484,3 +493,64 @@ static func denounce(args:ChatCommandArgs) -> void:
 	
 	var denounce_text = " ".join(args.parameters)
 	GameProtocol.WriteDenounce(denounce_text)
+
+
+# Comando ping para verificar latencia con el servidor
+static func ping(args:ChatCommandArgs) -> void:
+	# Enviar ping al servidor
+	GameProtocol.WritePing()
+	
+	# Mostrar mensaje al usuario
+	args.hub_controller.ShowConsoleMessage("Ping enviado al servidor...", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+
+# Intenta ejecutar un comando GM usando los enums específicos del protocolo
+static func _try_gm_command(command_name: String, args: Variant) -> bool:
+	var cmd = command_name.to_upper()
+	
+	# Comandos GM específicos que tienen funciones dedicadas en el protocolo
+	match cmd:
+		"TELEP":
+			if args.parameters.size() >= 3:
+				var username = args.parameters[0]
+				var map_num = int(args.parameters[1])
+				var x = int(args.parameters[2])
+				var y = int(args.parameters[3]) if args.parameters.size() > 3 else x
+				# Usar la implementación estática para mantener consistencia con el resto del código
+				GameProtocol.WriteWarpChar(username, map_num, x, y)
+				args.hub_controller.ShowConsoleMessage("Teletransportando " + username, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+				return true
+		"INVISIBLE":
+			# Verificar si existe la función en el protocolo estático
+			if Global.game_protocol:
+				Global.game_protocol.WriteInvisible()
+				args.hub_controller.ShowConsoleMessage("Alternando invisibilidad", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+				return true
+		"PANELGM":
+			# Abrir panel GM local
+			if Global.gm_command_system:
+				Global.gm_command_system.show_gm_panel()
+				args.hub_controller.ShowConsoleMessage("Abriendo panel GM", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+				return true
+		_:
+			# Para otros comandos GM, usar función genérica
+			return _send_generic_gm_command(command_name, args)
+	
+	return false
+
+# Envía un comando GM genérico usando el sistema de enums
+static func _send_generic_gm_command(command_name: String, args: Variant) -> bool:
+	# Crear el comando completo como string
+	var full_command = "/" + command_name
+	if args.parameters.size() > 0:
+		full_command += " " + " ".join(args.parameters)
+	
+	# Usar el protocolo para enviar comando GM genérico
+	_write_gm_command_generic(full_command)
+	args.hub_controller.ShowConsoleMessage("Comando GM enviado: " + full_command, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	return true
+
+# Función auxiliar para enviar comando GM genérico
+static func _write_gm_command_generic(command: String) -> void:
+	# Usar el protocolo para enviar un comando GM genérico
+	# Crear un paquete GM_MESSAGE con el comando completo como texto
+	GameProtocol.WriteGMCommand(command)

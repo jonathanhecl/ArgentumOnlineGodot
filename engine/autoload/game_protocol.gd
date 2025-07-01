@@ -338,6 +338,14 @@ static func WriteUpTime() -> void:
 	_writer.put_u8(Enums.ClientPacketID.Uptime)
 
 
+# ===== COMANDOS GM GENÉRICOS =====
+static func WriteGMCommand(command: String) -> void:
+	_log_outgoing_packet("GMCommand", "command: " + command)
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.GM_MESSAGE)
+	Utils.PutUnicodeString(_writer, command)
+
+
 # ===== COMANDOS DE PARTY =====
 static func WritePartyLeave() -> void:
 	_log_outgoing_packet("PartyLeave")

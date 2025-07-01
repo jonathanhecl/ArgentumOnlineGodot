@@ -1,0 +1,83 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvxq8y2qkn8xp"]
+
+[ext_resource type="Script" path="res://ui/gm/gm_panel.gd" id="1_0x8y2"]
+
+[node name="GMPanel" type="Window"]
+title = "Panel de Comandos GM - Argentum Online"
+initial_position = 2
+size = Vector2i(800, 600)
+script = ExtResource("1_0x8y2")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="TitleLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Panel de Comandos GM - Argentum Online"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="CategoryTabs" type="TabContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CommandSection" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/CommandSection"]
+layout_mode = 2
+text = "Ejecutar Comando Directo:"
+
+[node name="HBox" type="HBoxContainer" parent="VBox/CommandSection"]
+layout_mode = 2
+
+[node name="CommandInput" type="LineEdit" parent="VBox/CommandSection/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Escriba un comando GM aquí... (ej: /gmsg Hola aventureros)"
+
+[node name="ExecuteButton" type="Button" parent="VBox/CommandSection/HBox"]
+layout_mode = 2
+text = "Ejecutar"
+
+[node name="OutputSection" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="VBox/OutputSection"]
+layout_mode = 2
+text = "Salida de Comandos:"
+
+[node name="OutputText" type="RichTextLabel" parent="VBox/OutputSection"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_following = true
+
+[node name="HBox" type="HBoxContainer" parent="VBox/OutputSection"]
+layout_mode = 2
+
+[node name="ClearButton" type="Button" parent="VBox/OutputSection/HBox"]
+layout_mode = 2
+text = "Limpiar"
+
+[node name="HistoryButton" type="Button" parent="VBox/OutputSection/HBox"]
+layout_mode = 2
+text = "Historial"
+
+[node name="HSeparator2" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Estado: Listo para comandos GM"
+horizontal_alignment = 1

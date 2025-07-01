@@ -376,7 +376,14 @@ func _HandleShowMessageBox(p:ShowMessageBox) -> void:
 
 
 func _HandlePong() -> void:
-	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
+	var ping_ms = Time.get_ticks_msec() - _gameContext.pingTime
+	print("Ping: %dms" % ping_ms)
+	
+	# Mostrar el resultado del ping en el chat del juego
+	if _gameInput != null:
+		var ping_message = "Ping: %dms" % ping_ms
+		_gameInput.ShowConsoleMessage(ping_message, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	
 	_gameContext.pingTime = 0
 
 

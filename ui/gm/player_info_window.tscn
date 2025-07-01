@@ -1,0 +1,93 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8xray3rkn7wp"]
+
+[ext_resource type="Script" path="res://ui/gm/player_info_window.gd" id="1_1x9y3"]
+
+[node name="PlayerInfoWindow" type="Window"]
+title = "Información de Jugador - GM"
+initial_position = 2
+size = Vector2i(600, 500)
+script = ExtResource("1_1x9y3")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="HeaderSection" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="PlayerNameLabel" type="Label" parent="VBox/HeaderSection"]
+layout_mode = 2
+text = "Jugador: [Nombre]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox/HeaderSection"]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="General" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+
+[node name="GeneralInfo" type="RichTextLabel" parent="VBox/TabContainer/General"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Cargando información general..."
+
+[node name="Estadísticas" type="ScrollContainer" parent="VBox/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="StatsInfo" type="RichTextLabel" parent="VBox/TabContainer/Estadísticas"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Cargando estadísticas..."
+
+[node name="Inventario" type="VBoxContainer" parent="VBox/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="InventoryList" type="ItemList" parent="VBox/TabContainer/Inventario"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Habilidades" type="ScrollContainer" parent="VBox/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="SkillsInfo" type="RichTextLabel" parent="VBox/TabContainer/Habilidades"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Cargando habilidades..."
+
+[node name="Bóveda" type="VBoxContainer" parent="VBox/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="BankList" type="ItemList" parent="VBox/TabContainer/Bóveda"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonSection" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="RefreshButton" type="Button" parent="VBox/ButtonSection"]
+layout_mode = 2
+text = "Actualizar"
+
+[node name="CloseButton" type="Button" parent="VBox/ButtonSection"]
+layout_mode = 2
+text = "Cerrar"
