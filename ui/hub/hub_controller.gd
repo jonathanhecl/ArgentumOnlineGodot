@@ -260,8 +260,6 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
 	elif newText.begins_with("/ping"):
-		# Comando /ping para verificar latencia
-		ShowConsoleMessage("Enviando ping al servidor...", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		_gameContext.pingTime = Time.get_ticks_msec()
 		GameProtocol.WritePing()
 	elif !ConsoleCommandProcessor.process(newText, self, _gameContext):
