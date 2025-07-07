@@ -1,16 +1,16 @@
 extends Window
 
 # Referencias a los campos de entrada
-@onready var current_password_input: LineEdit
-@onready var new_password_input: LineEdit
-@onready var confirm_password_input: LineEdit
-@onready var accept_button: Button
-@onready var cancel_button: Button
+@onready var current_password_input: LineEdit = $VBoxContainer/FormContainer/CurrentPasswordInput
+@onready var new_password_input: LineEdit = $VBoxContainer/FormContainer/NewPasswordInput
+@onready var confirm_password_input: LineEdit = $VBoxContainer/FormContainer/ConfirmPasswordInput
+@onready var accept_button: Button = $VBoxContainer/ButtonsContainer/AcceptButton
+@onready var cancel_button: Button = $VBoxContainer/ButtonsContainer/CancelButton
 
 # Referencias a los botones de mostrar/ocultar
-@onready var current_password_toggle: Button
-@onready var new_password_toggle: Button
-@onready var confirm_password_toggle: Button
+@onready var current_password_toggle: Button = $VBoxContainer/FormContainer/CurrentPasswordToggle
+@onready var new_password_toggle: Button = $VBoxContainer/FormContainer/NewPasswordToggle
+@onready var confirm_password_toggle: Button = $VBoxContainer/FormContainer/ConfirmPasswordToggle
 
 # Referencia al hub controller
 var hub_controller: HubController
@@ -20,21 +20,9 @@ var debounce_timer: Timer
 var last_error_message: String = ""
 
 # Referencia al label de error
-@onready var error_label: Label = $VBox/ErrorLabel
+@onready var error_label: Label = $VBoxContainer/ErrorLabel
 
 func _ready():
-	# Obtener referencias a los nodos
-	current_password_input = $VBox/FormContainer/CurrentPasswordInput
-	new_password_input = $VBox/FormContainer/NewPasswordInput
-	confirm_password_input = $VBox/FormContainer/ConfirmPasswordInput
-	accept_button = $VBox/ButtonsContainer/AcceptButton
-	cancel_button = $VBox/ButtonsContainer/CancelButton
-	
-	# Obtener referencias a los botones de mostrar/ocultar
-	current_password_toggle = $VBox/FormContainer/CurrentPasswordToggle
-	new_password_toggle = $VBox/FormContainer/NewPasswordToggle
-	confirm_password_toggle = $VBox/FormContainer/ConfirmPasswordToggle
-	
 	# Conectar señales
 	accept_button.pressed.connect(_on_accept_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)

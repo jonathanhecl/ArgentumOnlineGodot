@@ -34,6 +34,8 @@ const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.t
 
 @onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
 @onready var _btnSkills = get_node("Buttons-Misc/btnSkills")
+# Botón de cambio de contraseña - puede no existir en todas las escenas
+var _btnPasswordChange
 
 var _gameContext:GameContext
 var _currentPanel:Node
@@ -49,6 +51,12 @@ var _user_armor_slot:int
 func _ready() -> void:
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
+	
+	# Intentar obtener el botón de cambio de contraseña si existe
+	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
+	if _btnPasswordChange:
+		_btnPasswordChange.pressed.connect(Callable(self, "_on_btn_password_change_pressed"))
+		_btnPasswordChange.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
 	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_btnSkills.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -240,6 +248,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
 	if newText.is_empty():
+		_consoleInputLineEdit.text = ""
+		_consoleInputLineEdit.visible = false
 		return
 	
 	if newText.begins_with("\\"):
@@ -248,19 +258,24 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 		if space_idx > 0:
 			var receiver = msg.substr(0, space_idx)
 			var body = msg.substr(space_idx + 1).strip_edges()
-			GameProtocol.WriteWhisper(receiver, body)
-		else:
-			ShowConsoleMessage("Escribe un mensaje para susurrar. Ej. \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-			return
+			if !body.is_empty():
+				GameProtocol.WriteWhisper(receiver, body)
+			else:
+				ShowConsoleMessage("Escribe un mensaje para susurrar. Ej. \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+				return
 	elif newText.begins_with("-"):
 		var yell_text = newText.substr(1).strip_edges()
 		if !yell_text.is_empty():
 			GameProtocol.WriteYell(yell_text)
 		else:
-			ShowConsoleMessage("Escribe un mensaje para gritar. Ej. -mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			ShowConsoleMessage("Formato de susurro inválido. Usa: \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
-	elif !ConsoleCommandProcessor.process(newText, self, _gameContext):
-		GameProtocol.WriteTalk(newText)
+	else:
+		# Procesar comandos de consola o mensaje de chat normal
+		if !ConsoleCommandProcessor.process(newText, self, _gameContext):
+			GameProtocol.WriteTalk(newText)
+	
+	# Limpiar y ocultar la consola después de enviar el mensaje
 	_consoleInputLineEdit.text = ""
 	_consoleInputLineEdit.visible = false
 
@@ -430,13 +445,21 @@ func _on_btn_options_pressed() -> void:
 	if _options_window == null:
 		_options_window = OptionsWindowScene.instantiate()
 		add_child(_options_window)
-	_options_window.popup_centered()
-
-var _waiting_for_skills_popup := false
+	_options_window.show_window()
 
 func _on_btn_skills_pressed() -> void:
-	_waiting_for_skills_popup = true
-	GameProtocol.WriteRequestSkills()
+	if _skills_window == null:
+		_skills_window = SkillsWindowScene.instantiate()
+		add_child(_skills_window)
+	_skills_window.show_window()
+
+func _on_btn_password_change_pressed() -> void:
+	if _password_change_window == null:
+		_password_change_window = PasswordChangeWindowScene.instantiate()
+		add_child(_password_change_window)
+	_password_change_window.show_window()
+
+var _waiting_for_skills_popup := false
 
 func _show_skills_window(skills:Array) -> void:
 	if !_waiting_for_skills_popup:
@@ -453,3 +476,17 @@ func show_password_change_window() -> void:
 		_password_change_window = PasswordChangeWindowScene.instantiate()
 		add_child(_password_change_window)
 	_password_change_window.show_window(self)
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Si la consola está visible y se presiona ESC, la cerramos
+	if event is InputEventKey and event.pressed and !event.echo and event.keycode == KEY_ESCAPE:
+		if _consoleInputLineEdit.visible:
+			# Marcar el evento como manejado para evitar que se propague
+			get_viewport().set_input_as_handled()
+			# Limpiar y ocultar la consola
+			_consoleInputLineEdit.text = ""
+			_consoleInputLineEdit.visible = false
+			# Quitar el foco para evitar que el LineEdit capture el siguiente evento
+			_consoleInputLineEdit.release_focus()
+			# Forzar la actualización del foco
+			get_viewport().gui_release_focus()
