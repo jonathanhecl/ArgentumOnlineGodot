@@ -480,3 +480,20 @@ static func WriteChangePassword(current_password:String, new_password:String) ->
 	_writer.put_u8(Enums.ClientPacketID.ChangePassword)
 	Utils.PutUnicodeString(_writer, current_password)
 	Utils.PutUnicodeString(_writer, new_password)
+
+
+# ===== COMANDOS GM =====
+static func WriteTeleportChar(username:String, map:int, x:int, y:int) -> void:
+	_log_outgoing_packet("TeleportChar", "username: " + username + ", map: " + str(map) + ", x: " + str(x) + ", y: " + str(y))
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.WARP_CHAR)
+	Utils.PutUnicodeString(_writer, username)
+	_writer.put_16(map)
+	_writer.put_u8(x)
+	_writer.put_u8(y)
+
+
+static func WriteWarpMeToTarget() -> void:
+	_log_outgoing_packet("WarpMeToTarget")
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.WARP_ME_TO_TARGET)

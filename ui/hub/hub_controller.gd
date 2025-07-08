@@ -407,6 +407,10 @@ func _meditate() -> void:
 func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_HandleMouseInput(event)
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and Input.is_key_pressed(KEY_SHIFT):
+			GameProtocol.WriteWarpMeToTarget()
+			get_viewport().set_input_as_handled()
+			
 
 
 func _on_btn_quit_pressed() -> void:
@@ -445,7 +449,7 @@ func _on_btn_options_pressed() -> void:
 	if _options_window == null:
 		_options_window = OptionsWindowScene.instantiate()
 		add_child(_options_window)
-	_options_window.show_window()
+	_options_window.popup_centered()
 
 func _on_btn_skills_pressed() -> void:
 	if _skills_window == null:

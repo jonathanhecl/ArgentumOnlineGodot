@@ -52,7 +52,9 @@ static var command_handler:Dictionary[String, Callable] = {
 	"fundarclan": guild_fundate,
 	"echarparty": party_kick,
 	"partylider": party_set_leader,
-	"acceptparty": party_accept_member
+	"acceptparty": party_accept_member,
+	"telep": teleport_char,
+	"teleploc": teleport_me_to_target
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -352,11 +354,60 @@ static func party_set_leader(args:ChatCommandArgs) -> void:
 
 static func party_accept_member(args:ChatCommandArgs) -> void:
 	if args.parameters.size() == 0:
-		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /acceptparty NICKNAME.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /acceptparty NOMBRE.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return
 	
-	var nickname = args.parameters[0]
-	GameProtocol.WritePartyAcceptMember(nickname)
+	var username = args.parameters[0]
+	GameProtocol.WritePartyAcceptMember(username)
+
+
+# ===== COMANDOS GM =====
+static func teleport_char(args:ChatCommandArgs) -> void:
+	# Caso 1: /telep NICKNAME MAPA X Y
+	if args.parameters.size() >= 4:
+		var username = args.parameters[0]
+		var map_str = args.parameters[1]
+		var x_str = args.parameters[2]
+		var y_str = args.parameters[3]
+		
+		# Validar que los parámetros numéricos sean válidos
+		if not map_str.is_valid_int() or not x_str.is_valid_int() or not y_str.is_valid_int():
+			args.hub_controller.ShowConsoleMessage("Valor incorrecto. Utilice /telep NICKNAME MAPA X Y.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			return
+		
+		var map = map_str.to_int()
+		var x = x_str.to_int()
+		var y = y_str.to_int()
+		
+		# Enviar el comando al servidor
+		GameProtocol.WriteTeleportChar(username, map, x, y)
+	
+	# Caso 2: /telep MAPA X Y (teleporta al propio usuario)
+	elif args.parameters.size() == 3:
+		var map_str = args.parameters[0]
+		var x_str = args.parameters[1]
+		var y_str = args.parameters[2]
+		
+		# Validar que los parámetros numéricos sean válidos
+		if not map_str.is_valid_int() or not x_str.is_valid_int() or not y_str.is_valid_int():
+			args.hub_controller.ShowConsoleMessage("Valor incorrecto. Utilice /telep MAPA X Y.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			return
+		
+		var map = map_str.to_int()
+		var x = x_str.to_int()
+		var y = y_str.to_int()
+		
+		# Enviar el comando al servidor usando "YO" como nombre de usuario
+		GameProtocol.WriteTeleportChar("YO", map, x, y)
+	
+	# Caso de error: faltan parámetros
+	else:
+		args.hub_controller.ShowConsoleMessage("Faltan parámetros. Utilice /telep NICKNAME MAPA X Y o /telep MAPA X Y.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+
+
+static func teleport_me_to_target(args:ChatCommandArgs) -> void:
+	# Enviar el comando al servidor
+	GameProtocol.WriteWarpMeToTarget()
 
 
 # ===== COMANDOS DE ENCUESTAS Y MENSAJES =====

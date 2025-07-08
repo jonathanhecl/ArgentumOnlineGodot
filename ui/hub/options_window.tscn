@@ -5,7 +5,7 @@
 [node name="OptionsWindow" type="AcceptDialog"]
 title = "Opciones"
 position = Vector2i(0, 36)
-size = Vector2i(300, 200)
+size = Vector2i(400, 200)
 visible = true
 script = ExtResource("1")
 
@@ -15,8 +15,8 @@ anchor_right = 1.942
 anchor_bottom = 1.457
 offset_left = 8.0
 offset_top = 8.0
-offset_right = -290.6
-offset_bottom = -140.4
+offset_right = 392.0
+offset_bottom = 151.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -46,3 +46,24 @@ size_flags_horizontal = 3
 min_value = 10.0
 max_value = 16.0
 value = 12.0
+
+[node name="hbox_chromatic_mode" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="LabelChromaticMode" type="Label" parent="VBox/hbox_chromatic_mode"]
+layout_mode = 2
+text = "Modo de colores:"
+
+[node name="OptionButton" type="OptionButton" parent="VBox/hbox_chromatic_mode"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Normal"
+popup/item_0/id = 0
+popup/item_1/text = "Deuteranopia"
+popup/item_1/id = 1
+popup/item_2/text = "Protanopia"
+popup/item_2/id = 2
+popup/item_3/text = "Tritanopia"
+popup/item_3/id = 3

@@ -8,6 +8,17 @@ var log_outgoing_packets:bool = true
 
 signal dialog_font_size_changed(value:int)
 signal custom_cursor_changed(value:bool)
+signal chromatic_mode_changed(value:int)
+
+# Modos cromáticos (0 = desactivado, 1 = deuteranopia, 2 = protanopia, 3 = tritanopia)
+var _chromaticMode:int = 0
+
+var chromaticMode:int:
+	set(value):
+		_chromaticMode = value
+		emit_signal("chromatic_mode_changed", _chromaticMode)
+	get:
+		return _chromaticMode
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -45,3 +56,8 @@ func _ready() -> void:
 		# Cargar configuración de cursor personalizado
 		var saved_cursor = cfg.get_value("ui", "use_custom_cursor", useCustomCursor)
 		useCustomCursor = bool(saved_cursor)
+		
+		# Cargar configuración de modo cromático
+		var saved_chromaticMode = cfg.get_value("ui", "chromatic_mode", chromaticMode)
+		chromaticMode = int(saved_chromaticMode)
+		
