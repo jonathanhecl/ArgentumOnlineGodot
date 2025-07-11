@@ -2,7 +2,7 @@ extends Node
 class_name GameScreen
 
 # Cursor personalizado para selección de objetivo
-var _crosshair_cursor = preload("res://Assets/Cursors/crosshair.png")
+var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
 @export var _gameInput:HubController
 @export var _gameWorld:GameWorld
@@ -26,6 +26,12 @@ func _ready() -> void:
 	_gameInput.Init(_gameContext)
 	_gameInput.update_name_label(Global.username)
 	
+	# Cargar el cursor después de que los recursos estén listos
+	if FileAccess.file_exists("res://Assets/Cursors/crosshair.png"):
+		_crosshair_cursor = load("res://Assets/Cursors/crosshair.png")
+		if _crosshair_cursor:
+			_scaled_crosshair_cursor = _scale_cursor(_crosshair_cursor, 0.5)  # Ajusta el factor de escala según necesites
+
 # Función para escalar el cursor a un tamaño más pequeño
 func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
 	# Obtener la imagen del cursor
@@ -584,6 +590,7 @@ func _HandleUpdateHungerAndThirst(p:UpdateHungerAndThirst) -> void:
 	
 	
 func _HandleUpdateUserStats(p:UpdateUserStats) -> void: 
+	# Actualizar la interfaz
 	_gameInput.update_gold_label(p.gold)
 	_gameInput.update_level_label(p.elv)
 	
@@ -592,6 +599,12 @@ func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
 	
 	_gameInput.health_stat_bar.max_value = p.maxHp
 	_gameInput.health_stat_bar.value = p.minHp
+	
+	# Actualizar el contexto del juego
+	_gameContext.player_level = p.elv
+	_gameContext.player_gold = p.gold
+	_gameContext.player_experience = p.experience
+	_gameContext.player_experience_to_next_level = p.elu
 	
 	_gameContext.player_stats.max_hp = p.maxHp
 	_gameContext.player_stats.hp = p.minHp

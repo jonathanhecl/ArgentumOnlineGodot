@@ -15,11 +15,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TitleLabel" type="Label" parent="VBox"]
-layout_mode = 2
-text = "Skills del Personaje"
-horizontal_alignment = 1
-
 [node name="Scroll" type="ScrollContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -44,7 +39,15 @@ text = "0"
 horizontal_alignment = 3
 vertical_alignment = 1
 
-[node name="AcceptButton" type="Button" parent="VBox"]
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="CancelButton" type="Button" parent="VBox/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CANCELAR"
+
+[node name="AcceptButton" type="Button" parent="VBox/ButtonsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "ACEPTAR"

@@ -1,52 +1,76 @@
 [gd_scene load_steps=2 format=3 uid="uid://dqe3dktm053jv"]
 
-[ext_resource type="Script" uid="uid://hwxh41kn7bbx" path="res://tools/Exportador.gd" id="1_46j3f"]
+[ext_resource type="Script" uid="uid://hwxh41kn7bbx" path="res://Tools/Exportador.gd" id="1_46j3f"]
 
-[node name="Exportador" type="Node"]
+[node name="Exportador" type="Node" node_paths=PackedStringArray("labelStatus")]
 script = ExtResource("1_46j3f")
+labelStatus = NodePath("CanvasLayer/VBoxContainer/LabelStatus")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -72.0
-offset_top = -103.0
-offset_right = 72.0
-offset_bottom = 103.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 462.0
 grow_horizontal = 2
-grow_vertical = 2
+
+[node name="LabelStatus" type="Label" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Ready!"
+
+[node name="Label" type="Label" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Assets"
+horizontal_alignment = 1
 
 [node name="Button" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Mapas"
+text = "Exportar Mapas -> Maps.TSCN"
 
 [node name="Button2" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Cuerpos"
+text = "Exportar Cuerpos -> Resources"
 
 [node name="Button3" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Cascos"
+text = "Exportar Cascos -> Resources"
 
 [node name="Button4" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Cabezas"
+text = "Exportar Cabezas -> Resources"
 
 [node name="Button5" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Armas"
+text = "Exportar Armas -> Resources"
 
 [node name="Button6" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Escudos"
+text = "Exportar Escudos -> Resources"
 
 [node name="Button7" type="Button" parent="CanvasLayer/VBoxContainer"]
 layout_mode = 2
-text = "Exportar Fxs"
+text = "Exportar Fxs -> Resources"
+
+[node name="Label2" type="Label" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Crear PCK"
+horizontal_alignment = 1
+
+[node name="Button8" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "maps.pck (req. TSCN+Minimaps)"
+
+[node name="Button9" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "index.pck (Inits, Resources)"
+
+[node name="Button10" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "sounds.pck (Sfx/Music)"
+
+[node name="Button11" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "graphics.pck (Graphics/Sprites)"
 
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button" to="." method="_ExportMaps"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button2" to="." method="_Bodies"]
@@ -55,3 +79,7 @@ text = "Exportar Fxs"
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button5" to="." method="_Weapons"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button6" to="." method="_Shields"]
 [connection signal="pressed" from="CanvasLayer/VBoxContainer/Button7" to="." method="_Fxs"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button8" to="." method="_createPackageMaps"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button9" to="." method="_createPackageIndex"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button10" to="." method="_createPackageSound"]
+[connection signal="pressed" from="CanvasLayer/VBoxContainer/Button11" to="." method="_createPackageGrh"]
