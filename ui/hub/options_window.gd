@@ -9,6 +9,13 @@ class_name OptionsWindow
 var checkCustomCursor: CheckBox
 
 func _ready() -> void:
+	# Configurar la ventana como no-exclusiva para permitir inputs globales
+	exclusive = false
+	# Permitir cerrar con la X de la ventana
+	close_requested.connect(hide)
+	# Asegurar que la X sea visible y funcional
+	title = "Opciones"
+	
 	get_ok_button().text = "Guardar"
 	
 	var bus = AudioServer.get_bus_index("Master")
