@@ -455,7 +455,10 @@ func _on_btn_skills_pressed() -> void:
 	if _skills_window == null:
 		_skills_window = SkillsWindowScene.instantiate()
 		add_child(_skills_window)
-	_skills_window.show_window()
+	# Establecer el flag para indicar que estamos esperando las habilidades
+	_waiting_for_skills_popup = true
+	# Solicitar las habilidades al servidor
+	GameProtocol.WriteRequestSkills()
 
 func _on_btn_password_change_pressed() -> void:
 	if _password_change_window == null:
