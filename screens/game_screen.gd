@@ -1,6 +1,10 @@
 extends Node
 class_name GameScreen
 
+# Importar comandos de red
+const ShowGuildAlignCommand = preload("res://network/commands/ShowGuildAlign.gd")
+const ShowGuildFundationFormCommand = preload("res://network/commands/ShowGuildFundationForm.gd")
+
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
@@ -158,7 +162,14 @@ var pcg:Array[String]
 
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	var packetId = stream.get_u8()
-	var pname = Enums.ServerPacketID.keys()[packetId]
+	var pname = ""
+	if packetId < Enums.ServerPacketID.keys().size():
+		pname = Enums.ServerPacketID.keys()[packetId]
+	else:
+		pname = "Paquete desconocido"
+		print("[DEBUG] Paquete no reconocido recibido. ID: ", packetId, " (0x", "%02X" % packetId, ")")
+		return
+		
 	pcg.append(name)
 	match packetId:
 		Enums.ServerPacketID.MultiMessage:
@@ -173,8 +184,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleChangeMap(ChangeMap.new(stream))
 		Enums.ServerPacketID.PlayMIDI:
 			_HandlePlayMidi(PlayMidi.new(stream))
-		Enums.ServerPacketID.ShowSignal:
-			_handle_show_signal(ShowSignal.new(stream))
+		Enums.ServerPacketID.ShowGuildAlign:
+			_HandleShowGuildAlign(ShowGuildAlignCommand.from_buffer(stream, self))
+		Enums.ServerPacketID.ShowGuildFundationForm:
+			_HandleShowGuildFundationForm(ShowGuildFundationFormCommand.from_buffer(stream, self))
 		Enums.ServerPacketID.PlayWave:
 			_HandlePlayWave(PlayWave.new(stream))
 		Enums.ServerPacketID.AreaChanged:
@@ -289,6 +302,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleShowMessageBox(ShowMessageBox.new(stream))
 		Enums.ServerPacketID.UpdateExp:
 			_HandelUpdateExp(UpdateExp.new(stream))
+		Enums.ServerPacketID.ShowGuildAlign:
+			# Creamos la instancia pasando el nodo padre (este GameScreen)
+			var show_guild_align = ShowGuildAlignCommand.new(self)
+			show_guild_align.handle()
 		Enums.ServerPacketID.MeditateToggle:
 			_handle_meditate_toggle()
 		Enums.ServerPacketID.UpdateMana:
@@ -847,6 +864,15 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 func _FlushData() -> void:
 	if !GameProtocol.IsEmpty(): 
 		ClientInterface.Send(GameProtocol.Flush())
+
+# Maneja la visualización de la ventana de alineación de gremio
+func _HandleShowGuildAlign(show_guild_align) -> void:
+	show_guild_align.handle()
+
+# Maneja la visualización del formulario de fundación de gremio
+func _HandleShowGuildFundationForm(show_guild_fundation_form) -> void:
+	show_guild_fundation_form.handle()
+
 #endregion
 
 

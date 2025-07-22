@@ -16,6 +16,7 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
+const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -42,6 +43,7 @@ var _currentPanel:Node
 var _options_window 
 var _skills_window
 var _password_change_window
+var _guild_foundation_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -483,6 +485,33 @@ func show_password_change_window() -> void:
 		_password_change_window = PasswordChangeWindowScene.instantiate()
 		add_child(_password_change_window)
 	_password_change_window.show_window(self)
+
+# Muestra la ventana de fundación de clan
+func show_guild_foundation_window() -> void:
+	if _guild_foundation_window == null:
+		_guild_foundation_window = GuildFoundationWindowScene.instantiate()
+		_guild_foundation_window.form_submitted.connect(_on_guild_foundation_submitted)
+		add_child(_guild_foundation_window)
+	_guild_foundation_window.show_window()
+
+# Maneja el envío del formulario de fundación de clan
+func _on_guild_foundation_submitted(clan_name: String, clan_abbreviation: String, url: String, description: String) -> void:
+	# Validar que el nombre del clan no esté vacío
+	if clan_name.strip_edges().is_empty():
+		ShowConsoleMessage("¡El nombre del clan no puede estar vacío!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	# Validar la abreviatura (3-5 letras mayúsculas)
+	if clan_abbreviation.length() < 3 or clan_abbreviation.length() > 5:
+		ShowConsoleMessage("La abreviatura debe tener entre 3 y 5 letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	if not clan_abbreviation.is_valid_identifier():
+		ShowConsoleMessage("La abreviatura solo puede contener letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	
+	ShowConsoleMessage("¡Solicitud de fundación de clan enviada al consejo real!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Si la consola está visible y se presiona ESC, la cerramos

@@ -1,0 +1,77 @@
+[gd_scene load_steps=2 format=3 uid="uid://dh5nt7ilka0e"]
+
+[ext_resource type="Script" uid="uid://se6o621e1ed6" path="res://ui/hub/guild_alignment_window.gd" id="1_9q3e2"]
+
+[node name="GuildAlignmentWindow" type="Window"]
+title = "Elige la Alineación de tu Clan"
+position = Vector2i(0, 36)
+size = Vector2i(400, 550)  # Ajustado para incluir el botón de cierre
+close_requested = "_on_close_requested"
+script = ExtResource("1_9q3e2")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 15
+
+[node name="TitleLabel" type="Label" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Selecciona la alineación de tu clan:"
+horizontal_alignment = 1
+
+[node name="RealButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Real"
+
+[node name="ChaosButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Caos"
+
+[node name="NeutralButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Neutral"
+
+[node name="LegalButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Legal"
+
+[node name="CriminalButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Criminal"
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="CloseButton" type="Button" parent="VBox/ButtonsContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+text = "Cerrar"

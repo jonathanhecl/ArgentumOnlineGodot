@@ -4,6 +4,9 @@ signal connected
 signal disconnected
 signal dataReceived(data:PackedByteArray)
 
+# Constante para habilitar/deshabilitar el log de paquetes
+const LOG_PACKETS := true
+
 var _socket:StreamPeerTCP = StreamPeerTCP.new()
 var _status:int
 
@@ -49,4 +52,25 @@ func _process(_delta: float) -> void:
 				set_process(false);
 			else:
 				var data = response[1]
+				if LOG_PACKETS and data.size() > 0:
+					# Mostrar información básica del paquete
+					var packet_id = -1
+					var packet_length = 0
+					
+					# Obtener el ID del paquete (primer byte)
+					if data.size() >= 1:
+						packet_id = data[0]
+					
+					# Obtener la longitud del paquete (bytes 2 y 3, little-endian)
+					if data.size() >= 3:
+						packet_length = (data[2] << 8) | data[1]
+					
+					# Convertir los primeros bytes a formato legible
+					var hex_str = ""
+					for i in range(min(8, data.size())):
+						hex_str += "%02X " % data[i]
+					
+					# Mostrar información del paquete
+					print("[INCOMING] Packet ID: %d (0x%02X), Longitud: %d, Bytes: %s" % [packet_id, packet_id, packet_length, hex_str])
+				
 				dataReceived.emit(data)
