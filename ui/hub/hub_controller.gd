@@ -22,6 +22,8 @@ const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
+@export var _console_max_lines:int = 10
+@export var _console_blocked:bool = false
 
 @onready var minimap: Minimap = $Minimap
 @onready var spell_list_panel: SpellListPanel = $"Inventory-Spell/SpellListPanel" 
@@ -70,15 +72,24 @@ func Init(gameContext:GameContext) -> void:
 		_use_object(true))
 
 func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.WHITE)) -> void:
-	var bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), message]
-	if fontData.italic:
-		bbcode = "[i]%s[/i]" % bbcode;
+	# Dividimos por líneas para contar correctamente los "\n" recientes
+	var parts:Array = message.split("\n")
+	for part in parts:
+		var line_bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), part]
+		if fontData.italic:
+			line_bbcode = "[i]%s[/i]" % line_bbcode
+		if fontData.bold:
+			line_bbcode = "[b]%s[/b]" % line_bbcode
+		# Agregamos directamente al RichTextLabel, sin limpiar/redibujar todo
+		_consoleRichTextLabel.append_text(line_bbcode + "\n")
 
-	if fontData.bold:
-		bbcode = "[b]%s[/b]" % bbcode;
-	
-	_consoleRichTextLabel.append_text(bbcode + "\n")
-	
+	# Si nos pasamos del máximo, eliminamos los párrafos más antiguos del control
+	while _consoleRichTextLabel.get_paragraph_count() > _console_max_lines:
+		_consoleRichTextLabel.remove_paragraph(0)
+
+	# Desplazar al final para ver lo último (si no está bloqueado por el usuario)
+	if !_console_blocked and _consoleRichTextLabel.get_line_count() > 0:
+		_consoleRichTextLabel.scroll_to_line(_consoleRichTextLabel.get_line_count() - 1)
 
 func OpenMerchant() -> void:
 	var merchantPanel = MerchantPanelScene.instantiate() as MerchantPanel
@@ -526,3 +537,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			_consoleInputLineEdit.release_focus()
 			# Forzar la actualización del foco
 			get_viewport().gui_release_focus()
+
+
+func _on_console_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_console_blocked = true
+
+func _on_console_mouse_exited() -> void:
+	_console_blocked = false

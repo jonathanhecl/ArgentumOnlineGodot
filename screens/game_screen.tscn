@@ -120,7 +120,6 @@ theme_override_fonts/bold_italics_font = SubResource("FontVariation_ehycb")
 theme_override_fonts/bold_font = SubResource("FontVariation_t2d6d")
 bbcode_enabled = true
 scroll_following = true
-metadata/_edit_lock_ = true
 
 [node name="ConsoleInput" type="LineEdit" parent="HubController"]
 visible = false
@@ -432,7 +431,9 @@ offset_bottom = 516.0
 [node name="PingTimer" type="Timer" parent="Timers"]
 
 [connection signal="gui_input" from="HubController/MainViewportContainer" to="HubController" method="_on_main_viewport_container_gui_input"]
+[connection signal="gui_input" from="HubController/Console" to="HubController" method="_on_console_gui_input"]
 [connection signal="meta_clicked" from="HubController/Console" to="HubController" method="_on_console_meta_clicked"]
+[connection signal="mouse_exited" from="HubController/Console" to="HubController" method="_on_console_mouse_exited"]
 [connection signal="text_submitted" from="HubController/ConsoleInput" to="HubController" method="_OnConsoleInputTextSubmitted"]
 [connection signal="click" from="HubController/Minimap" to="HubController" method="_on_minimap_click"]
 [connection signal="changed" from="HubController/StatBars/ExperienceStatBar" to="HubController/StatBars/ExperienceStatBar" method="_on_changed"]
