@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hub/stats_window.gd" id="1"]
+
+[node name="StatsWindow" type="Window"]
+position = Vector2i(0, 36)
+size = Vector2i(420, 520)
+unresizable = true
+visible = false
+script = ExtResource("1")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scroll" type="ScrollContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="AttributesSection" type="VBoxContainer" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="AttributesTitle" type="Label" parent="VBox/Scroll/Content/AttributesSection"]
+layout_mode = 2
+text = "Atributos"
+
+[node name="AttributesGrid" type="GridContainer" parent="VBox/Scroll/Content/AttributesSection"]
+layout_mode = 2
+columns = 2
+
+[node name="Sep1" type="HSeparator" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="MiniStatsSection" type="VBoxContainer" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="MiniStatsTitle" type="Label" parent="VBox/Scroll/Content/MiniStatsSection"]
+layout_mode = 2
+text = "Mini Estadísticas"
+
+[node name="MiniStatsGrid" type="GridContainer" parent="VBox/Scroll/Content/MiniStatsSection"]
+layout_mode = 2
+columns = 2
+
+[node name="Sep2" type="HSeparator" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="FameSection" type="VBoxContainer" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="FameTitle" type="Label" parent="VBox/Scroll/Content/FameSection"]
+layout_mode = 2
+text = "Fama"
+
+[node name="FameGrid" type="GridContainer" parent="VBox/Scroll/Content/FameSection"]
+layout_mode = 2
+columns = 2
+
+[node name="Sep3" type="HSeparator" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="SkillsSection" type="VBoxContainer" parent="VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="SkillsTitle" type="Label" parent="VBox/Scroll/Content/SkillsSection"]
+layout_mode = 2
+text = "Habilidades"
+
+[node name="SkillsList" type="VBoxContainer" parent="VBox/Scroll/Content/SkillsSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="VBox/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CERRAR"

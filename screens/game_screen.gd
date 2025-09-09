@@ -4,6 +4,9 @@ class_name GameScreen
 # Importar comandos de red
 const ShowGuildAlignCommand = preload("res://network/commands/ShowGuildAlign.gd")
 const ShowGuildFundationFormCommand = preload("res://network/commands/ShowGuildFundationForm.gd")
+const Atributes = preload("res://network/commands/Atributes.gd")
+const MiniStats = preload("res://network/commands/MiniStats.gd")
+const Fame = preload("res://network/commands/Fame.gd")
 
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
@@ -210,6 +213,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleUserCharIndexInServer(UserCharIndexInServer.new(stream))
 		Enums.ServerPacketID.UpdateUserStats:
 			_HandleUpdateUserStats(UpdateUserStats.new(stream))
+		Enums.ServerPacketID.Atributes:
+			_HandleAtributes(Atributes.new(stream))
 		Enums.ServerPacketID.UpdateHungerAndThirst:
 			_HandleUpdateHungerAndThirst(UpdateHungerAndThirst.new(stream))
 		Enums.ServerPacketID.UpdateStrenghtAndDexterity:
@@ -218,6 +223,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleGuildChat(GuildChat.new(stream))
 		Enums.ServerPacketID.SendSkills:
 			_HandleSendSkills(SendSkills.new(stream))
+		Enums.ServerPacketID.Fame:
+			_HandleFame(Fame.new(stream))
+		Enums.ServerPacketID.MiniStats:
+			_HandleMiniStats(MiniStats.new(stream))
 		Enums.ServerPacketID.LevelUp:
 			_HandleLevelUp(LevelUp.new(stream))
 		Enums.ServerPacketID.Logged:
@@ -587,6 +596,35 @@ func _HandleLevelUp(p:LevelUp) -> void:
 
 func _HandleSendSkills(p:SendSkills) -> void:
 	_gameInput._show_skills_window(p.skills)
+	# Actualizar también la ventana de estadísticas si está abierta
+	_gameInput.update_stats_skills(p.skills)
+
+func _HandleAtributes(p:Atributes) -> void:
+	# p.attributes: [Fuerza, Agilidad, Inteligencia, Carisma, Constitución]
+	_gameInput.update_stats_attributes(p.attributes)
+
+func _HandleFame(p:Fame) -> void:
+	var fame = {
+		"AsesinoRep": p.AsesinoRep,
+		"BandidoRep": p.BandidoRep,
+		"BurguesRep": p.BurguesRep,
+		"LadronesRep": p.LadronesRep,
+		"NobleRep": p.NobleRep,
+		"PlebeRep": p.PlebeRep,
+		"Promedio": p.Promedio,
+	}
+	_gameInput.update_stats_fame(fame)
+
+func _HandleMiniStats(p:MiniStats) -> void:
+	var mini_stats = {
+		"CiudadanosMatados": p.CiudadanosMatados,
+		"CriminalesMatados": p.CriminalesMatados,
+		"UsuariosMatados": p.UsuariosMatados,
+		"NpcsMatados": p.NpcsMatados,
+		"Clase": p.Clase,
+		"PenaCarcel": p.PenaCarcel,
+	}
+	_gameInput.update_stats_ministats(mini_stats)
 
 				
 func _HandleGuildChat(p:GuildChat) -> void:

@@ -17,6 +17,7 @@ const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
 const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window.tscn")
+const StatsWindowScene = preload("res://ui/hub/stats_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -35,6 +36,7 @@ const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window
 @onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
 
+@onready var _btnStadistics = get_node("Buttons-Misc/btnStadistics")
 @onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
 @onready var _btnSkills = get_node("Buttons-Misc/btnSkills")
 # Botón de cambio de contraseña - puede no existir en todas las escenas
@@ -46,6 +48,7 @@ var _options_window
 var _skills_window
 var _password_change_window
 var _guild_foundation_window
+var _stats_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -55,6 +58,7 @@ var _user_armor_slot:int
 func _ready() -> void:
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
+	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
 	
 	# Intentar obtener el botón de cambio de contraseña si existe
 	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
@@ -64,6 +68,7 @@ func _ready() -> void:
 	
 	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_btnSkills.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_btnStadistics.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
@@ -473,6 +478,18 @@ func _on_btn_skills_pressed() -> void:
 	# Solicitar las habilidades al servidor
 	GameProtocol.WriteRequestSkills()
 
+func _on_btn_stadistics_pressed() -> void:
+	# Enviar solicitudes para poblar la ventana de estadísticas
+	GameProtocol.WriteRequestAtributes()
+	GameProtocol.WriteRequestSkills()
+	GameProtocol.WriteRequestMiniStats()
+	GameProtocol.WriteRequestFame()
+	# Mostrar/crear la ventana
+	if _stats_window == null:
+		_stats_window = StatsWindowScene.instantiate()
+		add_child(_stats_window)
+	_stats_window.popup_centered()
+
 func _on_btn_password_change_pressed() -> void:
 	if _password_change_window == null:
 		_password_change_window = PasswordChangeWindowScene.instantiate()
@@ -490,6 +507,24 @@ func _show_skills_window(skills:Array) -> void:
 		add_child(_skills_window)
 	_skills_window.set_skills(skills)
 	_skills_window.popup_centered()
+
+func update_stats_attributes(attrs:Array) -> void:
+	if _stats_window == null:
+		_stats_window = StatsWindowScene.instantiate()
+		add_child(_stats_window)
+	_stats_window.set_attributes(attrs)
+
+func update_stats_skills(skills:Array) -> void:
+	if _stats_window != null:
+		_stats_window.set_skills(skills)
+
+func update_stats_ministats(mini_stats:Dictionary) -> void:
+	if _stats_window != null:
+		_stats_window.set_ministats(mini_stats)
+
+func update_stats_fame(fame:Dictionary) -> void:
+	if _stats_window != null:
+		_stats_window.set_fame(fame)
 
 func show_password_change_window() -> void:
 	if _password_change_window == null:

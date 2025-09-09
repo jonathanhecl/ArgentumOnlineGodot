@@ -258,6 +258,21 @@ static func WriteRequestSkills() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestSkills)
 
 
+static func WriteRequestAtributes() -> void:
+	_log_outgoing_packet("RequestAtributes")
+	_writer.put_u8(Enums.ClientPacketID.RequestAtributes)
+
+
+static func WriteRequestMiniStats() -> void:
+	_log_outgoing_packet("RequestMiniStats")
+	_writer.put_u8(Enums.ClientPacketID.RequestMiniStats)
+
+
+static func WriteRequestFame() -> void:
+	_log_outgoing_packet("RequestFame")
+	_writer.put_u8(Enums.ClientPacketID.RequestFame)
+
+
 static func WriteModifySkills(skills: Array) -> void:
 	_log_outgoing_packet("ModifySkills", "skills: " + str(skills))
 	_writer.put_u8(Enums.ClientPacketID.ModifySkills)
