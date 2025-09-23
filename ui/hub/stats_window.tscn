@@ -56,7 +56,11 @@ layout_mode = 2
 
 [node name="AttributesTitle" type="Label" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
 layout_mode = 2
+horizontal_alignment = 1
 text = "Atributos"
+
+[node name="AttributesUnderline" type="HSeparator" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
+layout_mode = 2
 
 [node name="AttributesGrid" type="GridContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
 layout_mode = 2
@@ -69,7 +73,11 @@ layout_mode = 2
 
 [node name="SkillsTitleTop" type="Label" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
+horizontal_alignment = 1
 text = "Habilidades"
+
+[node name="SkillsUnderline" type="HSeparator" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
+layout_mode = 2
 
 [node name="SkillsPadding" type="MarginContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
@@ -123,7 +131,11 @@ layout_mode = 2
 
 [node name="MiniStatsTitle" type="Label" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
 layout_mode = 2
+horizontal_alignment = 1
 text = "Mini Estadísticas"
+
+[node name="MiniStatsUnderline" type="HSeparator" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
+layout_mode = 2
 
 [node name="MiniStatsGrid" type="GridContainer" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
 layout_mode = 2
@@ -139,7 +151,11 @@ layout_mode = 2
 
 [node name="FameTitle" type="Label" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
 layout_mode = 2
+horizontal_alignment = 1
 text = "Fama"
+
+[node name="FameUnderline" type="HSeparator" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
+layout_mode = 2
 
 [node name="FameGrid" type="GridContainer" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
 layout_mode = 2
