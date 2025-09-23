@@ -1,28 +1,19 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://cq4wo4tlgly24"]
 
-[ext_resource type="Script" path="res://ui/hub/stats_window.gd" id="1"]
-
-[sub_resource type="StyleBoxFlat" id="1"]
-bg_color = Color(0, 0, 0, 0.5)
-content_margin_left = 0.0
-content_margin_right = 0.0
-content_margin_top = 8.0
-content_margin_bottom = 2.0
+[ext_resource type="Script" uid="uid://jf08blbgf1uq" path="res://ui/hub/stats_window.gd" id="1"]
 
 [node name="StatsWindow" type="Window"]
+oversampling_override = 1.0
 position = Vector2i(0, 36)
-size = Vector2i(460, 445)
+size = Vector2i(460, 454)
 unresizable = true
-visible = false
 script = ExtResource("1")
-theme_override_styles/panel = SubResource("1")
-
- 
 
 [node name="VBox" type="VBoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 5.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 2
@@ -35,8 +26,8 @@ theme_override_constants/separation = 2
 [node name="LeftColumn" type="VBoxContainer" parent="VBox/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
 size_flags_stretch_ratio = 1.6
+theme_override_constants/separation = 6
 
 [node name="LeftPadding" type="MarginContainer" parent="VBox/Columns/LeftColumn"]
 layout_mode = 2
@@ -56,41 +47,41 @@ layout_mode = 2
 
 [node name="AttributesTitle" type="Label" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Atributos"
+horizontal_alignment = 1
 
 [node name="AttributesUnderline" type="HSeparator" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
 layout_mode = 2
 
 [node name="AttributesGrid" type="GridContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/AttributesPadding/AttributesSection"]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 1
+columns = 2
 
 [node name="Sep1" type="HSeparator" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
 
 [node name="SkillsTitleTop" type="Label" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Habilidades"
+horizontal_alignment = 1
 
 [node name="SkillsUnderline" type="HSeparator" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
 
 [node name="SkillsPadding" type="MarginContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
-theme_override_constants/margin_right = 7
 size_flags_vertical = 3
+theme_override_constants/margin_right = 7
 
 [node name="SkillsScroll" type="ScrollContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding"]
+custom_minimum_size = Vector2(0, 230)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
-custom_minimum_size = Vector2(0, 230)
 
 [node name="SkillsSection" type="VBoxContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding/SkillsScroll"]
 layout_mode = 2
@@ -98,8 +89,8 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
 [node name="SkillsTitle" type="Label" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding/SkillsScroll/SkillsSection"]
-layout_mode = 2
 visible = false
+layout_mode = 2
 text = "Habilidades"
 
 [node name="SkillsList" type="VBoxContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding/SkillsScroll/SkillsSection"]
@@ -108,14 +99,13 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 1
 
 [node name="VSep1" type="VSeparator" parent="VBox/Columns"]
-layout_mode = 2
 custom_minimum_size = Vector2(2, 0)
+layout_mode = 2
 
 [node name="RightColumn" type="VBoxContainer" parent="VBox/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
-size_flags_stretch_ratio = 1.0
 
 [node name="RightPadding" type="MarginContainer" parent="VBox/Columns/RightColumn"]
 layout_mode = 2
@@ -131,17 +121,17 @@ layout_mode = 2
 
 [node name="MiniStatsTitle" type="Label" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Mini Estadísticas"
+horizontal_alignment = 1
 
 [node name="MiniStatsUnderline" type="HSeparator" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
 layout_mode = 2
 
 [node name="MiniStatsGrid" type="GridContainer" parent="VBox/Columns/RightColumn/RightPadding/RightContent/MiniStatsSection"]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 1
+columns = 2
 
 [node name="Sep2" type="HSeparator" parent="VBox/Columns/RightColumn/RightPadding/RightContent"]
 layout_mode = 2
@@ -151,17 +141,17 @@ layout_mode = 2
 
 [node name="FameTitle" type="Label" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Fama"
+horizontal_alignment = 1
 
 [node name="FameUnderline" type="HSeparator" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
 layout_mode = 2
 
 [node name="FameGrid" type="GridContainer" parent="VBox/Columns/RightColumn/RightPadding/RightContent/FameSection"]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 1
+columns = 2
 
 [node name="ButtonsContainer" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
