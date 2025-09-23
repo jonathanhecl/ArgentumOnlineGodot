@@ -73,7 +73,7 @@ text = "Habilidades"
 
 [node name="SkillsPadding" type="MarginContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent"]
 layout_mode = 2
-theme_override_constants/margin_right = 14
+theme_override_constants/margin_right = 7
 size_flags_vertical = 3
 
 [node name="SkillsScroll" type="ScrollContainer" parent="VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding"]
