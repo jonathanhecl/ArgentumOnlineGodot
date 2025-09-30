@@ -39,6 +39,7 @@ const StatsWindowScene = preload("res://ui/hub/stats_window.tscn")
 @onready var _btnStadistics = get_node("Buttons-Misc/btnStadistics")
 @onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
 @onready var _btnSkills = get_node("Buttons-Misc/btnSkills")
+@onready var _btnGuilds = get_node("Buttons-Misc/btnGuilds")
 # Botón de cambio de contraseña - puede no existir en todas las escenas
 var _btnPasswordChange
 
@@ -48,6 +49,12 @@ var _options_window
 var _skills_window
 var _password_change_window
 var _guild_foundation_window
+var _guild_leader_window
+var _guild_admin_window
+var _guild_member_window
+var _guild_brief_window
+var _guild_news_window
+var _guild_proposals_window
 var _stats_window
 
 var _user_weapon_slot:int
@@ -59,6 +66,7 @@ func _ready() -> void:
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
 	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
+	_btnGuilds.pressed.connect(Callable(self, "_on_btn_guilds_pressed"))
 	
 	# Intentar obtener el botón de cambio de contraseña si existe
 	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
@@ -69,6 +77,7 @@ func _ready() -> void:
 	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_btnSkills.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_btnStadistics.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_btnGuilds.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
@@ -536,28 +545,29 @@ func show_password_change_window() -> void:
 func show_guild_foundation_window() -> void:
 	if _guild_foundation_window == null:
 		_guild_foundation_window = GuildFoundationWindowScene.instantiate()
-		_guild_foundation_window.form_submitted.connect(_on_guild_foundation_submitted)
+		_guild_foundation_window.next_pressed.connect(_on_guild_foundation_next)
 		add_child(_guild_foundation_window)
 	_guild_foundation_window.show_window()
 
-# Maneja el envío del formulario de fundación de clan
-func _on_guild_foundation_submitted(clan_name: String, clan_abbreviation: String, url: String, description: String) -> void:
+# Maneja cuando se presiona "Siguiente" en el formulario de fundación
+func _on_guild_foundation_next(clan_name: String, url: String) -> void:
 	# Validar que el nombre del clan no esté vacío
 	if clan_name.strip_edges().is_empty():
 		ShowConsoleMessage("¡El nombre del clan no puede estar vacío!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return
-		
-	# Validar la abreviatura (3-5 letras mayúsculas)
-	if clan_abbreviation.length() < 3 or clan_abbreviation.length() > 5:
-		ShowConsoleMessage("La abreviatura debe tener entre 3 y 5 letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-		return
-		
-	if not clan_abbreviation.is_valid_identifier():
-		ShowConsoleMessage("La abreviatura solo puede contener letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-		return
 	
+	# Abrir la ventana de detalles (códex y descripción)
+	_show_guild_details_window(clan_name, url)
+
+# Muestra la ventana de detalles del clan (códex y descripción)
+func _show_guild_details_window(clan_name: String, url: String) -> void:
+	var guild_details_scene = load("res://ui/hub/guild_details_window.tscn")
+	var guild_details_window = guild_details_scene.instantiate()
+	add_child(guild_details_window)
 	
-	ShowConsoleMessage("¡Solicitud de fundación de clan enviada al consejo real!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	# Configurar la ventana para modo de creación
+	guild_details_window.setup_for_creation(clan_name, url)
+	guild_details_window.popup_centered()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Si la consola está visible y se presiona ESC, la cerramos
@@ -580,3 +590,83 @@ func _on_console_gui_input(event: InputEvent) -> void:
 
 func _on_console_mouse_exited() -> void:
 	_console_blocked = false
+
+func _on_btn_guilds_pressed() -> void:
+	print("[DEBUG] Botón de clanes presionado")
+	# Solo solicitar información al servidor
+	# El servidor responderá con GuildList, GuildMemberInfo o GuildLeaderInfo según el estado del jugador
+	print("[DEBUG] Enviando WriteRequestGuildLeaderInfo...")
+	GameProtocol.WriteRequestGuildLeaderInfo()
+	ClientInterface.Send(GameProtocol.Flush())
+	print("[DEBUG] WriteRequestGuildLeaderInfo enviado y flushed")
+
+## Muestra la ventana de detalles del clan con los datos recibidos
+func show_guild_details(data: Dictionary) -> void:
+	if _guild_brief_window == null:
+		var guild_brief_scene = load("res://ui/hub/guild_brief_window.tscn")
+		_guild_brief_window = guild_brief_scene.instantiate()
+		add_child(_guild_brief_window)
+	_guild_brief_window.set_guild_details(data)
+	_guild_brief_window.popup_centered()
+
+## Actualiza los datos de la ventana de líder del clan (cuando el jugador ES líder)
+func update_guild_leader_data(guilds: Array, members: Array, news: String, requests: Array) -> void:
+	if _guild_leader_window == null:
+		var guild_leader_scene = load("res://ui/hub/guild_leader_window.tscn")
+		_guild_leader_window = guild_leader_scene.instantiate()
+		add_child(_guild_leader_window)
+	_guild_leader_window.set_guild_data(guilds, members, news, requests)
+	_guild_leader_window.popup_centered()
+
+## Muestra la ventana de noticias del clan
+func show_guild_news(news: String, enemies: Array, allies: Array) -> void:
+	if _guild_news_window == null:
+		var guild_news_scene = load("res://ui/hub/guild_news_window.tscn")
+		_guild_news_window = guild_news_scene.instantiate()
+		add_child(_guild_news_window)
+	_guild_news_window.set_guild_news(news, enemies, allies)
+	_guild_news_window.popup_centered()
+
+## Muestra los detalles de una propuesta
+func show_offer_details(details: String) -> void:
+	var dialog = AcceptDialog.new()
+	dialog.dialog_text = details
+	dialog.title = "Detalles de la Propuesta"
+	add_child(dialog)
+	dialog.popup_centered()
+
+## Muestra la lista de propuestas de alianza
+func show_alliance_proposals(guilds: Array) -> void:
+	if _guild_proposals_window == null:
+		var proposals_scene = load("res://ui/hub/guild_proposals_window.tscn")
+		_guild_proposals_window = proposals_scene.instantiate()
+		add_child(_guild_proposals_window)
+	_guild_proposals_window.set_proposals(2, guilds)  # 2 = ALLIANCE
+	_guild_proposals_window.popup_centered()
+
+## Muestra la lista de propuestas de paz
+func show_peace_proposals(guilds: Array) -> void:
+	if _guild_proposals_window == null:
+		var proposals_scene = load("res://ui/hub/guild_proposals_window.tscn")
+		_guild_proposals_window = proposals_scene.instantiate()
+		add_child(_guild_proposals_window)
+	_guild_proposals_window.set_proposals(1, guilds)  # 1 = PEACE
+	_guild_proposals_window.popup_centered()
+
+## Muestra la lista simple de clanes (cuando el jugador NO tiene clan)
+func show_guild_list(guilds: Array) -> void:
+	if _guild_admin_window == null:
+		var admin_scene = load("res://ui/hub/guild_admin_window.tscn")
+		_guild_admin_window = admin_scene.instantiate()
+		add_child(_guild_admin_window)
+	_guild_admin_window.set_guilds(guilds)
+	_guild_admin_window.popup_centered()
+
+## Muestra la ventana de miembro del clan (cuando el jugador tiene clan pero NO es líder)
+func show_guild_member_info(guilds: Array, members: Array) -> void:
+	if _guild_member_window == null:
+		var member_scene = load("res://ui/hub/guild_member_window.tscn")
+		_guild_member_window = member_scene.instantiate()
+		add_child(_guild_member_window)
+	_guild_member_window.set_guild_data(guilds, members)
+	_guild_member_window.popup_centered()

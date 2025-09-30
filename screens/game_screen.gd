@@ -7,6 +7,14 @@ const ShowGuildFundationFormCommand = preload("res://network/commands/ShowGuildF
 const Atributes = preload("res://network/commands/Atributes.gd")
 const MiniStats = preload("res://network/commands/MiniStats.gd")
 const Fame = preload("res://network/commands/Fame.gd")
+const GuildList = preload("res://network/commands/GuildList.gd")
+const GuildMemberInfo = preload("res://network/commands/GuildMemberInfo.gd")
+const GuildLeaderInfo = preload("res://network/commands/GuildLeaderInfo.gd")
+const GuildDetails = preload("res://network/commands/GuildDetails.gd")
+const GuildNews = preload("res://network/commands/GuildNews.gd")
+const OfferDetails = preload("res://network/commands/OfferDetails.gd")
+const AllianceProposalsList = preload("res://network/commands/AllianceProposalsList.gd")
+const PeaceProposalsList = preload("res://network/commands/PeaceProposalsList.gd")
 
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
@@ -60,7 +68,8 @@ func _OnDisconnected() -> void:
 	var screen = load("uid://cd452cndcck7v").instantiate() 
 	ScreenController.SwitchScreen(screen)
 	
-func _OnDataReceived(data:PackedByteArray) -> void: 
+func _OnDataReceived(data:PackedByteArray) -> void:
+	print("[DEBUG] _OnDataReceived - Recibido ", data.size(), " bytes del servidor")
 	networkMessages.push_back(data)
 
 func _process(_delta: float) -> void:
@@ -155,10 +164,12 @@ func _ProccessMessages() -> void:
 		_HandleIncomingData(data) 
 
 func _HandleIncomingData(data:PackedByteArray) -> void:
+	print("[DEBUG] _HandleIncomingData recibió ", data.size(), " bytes")
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = data
 	
 	while stream.get_position() < stream.get_size():
+		print("[DEBUG] Procesando packet en posición ", stream.get_position(), " de ", stream.get_size())
 		_HandleOnePacket(stream)
 
 var pcg:Array[String] 
@@ -311,10 +322,6 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleShowMessageBox(ShowMessageBox.new(stream))
 		Enums.ServerPacketID.UpdateExp:
 			_HandelUpdateExp(UpdateExp.new(stream))
-		Enums.ServerPacketID.ShowGuildAlign:
-			# Creamos la instancia pasando el nodo padre (este GameScreen)
-			var show_guild_align = ShowGuildAlignCommand.new(self)
-			show_guild_align.handle()
 		Enums.ServerPacketID.MeditateToggle:
 			_handle_meditate_toggle()
 		Enums.ServerPacketID.UpdateMana:
@@ -337,6 +344,25 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_blacksmith_armors(BlacksmithArmors.new(stream))
 		Enums.ServerPacketID.CharacterChangeNick:
 			_handle_character_change_nick(CharacterChangeNick.new(stream))
+		Enums.ServerPacketID.GuildList:
+			_handle_guild_list(GuildList.new(stream))
+		Enums.ServerPacketID.GuildMemberInfo:
+			_handle_guild_member_info(GuildMemberInfo.new(stream))
+		Enums.ServerPacketID.GuildLeaderInfo:
+			print("[DEBUG] Packet GuildLeaderInfo recibido, creando objeto...")
+			var guild_leader_info = GuildLeaderInfo.new(stream)
+			print("[DEBUG] Objeto GuildLeaderInfo creado, llamando handler...")
+			_handle_guild_leader_info(guild_leader_info)
+		Enums.ServerPacketID.GuildDetails:
+			_handle_guild_details(GuildDetails.new(stream))
+		Enums.ServerPacketID.GuildNews:
+			_handle_guild_news(GuildNews.new(stream))
+		Enums.ServerPacketID.OfferDetails:
+			_handle_offer_details(OfferDetails.new(stream))
+		Enums.ServerPacketID.AlianceProposalsList:
+			_handle_alliance_proposals_list(AllianceProposalsList.new(stream))
+		Enums.ServerPacketID.PeaceProposalsList:
+			_handle_peace_proposals_list(PeaceProposalsList.new(stream))
 		_:
 			print(pname)
 	
@@ -910,6 +936,61 @@ func _HandleShowGuildAlign(show_guild_align) -> void:
 # Maneja la visualización del formulario de fundación de gremio
 func _HandleShowGuildFundationForm(show_guild_fundation_form) -> void:
 	show_guild_fundation_form.handle()
+
+# Maneja la lista simple de clanes (jugador sin clan)
+func _handle_guild_list(p: GuildList) -> void:
+	_gameInput.show_guild_list(p.guilds)
+
+# Maneja la información de miembro del clan (jugador con clan pero no líder)
+func _handle_guild_member_info(p: GuildMemberInfo) -> void:
+	_gameInput.show_guild_member_info(p.guild_names, p.guild_members)
+
+# Maneja la información del líder del clan recibida del servidor
+func _handle_guild_leader_info(p: GuildLeaderInfo) -> void:
+	print("[DEBUG] _handle_guild_leader_info llamado")
+	print("[DEBUG] guild_names: ", p.guild_names)
+	print("[DEBUG] guild_members: ", p.guild_members)
+	print("[DEBUG] guild_news: ", p.guild_news)
+	print("[DEBUG] guild_requests: ", p.guild_requests)
+	print("[DEBUG] Llamando a update_guild_leader_data...")
+	_gameInput.update_guild_leader_data(p.guild_names, p.guild_members, p.guild_news, p.guild_requests)
+	print("[DEBUG] update_guild_leader_data completado")
+
+# Maneja los detalles del clan recibidos del servidor
+func _handle_guild_details(p: GuildDetails) -> void:
+	var data = {
+		"name": p.guild_name,
+		"founder": p.founder,
+		"creation_date": p.creation_date,
+		"leader": p.leader,
+		"website": p.website,
+		"members_count": p.members_count,
+		"elections_open": p.elections_open,
+		"alignment": p.alignment,
+		"enemies_count": p.enemies_count,
+		"allies_count": p.allies_count,
+		"anti_faction": p.anti_faction,
+		"codex": p.codex,
+		"description": p.description,
+		"is_leader": p.is_leader
+	}
+	_gameInput.show_guild_details(data)
+
+# Maneja las noticias del clan recibidas del servidor
+func _handle_guild_news(p: GuildNews) -> void:
+	_gameInput.show_guild_news(p.news, p.enemy_guilds, p.allied_guilds)
+
+# Maneja los detalles de una propuesta (paz o alianza)
+func _handle_offer_details(p: OfferDetails) -> void:
+	_gameInput.show_offer_details(p.details)
+
+# Maneja la lista de propuestas de alianza
+func _handle_alliance_proposals_list(p: AllianceProposalsList) -> void:
+	_gameInput.show_alliance_proposals(p.guilds)
+
+# Maneja la lista de propuestas de paz
+func _handle_peace_proposals_list(p: PeaceProposalsList) -> void:
+	_gameInput.show_peace_proposals(p.guilds)
 
 #endregion
 

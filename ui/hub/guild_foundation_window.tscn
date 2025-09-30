@@ -8,14 +8,14 @@ size = Vector2i(400, 300)
 unresizable = true
 script = ExtResource("1")
 
-[node name="VBox" type="VBoxContainer"]
+[node name="VBox" type="VBoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -16.0
-offset_bottom = -16.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="VBox"]
@@ -91,7 +91,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-theme_override_colors/font_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "Siguiente"
 
@@ -99,6 +99,6 @@ text = "Siguiente"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-theme_override_colors/font_color = Color(0.12549, 0.12549, 0.12549, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "Cancelar"

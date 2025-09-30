@@ -13,6 +13,7 @@ static func _log_outgoing_packet(packet_name: String, params: String = "") -> vo
 
 static func Flush() -> PackedByteArray:
 	var data = _writer.data_array
+	print("[DEBUG] Flush() - Enviando ", data.size(), " bytes: ", data)
 	_writer.clear() 
 	return data
 	
@@ -517,3 +518,166 @@ static func WriteWarpMeToTarget() -> void:
 	_log_outgoing_packet("WarpMeToTarget")
 	_writer.put_u8(Enums.ClientPacketID.GMCommands)
 	_writer.put_u8(Enums.EGMCommands.WARP_ME_TO_TARGET)
+
+# ===== COMANDOS DE CLANES (GUILD) =====
+
+## Solicita información del líder del clan (panel de administración)
+static func WriteRequestGuildLeaderInfo() -> void:
+	_log_outgoing_packet("RequestGuildLeaderInfo")
+	_writer.put_u8(Enums.ClientPacketID.RequestGuildLeaderInfo)
+
+## Solicita detalles de un clan específico
+static func WriteGuildRequestDetails(guild_name: String) -> void:
+	_log_outgoing_packet("GuildRequestDetails", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildRequestDetails)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Solicita información de un miembro del clan
+static func WriteGuildMemberInfo(username: String) -> void:
+	_log_outgoing_packet("GuildMemberInfo", "username: " + username)
+	_writer.put_u8(Enums.ClientPacketID.GuildMemberInfo)
+	Utils.PutUnicodeString(_writer, username)
+
+## Actualiza las noticias del clan
+static func WriteGuildUpdateNews(news: String) -> void:
+	_log_outgoing_packet("GuildUpdateNews", "news: " + news)
+	_writer.put_u8(Enums.ClientPacketID.GuildUpdateNews)
+	Utils.PutUnicodeString(_writer, news)
+
+## Abre elecciones en el clan
+static func WriteGuildOpenElections() -> void:
+	_log_outgoing_packet("GuildOpenElections")
+	_writer.put_u8(Enums.ClientPacketID.GuildOpenElections)
+
+## Solicita la lista de propuestas de alianza
+static func WriteGuildAlliancePropList() -> void:
+	_log_outgoing_packet("GuildAlliancePropList")
+	_writer.put_u8(Enums.ClientPacketID.GuildAlliancePropList)
+
+## Solicita mostrar las noticias del clan
+static func WriteShowGuildNews() -> void:
+	_log_outgoing_packet("ShowGuildNews")
+	_writer.put_u8(Enums.ClientPacketID.ShowGuildNews)
+
+## Solicita la lista de propuestas de paz
+static func WriteGuildPeacePropList() -> void:
+	_log_outgoing_packet("GuildPeacePropList")
+	_writer.put_u8(Enums.ClientPacketID.GuildPeacePropList)
+
+## Declara guerra a otro clan
+static func WriteGuildDeclareWar(guild_name: String) -> void:
+	_log_outgoing_packet("GuildDeclareWar", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildDeclareWar)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Actualiza la URL del sitio web del clan
+static func WriteGuildNewWebsite(url: String) -> void:
+	_log_outgoing_packet("GuildNewWebsite", "url: " + url)
+	_writer.put_u8(Enums.ClientPacketID.GuildNewWebsite)
+	Utils.PutUnicodeString(_writer, url)
+
+## Acepta un nuevo miembro en el clan
+static func WriteGuildAcceptNewMember(username: String) -> void:
+	_log_outgoing_packet("GuildAcceptNewMember", "username: " + username)
+	_writer.put_u8(Enums.ClientPacketID.GuildAcceptNewMember)
+	Utils.PutUnicodeString(_writer, username)
+
+## Rechaza un nuevo miembro del clan
+static func WriteGuildRejectNewMember(username: String, reason: String) -> void:
+	_log_outgoing_packet("GuildRejectNewMember", "username: " + username + ", reason: " + reason)
+	_writer.put_u8(Enums.ClientPacketID.GuildRejectNewMember)
+	Utils.PutUnicodeString(_writer, username)
+	Utils.PutUnicodeString(_writer, reason)
+
+## Expulsa un miembro del clan
+static func WriteGuildKickMember(username: String) -> void:
+	_log_outgoing_packet("GuildKickMember", "username: " + username)
+	_writer.put_u8(Enums.ClientPacketID.GuildKickMember)
+	Utils.PutUnicodeString(_writer, username)
+
+## Solicita membresía a un clan
+static func WriteGuildRequestMembership(guild_name: String, application: String) -> void:
+	_log_outgoing_packet("GuildRequestMembership", "guild_name: " + guild_name + ", application: " + application)
+	_writer.put_u8(Enums.ClientPacketID.GuildRequestMembership)
+	Utils.PutUnicodeString(_writer, guild_name)
+	Utils.PutUnicodeString(_writer, application)
+
+## Ofrece paz a otro clan
+static func WriteGuildOfferPeace(guild_name: String, proposal: String) -> void:
+	_log_outgoing_packet("GuildOfferPeace", "guild_name: " + guild_name + ", proposal: " + proposal)
+	_writer.put_u8(Enums.ClientPacketID.GuildOfferPeace)
+	Utils.PutUnicodeString(_writer, guild_name)
+	Utils.PutUnicodeString(_writer, proposal)
+
+## Ofrece alianza a otro clan
+static func WriteGuildOfferAlliance(guild_name: String, proposal: String) -> void:
+	_log_outgoing_packet("GuildOfferAlliance", "guild_name: " + guild_name + ", proposal: " + proposal)
+	_writer.put_u8(Enums.ClientPacketID.GuildOfferAlliance)
+	Utils.PutUnicodeString(_writer, guild_name)
+	Utils.PutUnicodeString(_writer, proposal)
+
+## Acepta una propuesta de alianza
+static func WriteGuildAcceptAlliance(guild_name: String) -> void:
+	_log_outgoing_packet("GuildAcceptAlliance", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildAcceptAlliance)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Rechaza una propuesta de alianza
+static func WriteGuildRejectAlliance(guild_name: String) -> void:
+	_log_outgoing_packet("GuildRejectAlliance", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildRejectAlliance)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Acepta una propuesta de paz
+static func WriteGuildAcceptPeace(guild_name: String) -> void:
+	_log_outgoing_packet("GuildAcceptPeace", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildAcceptPeace)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Rechaza una propuesta de paz
+static func WriteGuildRejectPeace(guild_name: String) -> void:
+	_log_outgoing_packet("GuildRejectPeace", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildRejectPeace)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Solicita detalles de una propuesta de alianza
+static func WriteGuildAllianceDetails(guild_name: String) -> void:
+	_log_outgoing_packet("GuildAllianceDetails", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildAllianceDetails)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Solicita detalles de una propuesta de paz
+static func WriteGuildPeaceDetails(guild_name: String) -> void:
+	_log_outgoing_packet("GuildPeaceDetails", "guild_name: " + guild_name)
+	_writer.put_u8(Enums.ClientPacketID.GuildPeaceDetails)
+	Utils.PutUnicodeString(_writer, guild_name)
+
+## Solicita información de un solicitante al clan
+static func WriteGuildRequestJoinerInfo(username: String) -> void:
+	_log_outgoing_packet("GuildRequestJoinerInfo", "username: " + username)
+	_writer.put_u8(Enums.ClientPacketID.GuildRequestJoinerInfo)
+	Utils.PutUnicodeString(_writer, username)
+
+## Actualiza el códex del clan
+static func WriteClanCodexUpdate(description: String, codex: Array) -> void:
+	_log_outgoing_packet("ClanCodexUpdate", "description: " + description + ", codex_items: " + str(codex.size()))
+	_writer.put_u8(Enums.ClientPacketID.ClanCodexUpdate)
+	Utils.PutUnicodeString(_writer, description)
+	for i in range(8):
+		if i < codex.size():
+			Utils.PutUnicodeString(_writer, codex[i])
+		else:
+			Utils.PutUnicodeString(_writer, "")
+
+## Crea un nuevo clan con códex
+static func WriteCreateNewGuild(description: String, clan_name: String, site: String, codex: Array) -> void:
+	_log_outgoing_packet("CreateNewGuild", "clan_name: " + clan_name + ", site: " + site)
+	_writer.put_u8(Enums.ClientPacketID.CreateNewGuild)
+	Utils.PutUnicodeString(_writer, description)
+	Utils.PutUnicodeString(_writer, clan_name)
+	Utils.PutUnicodeString(_writer, site)
+	for i in range(8):
+		if i < codex.size():
+			Utils.PutUnicodeString(_writer, codex[i])
+		else:
+			Utils.PutUnicodeString(_writer, "")
