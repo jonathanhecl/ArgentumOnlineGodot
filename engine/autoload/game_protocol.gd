@@ -258,6 +258,21 @@ static func WriteRequestSkills() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestSkills)
 
 
+static func WriteRequestAtributes() -> void:
+	_log_outgoing_packet("RequestAtributes")
+	_writer.put_u8(Enums.ClientPacketID.RequestAtributes)
+
+
+static func WriteRequestMiniStats() -> void:
+	_log_outgoing_packet("RequestMiniStats")
+	_writer.put_u8(Enums.ClientPacketID.RequestMiniStats)
+
+
+static func WriteRequestFame() -> void:
+	_log_outgoing_packet("RequestFame")
+	_writer.put_u8(Enums.ClientPacketID.RequestFame)
+
+
 static func WriteModifySkills(skills: Array) -> void:
 	_log_outgoing_packet("ModifySkills", "skills: " + str(skills))
 	_writer.put_u8(Enums.ClientPacketID.ModifySkills)
@@ -274,6 +289,12 @@ static func change_description(description:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.ChangeDescription)
 	Utils.PutUnicodeString(_writer, description)
 
+# Envía la alineación seleccionada para el nuevo gremio al servidor
+# @param alignment_type: Tipo de alineación del gremio (ver Enums.AlignmentType)
+static func WriteGuildFundation(alignment_type: int = -1) -> void:
+	_log_outgoing_packet("GuildFundation", "alignment_type: " + str(alignment_type))
+	_writer.put_u8(Enums.ClientPacketID.GuildFundation)
+	_writer.put_u8(alignment_type)
 
 # ===== COMANDOS DE MASCOTAS =====
 static func WritePetStand() -> void:
@@ -427,6 +448,9 @@ static func WriteCouncilMessage(message:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.CouncilMessage)
 	Utils.PutUnicodeString(_writer, message)
 
+static func WriteGuildFundate() -> void:
+	_log_outgoing_packet("GuildFundate")
+	_writer.put_u8(Enums.ClientPacketID.GuildFundate)
 
 static func WriteRoleMasterRequest(question:String) -> void:
 	_log_outgoing_packet("RoleMasterRequest", "question: " + question)
@@ -445,6 +469,7 @@ static func WriteBugReport(description:String) -> void:
 	Utils.PutUnicodeString(_writer, description)
 
 
+
 # ===== COMANDOS DE CLAN =====
 static func WriteGuildVote(nickname:String) -> void:
 	_log_outgoing_packet("GuildVote", "nickname: " + nickname)
@@ -456,11 +481,6 @@ static func WritePunishments(nickname:String) -> void:
 	_log_outgoing_packet("Punishments", "nickname: " + nickname)
 	_writer.put_u8(Enums.ClientPacketID.Punishments)
 	Utils.PutUnicodeString(_writer, nickname)
-
-
-static func WriteGuildFundate() -> void:
-	_log_outgoing_packet("GuildFundate")
-	_writer.put_u8(Enums.ClientPacketID.GuildFundate)
 
 
 # ===== COMANDOS VARIOS =====

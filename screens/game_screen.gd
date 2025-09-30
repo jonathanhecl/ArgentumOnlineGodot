@@ -1,6 +1,13 @@
 extends Node
 class_name GameScreen
 
+# Importar comandos de red
+const ShowGuildAlignCommand = preload("res://network/commands/ShowGuildAlign.gd")
+const ShowGuildFundationFormCommand = preload("res://network/commands/ShowGuildFundationForm.gd")
+const Atributes = preload("res://network/commands/Atributes.gd")
+const MiniStats = preload("res://network/commands/MiniStats.gd")
+const Fame = preload("res://network/commands/Fame.gd")
+
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
@@ -158,7 +165,14 @@ var pcg:Array[String]
 
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	var packetId = stream.get_u8()
-	var pname = Enums.ServerPacketID.keys()[packetId]
+	var pname = ""
+	if packetId < Enums.ServerPacketID.keys().size():
+		pname = Enums.ServerPacketID.keys()[packetId]
+	else:
+		pname = "Paquete desconocido"
+		print("[DEBUG] Paquete no reconocido recibido. ID: ", packetId, " (0x", "%02X" % packetId, ")")
+		return
+		
 	pcg.append(name)
 	match packetId:
 		Enums.ServerPacketID.MultiMessage:
@@ -173,8 +187,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleChangeMap(ChangeMap.new(stream))
 		Enums.ServerPacketID.PlayMIDI:
 			_HandlePlayMidi(PlayMidi.new(stream))
-		Enums.ServerPacketID.ShowSignal:
-			_handle_show_signal(ShowSignal.new(stream))
+		Enums.ServerPacketID.ShowGuildAlign:
+			_HandleShowGuildAlign(ShowGuildAlignCommand.from_buffer(stream, self))
+		Enums.ServerPacketID.ShowGuildFundationForm:
+			_HandleShowGuildFundationForm(ShowGuildFundationFormCommand.from_buffer(stream, self))
 		Enums.ServerPacketID.PlayWave:
 			_HandlePlayWave(PlayWave.new(stream))
 		Enums.ServerPacketID.AreaChanged:
@@ -197,6 +213,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleUserCharIndexInServer(UserCharIndexInServer.new(stream))
 		Enums.ServerPacketID.UpdateUserStats:
 			_HandleUpdateUserStats(UpdateUserStats.new(stream))
+		Enums.ServerPacketID.Atributes:
+			_HandleAtributes(Atributes.new(stream))
 		Enums.ServerPacketID.UpdateHungerAndThirst:
 			_HandleUpdateHungerAndThirst(UpdateHungerAndThirst.new(stream))
 		Enums.ServerPacketID.UpdateStrenghtAndDexterity:
@@ -205,6 +223,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleGuildChat(GuildChat.new(stream))
 		Enums.ServerPacketID.SendSkills:
 			_HandleSendSkills(SendSkills.new(stream))
+		Enums.ServerPacketID.Fame:
+			_HandleFame(Fame.new(stream))
+		Enums.ServerPacketID.MiniStats:
+			_HandleMiniStats(MiniStats.new(stream))
 		Enums.ServerPacketID.LevelUp:
 			_HandleLevelUp(LevelUp.new(stream))
 		Enums.ServerPacketID.Logged:
@@ -289,6 +311,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleShowMessageBox(ShowMessageBox.new(stream))
 		Enums.ServerPacketID.UpdateExp:
 			_HandelUpdateExp(UpdateExp.new(stream))
+		Enums.ServerPacketID.ShowGuildAlign:
+			# Creamos la instancia pasando el nodo padre (este GameScreen)
+			var show_guild_align = ShowGuildAlignCommand.new(self)
+			show_guild_align.handle()
 		Enums.ServerPacketID.MeditateToggle:
 			_handle_meditate_toggle()
 		Enums.ServerPacketID.UpdateMana:
@@ -570,6 +596,35 @@ func _HandleLevelUp(p:LevelUp) -> void:
 
 func _HandleSendSkills(p:SendSkills) -> void:
 	_gameInput._show_skills_window(p.skills)
+	# Actualizar también la ventana de estadísticas si está abierta
+	_gameInput.update_stats_skills(p.skills)
+
+func _HandleAtributes(p:Atributes) -> void:
+	# p.attributes: [Fuerza, Agilidad, Inteligencia, Carisma, Constitución]
+	_gameInput.update_stats_attributes(p.attributes)
+
+func _HandleFame(p:Fame) -> void:
+	var fame = {
+		"AsesinoRep": p.AsesinoRep,
+		"BandidoRep": p.BandidoRep,
+		"BurguesRep": p.BurguesRep,
+		"LadronesRep": p.LadronesRep,
+		"NobleRep": p.NobleRep,
+		"PlebeRep": p.PlebeRep,
+		"Promedio": p.Promedio,
+	}
+	_gameInput.update_stats_fame(fame)
+
+func _HandleMiniStats(p:MiniStats) -> void:
+	var mini_stats = {
+		"CiudadanosMatados": p.CiudadanosMatados,
+		"CriminalesMatados": p.CriminalesMatados,
+		"UsuariosMatados": p.UsuariosMatados,
+		"NpcsMatados": p.NpcsMatados,
+		"Clase": p.Clase,
+		"PenaCarcel": p.PenaCarcel,
+	}
+	_gameInput.update_stats_ministats(mini_stats)
 
 				
 func _HandleGuildChat(p:GuildChat) -> void:
@@ -847,6 +902,15 @@ func _HandleMultiMessage(p:MultiMessage) -> void:
 func _FlushData() -> void:
 	if !GameProtocol.IsEmpty(): 
 		ClientInterface.Send(GameProtocol.Flush())
+
+# Maneja la visualización de la ventana de alineación de gremio
+func _HandleShowGuildAlign(show_guild_align) -> void:
+	show_guild_align.handle()
+
+# Maneja la visualización del formulario de fundación de gremio
+func _HandleShowGuildFundationForm(show_guild_fundation_form) -> void:
+	show_guild_fundation_form.handle()
+
 #endregion
 
 

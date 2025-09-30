@@ -1,6 +1,9 @@
 extends Node
 class_name ConsoleCommandProcessor
 
+# Importar la ventana de alineación
+const ALIGNMENT_WINDOW = preload("res://ui/hub/guild_alignment_window.tscn")
+
 static var command_handler:Dictionary[String, Callable] = {
 	"salir": quit,
 	"est": request_stats,
@@ -46,10 +49,10 @@ static var command_handler:Dictionary[String, Callable] = {
 	"_bug": bug_report,
 	"voto": guild_vote,
 	"penas": punishments,
+	"fundarclan": guild_fundate,
 	"contraseña": change_password,
 	"retirarfaccion": leave_faction,
 	"denunciar": denounce,
-	"fundarclan": guild_fundate,
 	"echarparty": party_kick,
 	"partylider": party_set_leader,
 	"acceptparty": party_accept_member,
@@ -508,13 +511,6 @@ static func punishments(args:ChatCommandArgs) -> void:
 	GameProtocol.WritePunishments(nickname)
 
 
-static func guild_fundate(args:ChatCommandArgs) -> void:
-	if args.game_context.player_level >= 25:
-		GameProtocol.WriteGuildFundate()
-	else:
-		args.hub_controller.ShowConsoleMessage("Para fundar un clan tenés que ser nivel 25 y tener 90 skills en liderazgo.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-
-
 # ===== COMANDOS VARIOS =====
 static func change_password(args:ChatCommandArgs) -> void:
 	args.hub_controller.show_password_change_window()
@@ -535,3 +531,26 @@ static func denounce(args:ChatCommandArgs) -> void:
 	
 	var denounce_text = " ".join(args.parameters)
 	GameProtocol.WriteDenounce(denounce_text)
+
+
+static func guild_fundate(args:ChatCommandArgs) -> void:
+	# Verificar si el jugador ya está en un clan
+	if args.game_context.player_stats.is_in_guild():
+		args.hub_controller.ShowConsoleMessage("¡Ya perteneces a un clan! Debes abandonarlo antes de fundar uno nuevo.", 
+			GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	# Verificar nivel mínimo (nivel 25)
+	if args.game_context.player_level < 25:
+		args.hub_controller.ShowConsoleMessage("Debes ser al menos nivel 25 para fundar un clan.", 
+			GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	# Verificar si el jugador tiene suficiente oro (50,000 monedas de oro)
+	if args.game_context.player_gold < 50000:
+		args.hub_controller.ShowConsoleMessage("Necesitas 50,000 monedas de oro para fundar un clan.", 
+			GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	# Enviar solicitud al servidor para verificar si el jugador puede fundar un clan
+	GameProtocol.WriteGuildFundate()

@@ -16,11 +16,15 @@ const BankPanelScene = preload("uid://c4skiho4j6vjn")
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
+const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window.tscn")
+const StatsWindowScene = preload("res://ui/hub/stats_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
 @export var _camera:Camera2D
+@export var _console_max_lines:int = 10
+@export var _console_blocked:bool = false
 
 @onready var minimap: Minimap = $Minimap
 @onready var spell_list_panel: SpellListPanel = $"Inventory-Spell/SpellListPanel" 
@@ -32,6 +36,7 @@ const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.t
 @onready var thirst_stat_bar: StatBar = $StatBars/ThirstStatBar
 @onready var hunger_stat_bar: StatBar = $StatBars/HungerStatBar 
 
+@onready var _btnStadistics = get_node("Buttons-Misc/btnStadistics")
 @onready var _btnOptions = get_node("Buttons-Misc/btnOptions")
 @onready var _btnSkills = get_node("Buttons-Misc/btnSkills")
 # Botón de cambio de contraseña - puede no existir en todas las escenas
@@ -42,6 +47,8 @@ var _currentPanel:Node
 var _options_window 
 var _skills_window
 var _password_change_window
+var _guild_foundation_window
+var _stats_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -51,6 +58,7 @@ var _user_armor_slot:int
 func _ready() -> void:
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
+	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
 	
 	# Intentar obtener el botón de cambio de contraseña si existe
 	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
@@ -60,6 +68,7 @@ func _ready() -> void:
 	
 	_btnOptions.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_btnSkills.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_btnStadistics.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func Init(gameContext:GameContext) -> void:
 	_gameContext = gameContext
@@ -68,15 +77,24 @@ func Init(gameContext:GameContext) -> void:
 		_use_object(true))
 
 func ShowConsoleMessage(message:String, fontData:FontData = FontData.new(Color.WHITE)) -> void:
-	var bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), message]
-	if fontData.italic:
-		bbcode = "[i]%s[/i]" % bbcode;
+	# Dividimos por líneas para contar correctamente los "\n" recientes
+	var parts:Array = message.split("\n")
+	for part in parts:
+		var line_bbcode = "[color=#%s]%s[/color]" % [fontData.color.to_html(), part]
+		if fontData.italic:
+			line_bbcode = "[i]%s[/i]" % line_bbcode
+		if fontData.bold:
+			line_bbcode = "[b]%s[/b]" % line_bbcode
+		# Agregamos directamente al RichTextLabel, sin limpiar/redibujar todo
+		_consoleRichTextLabel.append_text(line_bbcode + "\n")
 
-	if fontData.bold:
-		bbcode = "[b]%s[/b]" % bbcode;
-	
-	_consoleRichTextLabel.append_text(bbcode + "\n")
-	
+	# Si nos pasamos del máximo, eliminamos los párrafos más antiguos del control
+	while _consoleRichTextLabel.get_paragraph_count() > _console_max_lines:
+		_consoleRichTextLabel.remove_paragraph(0)
+
+	# Desplazar al final para ver lo último (si no está bloqueado por el usuario)
+	if !_console_blocked and _consoleRichTextLabel.get_line_count() > 0:
+		_consoleRichTextLabel.scroll_to_line(_consoleRichTextLabel.get_line_count() - 1)
 
 func OpenMerchant() -> void:
 	var merchantPanel = MerchantPanelScene.instantiate() as MerchantPanel
@@ -455,7 +473,22 @@ func _on_btn_skills_pressed() -> void:
 	if _skills_window == null:
 		_skills_window = SkillsWindowScene.instantiate()
 		add_child(_skills_window)
-	_skills_window.show_window()
+	# Establecer el flag para indicar que estamos esperando las habilidades
+	_waiting_for_skills_popup = true
+	# Solicitar las habilidades al servidor
+	GameProtocol.WriteRequestSkills()
+
+func _on_btn_stadistics_pressed() -> void:
+	# Enviar solicitudes para poblar la ventana de estadísticas
+	GameProtocol.WriteRequestAtributes()
+	GameProtocol.WriteRequestSkills()
+	GameProtocol.WriteRequestMiniStats()
+	GameProtocol.WriteRequestFame()
+	# Mostrar/crear la ventana
+	if _stats_window == null:
+		_stats_window = StatsWindowScene.instantiate()
+		add_child(_stats_window)
+	_stats_window.popup_centered()
 
 func _on_btn_password_change_pressed() -> void:
 	if _password_change_window == null:
@@ -475,11 +508,56 @@ func _show_skills_window(skills:Array) -> void:
 	_skills_window.set_skills(skills)
 	_skills_window.popup_centered()
 
+func update_stats_attributes(attrs:Array) -> void:
+	if _stats_window == null:
+		_stats_window = StatsWindowScene.instantiate()
+		add_child(_stats_window)
+	_stats_window.set_attributes(attrs)
+
+func update_stats_skills(skills:Array) -> void:
+	if _stats_window != null:
+		_stats_window.set_skills(skills)
+
+func update_stats_ministats(mini_stats:Dictionary) -> void:
+	if _stats_window != null:
+		_stats_window.set_ministats(mini_stats)
+
+func update_stats_fame(fame:Dictionary) -> void:
+	if _stats_window != null:
+		_stats_window.set_fame(fame)
+
 func show_password_change_window() -> void:
 	if _password_change_window == null:
 		_password_change_window = PasswordChangeWindowScene.instantiate()
 		add_child(_password_change_window)
 	_password_change_window.show_window(self)
+
+# Muestra la ventana de fundación de clan
+func show_guild_foundation_window() -> void:
+	if _guild_foundation_window == null:
+		_guild_foundation_window = GuildFoundationWindowScene.instantiate()
+		_guild_foundation_window.form_submitted.connect(_on_guild_foundation_submitted)
+		add_child(_guild_foundation_window)
+	_guild_foundation_window.show_window()
+
+# Maneja el envío del formulario de fundación de clan
+func _on_guild_foundation_submitted(clan_name: String, clan_abbreviation: String, url: String, description: String) -> void:
+	# Validar que el nombre del clan no esté vacío
+	if clan_name.strip_edges().is_empty():
+		ShowConsoleMessage("¡El nombre del clan no puede estar vacío!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	# Validar la abreviatura (3-5 letras mayúsculas)
+	if clan_abbreviation.length() < 3 or clan_abbreviation.length() > 5:
+		ShowConsoleMessage("La abreviatura debe tener entre 3 y 5 letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+		
+	if not clan_abbreviation.is_valid_identifier():
+		ShowConsoleMessage("La abreviatura solo puede contener letras mayúsculas.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		return
+	
+	
+	ShowConsoleMessage("¡Solicitud de fundación de clan enviada al consejo real!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Si la consola está visible y se presiona ESC, la cerramos
@@ -494,3 +572,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			_consoleInputLineEdit.release_focus()
 			# Forzar la actualización del foco
 			get_viewport().gui_release_focus()
+
+
+func _on_console_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_console_blocked = true
+
+func _on_console_mouse_exited() -> void:
+	_console_blocked = false
