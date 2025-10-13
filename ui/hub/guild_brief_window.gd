@@ -5,29 +5,29 @@ class_name GuildBriefWindow
 ## Replica la funcionalidad de frmGuildBrief.frm del cliente VB6
 
 # Referencias a nodos de información básica
-@onready var name_value: Label = $VBox/BasicInfo/NameValue
-@onready var founder_value: Label = $VBox/BasicInfo/FounderValue
-@onready var creation_value: Label = $VBox/BasicInfo/CreationValue
-@onready var leader_value: Label = $VBox/BasicInfo/LeaderValue
-@onready var web_value: Label = $VBox/BasicInfo/WebValue
-@onready var members_value: Label = $VBox/BasicInfo/MembersValue
-@onready var election_value: Label = $VBox/BasicInfo/ElectionValue
-@onready var alignment_value: Label = $VBox/BasicInfo/AlignmentValue
-@onready var enemies_value: Label = $VBox/BasicInfo/EnemiesValue
-@onready var allies_value: Label = $VBox/BasicInfo/AlliesValue
-@onready var anti_faction_value: Label = $VBox/BasicInfo/AntiFactionValue
+@onready var name_value: Label = $MainScroll/VBox/BasicInfo/NameValue
+@onready var founder_value: Label = $MainScroll/VBox/BasicInfo/FounderValue
+@onready var creation_value: Label = $MainScroll/VBox/BasicInfo/CreationValue
+@onready var leader_value: Label = $MainScroll/VBox/BasicInfo/LeaderValue
+@onready var web_value: Label = $MainScroll/VBox/BasicInfo/WebValue
+@onready var members_value: Label = $MainScroll/VBox/BasicInfo/MembersValue
+@onready var election_value: Label = $MainScroll/VBox/BasicInfo/ElectionValue
+@onready var alignment_value: Label = $MainScroll/VBox/BasicInfo/AlignmentValue
+@onready var enemies_value: Label = $MainScroll/VBox/BasicInfo/EnemiesValue
+@onready var allies_value: Label = $MainScroll/VBox/BasicInfo/AlliesValue
+@onready var anti_faction_value: Label = $MainScroll/VBox/BasicInfo/AntiFactionValue
 
 # Referencias a nodos de códex
-@onready var codex_container: VBoxContainer = $VBox/CodexScroll/CodexContainer
+@onready var codex_container: VBoxContainer = $MainScroll/VBox/CodexScroll/CodexContainer
 
 # Referencias a descripción
-@onready var desc_text: TextEdit = $VBox/DescText
+@onready var desc_text: TextEdit = $MainScroll/VBox/DescText
 
 # Referencias a botones
-@onready var leader_buttons: HBoxContainer = $VBox/LeaderButtons
-@onready var offer_peace_btn: Button = $VBox/LeaderButtons/OfferPeaceBtn
-@onready var offer_alliance_btn: Button = $VBox/LeaderButtons/OfferAllianceBtn
-@onready var declare_war_btn: Button = $VBox/LeaderButtons/DeclareWarBtn
+@onready var leader_buttons: HBoxContainer = $MainScroll/VBox/LeaderButtons
+@onready var offer_peace_btn: Button = $MainScroll/VBox/LeaderButtons/OfferPeaceBtn
+@onready var offer_alliance_btn: Button = $MainScroll/VBox/LeaderButtons/OfferAllianceBtn
+@onready var declare_war_btn: Button = $MainScroll/VBox/LeaderButtons/DeclareWarBtn
 
 # NO guardamos datos - obtenemos el nombre del label cuando se necesita
 

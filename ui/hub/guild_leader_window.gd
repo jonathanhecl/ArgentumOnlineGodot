@@ -7,19 +7,22 @@ class_name GuildLeaderWindow
 const MAX_NEWS_LENGTH = 512
 
 # Referencias a nodos
-@onready var guilds_list: ItemList = $ScrollContainer/VBox/MainContent/LeftPanel/GuildsList
-@onready var members_list: ItemList = $ScrollContainer/VBox/MainContent/RightPanel/MembersList
-@onready var requests_list: ItemList = $ScrollContainer/VBox/RequestsSection/RequestsList
-@onready var news_text: TextEdit = $ScrollContainer/VBox/NewsSection/NewsText
-@onready var filter_guilds: LineEdit = $ScrollContainer/VBox/MainContent/LeftPanel/FilterGuilds
-@onready var filter_members: LineEdit = $ScrollContainer/VBox/MainContent/RightPanel/FilterMembers
-@onready var members_label: Label = $ScrollContainer/VBox/MainContent/RightPanel/MembersLabel
+@onready var guilds_list: ItemList = $ScrollContainer/VBox/TopListsContainer/LeftPanel/GuildsList
+@onready var members_list: ItemList = $ScrollContainer/VBox/TopListsContainer/RightPanel/MembersList
+@onready var requests_list: ItemList = $ScrollContainer/VBox/MiddleSection/LeftColumn/RequestsList
+@onready var news_text: TextEdit = $ScrollContainer/VBox/MiddleSection/LeftColumn/NewsText
+@onready var filter_guilds: LineEdit = $ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel/FilterGuilds
+@onready var filter_members: LineEdit = $ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel/FilterMembers
+@onready var members_count_label: Label = $ScrollContainer/VBox/BottomSection/MembersCountLabel
 
 # NO guardamos datos - todo viene del servidor en tiempo real
 
 func _ready() -> void:
 	close_requested.connect(_on_close_requested)
 	news_text.text_changed.connect(_on_news_text_changed)
+	
+	# Forzar modo ventana flotante (no embed)
+	popup_window = true
 
 func _on_close_requested() -> void:
 	hide()
@@ -45,7 +48,7 @@ func set_guild_data(guilds: Array, members: Array, news: String, requests: Array
 	news_text.text = news
 	
 	# Actualizar contador
-	members_label.text = "Miembros del Clan (%d)" % members.size()
+	members_count_label.text = "El clan cuenta con %d MIEMBROS" % members.size()
 
 # Filtros deshabilitados - solicitar datos al servidor cuando se necesiten
 func _on_filter_guilds_text_changed(_new_text: String) -> void:

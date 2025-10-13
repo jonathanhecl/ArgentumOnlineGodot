@@ -32,7 +32,8 @@ func setup_for_creation(guild_name: String, site: String) -> void:
 
 ## Obtiene un LineEdit de códex por índice
 func _get_codex_line_edit(index: int) -> LineEdit:
-	return codex_container.get_node("Codex" + str(index)) as LineEdit
+	var container_name = "HBoxContainer" if index == 0 else "HBoxContainer" + str(index + 1)
+	return codex_container.get_node(container_name + "/Codex" + str(index)) as LineEdit
 
 func _on_confirm_btn_pressed() -> void:
 	# Recopilar códex

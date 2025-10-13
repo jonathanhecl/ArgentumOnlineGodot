@@ -5,163 +5,173 @@
 [node name="GuildLeaderWindow" type="Window"]
 title = "Administración del Clan"
 initial_position = 1
-size = Vector2i(800, 600)
+size = Vector2i(650, 500)
+unresizable = false
+popup_window = true
 script = ExtResource("1_guild_leader")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
 
 [node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 2
 
-[node name="Title" type="Label" parent="ScrollContainer/VBox"]
+[node name="TopListsContainer" type="HBoxContainer" parent="ScrollContainer/VBox"]
 layout_mode = 2
-text = "Panel de Administración del Clan"
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="LeftPanel" type="VBoxContainer" parent="ScrollContainer/VBox/TopListsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="GuildsLabel" type="Label" parent="ScrollContainer/VBox/TopListsContainer/LeftPanel"]
+layout_mode = 2
+text = "CLANES"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="MainContent" type="HBoxContainer" parent="ScrollContainer/VBox"]
+[node name="GuildsList" type="ItemList" parent="ScrollContainer/VBox/TopListsContainer/LeftPanel"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LeftPanel" type="VBoxContainer" parent="ScrollContainer/VBox/MainContent"]
+[node name="FilterPanel" type="HBoxContainer" parent="ScrollContainer/VBox/TopListsContainer/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="FilterGuilds" type="LineEdit" parent="ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "BUSCAR: Nombre del clan..."
 
-[node name="GuildsLabel" type="Label" parent="ScrollContainer/VBox/MainContent/LeftPanel"]
+[node name="GuildDetailsBtn" type="Button" parent="ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel"]
 layout_mode = 2
-text = "Clanes del Mundo"
+text = "DETALLES"
 
-[node name="FilterGuilds" type="LineEdit" parent="ScrollContainer/VBox/MainContent/LeftPanel"]
+[node name="RightPanel" type="VBoxContainer" parent="ScrollContainer/VBox/TopListsContainer"]
 layout_mode = 2
-placeholder_text = "Filtrar clanes..."
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
 
-[node name="GuildsList" type="ItemList" parent="ScrollContainer/VBox/MainContent/LeftPanel"]
-custom_minimum_size = Vector2(0, 200)
+[node name="MembersLabel" type="Label" parent="ScrollContainer/VBox/TopListsContainer/RightPanel"]
+layout_mode = 2
+text = "MIEMBROS"
+horizontal_alignment = 1
+
+[node name="MembersList" type="ItemList" parent="ScrollContainer/VBox/TopListsContainer/RightPanel"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GuildDetailsBtn" type="Button" parent="ScrollContainer/VBox/MainContent/LeftPanel"]
+[node name="FilterPanel" type="HBoxContainer" parent="ScrollContainer/VBox/TopListsContainer/RightPanel"]
 layout_mode = 2
-text = "Ver Detalles del Clan"
+theme_override_constants/separation = 4
 
-[node name="RightPanel" type="VBoxContainer" parent="ScrollContainer/VBox/MainContent"]
+[node name="FilterMembers" type="LineEdit" parent="ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "BUSCAR: Nombre del miembro..."
 
-[node name="MembersLabel" type="Label" parent="ScrollContainer/VBox/MainContent/RightPanel"]
+[node name="MemberDetailsBtn" type="Button" parent="ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel"]
 layout_mode = 2
-text = "Miembros del Clan (0)"
+text = "DETALLES"
 
-[node name="FilterMembers" type="LineEdit" parent="ScrollContainer/VBox/MainContent/RightPanel"]
+[node name="MiddleSection" type="HBoxContainer" parent="ScrollContainer/VBox"]
 layout_mode = 2
-placeholder_text = "Filtrar miembros..."
+size_flags_vertical = 3
+theme_override_constants/separation = 4
 
-[node name="MembersList" type="ItemList" parent="ScrollContainer/VBox/MainContent/RightPanel"]
-custom_minimum_size = Vector2(0, 200)
+[node name="LeftColumn" type="VBoxContainer" parent="ScrollContainer/VBox/MiddleSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NewsText" type="TextEdit" parent="ScrollContainer/VBox/MiddleSection/LeftColumn"]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "CHAT TEMP: Noticias del clan..."
+
+[node name="UpdateNewsBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/LeftColumn"]
+layout_mode = 2
+text = "ACTUALIZAR"
+
+[node name="RequestsLabel" type="Label" parent="ScrollContainer/VBox/MiddleSection/LeftColumn"]
+layout_mode = 2
+text = "SOLICITUDES DE INGRESO"
+
+[node name="RequestsList" type="ItemList" parent="ScrollContainer/VBox/MiddleSection/LeftColumn"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MemberDetailsBtn" type="Button" parent="ScrollContainer/VBox/MainContent/RightPanel"]
+[node name="RequestDetailsBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/LeftColumn"]
 layout_mode = 2
-text = "Ver Detalles del Miembro"
+text = "DETALLES"
 
-[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="NewsSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="NewsLabel" type="Label" parent="ScrollContainer/VBox/NewsSection"]
-layout_mode = 2
-text = "Noticias del Clan"
-
-[node name="NewsText" type="TextEdit" parent="ScrollContainer/VBox/NewsSection"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-placeholder_text = "Escribe las noticias del clan aquí..."
-
-[node name="UpdateNewsBtn" type="Button" parent="ScrollContainer/VBox/NewsSection"]
-layout_mode = 2
-text = "Actualizar Noticias"
-
-[node name="HSeparator3" type="HSeparator" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="RequestsSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="RequestsLabel" type="Label" parent="ScrollContainer/VBox/RequestsSection"]
-layout_mode = 2
-text = "Solicitudes de Ingreso"
-
-[node name="RequestsList" type="ItemList" parent="ScrollContainer/VBox/RequestsSection"]
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-
-[node name="RequestDetailsBtn" type="Button" parent="ScrollContainer/VBox/RequestsSection"]
-layout_mode = 2
-text = "Ver Detalles de Solicitud"
-
-[node name="HSeparator4" type="HSeparator" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="ButtonsContainer" type="HBoxContainer" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="EditCodexBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer"]
+[node name="RightColumn" type="VBoxContainer" parent="ScrollContainer/VBox/MiddleSection"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Editar Códex"
+theme_override_constants/separation = 2
 
-[node name="EditURLBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer"]
+[node name="EditCodexBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/RightColumn"]
+layout_mode = 2
+text = "EDITAR CODEX O DESCRIPCION"
+
+[node name="EditURLBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/RightColumn"]
+layout_mode = 2
+text = "EDITAR URL DE LA WEB DEL CLAN"
+
+[node name="PeaceProposalsBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/RightColumn"]
+layout_mode = 2
+text = "PROPUESTAS DE PAZ"
+
+[node name="AllianceProposalsBtn" type="Button" parent="ScrollContainer/VBox/MiddleSection/RightColumn"]
+layout_mode = 2
+text = "PROPUESTAS DE ALIANZAS"
+
+[node name="BottomSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="MembersCountLabel" type="Label" parent="ScrollContainer/VBox/BottomSection"]
+layout_mode = 2
+text = "El clan cuenta con 0 MIEMBROS"
+
+[node name="ButtonsRow" type="HBoxContainer" parent="ScrollContainer/VBox/BottomSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ElectionsBtn" type="Button" parent="ScrollContainer/VBox/BottomSection/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Editar URL"
+text = "ABRIR ELECCIONES"
 
-[node name="PeaceProposalsBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer"]
+[node name="CloseBtn" type="Button" parent="ScrollContainer/VBox/BottomSection/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Propuestas de Paz"
+text = "CERRAR"
 
-[node name="AllianceProposalsBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Propuestas de Alianza"
-
-[node name="ButtonsContainer2" type="HBoxContainer" parent="ScrollContainer/VBox"]
-layout_mode = 2
-
-[node name="ElectionsBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Abrir Elecciones"
-
-[node name="CloseBtn" type="Button" parent="ScrollContainer/VBox/ButtonsContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Cerrar"
-
-[connection signal="item_selected" from="ScrollContainer/VBox/MainContent/LeftPanel/GuildsList" to="." method="_on_guilds_list_item_selected"]
-[connection signal="pressed" from="ScrollContainer/VBox/MainContent/LeftPanel/GuildDetailsBtn" to="." method="_on_guild_details_btn_pressed"]
-[connection signal="text_changed" from="ScrollContainer/VBox/MainContent/LeftPanel/FilterGuilds" to="." method="_on_filter_guilds_text_changed"]
-[connection signal="item_selected" from="ScrollContainer/VBox/MainContent/RightPanel/MembersList" to="." method="_on_members_list_item_selected"]
-[connection signal="pressed" from="ScrollContainer/VBox/MainContent/RightPanel/MemberDetailsBtn" to="." method="_on_member_details_btn_pressed"]
-[connection signal="text_changed" from="ScrollContainer/VBox/MainContent/RightPanel/FilterMembers" to="." method="_on_filter_members_text_changed"]
-[connection signal="pressed" from="ScrollContainer/VBox/NewsSection/UpdateNewsBtn" to="." method="_on_update_news_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/RequestsSection/RequestDetailsBtn" to="." method="_on_request_details_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer/EditCodexBtn" to="." method="_on_edit_codex_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer/EditURLBtn" to="." method="_on_edit_url_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer/PeaceProposalsBtn" to="." method="_on_peace_proposals_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer/AllianceProposalsBtn" to="." method="_on_alliance_proposals_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer2/ElectionsBtn" to="." method="_on_elections_btn_pressed"]
-[connection signal="pressed" from="ScrollContainer/VBox/ButtonsContainer2/CloseBtn" to="." method="_on_close_btn_pressed"]
+[connection signal="item_selected" from="ScrollContainer/VBox/TopListsContainer/LeftPanel/GuildsList" to="." method="_on_guilds_list_item_selected"]
+[connection signal="pressed" from="ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel/GuildDetailsBtn" to="." method="_on_guild_details_btn_pressed"]
+[connection signal="text_changed" from="ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel/FilterGuilds" to="." method="_on_filter_guilds_text_changed"]
+[connection signal="item_selected" from="ScrollContainer/VBox/TopListsContainer/RightPanel/MembersList" to="." method="_on_members_list_item_selected"]
+[connection signal="pressed" from="ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel/MemberDetailsBtn" to="." method="_on_member_details_btn_pressed"]
+[connection signal="text_changed" from="ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel/FilterMembers" to="." method="_on_filter_members_text_changed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/LeftColumn/UpdateNewsBtn" to="." method="_on_update_news_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/LeftColumn/RequestDetailsBtn" to="." method="_on_request_details_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/RightColumn/EditCodexBtn" to="." method="_on_edit_codex_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/RightColumn/EditURLBtn" to="." method="_on_edit_url_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/RightColumn/PeaceProposalsBtn" to="." method="_on_peace_proposals_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/MiddleSection/RightColumn/AllianceProposalsBtn" to="." method="_on_alliance_proposals_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/BottomSection/ButtonsRow/ElectionsBtn" to="." method="_on_elections_btn_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBox/BottomSection/ButtonsRow/CloseBtn" to="." method="_on_close_btn_pressed"]
