@@ -10,7 +10,7 @@ const MAX_NEWS_LENGTH = 512
 @onready var guilds_list: ItemList = $ScrollContainer/VBox/TopListsContainer/LeftPanel/GuildsList
 @onready var members_list: ItemList = $ScrollContainer/VBox/TopListsContainer/RightPanel/MembersList
 @onready var requests_list: ItemList = $ScrollContainer/VBox/MiddleSection/LeftColumn/RequestsList
-@onready var news_text: TextEdit = $ScrollContainer/VBox/MiddleSection/LeftColumn/NewsText
+@onready var news_text: TextEdit = $ScrollContainer/VBox/VBoxContainer/NewsText
 @onready var filter_guilds: LineEdit = $ScrollContainer/VBox/TopListsContainer/LeftPanel/FilterPanel/FilterGuilds
 @onready var filter_members: LineEdit = $ScrollContainer/VBox/TopListsContainer/RightPanel/FilterPanel/FilterMembers
 @onready var members_count_label: Label = $ScrollContainer/VBox/BottomSection/MembersCountLabel
@@ -44,8 +44,8 @@ func set_guild_data(guilds: Array, members: Array, news: String, requests: Array
 	for request_name in requests:
 		requests_list.add_item(request_name)
 	
-	# Mostrar noticias
-	news_text.text = news
+	# Mostrar noticias (convertir separador º a saltos de línea)
+	news_text.text = news.replace("º", "\n")
 	
 	# Actualizar contador
 	members_count_label.text = "El clan cuenta con %d MIEMBROS" % members.size()

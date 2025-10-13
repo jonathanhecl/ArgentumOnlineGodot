@@ -5,17 +5,17 @@ class_name GuildBriefWindow
 ## Replica la funcionalidad de frmGuildBrief.frm del cliente VB6
 
 # Referencias a nodos de información básica
-@onready var name_value: Label = $MainScroll/VBox/BasicInfo/NameValue
-@onready var founder_value: Label = $MainScroll/VBox/BasicInfo/FounderValue
-@onready var creation_value: Label = $MainScroll/VBox/BasicInfo/CreationValue
-@onready var leader_value: Label = $MainScroll/VBox/BasicInfo/LeaderValue
-@onready var web_value: Label = $MainScroll/VBox/BasicInfo/WebValue
-@onready var members_value: Label = $MainScroll/VBox/BasicInfo/MembersValue
-@onready var election_value: Label = $MainScroll/VBox/BasicInfo/ElectionValue
-@onready var alignment_value: Label = $MainScroll/VBox/BasicInfo/AlignmentValue
-@onready var enemies_value: Label = $MainScroll/VBox/BasicInfo/EnemiesValue
-@onready var allies_value: Label = $MainScroll/VBox/BasicInfo/AlliesValue
-@onready var anti_faction_value: Label = $MainScroll/VBox/BasicInfo/AntiFactionValue
+@onready var name_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/NameValue
+@onready var founder_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/FounderValue
+@onready var creation_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/CreationValue
+@onready var leader_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/LeaderValue
+@onready var web_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/WebValue
+@onready var members_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer/MembersValue
+@onready var election_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2/ElectionValue
+@onready var alignment_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2/AlignmentValue
+@onready var enemies_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2/EnemiesValue
+@onready var allies_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2/AlliesValue
+@onready var anti_faction_value: Label = $MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2/AntiFactionValue
 
 # Referencias a nodos de códex
 @onready var codex_container: VBoxContainer = $MainScroll/VBox/CodexScroll/CodexContainer

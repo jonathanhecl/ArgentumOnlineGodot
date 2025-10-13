@@ -1,11 +1,12 @@
 [gd_scene load_steps=2 format=3 uid="uid://c5lal1v6knn4d"]
 
-[ext_resource type="Script" path="res://ui/hub/guild_brief_window.gd" id="1_guild_brief"]
+[ext_resource type="Script" uid="uid://bkdha4jt2bm42" path="res://ui/hub/guild_brief_window.gd" id="1_guild_brief"]
 
 [node name="GuildBriefWindow" type="Window"]
+oversampling_override = 1.0
 title = "Detalles del Clan"
 initial_position = 1
-size = Vector2i(700, 600)
+size = Vector2i(570, 560)
 script = ExtResource("1_guild_brief")
 
 [node name="MainScroll" type="ScrollContainer" parent="."]
@@ -21,103 +22,112 @@ offset_bottom = -10.0
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="MainScroll/VBox"]
-layout_mode = 2
-text = "Información del Clan"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="MainScroll/VBox"]
-layout_mode = 2
-
 [node name="BasicInfo" type="GridContainer" parent="MainScroll/VBox"]
 layout_mode = 2
 columns = 2
 
-[node name="NameLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MainScroll/VBox/BasicInfo"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GridContainer" type="GridContainer" parent="MainScroll/VBox/BasicInfo/HBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="NameLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Nombre:"
 
-[node name="NameValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="NameValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "-"
 
-[node name="FounderLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="FounderLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Fundador:"
 
-[node name="FounderValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="FounderValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "-"
 
-[node name="CreationLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="CreationLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Fecha de Creación:"
 
-[node name="CreationValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="CreationValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "-"
 
-[node name="LeaderLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="LeaderLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Líder:"
 
-[node name="LeaderValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="LeaderValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "-"
 
-[node name="WebLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="WebLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Sitio Web:"
 
-[node name="WebValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="WebValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "-"
 
-[node name="MembersLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="MembersLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Miembros:"
 
-[node name="MembersValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="MembersValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "0"
 
-[node name="ElectionLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="MarginContainer" type="MarginContainer" parent="MainScroll/VBox/BasicInfo/HBoxContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GridContainer2" type="GridContainer" parent="MainScroll/VBox/BasicInfo/HBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="ElectionLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "Elecciones:"
 
-[node name="ElectionValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="ElectionValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "CERRADA"
 
-[node name="AlignmentLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AlignmentLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "Alineación:"
 
-[node name="AlignmentValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AlignmentValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "-"
 
-[node name="EnemiesLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="EnemiesLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "Enemigos:"
 
-[node name="EnemiesValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="EnemiesValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "0"
 
-[node name="AlliesLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AlliesLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "Aliados:"
 
-[node name="AlliesValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AlliesValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "0"
 
-[node name="AntiFactionLabel" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AntiFactionLabel" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "Anti-Facción:"
 
-[node name="AntiFactionValue" type="Label" parent="MainScroll/VBox/BasicInfo"]
+[node name="AntiFactionValue" type="Label" parent="MainScroll/VBox/BasicInfo/HBoxContainer/GridContainer2"]
 layout_mode = 2
 text = "-"
 
@@ -129,7 +139,7 @@ layout_mode = 2
 text = "Códex del Clan:"
 
 [node name="CodexScroll" type="ScrollContainer" parent="MainScroll/VBox"]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 size_flags_vertical = 3
 
