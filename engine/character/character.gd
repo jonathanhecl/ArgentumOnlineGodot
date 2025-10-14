@@ -96,7 +96,7 @@ func PlayWalkSound() -> void:
 	AudioManager.PlayAudio(Consts.Paso1 if _pasoDerecho else Consts.Paso2)
 	
 func PlayNavigationSound() -> void:
-	AudioManager.PlayAudio(Consts.PasoNavegando);
+	AudioManager.PlayAudio(Consts.PasoNavegando, false, true)  # prevent_overlap = true
 
 func Say(text:String, color:Color) -> void:
 	_dialogLabel.label_settings.font_size = Global.dialogFontSize

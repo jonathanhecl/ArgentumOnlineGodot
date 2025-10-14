@@ -790,7 +790,7 @@ func _handle_show_signal(p:ShowSignal) -> void:
 	
 	
 func _HandlePlayWave(p:PlayWave) -> void:
-	AudioManager.PlayAudio(p.wave)
+	AudioManager.PlayAudio(p.wave, true)  # true = solicitado por servidor
 
 
 func _HandleChangeMap(p:ChangeMap) -> void:
