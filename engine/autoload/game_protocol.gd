@@ -681,3 +681,34 @@ static func WriteCreateNewGuild(description: String, clan_name: String, site: St
 			Utils.PutUnicodeString(_writer, codex[i])
 		else:
 			Utils.PutUnicodeString(_writer, "")
+
+## Mueve un item del inventario
+static func WriteMoveItem(original_slot: int, new_slot: int, move_type: int = 0) -> void:
+	_log_outgoing_packet("MoveItem", "original_slot: %d, new_slot: %d, move_type: %d" % [original_slot, new_slot, move_type])
+	_writer.put_u8(Enums.ClientPacketID.MoveItem)
+	_writer.put_u8(original_slot)
+	_writer.put_u8(new_slot)
+	_writer.put_u8(move_type)
+
+## Usa el macro de hechizo configurado
+static func WriteUseSpellMacro() -> void:
+	_log_outgoing_packet("UseSpellMacro", "")
+	_writer.put_u8(Enums.ClientPacketID.UseSpellMacro)
+
+## Entrena con una criatura de la lista del maestro
+static func WriteTrain(creature: int) -> void:
+	_log_outgoing_packet("Train", "creature: %d" % creature)
+	_writer.put_u8(Enums.ClientPacketID.Train)
+	_writer.put_u8(creature)
+
+## Toggle de navegación (requiere barco)
+static func WriteNavigateToggle() -> void:
+	_log_outgoing_packet("NavigateToggle", "")
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.NAVIGATE_TOGGLE)
+
+## Toggle de ocultarse
+static func WriteHiding() -> void:
+	_log_outgoing_packet("Hiding", "")
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.HIDING)

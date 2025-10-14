@@ -15,6 +15,7 @@ const GuildNews = preload("res://network/commands/GuildNews.gd")
 const OfferDetails = preload("res://network/commands/OfferDetails.gd")
 const AllianceProposalsList = preload("res://network/commands/AllianceProposalsList.gd")
 const PeaceProposalsList = preload("res://network/commands/PeaceProposalsList.gd")
+const TrainerCreatureList = preload("res://network/commands/TrainerCreatureList.gd")
 
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
@@ -363,6 +364,8 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_alliance_proposals_list(AllianceProposalsList.new(stream))
 		Enums.ServerPacketID.PeaceProposalsList:
 			_handle_peace_proposals_list(PeaceProposalsList.new(stream))
+		Enums.ServerPacketID.TrainerCreatureList:
+			_handle_trainer_creature_list(TrainerCreatureList.new(stream))
 		_:
 			print(pname)
 	
@@ -991,6 +994,16 @@ func _handle_alliance_proposals_list(p: AllianceProposalsList) -> void:
 # Maneja la lista de propuestas de paz
 func _handle_peace_proposals_list(p: PeaceProposalsList) -> void:
 	_gameInput.show_peace_proposals(p.guilds)
+
+# Maneja la lista de criaturas para entrenamiento
+func _handle_trainer_creature_list(p: TrainerCreatureList) -> void:
+	print("[TrainerCreatureList] Criaturas recibidas: ", p.creatures)
+	# Mostrar un simple diálogo con la lista de criaturas
+	var message = "Criaturas disponibles para entrenar:\n\n"
+	for i in range(p.creatures.size()):
+		message += "%d. %s\n" % [i + 1, p.creatures[i]]
+	message += "\nUsa /entrenar [número] para entrenar"
+	Utils.ShowAlertDialog("Entrenamiento", message, get_parent())
 
 #endregion
 

@@ -260,6 +260,9 @@ static func train_list(args:ChatCommandArgs) -> void:
 		args.hub_controller.ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return
 	
+	# Informar al usuario que necesita seleccionar un NPC entrenador
+	args.hub_controller.ShowConsoleMessage("Haz click sobre un entrenador para ver las criaturas disponibles...", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	
 	GameProtocol.WriteTrainList()
 
 
