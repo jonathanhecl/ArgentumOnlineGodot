@@ -35,19 +35,26 @@ func _gui_input(event: InputEvent) -> void:
 				force_drag({"from_index": index}, preview)
 
 func _create_preview() -> Control:
+	# Crear un contenedor para centrar el icono
+	var container = Control.new()
+	container.custom_minimum_size = Vector2(32, 32)
+	
 	var preview = TextureRect.new()
 	preview.texture = _item_icon
 	preview.custom_minimum_size = Vector2(32, 32)
 	preview.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	preview.modulate = Color(1, 1, 1, 0.7)
+	# Centrar el preview en el contenedor
+	preview.position = Vector2(-16, -16)  # Offset para centrar (mitad del tamaño)
+	container.add_child(preview)
 	
 	if _item_quantity > 1:
 		var label = Label.new()
 		label.text = str(_item_quantity)
-		label.position = Vector2(2, 16)
-		preview.add_child(label)
+		label.position = Vector2(-14, 0)  # Ajustar posición relativa al centro
+		container.add_child(label)
 	
-	return preview
+	return container
 
 # Aceptar drops para evitar el cursor de prohibido
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
