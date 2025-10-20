@@ -998,12 +998,8 @@ func _handle_peace_proposals_list(p: PeaceProposalsList) -> void:
 # Maneja la lista de criaturas para entrenamiento
 func _handle_trainer_creature_list(p: TrainerCreatureList) -> void:
 	print("[TrainerCreatureList] Criaturas recibidas: ", p.creatures)
-	# Mostrar un simple diálogo con la lista de criaturas
-	var message = "Criaturas disponibles para entrenar:\n\n"
-	for i in range(p.creatures.size()):
-		message += "%d. %s\n" % [i + 1, p.creatures[i]]
-	message += "\nUsa /entrenar [número] para entrenar"
-	Utils.ShowAlertDialog("Entrenamiento", message, get_parent())
+	# Mostrar ventana de selección de criaturas
+	_gameInput.show_spawn_list(p.creatures)
 
 #endregion
 

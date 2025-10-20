@@ -319,6 +319,13 @@ static func WriteTrainList() -> void:
 	_writer.put_u8(Enums.ClientPacketID.TrainList)
 
 
+static func WriteSpawnCreature(creature_index: int) -> void:
+	_log_outgoing_packet("SpawnCreature", "creature_index: " + str(creature_index))
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.SPAWN_CREATURE)
+	_writer.put_16(creature_index)
+
+
 static func WriteRest() -> void:
 	_log_outgoing_packet("Rest")
 	_writer.put_u8(Enums.ClientPacketID.Rest)

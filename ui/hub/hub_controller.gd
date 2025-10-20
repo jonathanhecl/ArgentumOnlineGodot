@@ -18,6 +18,7 @@ const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
 const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window.tscn")
 const StatsWindowScene = preload("res://ui/hub/stats_window.tscn")
+const SpawnListWindowScene = preload("res://ui/hub/spawn_list_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
@@ -56,6 +57,7 @@ var _guild_brief_window
 var _guild_news_window
 var _guild_proposals_window
 var _stats_window
+var _spawn_list_window
 
 var _user_weapon_slot:int
 var _user_shield_slot:int
@@ -67,6 +69,8 @@ func _ready() -> void:
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
 	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
 	_btnGuilds.pressed.connect(Callable(self, "_on_btn_guilds_pressed"))
+	Global.connect("console_font_size_changed", Callable(self, "_on_console_font_size_changed"))
+	_apply_console_font_size(Global.consoleFontSize)
 	
 	# Intentar obtener el botón de cambio de contraseña si existe
 	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
@@ -196,6 +200,15 @@ func update_equipment_label(slot:int, item_stack:ItemStack) -> void:
 	
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec
+
+func _on_console_font_size_changed(value:int) -> void:
+	_apply_console_font_size(value)
+
+func _apply_console_font_size(value:int) -> void:
+	_consoleRichTextLabel.set("theme_override_font_sizes/normal_font_size", value)
+	_consoleRichTextLabel.set("theme_override_font_sizes/bold_font_size", value)
+	_consoleRichTextLabel.set("theme_override_font_sizes/italics_font_size", value)
+	_consoleRichTextLabel.set("theme_override_font_sizes/bold_italics_font_size", value)
 
 func _HandleMouseInput(event:InputEventMouseButton) -> void:
 	var mouse_tile_position = Vector2i((_CameraTransformVector(event.position) / 32.0).ceil()) 
@@ -670,3 +683,11 @@ func show_guild_member_info(guilds: Array, members: Array) -> void:
 		add_child(_guild_member_window)
 	_guild_member_window.set_guild_data(guilds, members)
 	_guild_member_window.popup_centered()
+
+## Muestra la ventana de entrenar con lista de criaturas invocables
+func show_spawn_list(creatures: Array[String]) -> void:
+	if _spawn_list_window == null:
+		_spawn_list_window = SpawnListWindowScene.instantiate()
+		add_child(_spawn_list_window)
+	_spawn_list_window.set_creatures(creatures)
+	_spawn_list_window.popup_centered()

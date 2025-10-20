@@ -47,6 +47,20 @@ min_value = 10.0
 max_value = 16.0
 value = 12.0
 
+[node name="hbox_console_font_size" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="LabelConsoleFontSize" type="Label" parent="VBox/hbox_console_font_size"]
+layout_mode = 2
+text = "Tamaño consola:"
+
+[node name="SliderConsoleFontSize" type="HSlider" parent="VBox/hbox_console_font_size"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 10.0
+max_value = 16.0
+value = 12.0
+
 [node name="hbox_chromatic_mode" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 

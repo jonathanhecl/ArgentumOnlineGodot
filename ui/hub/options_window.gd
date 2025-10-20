@@ -3,6 +3,7 @@ class_name OptionsWindow
 
 @onready var sliderVolume = $VBox/hbox_volume/SliderVolume
 @onready var sliderFontSize = $VBox/hbox_font_size/SliderFontSize
+@onready var sliderConsoleFontSize = $VBox/hbox_console_font_size/SliderConsoleFontSize
 @onready var optionChromaticMode = $VBox/hbox_chromatic_mode/OptionButton
 
 # El checkbox se creará dinámicamente
@@ -23,6 +24,8 @@ func _ready() -> void:
 	sliderVolume.connect("value_changed", Callable(self, "_on_slider_value_changed"))
 	sliderFontSize.value = Global.dialogFontSize
 	sliderFontSize.connect("value_changed", Callable(self, "_on_slider_font_size_changed"))
+	sliderConsoleFontSize.value = Global.consoleFontSize
+	sliderConsoleFontSize.connect("value_changed", Callable(self, "_on_slider_console_font_size_changed"))
 	
 	# Configurar el selector de modo cromático
 	optionChromaticMode.selected = Global.chromaticMode
@@ -40,6 +43,9 @@ func _on_slider_value_changed(value: float) -> void:
 
 func _on_slider_font_size_changed(value: float) -> void:
 	Global.dialogFontSize = int(value)
+
+func _on_slider_console_font_size_changed(value: float) -> void:
+	Global.consoleFontSize = int(value)
 
 func _on_custom_cursor_toggled(button_pressed: bool) -> void:
 	Global.useCustomCursor = button_pressed
@@ -65,6 +71,7 @@ func _on_save_settings() -> void:
 	cfg.load("user://options.cfg")
 	cfg.set_value("audio", "volume_db", linear_to_db(sliderVolume.value))
 	cfg.set_value("ui", "dialog_font_size", sliderFontSize.value)
+	cfg.set_value("ui", "console_font_size", sliderConsoleFontSize.value)
 	cfg.set_value("ui", "use_custom_cursor", checkCustomCursor.button_pressed)
 	cfg.set_value("ui", "chromatic_mode", optionChromaticMode.selected)
 	cfg.save("user://options.cfg")
