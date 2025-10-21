@@ -11,8 +11,5 @@ func _init(reader: StreamPeerBuffer = null) -> void:
 	if reader: Deserialize(reader)
 
 func Deserialize(reader: StreamPeerBuffer) -> void:
-	var guilds_string = Utils.GetUnicodeString(reader)
-	if !guilds_string.is_empty():
-		guilds = guilds_string.split(char(0), false)  # SEPARATOR es vbNullChar (Chr(0))
-	else:
-		guilds = []
+	var guilds_array = Utils.GetUnicodeArrayString(reader)
+	guilds = guilds_array

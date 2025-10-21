@@ -37,11 +37,7 @@ func Deserialize(reader: StreamPeerBuffer) -> void:
 	anti_faction = Utils.GetUnicodeString(reader)
 	
 	# Leer códex (8 líneas separadas por SEPARATOR)
-	var codex_string = Utils.GetUnicodeString(reader)
-	if !codex_string.is_empty():
-		codex = codex_string.split(char(0), false)  # SEPARATOR es vbNullChar (Chr(0))
-	else:
-		codex = []
+	codex = Utils.GetUnicodeArrayString(reader)
 	
 	# Asegurar que el array tenga 8 elementos
 	while codex.size() < 8:

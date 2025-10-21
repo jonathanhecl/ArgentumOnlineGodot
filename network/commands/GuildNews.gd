@@ -17,15 +17,7 @@ func Deserialize(reader: StreamPeerBuffer) -> void:
 	news = Utils.GetUnicodeString(reader)
 	
 	# Leer lista de clanes enemigos (separados por SEPARATOR)
-	var enemies_string = Utils.GetUnicodeString(reader)
-	if !enemies_string.is_empty():
-		enemy_guilds = enemies_string.split(char(0), false)  # SEPARATOR es vbNullChar (Chr(0))
-	else:
-		enemy_guilds = []
+	enemy_guilds = Utils.GetUnicodeArrayString(reader)
 	
 	# Leer lista de clanes aliados (separados por SEPARATOR)
-	var allies_string = Utils.GetUnicodeString(reader)
-	if !allies_string.is_empty():
-		allied_guilds = allies_string.split(char(0), false)
-	else:
-		allied_guilds = []
+	allied_guilds = Utils.GetUnicodeArrayString(reader)
