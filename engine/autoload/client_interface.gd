@@ -92,9 +92,9 @@ func _process(_delta: float) -> void:
 					if data.size() >= 3:
 						packet_length = (data[2] << 8) | data[1]
 					
-					# Convertir los primeros bytes a formato legible
+					# Convertir los bytes a formato legible
 					var hex_str = ""
-					for i in range(min(8, data.size())):
+					for i in range(0, data.size()):
 						hex_str += "%02X " % data[i]
 					
 					# Mostrar información del paquete

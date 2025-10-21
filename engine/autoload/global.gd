@@ -53,6 +53,7 @@ func get_timestamp() -> String:
 	var time = Time.get_time_dict_from_system()
 	return " [%02d:%02d:%02d]" % [time.hour, time.minute, time.second]
 
+
 func _ready() -> void:
 	# Cargar configuración guardada
 	var cfg = ConfigFile.new()

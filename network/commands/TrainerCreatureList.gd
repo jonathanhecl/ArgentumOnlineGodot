@@ -11,7 +11,6 @@ func _init(reader: StreamPeerBuffer = null) -> void:
 	if reader: Deserialize(reader)
 
 func Deserialize(reader: StreamPeerBuffer) -> void:
-	var creatures_string = Utils.GetUnicodeString(reader)
-	if !creatures_string.is_empty():
-		var packed_creatures = creatures_string.split(char(0), false)  # SEPARATOR es vbNullChar (Chr(0))
-		creatures.assign(packed_creatures)  # Convertir PackedStringArray a Array[String]
+	var creatures_string: Array[String] = Utils.GetUnicodeArrayString(reader)
+
+	creatures = creatures_string
