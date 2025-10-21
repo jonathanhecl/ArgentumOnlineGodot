@@ -42,5 +42,5 @@ func _on_invoke_button_pressed() -> void:
 	if selected_indices.size() > 0:
 		var selected_index = selected_indices[0]
 		# El índice enviado al servidor es 1-indexed
-		GameProtocol.WriteSpawnCreature(selected_index + 1)
+		GameProtocol.WriteTrain(selected_index + 1)
 		hide()
