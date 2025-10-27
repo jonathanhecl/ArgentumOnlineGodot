@@ -1,5 +1,4 @@
 extends Node
-class_name GameProtocol
 
 static var _writer:StreamPeerBuffer = StreamPeerBuffer.new()
 
@@ -56,6 +55,10 @@ static func WriteWalk(heading:int) -> void:
 	_log_outgoing_packet("Walk", "heading: " + str(heading))
 	_writer.put_u8(Enums.ClientPacketID.Walk) 
 	_writer.put_u8(heading)
+	
+	# IMPORTANTE: Desactivar macro de hechizos cuando el jugador camina
+	if SpellMacroSystem.is_spell_macro_active():
+		SpellMacroSystem.auto_deactivate_if_needed()
 	
 static func WriteChangeHeading(heading:int) -> void:
 	_log_outgoing_packet("ChangeHeading", "heading: " + str(heading))

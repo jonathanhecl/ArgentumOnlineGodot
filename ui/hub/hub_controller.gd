@@ -72,6 +72,9 @@ func _ready() -> void:
 	Global.connect("console_font_size_changed", Callable(self, "_on_console_font_size_changed"))
 	_apply_console_font_size(Global.consoleFontSize)
 	
+	# Inicializar el sistema de macro de hechizos
+	_setup_spell_macro_system()
+	
 	# Intentar obtener el botón de cambio de contraseña si existe
 	_btnPasswordChange = get_node_or_null("Buttons-Misc/btnPasswordChange")
 	if _btnPasswordChange:
@@ -278,8 +281,8 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_exit_game()
 	if event.is_action_pressed("ToggleSafeMode"):
 		GameProtocol.WriteSafeToggle()
-	if event.is_action_pressed("ToggleResuscitationSafe"):
-		GameProtocol.WriteResuscitationToggle()
+	if event.is_action_pressed("SpellMacro"):
+		SpellMacroSystem.toggle_spell_macro()
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
 	if event is InputEventKey:
@@ -691,3 +694,33 @@ func show_spawn_list(creatures: Array[String]) -> void:
 		add_child(_spawn_list_window)
 	_spawn_list_window.set_creatures(creatures)
 	_spawn_list_window.popup_centered()
+
+## Configura el sistema de macro de hechizos
+func _setup_spell_macro_system() -> void:
+	# Conectar la consola al sistema de macro
+	SpellMacroSystem.set_console(_consoleRichTextLabel)
+	
+	# Conectar la lista de hechizos al sistema de macro
+	if spell_list_panel:
+		SpellMacroSystem.set_spell_list(spell_list_panel)
+		print("[SpellMacroSystem] Lista de hechizos conectada")
+	else:
+		print("[SpellMacroSystem] ADVERTENCIA: No se encontró spell_list_panel")
+	
+	# NUEVO: Conectar el hub_controller para acceso al cursor
+	SpellMacroSystem.set_hub_controller(self)
+	print("[SpellMacroSystem] HubController conectado para cursor")
+	
+	print("[SpellMacroSystem] Sistema de macro F7 inicializado")
+
+## Obtiene la posición del tile donde está el cursor del mouse
+## Esta función es pública para que otros sistemas (como SpellMacroSystem) la usen
+func get_mouse_tile_position() -> Vector2i:
+	var viewport = get_viewport()
+	if not viewport:
+		return Vector2i.ZERO
+	
+	var mouse_pos = viewport.get_mouse_position()
+	var mouse_tile_position = Vector2i((_CameraTransformVector(mouse_pos) / 32.0).ceil())
+	mouse_tile_position.y =mouse_tile_position.y - 5
+	return mouse_tile_position
