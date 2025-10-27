@@ -170,7 +170,6 @@ func _HandleIncomingData(data:PackedByteArray) -> void:
 	stream.data_array = data
 	
 	while stream.get_position() < stream.get_size():
-		print("[DEBUG] Procesando packet en posición ", stream.get_position(), " de ", stream.get_size())
 		_HandleOnePacket(stream)
 
 var pcg:Array[String] 
