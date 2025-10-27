@@ -85,6 +85,12 @@ func _set_body(id:int) -> void:
 	_body = id
 	_bodyAnimatedSprite.sprite_frames = _LoadSpriteFrames("res://Resources/Character/Bodies/body_%d.tres" % id)
 	
+	# Apply head offset for different body types (enanos, gomos, etc.)
+	if id > 0 and id < GameAssets.BodyAnimationList.size():
+		var body_data = GameAssets.BodyAnimationList[id]
+		_headAnimatedSprite.position = Vector2(body_data.offsetX, body_data.offsetY)
+		_helmetAnimatedSprite.position = Vector2(body_data.offsetX, body_data.offsetY)
+	
 	if _verticalAlign:
 		if _bodyAnimatedSprite.sprite_frames.get_frame_count("idle_south"):
 			var offset_y = _bodyAnimatedSprite \
