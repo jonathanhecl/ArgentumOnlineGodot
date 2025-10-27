@@ -719,3 +719,35 @@ static func WriteHiding() -> void:
 	_log_outgoing_packet("Hiding", "")
 	_writer.put_u8(Enums.ClientPacketID.GMCommands)
 	_writer.put_u8(Enums.EGMCommands.HIDING)
+
+## Mueve un item en el banco
+static func WriteMoveBank(upwards: bool, slot: int) -> void:
+	_log_outgoing_packet("MoveBank", "upwards: %s, slot: %d" % [upwards, slot])
+	_writer.put_u8(Enums.ClientPacketID.MoveBank)
+	_writer.put_u8(upwards)
+	_writer.put_u8(slot)
+
+## Hace que un NPC siga al personaje
+static func WriteNPCFollow() -> void:
+	_log_outgoing_packet("NPCFollow", "")
+	_writer.put_u8(Enums.ClientPacketID.GMCommands)
+	_writer.put_u8(Enums.EGMCommands.NPC_FOLLOW)
+
+## Inicia el proceso de crafteo de herrería
+static func WriteCraftBlacksmith(item: int) -> void:
+	_log_outgoing_packet("CraftBlacksmith", "item: %d" % item)
+	_writer.put_u8(Enums.ClientPacketID.CraftBlacksmith)
+	_writer.put_16(item)
+
+## Inicia el proceso de crafteo de carpintería
+static func WriteCraftCarpenter(item: int) -> void:
+	_log_outgoing_packet("CraftCarpenter", "item: %d" % item)
+	_writer.put_u8(Enums.ClientPacketID.CraftCarpenter)
+	_writer.put_16(item)
+
+## Inicializa el proceso de crafteo con cantidad y ciclos
+static func WriteInitCrafting(cantidad: int, nro_por_ciclo: int) -> void:
+	_log_outgoing_packet("InitCrafting", "cantidad: %d, nro_por_ciclo: %d" % [cantidad, nro_por_ciclo])
+	_writer.put_u8(Enums.ClientPacketID.InitCrafting)
+	_writer.put_32(cantidad)
+	_writer.put_16(nro_por_ciclo)

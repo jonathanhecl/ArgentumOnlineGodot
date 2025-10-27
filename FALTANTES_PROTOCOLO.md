@@ -318,16 +318,18 @@ WriteUpTime                 # Uptime (ya existe)
 ## Prioridades de Implementación
 
 ### 🔥 URGENTE (Gameplay Básico)
-1. WriteNavigateToggle
-2. WriteUseSpellMacro
-3. WriteMoveItem
-4. WriteMoveBank
-5. WriteHiding
-6. WriteNPCFollow
-7. WriteTrain
-8. WriteCraftBlacksmith
-9. WriteCraftCarpenter
-10. WriteInitCrafting
+~~1. WriteNavigateToggle~~ ✅ (Comando GM - /NAVE)
+~~2. WriteUseSpellMacro~~ ✅ (Comando Jugador)
+~~3. WriteMoveItem~~ ✅ (Comando Jugador)
+~~4. WriteMoveBank~~ ✅ (Comando Jugador)
+~~5. WriteHiding~~ ✅ (Comando GM - /OCULTANDO)
+~~6. WriteNPCFollow~~ ✅ (Comando GM - /SEGUIR)
+~~7. WriteTrain~~ ✅ (Comando Jugador)
+~~8. WriteCraftBlacksmith~~ ✅ (Comando Jugador)
+~~9. WriteCraftCarpenter~~ ✅ (Comando Jugador)
+~~10. WriteInitCrafting~~ ✅ (Comando Jugador)
+
+**Nota**: 8 comandos de jugadores + 2 comandos GM implementados correctamente
 
 ### ⚡ ALTA (Comandos GM Esenciales)
 1. WriteGMMessage
