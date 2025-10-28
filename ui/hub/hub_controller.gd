@@ -65,6 +65,13 @@ var _user_helmet_slot:int
 var _user_armor_slot:int
 
 func _ready() -> void:
+	# Inicializar el sistema de hotkeys
+	HotkeyConfig.load_hotkey_config()
+	
+	# Conectar señales del sistema de hotkeys
+	HotkeyConfig.hotkey_changed.connect(_on_hotkey_changed)
+	
+	# Resto del código existente...
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
 	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
@@ -284,6 +291,12 @@ func _handle_key_event(event:InputEventKey) -> void:
 	if event.is_action_pressed("SpellMacro"):
 		SpellMacroSystem.toggle_spell_macro()
 	
+	# Nuevos hotkeys configurables
+	if event.is_action_pressed("ToggleName"):
+		_toggle_player_names()
+	if event.is_action_pressed("ToggleFPS"):
+		_toggle_fps_display()
+	
 func _unhandled_key_input(event: InputEvent) -> void: 
 	if event is InputEventKey:
 		_handle_key_event(event)	
@@ -381,6 +394,21 @@ func _request_position_update() -> void:
 
 func _exit_game() -> void:
 	GameProtocol.WriteQuit()
+
+func _on_hotkey_changed(action_name: String, key_code: int):
+	print("[HubController] Hotkey cambiado: ", action_name, " -> ", HotkeyConfig.get_key_name(key_code))
+	# Aquí podrías agregar lógica adicional cuando cambian las teclas
+
+func _toggle_player_names():
+	# Lógica para mostrar/ocultar nombres de jugadores
+	# Esto depende de tu sistema de renderizado de nombres
+	print("[HubController] Toggle player names")
+	# Implementar según necesites
+
+func _toggle_fps_display():
+	# Lógica para mostrar/ocultar FPS
+	print("[HubController] Toggle FPS display")
+	# Implementar según necesites
 
 func _tam_animal() -> void:
 	if !_gameContext.player_stats.is_alive():

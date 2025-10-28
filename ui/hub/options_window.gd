@@ -8,6 +8,8 @@ class_name OptionsWindow
 
 # El checkbox se creará dinámicamente
 var checkCustomCursor: CheckBox
+# Botón de configuración de hotkeys
+var hotkeyConfigButton: Button
 
 func _ready() -> void:
 	# Configurar la ventana como no-exclusiva para permitir inputs globales
@@ -33,6 +35,9 @@ func _ready() -> void:
 	
 	# Crear dinámicamente el checkbox para cursor personalizado
 	_create_custom_cursor_option()
+	
+	# Crear botón de configuración de hotkeys
+	_create_hotkey_config_button()
 	
 	# Guardar configuración al confirmar
 	connect("confirmed", Callable(self, "_on_save_settings"))
@@ -64,6 +69,23 @@ func _create_custom_cursor_option() -> void:
 	
 	# Añadir el checkbox directamente al VBox principal
 	$VBox.add_child(checkCustomCursor)
+
+# Función para crear el botón de configuración de hotkeys
+func _create_hotkey_config_button() -> void:
+	# Crear el botón
+	hotkeyConfigButton = Button.new()
+	hotkeyConfigButton.name = "HotkeyConfigButton"
+	hotkeyConfigButton.text = "Configurar Teclas..."
+	hotkeyConfigButton.connect("pressed", Callable(self, "_on_hotkey_config_pressed"))
+	
+	# Añadir el botón al VBox principal
+	$VBox.add_child(hotkeyConfigButton)
+
+func _on_hotkey_config_pressed() -> void:
+	# Crear y mostrar la ventana de configuración de hotkeys
+	var hotkey_window = preload("res://ui/hub/hotkey_config_window.tscn").instantiate()
+	add_child(hotkey_window)
+	hotkey_window.show_hotkey_config()
 
 func _on_save_settings() -> void:
 	var cfg = ConfigFile.new()
