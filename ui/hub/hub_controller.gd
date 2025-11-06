@@ -18,6 +18,7 @@ const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
 const GuildFoundationWindowScene = preload("res://ui/hub/guild_foundation_window.tscn")
 const StatsWindowScene = preload("res://ui/hub/stats_window.tscn")
+const SpellLearnDialogScene = preload("res://ui/hub/spell_learn_dialog.tscn")
 const SpawnListWindowScene = preload("res://ui/hub/spawn_list_window.tscn")
 
 @export var _inventoryContainer:InventoryContainer 
@@ -356,7 +357,12 @@ func _use_object(double_click = false) -> void:
 	var slot = _inventoryContainer.GetSelectedSlot() 
 	if slot == -1 || _gameContext.trading || _gameContext.pause: return
 	
-	GameProtocol.WriteUseItem(slot + 1)
+	# Verificar si es un pergamino para mostrar diálogo de confirmación
+	var item_stack = _gameContext.playerInventory.GetSlot(slot)
+	if item_stack and item_stack.item.type == Enums.eOBJType.eOBJType_otPergaminos:
+		_show_spell_learn_dialog(item_stack.item.name, slot + 1)
+	else:
+		GameProtocol.WriteUseItem(slot + 1)
 	
 	
 func _pickup_object() -> void:
@@ -752,3 +758,20 @@ func get_mouse_tile_position() -> Vector2i:
 	var mouse_tile_position = Vector2i((_CameraTransformVector(mouse_pos) / 32.0).ceil())
 	mouse_tile_position.y =mouse_tile_position.y - 5
 	return mouse_tile_position
+
+## Muestra el diálogo de confirmación para aprender hechizos
+func _show_spell_learn_dialog(spell_name: String, slot: int) -> void:
+	var dialog = SpellLearnDialogScene.instantiate() as SpellLearnDialog
+	add_child(dialog)
+	
+	# Configurar el nombre del hechizo
+	dialog.set_spell_name(spell_name)
+	
+	# Conectar la señal de confirmación
+	dialog.spell_learn_confirmed.connect(func(learn: bool):
+		if learn:
+			GameProtocol.WriteUseItem(slot)
+	)
+	
+	# Mostrar el diálogo centrado
+	dialog.popup_centered()

@@ -20,6 +20,7 @@ offset_bottom = 32.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_5bo18")
 script = ExtResource("1_4r0iv")
 mouse_default_cursor_shape = 2
+mouse_filter = 0
 
 [node name="Icon" type="TextureRect" parent="."]
 unique_name_in_owner = true

@@ -8,18 +8,9 @@ var log_outgoing_packets:bool = true
 
 signal dialog_font_size_changed(value:int)
 signal console_font_size_changed(value:int)
+signal name_font_size_changed(value:int)
 signal custom_cursor_changed(value:bool)
-signal chromatic_mode_changed(value:int)
 
-# Modos cromáticos (0 = desactivado, 1 = deuteranopia, 2 = protanopia, 3 = tritanopia)
-var _chromaticMode:int = 0
-
-var chromaticMode:int:
-	set(value):
-		_chromaticMode = value
-		emit_signal("chromatic_mode_changed", _chromaticMode)
-	get:
-		return _chromaticMode
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -49,6 +40,15 @@ var consoleFontSize:int:
 	get:
 		return _consoleFontSize
 
+var _nameFontSize:int = 14
+
+var nameFontSize:int:
+	set(value):
+		_nameFontSize = clamp(value, 11, 30)
+		emit_signal("name_font_size_changed", _nameFontSize)
+	get:
+		return _nameFontSize
+
 func get_timestamp() -> String:
 	var time = Time.get_time_dict_from_system()
 	return " [%02d:%02d:%02d]" % [time.hour, time.minute, time.second]
@@ -77,12 +77,9 @@ func _ready() -> void:
 		dialogFontSize = int(saved_fs)
 		var saved_console_fs = cfg.get_value("ui", "console_font_size", consoleFontSize)
 		consoleFontSize = int(saved_console_fs)
+		var saved_name_fs = cfg.get_value("ui", "name_font_size", nameFontSize)
+		nameFontSize = int(saved_name_fs)
 		
 		# Cargar configuración de cursor personalizado
 		var saved_cursor = cfg.get_value("ui", "use_custom_cursor", useCustomCursor)
 		useCustomCursor = bool(saved_cursor)
-		
-		# Cargar configuración de modo cromático
-		var saved_chromaticMode = cfg.get_value("ui", "chromatic_mode", chromaticMode)
-		chromaticMode = int(saved_chromaticMode)
-		

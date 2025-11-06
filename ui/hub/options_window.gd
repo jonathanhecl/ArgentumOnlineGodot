@@ -4,7 +4,7 @@ class_name OptionsWindow
 @onready var sliderVolume = $VBox/hbox_volume/SliderVolume
 @onready var sliderFontSize = $VBox/hbox_font_size/SliderFontSize
 @onready var sliderConsoleFontSize = $VBox/hbox_console_font_size/SliderConsoleFontSize
-@onready var optionChromaticMode = $VBox/hbox_chromatic_mode/OptionButton
+@onready var sliderNameFontSize = $VBox/hbox_name_font_size/SliderNameFontSize
 
 # El checkbox se creará dinámicamente
 var checkCustomCursor: CheckBox
@@ -28,10 +28,8 @@ func _ready() -> void:
 	sliderFontSize.connect("value_changed", Callable(self, "_on_slider_font_size_changed"))
 	sliderConsoleFontSize.value = Global.consoleFontSize
 	sliderConsoleFontSize.connect("value_changed", Callable(self, "_on_slider_console_font_size_changed"))
-	
-	# Configurar el selector de modo cromático
-	optionChromaticMode.selected = Global.chromaticMode
-	optionChromaticMode.connect("item_selected", Callable(self, "_on_chromatic_mode_selected"))
+	sliderNameFontSize.value = Global.nameFontSize
+	sliderNameFontSize.connect("value_changed", Callable(self, "_on_slider_name_font_size_changed"))
 	
 	# Crear dinámicamente el checkbox para cursor personalizado
 	_create_custom_cursor_option()
@@ -52,11 +50,12 @@ func _on_slider_font_size_changed(value: float) -> void:
 func _on_slider_console_font_size_changed(value: float) -> void:
 	Global.consoleFontSize = int(value)
 
+func _on_slider_name_font_size_changed(value: float) -> void:
+	Global.nameFontSize = int(value)
+
 func _on_custom_cursor_toggled(button_pressed: bool) -> void:
 	Global.useCustomCursor = button_pressed
 
-func _on_chromatic_mode_selected(index: int) -> void:
-	Global.chromaticMode = index
 
 # Función para crear dinámicamente el checkbox de cursor personalizado
 func _create_custom_cursor_option() -> void:
@@ -94,6 +93,6 @@ func _on_save_settings() -> void:
 	cfg.set_value("audio", "volume_db", linear_to_db(sliderVolume.value))
 	cfg.set_value("ui", "dialog_font_size", sliderFontSize.value)
 	cfg.set_value("ui", "console_font_size", sliderConsoleFontSize.value)
+	cfg.set_value("ui", "name_font_size", sliderNameFontSize.value)
 	cfg.set_value("ui", "use_custom_cursor", checkCustomCursor.button_pressed)
-	cfg.set_value("ui", "chromatic_mode", optionChromaticMode.selected)
 	cfg.save("user://options.cfg")

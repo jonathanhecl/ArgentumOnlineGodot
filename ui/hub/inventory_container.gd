@@ -24,6 +24,7 @@ func SetInventory(inventory:Inventory) -> void:
 		
 		inventorySlot.index = i
 		inventorySlot.pressed.connect(_InventorySlotOnPressed.bind(i))
+		inventorySlot.double_clicked.connect(_InventorySlotOnDoubleClicked.bind(i))
 		inventorySlot.drag_started.connect(_OnDragStarted)
 		_OnSlotChanged(i, _inventory.GetSlot(i))
 
@@ -39,6 +40,7 @@ func _OnSlotChanged(index:int, itemStack:ItemStack) -> void:
 		inventorySlot.SetIcon(itemStack.item.icon)
 		inventorySlot.SetQuantity(itemStack.quantity)
 		inventorySlot.SetEquipped(itemStack.equipped)
+		inventorySlot.SetItemName(itemStack.item.name)
 
 func _OnDragStarted(from_index: int) -> void:
 	_dragging_from_slot = from_index
@@ -78,12 +80,20 @@ func _get_slot_under_mouse() -> int:
 	return -1
 
 func _InventorySlotOnPressed(index:int) -> void:
-	# Click izquierdo: selección visual
+	# Click izquierdo: solo selección visual, no ejecuta acción
 	if _selectedSlot != index:
 		if GetInventorySlot(_selectedSlot):
 			GetInventorySlot(_selectedSlot).SetSelected(false)
 		
 		GetInventorySlot(index).SetSelected(true)
 		_selectedSlot = index
-	
+	# Removido: slotPressed.emit(index) - ya no usa automáticamente con un clic
+
+func _InventorySlotOnDoubleClicked(index:int) -> void:
+	# Doble clic: usar el item
+	_selectedSlot = index
+	# Seleccionar visualmente primero
+	if GetInventorySlot(_selectedSlot):
+		GetInventorySlot(_selectedSlot).SetSelected(true)
+	# Emitir señal para usar el item
 	slotPressed.emit(index)

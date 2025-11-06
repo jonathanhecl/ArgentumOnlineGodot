@@ -3,6 +3,7 @@ class_name Character
 
 const Speed = 120.0
 const OUTLINE_SHADER = preload("res://shaders/outline.gdshader")
+const SHIP_NAME_OFFSET_Y = 14.0
  
 @onready var renderer: CharacterRenderer = $Renderer  
 @onready var effect: CharacterEffect = $CharacterEffect
@@ -16,6 +17,9 @@ var _pasoDerecho:bool
 var _targetPosition:Vector2
 var _charInvisible:bool
 var _isPlayer:bool = false
+var _shipFloatTime:float = 0.0
+var _originalRendererPosition:Vector2
+var _originalNameLabelPosition:Vector2
 
 var instanceId:int
 var gridPosition:Vector2i
@@ -24,17 +28,26 @@ var priv:int
 
 func _ready() -> void:
 	Global.connect("dialog_font_size_changed", Callable(self, "_on_dialog_font_size_changed"))
+	Global.connect("name_font_size_changed", Callable(self, "_on_name_font_size_changed"))
+	# Guardar la posición original después de un pequeño delay para que se apliquen todas las correcciones
+	call_deferred("_initialize_original_position")
 	if _isPlayer:
 		_apply_outline_effect()
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
 	_ProcessMovement(delta)
+	_ProcessShipFloating(delta)
+	_UpdateNameLabelPosition()
 
 func SetAsPlayer(isPlayer: bool = true) -> void:
 	_isPlayer = isPlayer
 	if isPlayer and is_inside_tree():
 		_apply_outline_effect()
+
+func _initialize_original_position() -> void:
+	_originalRendererPosition = renderer.position
+	_originalNameLabelPosition = _nameLabel.position
 
 func IsPlayer() -> bool:
 	return _isPlayer
@@ -78,6 +91,7 @@ func GetBoundaries() -> Rect2:
 		
 func SetCharacterName(text:String) -> void:
 	_nameLabel.text = text
+	_nameLabel.label_settings.font_size = Global.nameFontSize
 	
 func SetCharacterNameColor(color:Color) -> void:
 	_nameLabel.self_modulate = color
@@ -124,6 +138,33 @@ func _ProcessMovement(delta:float) -> void:
 	if position == _targetPosition:
 		isMoving = false
 
+func _ProcessShipFloating(delta:float) -> void:
+	# Solo aplicar animación de flotación si estamos en una barca y no nos estamos moviendo
+	if !IsNavigating() or isMoving:
+		# Si no es una barca o se está moviendo, restaurar posición original
+		if renderer.position != _originalRendererPosition:
+			renderer.position = _originalRendererPosition
+			_shipFloatTime = 0.0
+		return
+	
+	# Para barcas, la posición original debe ser más alta para compensar la flotación
+	# Cuando está en barca, el personaje debe estar sobre la barca, no flotando debajo
+	var ship_base_position = _originalRendererPosition + Vector2(0, -2)  # Compensar 2 píxeles hacia arriba
+	
+	# Animación de flotación suave para barcas
+	_shipFloatTime += delta * 2.0  # Velocidad de flotación
+	var float_offset = sin(_shipFloatTime) * 2.0  # 2 píxeles de amplitud
+	renderer.position = ship_base_position + Vector2(0, float_offset)
+
+func _UpdateNameLabelPosition() -> void:
+	var target_position = _originalNameLabelPosition
+	if IsNavigating():
+		target_position = _originalNameLabelPosition + Vector2(0, SHIP_NAME_OFFSET_Y)
+	_nameLabel.position = target_position
+
 func _on_dialog_font_size_changed(value: int) -> void:
 	_dialogLabel.label_settings.font_size = value
 	_dialogShadowLabel.label_settings.font_size = value
+
+func _on_name_font_size_changed(value: int) -> void:
+	_nameLabel.label_settings.font_size = value

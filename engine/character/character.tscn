@@ -14,6 +14,11 @@ outline_color = Color(0, 0, 0, 0.501961)
 [sub_resource type="LabelSettings" id="LabelSettings_5s0sa"]
 font_size = 12
 
+[sub_resource type="LabelSettings" id="LabelSettings_name"]
+font_size = 14
+outline_size = 5
+outline_color = Color(0, 0, 0, 0.5)
+
 [node name="Character" type="Node2D" node_paths=PackedStringArray("_dialogLabel", "_dialogShadowLabel", "_nameLabel", "_dialogClearTimer")]
 script = ExtResource("1_85j22")
 _fontSize = 16
@@ -69,6 +74,7 @@ offset_right = 178.0
 offset_bottom = 55.0
 grow_horizontal = 2
 grow_vertical = 0
+label_settings = SubResource("LabelSettings_name")
 horizontal_alignment = 1
 clip_text = true
 
