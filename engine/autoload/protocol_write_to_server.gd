@@ -105,6 +105,11 @@ static func WriteLeftClick(x:int, y:int) -> void:
 	_writer.put_u8(x)
 	_writer.put_u8(y) 
 	
+static func WriteWork(skill:int) -> void:
+	_log_outgoing_packet("Work", "skill: " + str(skill))
+	_writer.put_u8(Enums.ClientPacketID.Work) 
+	_writer.put_u8(skill)
+	
 static func WriteWorkLeftClick(x:int, y:int, skill:int) -> void:
 	_log_outgoing_packet("WorkLeftClick", "x: " + str(x) + ", y: " + str(y) + ", skill: " + str(skill))
 	_writer.put_u8(Enums.ClientPacketID.WorkLeftClick) 
