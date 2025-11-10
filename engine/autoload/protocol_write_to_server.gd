@@ -203,10 +203,21 @@ static func WriteMeditate() -> void:
 	_log_outgoing_packet("Meditate")
 	_writer.put_u8(Enums.ClientPacketID.Meditate)
 	
-static func WriteWork(skill:int) -> void:
-	_log_outgoing_packet("Work", "skill: " + str(skill))
-	_writer.put_u8(Enums.ClientPacketID.Work) 
-	_writer.put_u8(skill) 
+static func WriteInitCrafting(skill_type:int) -> void:
+	_log_outgoing_packet("InitCrafting", "skill_type: " + str(skill_type))
+	_writer.put_u8(Enums.ClientPacketID.InitCrafting)
+	_writer.put_u8(skill_type)
+
+## Inicializa el proceso de crafteo con cantidad y ciclos
+static func WriteInitCraftingAdvanced(cantidad: int, nro_por_ciclo: int) -> void:
+	_log_outgoing_packet("InitCrafting", "cantidad: %d, nro_por_ciclo: %d" % [cantidad, nro_por_ciclo])
+	_writer.put_u8(Enums.ClientPacketID.InitCrafting)
+	_writer.put_32(cantidad)
+	_writer.put_16(nro_por_ciclo)
+
+static func WriteHome() -> void:
+	_log_outgoing_packet("Home")
+	_writer.put_u8(Enums.ClientPacketID.Home) 
 
 static func WriteTalk(text:String) -> void:
 	_log_outgoing_packet("Talk", "text: " + text)
@@ -747,10 +758,3 @@ static func WriteCraftCarpenter(item: int) -> void:
 	_log_outgoing_packet("CraftCarpenter", "item: %d" % item)
 	_writer.put_u8(Enums.ClientPacketID.CraftCarpenter)
 	_writer.put_16(item)
-
-## Inicializa el proceso de crafteo con cantidad y ciclos
-static func WriteInitCrafting(cantidad: int, nro_por_ciclo: int) -> void:
-	_log_outgoing_packet("InitCrafting", "cantidad: %d, nro_por_ciclo: %d" % [cantidad, nro_por_ciclo])
-	_writer.put_u8(Enums.ClientPacketID.InitCrafting)
-	_writer.put_32(cantidad)
-	_writer.put_16(nro_por_ciclo)

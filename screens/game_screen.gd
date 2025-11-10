@@ -692,6 +692,13 @@ func _HandleUpdateUserStats(p:UpdateUserStats) -> void:
 	_gameContext.player_stats.max_hp = p.maxHp
 	_gameContext.player_stats.hp = p.minHp
 	
+	# DEBUG: Mostrar estado del personaje
+	print("🜂 DEBUG - Estado del personaje:")
+	print("   HP: ", p.minHp, "/", p.maxHp)
+	print("   ¿Está vivo?: ", _gameContext.player_stats.is_alive())
+	print("   Nivel: ", p.elv)
+	print("   Oro: ", p.gold)
+	
 	_gameInput.mana_stat_bar.max_value = p.maxMana
 	_gameInput.mana_stat_bar.value = p.minMana
 	
