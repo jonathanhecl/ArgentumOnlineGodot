@@ -13,15 +13,13 @@ var _current_item_name: String = ""
 var _current_quantity: int = 1
 var _anchor_control: Control = null
 
-# Configuraciones
-## Tres lineas = y64
-## Dos lineas = y32
-## Una linea = y16
+const LINE_HEIGHT: float = 30.0
+
 
 func _ready() -> void:
 	print("[Tooltip] Tooltip inicializado")
 	visible = false
-	custom_minimum_size = Vector2(200, 16)
+	custom_minimum_size = Vector2(200, LINE_HEIGHT)
 	modulate.a = 0.0
 	_reset_content_visuals()
 	set_process(false)
@@ -72,10 +70,10 @@ func _update_size() -> void:
 	if quantity_label.visible:
 		quantity_height = float(quantity_label.get_minimum_size().y) + 2.0  # Reducido de 4.0 a 2.0
 	var content_height: float = name_height + quantity_height
-	var final_height: float = clamp(content_height + margin_top + margin_bottom, 32.0, 64.0)  # Reducido min de 32 a 28 y max de 96 a 80
-	
+
+	var final_height: float = clamp(content_height + margin_top + margin_bottom, LINE_HEIGHT, LINE_HEIGHT*3)
+
 	size = Vector2(final_width, final_height)
-	custom_minimum_size = size
 
 func _reset_content_visuals() -> void:
 	_content_container.modulate = Color(1, 1, 1, 1)
