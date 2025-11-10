@@ -560,20 +560,11 @@ static func guild_fundate(args:ChatCommandArgs) -> void:
 	GameProtocol.WriteGuildFundate()
 
 static func home(args:ChatCommandArgs) -> void:
-	# DEBUG: Mostrar estado actual antes de verificar
-	print("🜂 DEBUG - Comando /HOGAR recibido:")
-	print("   HP actual: ", args.game_context.player_stats.hp)
-	print("   HP máximo: ", args.game_context.player_stats.max_hp)
-	print("   ¿Está vivo?: ", args.game_context.player_stats.is_alive())
-	
 	# El comando /HOGAR funciona solo cuando estás muerto
 	if args.game_context.player_stats.is_alive():
 		args.hub_controller.ShowConsoleMessage("Debes estar muerto para utilizar este comando.", 
 			GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-		print("🜂 DEBUG - Personaje está VIVO, comando /HOGAR rechazado")
 		return
 	
 	# Enviar comando al servidor (solo si está muerto)
-	print("🜂 DEBUG - Personaje está muerto, ENVIANDO comando /HOGAR al servidor...")
 	GameProtocol.WriteHome()
-	print("🜂 DEBUG - Comando /HOGAR enviado al servidor")

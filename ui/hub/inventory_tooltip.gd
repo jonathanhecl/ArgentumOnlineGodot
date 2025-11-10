@@ -17,7 +17,6 @@ const LINE_HEIGHT: float = 30.0
 
 
 func _ready() -> void:
-	print("[Tooltip] Tooltip inicializado")
 	visible = false
 	custom_minimum_size = Vector2(200, LINE_HEIGHT)
 	modulate.a = 0.0
@@ -26,7 +25,6 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_on_viewport_resized)
 
 func set_item_info(item_name: String, quantity: int = 1) -> void:
-	print("[Tooltip] Configurando info - Nombre: ", item_name, ", Cantidad: ", quantity)
 	_current_item_name = item_name
 	_current_quantity = quantity
 
@@ -41,8 +39,6 @@ func set_item_info(item_name: String, quantity: int = 1) -> void:
 	else:
 		_reset_content_visuals()
 	
-	print("[Tooltip] Tamaño ajustado a: ", size)
-
 func _update_labels() -> void:
 	item_name_label.text = _current_item_name
 	
@@ -92,7 +88,6 @@ func _animate_item_change() -> void:
 	_content_tween.parallel().tween_property(_content_container, "scale", Vector2.ONE, 0.12)
 
 func show_tooltip(anchor: Control) -> void:
-	print("[Tooltip] Mostrando tooltip para control: ", anchor.name)
 	_anchor_control = anchor
 	_update_position()
 	var was_visible := visible
@@ -117,12 +112,7 @@ func show_tooltip(anchor: Control) -> void:
 	_visibility_tween.parallel().tween_property(self, "modulate:a", 1.0, FADE_DURATION)
 	_visibility_tween.parallel().tween_property(self, "scale", Vector2(1.0, 1.0), FADE_DURATION * 0.8)
 	
-	print("[Tooltip] Tooltip ahora visible: ", visible)
-	print("[Tooltip] Posición final: ", position)
-	print("[Tooltip] Size final: ", size)
-
 func hide_tooltip() -> void:
-	print("[Tooltip] Ocultando tooltip")
 	set_process(false)
 	_anchor_control = null
 	
