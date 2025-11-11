@@ -430,7 +430,21 @@ func _HandleShowMessageBox(p:ShowMessageBox) -> void:
 
 
 func _HandlePong() -> void:
-	print("Ping: %dms" % (Time.get_ticks_msec() - _gameContext.pingTime))
+	var ping_ms = Time.get_ticks_msec() - _gameContext.pingTime
+	print("Ping: %dms" % ping_ms)
+	
+	# Determinar el color del ping según la latencia
+	var ping_color: Color
+	if ping_ms < 20:
+		ping_color = Color.GREEN  # Verde para ping excelente (< 20ms)
+	elif ping_ms < 90:
+		ping_color = Color.YELLOW # Amarillo para ping medio (20-89ms)
+	else:
+		ping_color = Color.RED    # Rojo para ping alto (>= 90ms)
+	
+	# Mostrar ping en la consola del juego con color dinámico
+	_gameInput.ShowConsoleMessage("Ping: %d ms" % ping_ms, FontData.new(ping_color))
+	
 	_gameContext.pingTime = 0
 
 

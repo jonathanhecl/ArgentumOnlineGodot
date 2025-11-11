@@ -96,6 +96,9 @@ func SetCharacterName(text:String) -> void:
 func SetCharacterNameColor(color:Color) -> void:
 	_nameLabel.self_modulate = color
 
+func SetNameVisible(name_visible:bool) -> void:
+	_nameLabel.visible = name_visible
+
 func GetCharacterName() -> String:
 	return _nameLabel.text
 

@@ -77,14 +77,6 @@ func _initialize_default_hotkeys():
 	_add_hotkey("ExitGame", "Salir", CATEGORIES.SISTEMA, KEY_ESCAPE, "Salir del juego")
 	_add_hotkey("TakeScreenShot", "Captura", CATEGORIES.SISTEMA, KEY_F9, "Tomar captura de pantalla")
 	
-	# Ejemplos de teclas modificadoras (para demostración)
-	_add_hotkey("QuickSave", "Guardado Rápido", CATEGORIES.SISTEMA, KEY_F5, "Guardar partida rápidamente")
-	_add_hotkey("QuickLoad", "Carga Rápida", CATEGORIES.SISTEMA, KEY_F9, "Cargar partida rápidamente")
-	_add_hotkey("ToggleMap", "Mostrar Mapa", CATEGORIES.SISTEMA, KEY_TAB, "Mostrar/ocultar mapa del juego")
-	_add_hotkey("ToggleInventory", "Mostrar Inventario", CATEGORIES.SISTEMA, KEY_I, "Mostrar/ocultar inventario")
-	_add_hotkey("ToggleStats", "Mostrar Estadísticas", CATEGORIES.SISTEMA, KEY_C, "Mostrar/ocultar estadísticas")
-	_add_hotkey("ToggleQuests", "Mostrar Misiones", CATEGORIES.SISTEMA, KEY_Q, "Mostrar/ocultar misiones")
-
 func _add_hotkey(action_name: String, display_name: String, category: String, 
 				 default_key: int, description: String = ""):
 	var hotkey = HotkeyAction.new(action_name, display_name, category, default_key, description)
@@ -198,29 +190,23 @@ func apply_wasd_preset():
 		"AttackGamepad": JOY_BUTTON_A,
 		"Talk": KEY_ENTER,
 		"TalkNumpad": KEY_KP_ENTER,
-		"TalkWithGuild": KEY_F1,
+		"TalkWithGuild": KEY_DELETE,
 		"UseObject": KEY_U,
 		"EquipObject": KEY_E,
 		"DropObject": KEY_T,
-		"Pickup": KEY_Q,
-		"TamAnimal": KEY_D,
+		"Pickup": KEY_U,
+		"TamAnimal": KEY_J,
 		"Steal": KEY_R,
-		"Meditate": KEY_F5,
+		"Meditate": KEY_F6,
 		"Hide": KEY_O,
 		"RequestRefresh": KEY_L,
 		"SpellMacro": KEY_F7,
 		"ToggleSafeMode": KEY_ASTERISK,
-		"ToggleResuscitationSafe": KEY_F6,
-		"ToggleName": KEY_F2,
-		"ToggleFPS": KEY_F3,
-		"ExitGame": KEY_ESCAPE,
-		"TakeScreenShot": KEY_F9,
-		"QuickSave": KEY_F5,
-		"QuickLoad": KEY_F9,
-		"ToggleMap": KEY_TAB,
-		"ToggleInventory": KEY_I,
-		"ToggleStats": KEY_C,
-		"ToggleQuests": KEY_Q
+		"ToggleResuscitationSafe": KEY_END,
+		"ToggleName": KEY_N, # ?
+		"ToggleFPS": KEY_F3, # ?
+		"ExitGame": KEY_F12,
+		"TakeScreenShot": KEY_F2, # ?
 	}
 	_apply_preset_config(preset_config)
 	save_current_preset("wasd")
@@ -231,33 +217,27 @@ func apply_arrow_keys_preset():
 		"ui_down": KEY_DOWN,
 		"ui_left": KEY_LEFT,
 		"ui_right": KEY_RIGHT,
-		"Attack": KEY_SPACE,
+		"Attack": KEY_CTRL,
 		"AttackGamepad": JOY_BUTTON_A,
 		"Talk": KEY_ENTER,
 		"TalkNumpad": KEY_KP_ENTER,
-		"TalkWithGuild": KEY_F1,
+		"TalkWithGuild": KEY_DELETE,
 		"UseObject": KEY_U,
 		"EquipObject": KEY_E,
 		"DropObject": KEY_T,
-		"Pickup": KEY_Q,
+		"Pickup": KEY_A,
 		"TamAnimal": KEY_D,
 		"Steal": KEY_R,
-		"Meditate": KEY_F5,
+		"Meditate": KEY_F6,
 		"Hide": KEY_O,
 		"RequestRefresh": KEY_L,
 		"SpellMacro": KEY_F7,
 		"ToggleSafeMode": KEY_ASTERISK,
-		"ToggleResuscitationSafe": KEY_F6,
-		"ToggleName": KEY_F2,
-		"ToggleFPS": KEY_F3,
-		"ExitGame": KEY_ESCAPE,
-		"TakeScreenShot": KEY_F9,
-		"QuickSave": KEY_F5,
-		"QuickLoad": KEY_F9,
-		"ToggleMap": KEY_TAB,
-		"ToggleInventory": KEY_I,
-		"ToggleStats": KEY_C,
-		"ToggleQuests": KEY_Q
+		"ToggleResuscitationSafe": KEY_END,
+		"ToggleName": KEY_N, # ?
+		"ToggleFPS": KEY_F3, # ?
+		"ExitGame": KEY_F12,
+		"TakeScreenShot": KEY_F2, # ?
 	}
 	_apply_preset_config(preset_config)
 	save_current_preset("arrows")

@@ -58,7 +58,8 @@ static var command_handler:Dictionary[String, Callable] = {
 	"acceptparty": party_accept_member,
 	"telep": teleport_char,
 	"teleploc": teleport_me_to_target,
-	"hogar": home
+	"hogar": home,
+	"ping": ping
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -568,3 +569,18 @@ static func home(args:ChatCommandArgs) -> void:
 	
 	# Enviar comando al servidor (solo si está muerto)
 	GameProtocol.WriteHome()
+
+static func ping(args:ChatCommandArgs) -> void:
+	# Prevenir envío de ping si ya hay uno pendiente (como en VB6)
+	if args.game_context.pingTime != 0:
+		return
+	
+	# Enviar ping al servidor y registrar tiempo
+	GameProtocol.WritePing()
+	
+	# Flush del buffer inmediatamente (como en VB6)
+	if !GameProtocol.IsEmpty():
+		ClientInterface.Send(GameProtocol.Flush())
+	
+	# Registrar el tiempo después del envío
+	args.game_context.pingTime = Time.get_ticks_msec()

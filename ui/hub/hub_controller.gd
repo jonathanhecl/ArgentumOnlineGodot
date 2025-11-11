@@ -406,15 +406,64 @@ func _on_hotkey_changed(action_name: String, key_code: int):
 	# Aquí podrías agregar lógica adicional cuando cambian las teclas
 
 func _toggle_player_names():
-	# Lógica para mostrar/ocultar nombres de jugadores
-	# Esto depende de tu sistema de renderizado de nombres
-	print("[HubController] Toggle player names")
-	# Implementar según necesites
+	# Toggle mostrar/ocultar nombres de jugadores
+	Global.show_player_names = not Global.show_player_names
+	ShowConsoleMessage("Nombres de jugadores " + ("activados" if Global.show_player_names else "desactivados"), 
+		GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	
+	# Aplicar a todos los personajes existentes
+	_apply_name_visibility_to_all_characters()
+
+func _apply_name_visibility_to_all_characters():
+	# Buscar el map_container en el árbol de nodos
+	var game_screen = get_tree().get_first_node_in_group("game_screen")
+	if game_screen:
+		var map_container = game_screen.get_node_or_null("MapContainer")
+		if map_container:
+			map_container.SetAllCharacterNamesVisible(Global.show_player_names)
+		else:
+			print("No se encontró MapContainer")
+	else:
+		print("No se encontró game_screen")
 
 func _toggle_fps_display():
-	# Lógica para mostrar/ocultar FPS
-	print("[HubController] Toggle FPS display")
-	# Implementar según necesites
+	# Toggle mostrar/ocultar FPS
+	Global.show_fps_counter = not Global.show_fps_counter
+	ShowConsoleMessage("Contador FPS " + ("activados" if Global.show_fps_counter else "desactivados"), 
+		GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	
+	# Aplicar visibilidad del contador FPS
+	_apply_fps_visibility()
+
+func _apply_fps_visibility():
+	# Crear o mostrar/ocultar contador FPS
+	var fps_label = get_node_or_null("FPSLabel")
+	
+	if Global.show_fps_counter:
+		if not fps_label:
+			# Crear label para FPS si no existe
+			fps_label = Label.new()
+			fps_label.name = "FPSLabel"
+			fps_label.position = Vector2(16, 140)
+			fps_label.add_theme_font_size_override("font_size", 16)
+			fps_label.add_theme_color_override("font_color", Color.WHITE)
+			add_child(fps_label)
+		
+		# Conectar al proceso para actualizar FPS
+		if not fps_label.is_connected("tree_exited", _on_fps_tree_exited):
+			set_process(true)
+	else:
+		if fps_label:
+			fps_label.queue_free()
+
+func _process(_delta):
+	if Global.show_fps_counter:
+		var fps_label = get_node_or_null("FPSLabel")
+		if fps_label:
+			fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
+
+func _on_fps_tree_exited():
+	set_process(false)
 
 func _tam_animal() -> void:
 	if !_gameContext.player_stats.is_alive():

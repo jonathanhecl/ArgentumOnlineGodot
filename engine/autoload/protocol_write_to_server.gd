@@ -224,6 +224,11 @@ static func WriteHome() -> void:
 	_log_outgoing_packet("Home")
 	_writer.put_u8(Enums.ClientPacketID.Home) 
 
+static func WritePing() -> void:
+	_log_outgoing_packet("Ping")
+	_writer.put_u8(Enums.ClientPacketID.Ping)
+	# El tiempo se registrará en game_context cuando sea necesario 
+
 static func WriteTalk(text:String) -> void:
 	_log_outgoing_packet("Talk", "text: " + text)
 	_writer.put_u8(Enums.ClientPacketID.Talk) 
@@ -239,10 +244,6 @@ static func WriteWhisper(receiver:String, text:String) -> void:
 	_writer.put_u8(Enums.ClientPacketID.Whisper)
 	Utils.PutUnicodeString(_writer, receiver)
 	Utils.PutUnicodeString(_writer, text)
-
-static func WritePing() -> void:
-	_log_outgoing_packet("Ping")
-	_writer.put_u8(Enums.ClientPacketID.Ping)
 
 static func WriteSpellInfo(slot:int) -> void:
 	_log_outgoing_packet("SpellInfo", "slot: " + str(slot))
