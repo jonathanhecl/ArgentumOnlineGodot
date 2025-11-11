@@ -6,15 +6,32 @@ var skillPoints:int = 0
 # Control de logging para paquetes salientes al servidor
 var log_outgoing_packets:bool = true
 
-# Control de visibilidad global
-var show_player_names:bool = true
-var show_fps_counter:bool = false
-
 signal dialog_font_size_changed(value:int)
 signal console_font_size_changed(value:int)
 signal name_font_size_changed(value:int)
 signal custom_cursor_changed(value:bool)
+signal player_names_visibility_changed(visible:bool)
+signal fps_visibility_changed(visible:bool)
 
+# Variable interna para show_player_names
+var _show_player_names:bool = true
+
+# Variable interna para show_fps_counter
+var _show_fps_counter:bool = false
+
+var show_player_names:bool:
+	set(value):
+		_show_player_names = value
+		emit_signal("player_names_visibility_changed", _show_player_names)
+	get:
+		return _show_player_names
+
+var show_fps_counter:bool:
+	set(value):
+		_show_fps_counter = value
+		emit_signal("fps_visibility_changed", _show_fps_counter)
+	get:
+		return _show_fps_counter
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -87,3 +104,11 @@ func _ready() -> void:
 		# Cargar configuración de cursor personalizado
 		var saved_cursor = cfg.get_value("ui", "use_custom_cursor", useCustomCursor)
 		useCustomCursor = bool(saved_cursor)
+		
+		# Cargar configuración de visibilidad de nombres
+		var saved_names_visible = cfg.get_value("ui", "show_player_names", show_player_names)
+		show_player_names = bool(saved_names_visible)
+		
+		# Cargar configuración de visibilidad de FPS
+		var saved_fps_visible = cfg.get_value("ui", "show_fps_counter", show_fps_counter)
+		show_fps_counter = bool(saved_fps_visible)

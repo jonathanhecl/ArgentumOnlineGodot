@@ -78,6 +78,8 @@ func _ready() -> void:
 	_btnStadistics.pressed.connect(Callable(self, "_on_btn_stadistics_pressed"))
 	_btnGuilds.pressed.connect(Callable(self, "_on_btn_guilds_pressed"))
 	Global.connect("console_font_size_changed", Callable(self, "_on_console_font_size_changed"))
+	Global.connect("player_names_visibility_changed", Callable(self, "_on_player_names_visibility_changed"))
+	Global.connect("fps_visibility_changed", Callable(self, "_on_fps_visibility_changed"))
 	_apply_console_font_size(Global.consoleFontSize)
 	
 	# Inicializar el sistema de macro de hechizos
@@ -214,6 +216,12 @@ func _CameraTransformVector(vec:Vector2) -> Vector2:
 
 func _on_console_font_size_changed(value:int) -> void:
 	_apply_console_font_size(value)
+
+func _on_player_names_visibility_changed(_visible:bool) -> void:
+	_apply_name_visibility_to_all_characters()
+
+func _on_fps_visibility_changed(_visible:bool) -> void:
+	_apply_fps_visibility()
 
 func _apply_console_font_size(value:int) -> void:
 	_consoleRichTextLabel.set("theme_override_font_sizes/normal_font_size", value)
@@ -408,11 +416,8 @@ func _on_hotkey_changed(action_name: String, key_code: int):
 func _toggle_player_names():
 	# Toggle mostrar/ocultar nombres de jugadores
 	Global.show_player_names = not Global.show_player_names
-	ShowConsoleMessage("Nombres de jugadores " + ("activados" if Global.show_player_names else "desactivados"), 
+	ShowConsoleMessage("Nombres de personajes " + ("visibles" if Global.show_player_names else "ocultos"), 
 		GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-	
-	# Aplicar a todos los personajes existentes
-	_apply_name_visibility_to_all_characters()
 
 func _apply_name_visibility_to_all_characters():
 	# Buscar el map_container en el árbol de nodos
@@ -429,11 +434,8 @@ func _apply_name_visibility_to_all_characters():
 func _toggle_fps_display():
 	# Toggle mostrar/ocultar FPS
 	Global.show_fps_counter = not Global.show_fps_counter
-	ShowConsoleMessage("Contador FPS " + ("activados" if Global.show_fps_counter else "desactivados"), 
+	ShowConsoleMessage("Contador FPS " + ("visible" if Global.show_fps_counter else "oculto"), 
 		GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-	
-	# Aplicar visibilidad del contador FPS
-	_apply_fps_visibility()
 
 func _apply_fps_visibility():
 	# Crear o mostrar/ocultar contador FPS

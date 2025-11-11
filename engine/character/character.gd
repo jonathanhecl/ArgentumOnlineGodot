@@ -29,6 +29,7 @@ var priv:int
 func _ready() -> void:
 	Global.connect("dialog_font_size_changed", Callable(self, "_on_dialog_font_size_changed"))
 	Global.connect("name_font_size_changed", Callable(self, "_on_name_font_size_changed"))
+	Global.connect("player_names_visibility_changed", Callable(self, "_on_player_names_visibility_changed"))
 	# Guardar la posición original después de un pequeño delay para que se apliquen todas las correcciones
 	call_deferred("_initialize_original_position")
 	if _isPlayer:
@@ -171,3 +172,6 @@ func _on_dialog_font_size_changed(value: int) -> void:
 
 func _on_name_font_size_changed(value: int) -> void:
 	_nameLabel.label_settings.font_size = value
+
+func _on_player_names_visibility_changed(names_visible: bool) -> void:
+	SetNameVisible(names_visible)
