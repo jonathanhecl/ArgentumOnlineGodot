@@ -83,12 +83,18 @@ func _on_instant_dialog_toggled(button_pressed: bool) -> void:
 	Global.animatedDialog = button_pressed
 
 func _on_ping_button_pressed() -> void:
-	# Simular un ping y mostrarlo en consola
-	var ping_time = randi_range(15, 85)  # Simular ping entre 15-85 ms
-	var hub_controller = get_tree().get_first_node_in_group("hub_controller")
-	if hub_controller:
-		hub_controller.ShowConsoleMessage("PING: %d ms" % ping_time, 
-			GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	# Obtener el game_context desde game_screen (el padre directo)
+	var game_screen = get_parent()
+	if game_screen and game_screen._gameContext:
+		# Crear args falsos con el game_context
+		var fake_args = ChatCommandArgs.new()
+		fake_args.game_context = game_screen._gameContext
+		ConsoleCommandProcessor.ping(fake_args)
+	else:
+		# Si no hay contexto, mostrar error
+		print("ERROR: No se puede acceder al game_context para PING")
+		# Como fallback, intentar ping sin contexto (no mostrará tiempo correcto)
+		ConsoleCommandProcessor.ping_from_button()
 
 # Función para crear dinámicamente el checkbox de cursor personalizado
 func _create_custom_cursor_option() -> void:

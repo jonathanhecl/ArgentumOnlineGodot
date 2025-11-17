@@ -586,6 +586,14 @@ static func ping(args:ChatCommandArgs) -> void:
 	# Registrar el tiempo después del envío
 	args.game_context.pingTime = Time.get_ticks_msec()
 
+static func ping_from_button() -> void:
+	# Enviar ping desde botón (sin verificar ping pendiente)
+	GameProtocol.WritePing()
+	
+	# Flush del buffer inmediatamente (como en VB6)
+	if !GameProtocol.IsEmpty():
+		ClientInterface.Send(GameProtocol.Flush())
+
 static func test_dialog(args:ChatCommandArgs) -> void:
 	var test_messages = [
 		"¡Por los antiguos dragones de Argentum! Este es un mensaje de prueba con texto tipográfico animado.",
