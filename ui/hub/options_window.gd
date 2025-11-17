@@ -10,6 +10,7 @@ class_name OptionsWindow
 var checkCustomCursor: CheckBox
 var checkShowPlayerNames: CheckBox
 var checkShowFPS: CheckBox
+var checkInstantDialog: CheckBox
 # Botón de configuración de hotkeys
 var hotkeyConfigButton: Button
 # Botón de PING
@@ -44,6 +45,9 @@ func _ready() -> void:
 	# Crear dinámicamente el checkbox para mostrar FPS
 	_create_show_fps_option()
 	
+	# Configurar checkbox para diálogo instantáneo
+	_setup_instant_dialog_option()
+	
 	# Crear botón de PING
 	_create_ping_button()
 	
@@ -74,6 +78,9 @@ func _on_show_player_names_toggled(button_pressed: bool) -> void:
 
 func _on_show_fps_toggled(button_pressed: bool) -> void:
 	Global.show_fps_counter = button_pressed
+
+func _on_instant_dialog_toggled(button_pressed: bool) -> void:
+	Global.animatedDialog = button_pressed
 
 func _on_ping_button_pressed() -> void:
 	# Simular un ping y mostrarlo en consola
@@ -158,4 +165,10 @@ func _on_save_settings() -> void:
 	cfg.set_value("ui", "use_custom_cursor", checkCustomCursor.button_pressed)
 	cfg.set_value("ui", "show_player_names", checkShowPlayerNames.button_pressed)
 	cfg.set_value("ui", "show_fps_counter", checkShowFPS.button_pressed)
+	cfg.set_value("ui", "animated_dialog", checkInstantDialog.button_pressed)
 	cfg.save("user://options.cfg")
+
+func _setup_instant_dialog_option() -> void:
+	checkInstantDialog = $VBox/hbox_instant_dialog/CheckInstantDialog
+	checkInstantDialog.button_pressed = Global.animatedDialog
+	checkInstantDialog.toggled.connect(_on_instant_dialog_toggled)

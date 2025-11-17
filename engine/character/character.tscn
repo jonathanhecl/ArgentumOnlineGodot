@@ -19,13 +19,14 @@ font_size = 14
 outline_size = 5
 outline_color = Color(0, 0, 0, 0.5)
 
-[node name="Character" type="Node2D" node_paths=PackedStringArray("_dialogLabel", "_dialogShadowLabel", "_nameLabel", "_dialogClearTimer")]
+[node name="Character" type="Node2D" node_paths=PackedStringArray("_dialogLabel", "_dialogShadowLabel", "_nameLabel", "_dialogClearTimer", "_dialogTypeTimer")]
 script = ExtResource("1_85j22")
 _fontSize = 16
 _dialogLabel = NodePath("Dialog")
 _dialogShadowLabel = NodePath("DialogShadow")
 _nameLabel = NodePath("Name")
 _dialogClearTimer = NodePath("DialogClearTimer")
+_dialogTypeTimer = NodePath("DialogTypeTimer")
 
 [node name="Renderer" type="Node2D" parent="." node_paths=PackedStringArray("_bodyAnimatedSprite", "_headAnimatedSprite", "_helmetAnimatedSprite", "_weaponAnimatedSprite", "_shieldAnimatedSprite")]
 texture_filter = 1
@@ -86,9 +87,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -191.0
+offset_left = -150.0
 offset_top = -380.0
-offset_right = 194.0
+offset_right = 150.0
 offset_bottom = -59.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -106,9 +107,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -192.5
+offset_left = -150.5
 offset_top = -381.0
-offset_right = 192.5
+offset_right = 150.5
 offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -121,4 +122,9 @@ clip_text = true
 [node name="DialogClearTimer" type="Timer" parent="."]
 wait_time = 6.0
 
+[node name="DialogTypeTimer" type="Timer" parent="."]
+wait_time = 0.05
+one_shot = true
+
 [connection signal="timeout" from="DialogClearTimer" to="." method="_OnDialogClearTimerTimeout"]
+[connection signal="timeout" from="DialogTypeTimer" to="." method="_OnDialogTypeTimerTimeout"]

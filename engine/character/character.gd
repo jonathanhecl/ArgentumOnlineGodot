@@ -12,6 +12,7 @@ const SHIP_NAME_OFFSET_Y = 14.0
 @export var _dialogShadowLabel:Label
 @export var _nameLabel:Label
 @export var _dialogClearTimer:Timer
+@export var _dialogTypeTimer:Timer
 
 var _pasoDerecho:bool
 var _targetPosition:Vector2
@@ -20,6 +21,10 @@ var _isPlayer:bool = false
 var _shipFloatTime:float = 0.0
 var _originalRendererPosition:Vector2
 var _originalNameLabelPosition:Vector2
+
+var _currentDialogText:String = ""
+var _currentDialogColor:Color
+var _isTypingDialog:bool = false
 
 var instanceId:int
 var gridPosition:Vector2i
@@ -30,10 +35,15 @@ func _ready() -> void:
 	Global.connect("dialog_font_size_changed", Callable(self, "_on_dialog_font_size_changed"))
 	Global.connect("name_font_size_changed", Callable(self, "_on_name_font_size_changed"))
 	Global.connect("player_names_visibility_changed", Callable(self, "_on_player_names_visibility_changed"))
+	Global.connect("animated_dialog_changed", Callable(self, "_on_animated_dialog_changed"))
 	# Guardar la posición original después de un pequeño delay para que se apliquen todas las correcciones
 	call_deferred("_initialize_original_position")
 	if _isPlayer:
 		_apply_outline_effect()
+	
+	# Configurar el timer de tipografía
+	if _dialogTypeTimer:
+		_dialogTypeTimer.timeout.connect(_OnDialogTypeTimerTimeout)
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
@@ -53,17 +63,17 @@ func _initialize_original_position() -> void:
 func IsPlayer() -> bool:
 	return _isPlayer
 
+# Para usar en el futuro
 func _apply_outline_effect() -> void:
 	return 
-	
 	for child in renderer.get_children():
 		if child is AnimatedSprite2D:
-			var material = ShaderMaterial.new()
-			material.shader = OUTLINE_SHADER
+			var outline_material = ShaderMaterial.new()
+			outline_material.shader = OUTLINE_SHADER
 			# Configurar el color y ancho del borde
-			material.set_shader_parameter("outline_color", Color(0.0, 0.5, 1.0, 0.7))  # Azul con transparencia
-			material.set_shader_parameter("outline_width", 2.0)
-			child.material = material
+			outline_material.set_shader_parameter("outline_color", Color(0.0, 0.5, 1.0, 0.7))  # Azul con transparencia
+			outline_material.set_shader_parameter("outline_width", 2.0)
+			child.material = outline_material
 
 func GetCharacterInvisible() -> bool:
 	return _charInvisible
@@ -117,16 +127,77 @@ func PlayNavigationSound() -> void:
 	AudioManager.PlayAudio(Consts.PasoNavegando, false, true)  # prevent_overlap = true
 
 func Say(text:String, color:Color) -> void:
+	# Cancelar cualquier animación anterior
+	if _isTypingDialog:
+		_stop_dialog_typing()
+	
+	# Guardar el texto completo y el color
+	_currentDialogText = text
+	_currentDialogColor = color
+	
+	# Configurar las etiquetas
 	_dialogLabel.label_settings.font_size = Global.dialogFontSize
-	_dialogLabel.text = text
 	_dialogShadowLabel.label_settings.font_size = _dialogLabel.label_settings.font_size
-	_dialogShadowLabel.text = _dialogLabel.text
 	_dialogLabel.modulate = color
-	_dialogClearTimer.start()
+	
+	# Iniciar la animación de tipografía
+	_start_dialog_typing()
 
 func _OnDialogClearTimerTimeout() -> void:
+	_stop_dialog_typing()
 	_dialogLabel.text = ""
 	_dialogShadowLabel.text = ""
+
+func _start_dialog_typing() -> void:
+	if _currentDialogText.is_empty():
+		return
+	
+	# Si el diálogo animado está desactivado, mostrar todo de una vez (instantáneo)
+	if not Global.animatedDialog:
+		_dialogLabel.text = _currentDialogText
+		_dialogShadowLabel.text = _currentDialogText
+		_dialogClearTimer.start()
+		return
+	
+	_isTypingDialog = true
+	_dialogLabel.text = ""
+	_dialogShadowLabel.text = ""
+	
+	# Iniciar el timer de tipografía
+	_dialogTypeTimer.wait_time = Global.DIALOG_TYPING_SPEED
+	_dialogTypeTimer.start()
+
+func _stop_dialog_typing() -> void:
+	_isTypingDialog = false
+	if _dialogTypeTimer:
+		_dialogTypeTimer.stop()
+
+func _OnDialogTypeTimerTimeout() -> void:
+	if not _isTypingDialog:
+		return
+	
+	var current_length = _dialogLabel.text.length()
+	var target_length = _currentDialogText.length()
+	
+	if current_length < target_length:
+		# Agregar la siguiente letra
+		var next_char_index = current_length
+		var _next_char = _currentDialogText[next_char_index]
+		
+		# Construir el texto hasta el siguiente carácter
+		var new_text = _currentDialogText.substr(0, next_char_index + 1)
+		
+		# Actualizar ambas etiquetas con el nuevo texto
+		# Esto permite que el autowrap funcione correctamente
+		_dialogLabel.text = new_text
+		_dialogShadowLabel.text = new_text
+		
+		# Continuar la animación
+		_dialogTypeTimer.start()
+	else:
+		# Animación completada - ahora iniciar el timer de limpieza
+		_isTypingDialog = false
+		_dialogClearTimer.start()
 	
 func _ProcessAnimation() -> void:
 	if isMoving:
@@ -175,3 +246,11 @@ func _on_name_font_size_changed(value: int) -> void:
 
 func _on_player_names_visibility_changed(names_visible: bool) -> void:
 	SetNameVisible(names_visible)
+
+func _on_animated_dialog_changed(animated: bool) -> void:
+	# Si se desactiva la animación y está en medio de una, mostrar todo instantáneamente
+	if not animated and _isTypingDialog:
+		_stop_dialog_typing()
+		_dialogLabel.text = _currentDialogText
+		_dialogShadowLabel.text = _currentDialogText
+		_dialogClearTimer.start()

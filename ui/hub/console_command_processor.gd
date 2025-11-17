@@ -28,6 +28,7 @@ static var command_handler:Dictionary[String, Callable] = {
 	"consulta": consultation,
 	"ayuda": help,
 	"enlistar": enlist,
+	"pruebadialogo": test_dialog,
 	"informacion": information,
 	"recompensa": reward,
 	"motd": request_motd,
@@ -584,3 +585,25 @@ static func ping(args:ChatCommandArgs) -> void:
 	
 	# Registrar el tiempo después del envío
 	args.game_context.pingTime = Time.get_ticks_msec()
+
+static func test_dialog(args:ChatCommandArgs) -> void:
+	var test_messages = [
+		"¡Por los antiguos dragones de Argentum! Este es un mensaje de prueba con texto tipográfico animado.",
+		"Velocidad: rápida",
+		"Este es un mensaje más largo para probar cómo funciona el autowrap cuando el texto es extenso y necesita hacer saltos de línea automáticamente mientras se escribe letra por letra.",
+		"¡Mágia y poder en cada palabra!"
+	]
+	
+	var random_message = test_messages[randi() % test_messages.size()]
+	var color = Color.WHITE
+	
+	# Simular el comando Say del personaje
+	if args.game_context and args.game_context.has_method("Say"):
+		args.game_context.Say(random_message, color)
+	else:
+		# Buscar el personaje del jugador en la escena
+		var game_screen = args.game_context.get_parent()
+		if game_screen and game_screen.has_node("Player"):
+			var player = game_screen.get_node("Player") as Character
+			if player:
+				player.Say(random_message, color)

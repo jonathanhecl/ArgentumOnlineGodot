@@ -12,12 +12,16 @@ signal name_font_size_changed(value:int)
 signal custom_cursor_changed(value:bool)
 signal player_names_visibility_changed(visible:bool)
 signal fps_visibility_changed(visible:bool)
+signal animated_dialog_changed(value:bool)
 
 # Variable interna para show_player_names
 var _show_player_names:bool = true
 
 # Variable interna para show_fps_counter
 var _show_fps_counter:bool = false
+
+# Variable interna para diálogo animado (true = animado, false = instantáneo)
+var _animatedDialog:bool = true
 
 var show_player_names:bool:
 	set(value):
@@ -32,6 +36,14 @@ var show_fps_counter:bool:
 		emit_signal("fps_visibility_changed", _show_fps_counter)
 	get:
 		return _show_fps_counter
+
+var animatedDialog:bool:
+	set(value):
+		_animatedDialog = value
+		emit_signal("animated_dialog_changed", _animatedDialog)
+		save_animated_dialog()
+	get:
+		return _animatedDialog
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -69,6 +81,9 @@ var nameFontSize:int:
 		emit_signal("name_font_size_changed", _nameFontSize)
 	get:
 		return _nameFontSize
+
+# Velocidad de diálogo para texto animado
+const DIALOG_TYPING_SPEED:float = 0.025
 
 func get_timestamp() -> String:
 	var time = Time.get_time_dict_from_system()
@@ -112,3 +127,14 @@ func _ready() -> void:
 		# Cargar configuración de visibilidad de FPS
 		var saved_fps_visible = cfg.get_value("ui", "show_fps_counter", show_fps_counter)
 		show_fps_counter = bool(saved_fps_visible)
+		
+		# Cargar configuración de diálogo animado
+		var saved_animated_dialog = cfg.get_value("ui", "animated_dialog", animatedDialog)
+		animatedDialog = bool(saved_animated_dialog)
+
+func save_animated_dialog() -> void:
+	var cfg = ConfigFile.new()
+	var cfg_path = "user://options.cfg"
+	cfg.load(cfg_path)
+	cfg.set_value("ui", "animated_dialog", _animatedDialog)
+	cfg.save(cfg_path)
