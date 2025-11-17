@@ -119,11 +119,6 @@ func _MovePlayer(heading:int) -> void:
 func _CanMoveTo(x:int, y:int) -> bool:
 	var map = _gameWorld.GetMapContainer()
 	
-	#Limites del mapa
-	#If X < MinXBorder Or X > MaxXBorder Or Y < MinYBorder Or Y > MaxYBorder Then
-	#    Exit Function
-	#End If
-	
 	#Tile Bloqueado?
 	if map.GetTile(x - 1, y - 1) & Enums.TileState.Blocked:
 		return false
