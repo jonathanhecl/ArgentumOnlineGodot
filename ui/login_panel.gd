@@ -10,6 +10,8 @@ func _ready() -> void:
 	%ShowPasswordButton.toggled.connect(_on_show_password_toggled)
 	%ShowPasswordButton.toggle_mode = true
 	%ShowPasswordButton.button_pressed = false
+	%Username.placeholder_text = "correo@dominio.com"
+	%Password.placeholder_text = "Contraseña"
 	
 	# Load saved credentials if they exist
 	var credentials = SavedCredentials.load_credentials()
@@ -45,34 +47,36 @@ func DisableAuthControls() -> void:
 	%Username.editable = false
 	%Password.editable = false
 
+
+func SetCredentials(username: String, password: String) -> void:
+	%Username.text = username
+	%Password.text = password
+
+
 func _OnButtonLoginPressed() -> void:
-	if %Username.text.is_empty():
-		error.emit("Escriba el nombre del usuario")
+	var email: String = %Username.text.strip_edges()
+	if email.is_empty():
+		error.emit("Escriba el email de la cuenta")
 		return 
 		
-	if %Username.text.length() < 3 || %Username.text.length() > 15:
-		error.emit("El nombre del usuario tiene que tener un minimo de 3 caracteres y un maximo de 15 caracteres")
+	if !_is_valid_email(email):
+		error.emit("Ingrese un email válido para la cuenta")
 		return
 	
-	for i in %Username.text:
-		if !Utils.LegalCharacter(i):
-			error.emit("Nombre invalido: El caracter [{0}] no esta permitido".format([i]))
-			return
-		
 	if %Password.text.is_empty():
-		error.emit("Escriba la contraseña del usuario")
+		error.emit("Escriba la contraseña de la cuenta")
 		return
 		
 	if %Password.text.length() < 3 || %Password.text.length() > 15:
-		error.emit("La contraseña del usuario tiene que tener un minimo de 3 caracteres y un maximo de 15 caracteres")
+		error.emit("La contraseña de la cuenta tiene que tener un mínimo de 3 caracteres y un máximo de 15 caracteres")
 		return
 		
 	for i in %Password.text:
 		if !Utils.LegalCharacter(i):
-			error.emit("Contraseña invalida: El caracter [{0}] no esta permitido".format([i]))
+			error.emit("Contraseña inválida: El caracter [{0}] no está permitido".format([i]))
 			return
 			
-	Global.username = %Username.text
+	Global.username = email
 	
 	# Save credentials if checkbox is checked
 	if %RememberPassword.button_pressed:
@@ -81,3 +85,18 @@ func _OnButtonLoginPressed() -> void:
 		SavedCredentials.clear_credentials()
 	
 	submit.emit()
+
+
+func _is_valid_email(email: String) -> bool:
+	if email.is_empty():
+		return false
+	if !email.contains("@"):
+		return false
+	var parts := email.split("@")
+	if parts.size() != 2:
+		return false
+	if parts[0].is_empty() or parts[1].is_empty():
+		return false
+	if parts[1].find(".") == -1:
+		return false
+	return true

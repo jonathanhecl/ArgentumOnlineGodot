@@ -1,5 +1,10 @@
 extends Node
 
+# Versión del cliente
+const CLIENT_VERSION_MAJOR = 0
+const CLIENT_VERSION_MINOR = 13
+const CLIENT_VERSION_REVISION = 6
+
 const MapSize = 100
 const TileSize = 32
 const MaxSkills = 20
@@ -61,7 +66,6 @@ const MessageWorkRequestTarget:Dictionary[int, String] = {
 	Enums.Skill.Domar: "Haz click sobre la criatura...",
 	Enums.Skill.Talar: "Haz click sobre el árbol...",
 	Enums.Skill.Mineria: "HHaz click sobre el yacimiento...", 
-	Enums.Skill.FundirMetal: "Haz click sobre la fragua...",
 	Enums.Skill.Proyectiles: "Haz click sobre la victima..."
 }
 

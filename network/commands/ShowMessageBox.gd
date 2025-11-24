@@ -8,3 +8,4 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 
 func Deserialize(reader:StreamPeerBuffer) -> void:
 	message = Utils.GetUnicodeString(reader)
+	print("[DEBUG] ShowMessageBox deserialized: ", message)

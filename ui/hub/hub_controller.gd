@@ -257,7 +257,7 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
 					return
 			
-			if _gameContext.usingSkill in [Enums.Skill.Mineria, Enums.Skill.Robar, Enums.Skill.Pesca, Enums.Skill.Talar, Enums.Skill.FundirMetal]:
+			if _gameContext.usingSkill in [Enums.Skill.Mineria, Enums.Skill.Robar, Enums.Skill.Pesca, Enums.Skill.Talar]:
 				if !_gameContext.tick_intervals.request_work():
 					_restore_default_cursor()
 					return

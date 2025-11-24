@@ -28,8 +28,26 @@ static func WriteLoginExistingCharacter(username:String, password:String) -> voi
 	Utils.PutUnicodeString(_writer, username)
 	Utils.PutUnicodeString(_writer, password)
 	_writer.put_u8(0)
-	_writer.put_u8(13)
-	_writer.put_u8(0)
+
+static func WriteLoginExistingAccount(username:String, password:String) -> void:
+	_log_outgoing_packet("LoginExistingAccount", "username: " + username + ", password: " + password)
+	_writer.put_u8(Enums.ClientPacketID.LoginExistingAccount)
+	Utils.PutUnicodeString(_writer, username)
+	Utils.PutUnicodeString(_writer, password)
+	# Enviar versión del cliente (Major, Minor, Revision)
+	_writer.put_u8(Consts.CLIENT_VERSION_MAJOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_MINOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_REVISION)
+
+static func WriteLoginNewAccount(username:String, password:String) -> void:
+	_log_outgoing_packet("LoginNewAccount", "username: " + username + ", password: " + password)
+	_writer.put_u8(Enums.ClientPacketID.LoginNewAccount)
+	Utils.PutUnicodeString(_writer, username)
+	Utils.PutUnicodeString(_writer, password)
+	# Enviar versión del cliente (Major, Minor, Revision)
+	_writer.put_u8(Consts.CLIENT_VERSION_MAJOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_MINOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_REVISION)
 	
 static func WriteLoginNewChar(username:String, password:String, email:String, job:int, race:int, gender:int, home:int, head:int) -> void:
 	_log_outgoing_packet("LoginNewChar", "username: " + username + ", password: " + password + ", email: " + email + ", job: " + str(job) + ", race: " + str(race) + ", gender: " + str(gender) + ", home: " + str(home) + ", head: " + str(head))
@@ -245,10 +263,10 @@ static func WriteWhisper(receiver:String, text:String) -> void:
 	Utils.PutUnicodeString(_writer, receiver)
 	Utils.PutUnicodeString(_writer, text)
 
-static func WriteSpellInfo(slot:int) -> void:
-	_log_outgoing_packet("SpellInfo", "slot: " + str(slot))
-	_writer.put_u8(Enums.ClientPacketID.SpellInfo) 
-	_writer.put_u8(slot) 
+#static func WriteSpellInfo(slot:int) -> void:
+	#_log_outgoing_packet("SpellInfo", "slot: " + str(slot))
+	#_writer.put_u8(Enums.ClientPacketID.SpellInfo) 
+	#_writer.put_u8(slot) 
 
 static func WriteCastSpell(slot:int) -> void:
 	_log_outgoing_packet("CastSpell", "slot: " + str(slot))
@@ -382,9 +400,9 @@ static func WriteRequestMOTD() -> void:
 	_writer.put_u8(Enums.ClientPacketID.RequestMOTD)
 
 
-static func WriteUpTime() -> void:
-	_log_outgoing_packet("UpTime")
-	_writer.put_u8(Enums.ClientPacketID.Uptime)
+#static func WriteUpTime() -> void:
+	#_log_outgoing_packet("UpTime")
+	#_writer.put_u8(Enums.ClientPacketID.Uptime)
 
 
 # ===== COMANDOS DE PARTY =====

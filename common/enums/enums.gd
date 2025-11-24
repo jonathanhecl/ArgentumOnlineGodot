@@ -74,9 +74,6 @@ enum Skill{
 	Proyectiles = 18,
 	Wrestling = 19,
 	Navegacion = 20,
-
-	# FIXME: Revisar esto!
-	FundirMetal = 88
 }
 
 enum eMoveType {
@@ -195,250 +192,292 @@ enum NickColor {
 
 # ServerPacketID: Is the protocol from the server to the client
 enum ServerPacketID {
-	Logged,
-	RemoveDialogs,
-	RemoveCharDialog,
-	NavigateToggle,
-	Disconnect,
-	CommerceEnd,
-	BankEnd,
-	CommerceInit,
-	BankInit,
-	UserCommerceInit,
-	UserCommerceEnd,
-	UserOfferConfirm,
-	CommerceChat,
-	ShowBlacksmithForm,
-	ShowCarpenterForm,
-	UpdateSta,
-	UpdateMana,
-	UpdateHP,
-	UpdateGold,
-	UpdateBankGold,
-	UpdateExp,
-	ChangeMap,
-	PosUpdate,
-	ChatOverHead,
-	ConsoleMsg,
-	GuildChat,
-	ShowMessageBox,
-	UserIndexInServer,
-	UserCharIndexInServer,
-	CharacterCreate,
-	CharacterRemove,
-	CharacterChangeNick,
-	CharacterMove,
-	ForceCharMove,
-	CharacterChange,
-	ObjectCreate,
-	ObjectDelete,
-	BlockPosition,
-	PlayMIDI,
-	PlayWave,
-	GuildList,
-	AreaChanged,
-	PauseToggle,
-	RainToggle,
-	CreateFX,
-	UpdateUserStats,
-	WorkRequestTarget,
-	ChangeInventorySlot,
-	ChangeBankSlot,
-	ChangeSpellSlot,
-	Atributes,
-	BlacksmithWeapons,
-	BlacksmithArmors,
-	CarpenterObjects,
-	RestOK,
-	ErrorMsg,
-	Blind,
-	Dumb,
-	ShowSignal,
-	ChangeNPCInventorySlot,
-	UpdateHungerAndThirst,
-	Fame,
-	MiniStats,
-	LevelUp,
-	AddForumMsg,
-	ShowForumForm,
-	SetInvisible,
-	DiceRoll,
-	MeditateToggle,
-	BlindNoMore,
-	DumbNoMore,
-	SendSkills,
-	TrainerCreatureList,
-	GuildNews,
-	OfferDetails,
-	AlianceProposalsList,
-	PeaceProposalsList,
-	CharacterInfo,
-	GuildLeaderInfo,
-	GuildMemberInfo,
-	GuildDetails,
-	ShowGuildFundationForm,
-	ParalizeOK,
-	ShowUserRequest,
-	TradeOK,
-	BankOK,
-	ChangeUserTradeSlot,
-	SendNight,
-	Pong,
-	UpdateTagAndStatus,
+	Logged = 1,                 # LOGGED
+	RemoveDialogs = 2,           # QTDL
+	RemoveCharDialog = 3,        # QDL
+	NavigateToggle = 4,          # NAVEG
+	Disconnect = 5,              # FINOK
+	CommerceEnd = 6,             # FINCOMOK
+	BankEnd = 7,                 # FINBANOK
+	CommerceInit = 8,            # INITCOM
+	BankInit = 9,                # INITBANCO
+	UserCommerceInit = 10,       # INITCOMUSU
+	UserCommerceEnd = 11,        # FINCOMUSUOK
+	UserOfferConfirm = 12,
+	CommerceChat = 13,
+	UpdateSta = 14,               # ASS
+	UpdateMana = 15,             # ASM
+	UpdateHP = 16,                # ASH
+	UpdateGold = 17,              # ASG
+	UpdateBankGold = 18,
+	UpdateExp = 19,               # ASE
+	ChangeMap = 20,               # CM
+	PosUpdate = 21,              # PU
+	ChatOverHead = 22,            # ||
+	ConsoleMsg = 23,              # || - Beware!! its the same as above, but it was properly splitted
+	GuildChat = 24,               # |+
+	ShowMessageBox = 25,           # !!
+	UserIndexInServer = 26,       # IU
+	UserCharIndexInServer = 27,   # IP
+	CharacterCreate = 28,         # CC
+	CharacterRemove = 29,         # BP
+	CharacterChangeNick = 30,
+	CharacterMove = 31,           # MP, +, * and _ #
+	ForceCharMove = 32,
+	CharacterChange = 33,         # CP
+	HeadingChange = 34,
+	ObjectCreate = 35,            # HO
+	ObjectDelete = 36,            # BO
+	BlockPosition = 37,           # BQ
+	PlayMp3 = 38,
+	PlayMIDI = 39,               # TM
+	PlayWave = 40,                # TW
+	GuildList = 41,               # GL
+	AreaChanged = 42,             # CA
+	PauseToggle = 43,             # BKW
+	RainToggle = 44,              # LLU
+	CreateFX = 45,                # CFX
+	UpdateUserStats = 46,         # EST
+	ChangeInventorySlot = 47,     # CSI
+	ChangeBankSlot = 48,          # SBO
+	ChangeSpellSlot = 49,         # SHS
+	Atributes = 50,               # ATR
+	BlacksmithWeapons = 51,       # LAH
+	BlacksmithArmors = 52,        # LAR
+	InitCarpenting = 53,          # OBR
+	RestOK = 54,                  # DOK
+	ErrorMsg = 55,                # ERR
+	Blind = 56,                   # CEGU
+	Dumb = 57,                    # DUMB
+	ShowSignal = 58,              # MCAR
+	ChangeNPCInventorySlot = 59,  # NPCI
+	UpdateHungerAndThirst = 60,   # EHYS
+	Fame = 61,                    # FAMA
+	MiniStats = 62,               # MEST
+	LevelUp = 63,                 # SUNI
+	AddForumMsg = 64,             # FMSG
+	ShowForumForm = 65,           # MFOR
+	SetInvisible = 66,            # NOVER
+	DiceRoll = 67,                # DADOS
+	MeditateToggle = 68,          # MEDOK
+	BlindNoMore = 69,             # NSEGUE
+	DumbNoMore = 70,              # NESTUP
+	SendSkills = 71,              # SKILLS
+	TrainerCreatureList = 72,     # LSTCRI
+	GuildNews = 73,               # GUILDNE
+	OfferDetails = 74,            # PEACEDE & ALLIEDE
+	AlianceProposalsList = 75,    # ALLIEPR
+	PeaceProposalsList = 76,      # PEACEPR
+	CharacterInfo = 77,           # CHRINFO
+	GuildLeaderInfo = 78,         # LEADERI
+	GuildMemberInfo = 79,
+	GuildDetails = 80,            # CLANDET
+	ShowGuildFundationForm = 81,  # SHOWFUN
+	ParalizeOK = 82,              # PARADOK
+	ShowUserRequest = 83,         # PETICIO
+	ChangeUserTradeSlot = 84,     # COMUSUINV
+	SendNight = 85,               # NOC
+	Pong = 86,
+	UpdateTagAndStatus = 87,
 	
-	#GM messages
-	SpawnList,
-	ShowSOSForm,
-	ShowMOTDEditionForm,
-	ShowGMPanelForm,
-	UserNameList,
-	ShowDenounces,
-	RecordList,
-	RecordDetails,
-
-	ShowGuildAlign,
-	ShowPartyForm,
-	UpdateStrenghtAndDexterity,
-	UpdateStrenght,
-	UpdateDexterity,
-	AddSlots,
-	MultiMessage,
-	StopWorking,
-	CancelOfferItem
+	#GM =  messages
+	SpawnList = 88,               # SPL
+	ShowSOSForm = 89,             # MSOS
+	ShowMOTDEditionForm = 90,     # ZMOTD
+	ShowGMPanelForm = 91,         # ABPANEL
+	UserNameList = 92,            # LISTUSU
+	ShowDenounces = 93,
+	RecordList = 94,
+	RecordDetails = 95,
+	
+	ShowGuildAlign = 96,
+	ShowPartyForm = 97,
+	UpdateStrenghtAndDexterity = 98,
+	UpdateStrenght = 99,
+	UpdateDexterity = 100,
+	AddSlots = 101,
+	MultiMessage = 102,
+	StopWorking = 103,
+	CancelOfferItem = 104,
+	PalabrasMagicas = 105,
+	PlayAttackAnim = 106,
+	FXtoMap = 107,
+	AccountLogged = 108,         # CHOTS | Accounts
+	SearchList = 109,
+	QuestDetails = 110,
+	QuestListSend = 111,
+	CreateDamage = 112,          # CDMG
+	UserInEvent = 113,
+	RenderMsg = 114,
+	DeletedChar = 115,
+	EquitandoToggle = 116,
+	EnviarDatosServer = 117,
+	InitCraftman = 118,
+	EnviarListDeAmigos = 119,
+	SeeInProcess = 120,
+	ShowProcess = 121,
+	Proyectil = 122,
+	PlayIsInChatMode = 123
 }
 
 # ClientPacketID: Is the protocol from the client to the server
 enum ClientPacketID {
-	LoginExistingChar,
-	ThrowDices,
-	LoginNewChar,
-	Talk,
-	Yell,
-	Whisper,
-	Walk,
-	RequestPositionUpdate,
-	Attack,
-	PickUp,
-	SafeToggle,
-	ResuscitationSafeToggle,
-	RequestGuildLeaderInfo,
-	RequestAtributes,
-	RequestFame,
-	RequestSkills,
-	RequestMiniStats,
-	CommerceEnd,
-	UserCommerceEnd,
-	UserCommerceConfirm,
-	CommerceChat,
-	BankEnd,
-	UserCommerceOk,
-	UserCommerceReject,
-	Drop,
-	CastSpell,
-	LeftClick,
-	DoubleClick,
-	Work,
-	UseSpellMacro,
-	UseItem,
-	CraftBlacksmith,
-	CraftCarpenter,
-	WorkLeftClick,
-	CreateNewGuild,
-	SpellInfo,
-	EquipItem,
-	ChangeHeading,
-	ModifySkills,
-	Train,
-	CommerceBuy,
-	BankExtractItem,
-	CommerceSell,
-	BankDeposit,
-	ForumPost,
-	MoveSpell,
-	MoveBank,
-	ClanCodexUpdate,
-	UserCommerceOffer,
-	GuildAcceptPeace,
-	GuildRejectAlliance,
-	GuildRejectPeace,
-	GuildAcceptAlliance,
-	GuildOfferPeace,
-	GuildOfferAlliance,
-	GuildAllianceDetails,
-	GuildPeaceDetails,
-	GuildRequestJoinerInfo,
-	GuildAlliancePropList,
-	GuildPeacePropList,
-	GuildDeclareWar,
-	GuildNewWebsite,
-	GuildAcceptNewMember,
-	GuildRejectNewMember,
-	GuildKickMember,
-	GuildUpdateNews,
-	GuildMemberInfo,
-	GuildOpenElections,
-	GuildRequestMembership,
-	GuildRequestDetails,
-	Online,
-	Quit,
-	GuildLeave,
-	RequestAccountState,
-	PetStand,
-	PetFollow,
-	ReleasePet,
-	TrainList,
-	Rest,
-	Meditate,
-	Resucitate,
-	Heal,
-	Help,
-	RequestStats,
-	CommerceStart,
-	BankStart,
-	Enlist,
-	Information,
-	Reward,
-	RequestMOTD,
-	Uptime,
-	PartyLeave,
-	PartyCreate,
-	PartyJoin,
-	Inquiry,
-	GuildMessage,
-	PartyMessage,
-	CentinelReport,
-	GuildOnline,
-	PartyOnline,
-	CouncilMessage,
-	RoleMasterRequest,
-	GMRequest,
-	BugReport,
-	ChangeDescription,
-	GuildVote,
-	Punishments,
-	ChangePassword,
-	Gamble,
-	InquiryVote,
-	LeaveFaction,
-	BankExtractGold,
-	BankDepositGold,
-	Denounce,
-	GuildFundate,
-	GuildFundation,
-	PartyKick,
-	PartySetLeader,
-	PartyAcceptMember,
-	Ping,
-	RequestPartyForm,
-	ItemUpgrade,
-	GMCommands,
-	InitCrafting,
-	Home,
-	ShowGuildNews,
-	ShareNpc,
-	StopSharingNpc,
-	Consultation,
-	MoveItem
+	LoginExistingChar = 1,          # OLOGIN
+	ThrowDices = 2,                 # TIRDAD
+	LoginNewChar = 3,               # NLOGIN
+	Talk = 4,                       # ;
+	Yell = 5,                       # -
+	Whisper = 6,                    # \
+	Walk = 7,                       # M
+	RequestPositionUpdate = 8,      # RPU
+	Attack = 9,                     # AT
+	PickUp = 10,                    # AG
+	SafeToggle = 11,                # /SEG & SEG  (SEG's behaviour has to be coded in the client)
+	ResuscitationSafeToggle = 12,
+	RequestGuildLeaderInfo = 13,    # GLINFO
+	RequestAtributes = 14,          # ATR
+	RequestFame = 15,               # FAMA
+	RequestSkills = 16,             # ESKI
+	RequestMiniStats = 17,          # FEST
+	CommerceEnd = 18,               # FINCOM
+	UserCommerceEnd = 19,           # FINCOMUSU
+	UserCommerceConfirm = 20,
+	CommerceChat = 21,
+	BankEnd = 22,                   # FINBAN
+	UserCommerceOk = 23,            # COMUSUOK
+	UserCommerceReject = 24,        # COMUSUNO
+	Drop = 25,                      # TI
+	CastSpell = 26,                 # LH
+	LeftClick = 27,                 # LC
+	DoubleClick = 28,               # RC
+	Work = 29,                      # UK
+	UseSpellMacro = 30,             # UMH
+	UseItem = 31,                   # USA
+	CraftBlacksmith = 32,           # CNS
+	CraftCarpenter = 33,            # CNC
+	WorkLeftClick = 34,             # WLC
+	CreateNewGuild = 35,            # CIG
+	SadasdA = 36, # TODO: dummy
+	EquipItem = 37,                 # EQUI
+	ChangeHeading = 38,             # CHEA
+	ModifySkills = 39,              # SKSE
+	Train = 40,                     # ENTR
+	CommerceBuy = 41,               # COMP
+	BankExtractItem = 42,           # RETI
+	CommerceSell = 43,              # VEND
+	BankDeposit = 44,               # DEPO
+	ForumPost = 45,                 # DEMSG
+	MoveSpell = 46,                 # DESPHE
+	MoveBank = 47,
+	ClanCodexUpdate = 48,           # DESCOD
+	UserCommerceOffer = 49,         # OFRECER
+	GuildAcceptPeace = 50,          # ACEPPEAT
+	GuildRejectAlliance = 51,       # RECPALIA
+	GuildRejectPeace = 52,          # RECPPEAT
+	GuildAcceptAlliance = 53,       # ACEPALIA
+	GuildOfferPeace = 54,           # PEACEOFF
+	GuildOfferAlliance = 55,        # ALLIEOFF
+	GuildAllianceDetails = 56,      # ALLIEDET
+	GuildPeaceDetails = 57,         # PEACEDET
+	GuildRequestJoinerInfo = 58,    # ENVCOMEN
+	GuildAlliancePropList = 59,     # ENVALPRO
+	GuildPeacePropList = 60,        # ENVPROPP
+	GuildDeclareWar = 61,           # DECGUERR
+	GuildNewWebsite = 62,           # NEWWEBSI
+	GuildAcceptNewMember = 63,      # ACEPTARI
+	GuildRejectNewMember = 64,      # RECHAZAR
+	GuildKickMember = 65,           # ECHARCLA
+	GuildUpdateNews = 66,           # ACTGNEWS
+	GuildMemberInfo = 67,           # 1HRINFO<
+	GuildOpenElections = 68,        # ABREELEC
+	GuildRequestMembership = 69,    # SOLICITUD
+	GuildRequestDetails = 70,       # CLANDETAILS
+	Online = 71,                    # ONLINE
+	Quit = 72,                      # SALIR
+	GuildLeave = 73,                # SALIRCLAN
+	RequestAccountState = 74,       # BALANCE
+	PetStand = 75,                  # QUIETO
+	PetFollow = 76,                 # ACOMPANAR
+	ReleasePet = 77,                # LIBERAR
+	TrainList = 78,                 # ENTRENAR
+	Rest = 79,                      # DESCANSAR
+	Meditate = 80,                  # MEDITAR
+	Resucitate = 81,                # RESUCITAR
+	Heal = 82,                      # CURAR
+	Help = 83,                      # AYUDA
+	RequestStats = 84,              # EST
+	CommerceStart = 85,             # COMERCIAR
+	BankStart = 86,                 # BOVEDA
+	Enlist = 87,                    # ENLISTAR
+	Information = 88,               # INFORMACION
+	Reward = 89,                    # RECOMPENSA
+	RequestMOTD = 90,               # MOTD
+	UpTime = 91,                    # UPTIME
+	PartyLeave = 92,                # SALIRPARTY
+	PartyCreate = 93,               # CREARPARTY
+	PartyJoin = 94,                 # PARTY
+	Inquiry = 95,                   # ENCUESTA ( with no params )
+	GuildMessage = 96,              # CMSG
+	PartyMessage = 97,              # PMSG
+	GuildOnline = 98,               # ONLINECLAN
+	PartyOnline = 99,               # ONLINEPARTY
+	CouncilMessage = 100,           # BMSG
+	RoleMasterRequest = 101,        # ROL
+	GMRequest = 102,                # GM
+	BugReport = 103,                # _BUG
+	ChangeDescription = 104,        # DESC
+	GuildVote = 105,                # VOTO
+	Punishments = 106,              # PENAS
+	ChangePassword = 107,           # CONTRASENA
+	Gamble = 108,                   # APOSTAR
+	InquiryVote = 109,              # ENCUESTA ( with parameters )
+	LeaveFaction = 110,             # RETIRAR ( with no arguments )
+	BankExtractGold = 111,          # RETIRAR ( with arguments )
+	BankDepositGold = 112,          # DEPOSITAR
+	Denounce = 113,                 # DENUNCIAR
+	GuildFundate = 114,             # FUNDARCLAN
+	GuildFundation = 115,
+	PartyKick = 116,                # ECHARPARTY
+	PartySetLeader = 117,           # PARTYLIDER
+	PartyAcceptMember = 118,        # ACCEPTPARTY
+	Ping = 119,                     # PING
+	RequestPartyForm = 120,
+	ItemUpgrade = 121,
+	GMCommands = 122,
+	InitCrafting = 123,
+	Home = 124,
+	ShowGuildNews = 125,
+	ShareNpc = 126,                 # COMPARTIR
+	StopSharingNpc = 127,
+	Consultation = 128,
+	MoveItem = 129,
+	LoginExistingAccount = 130,
+	LoginNewAccount = 131,
+	CentinelReport = 132,           # CENTINELA
+	Ecvc = 133,
+	Acvc = 134,
+	IrCvc = 135,
+	DragAndDropHechizos = 136,       # HECHIZOS
+	Quest = 137,                    # QUEST
+	QuestAccept = 138,
+	QuestListRequest = 139,
+	QuestDetailsRequest = 140,
+	QuestAbandon = 141,
+	CambiarContrasena = 142,
+	FightSend = 143,
+	FightAccept = 144,
+	CloseGuild = 145,               # CERRARCLAN
+	Discord = 146,                  # DISCORD
+	DeleteChar = 147,
+	ObtenerDatosServer = 148,
+	CraftsmanCreate = 149,
+	AddAmigos = 150,
+	DelAmigos = 151,
+	OnAmigos = 152,
+	MsgAmigos = 153,
+	Lookprocess = 154,
+	SendProcessList = 155,
+	SendIfCharIsInChatMode = 156,
 }
 
 enum EGMCommands {

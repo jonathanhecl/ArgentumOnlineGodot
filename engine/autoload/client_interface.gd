@@ -35,7 +35,11 @@ func DisconnectFromHost() -> void:
 
 func Send(data:PackedByteArray) -> void:
 	if _socket.get_status() == StreamPeerTCP.STATUS_CONNECTED && data.size():
-		_socket.put_data(data)
+		# Cifrar los datos antes de enviar (como en VB6 con Security.NAC_E_Byte)
+		var encrypted_data = Security.encrypt_bytes(data)
+		if LOG_PACKETS:
+			print("[OUTGOING] Enviando %d bytes cifrados (original: %d bytes)" % [encrypted_data.size(), data.size()])
+		_socket.put_data(encrypted_data)
 		
 func _process(_delta: float) -> void:
 	_socket.poll()
@@ -78,7 +82,21 @@ func _process(_delta: float) -> void:
 				disconnected.emit()
 				set_process(false);
 			else:
-				var data = response[1]
+				var encrypted_data = response[1]
+				# Descifrar los datos recibidos (como en VB6 con Security.NAC_D_Byte)
+				var data = Security.decrypt_bytes(encrypted_data)
+				
+				# FIX: Detectar si el servidor envió un paquete ShowMessageBox (25) sin cifrar
+				# Esto ocurre cuando hay error de versión, el servidor envía el error y cierra la conexión sin cifrar
+				if Security.redundance == 13 and encrypted_data.size() > 3:
+					if encrypted_data[0] == 25: # ShowMessageBox
+						var msg_len = encrypted_data[1] | (encrypted_data[2] << 8)
+						# Si el largo coincide exactamente con el buffer recibido, es muy probable que sea texto plano
+						# 3 bytes de header (ID + Length) + Length bytes de payload
+						if msg_len + 3 == encrypted_data.size():
+							print("[Security] Detectado paquete ShowMessageBox no cifrado. Usando datos sin descifrar.")
+							data = encrypted_data
+
 				if LOG_PACKETS and data.size() > 0:
 					# Mostrar información básica del paquete
 					var packet_id = -1

@@ -3,6 +3,10 @@ extends Node
 var username:String = ""
 var skillPoints:int = 0
 
+# Sistema de cuentas
+var account_name:String = ""
+var account_hash:String = ""
+
 # Control de logging para paquetes salientes al servidor
 var log_outgoing_packets:bool = true
 

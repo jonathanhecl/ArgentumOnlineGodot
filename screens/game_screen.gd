@@ -171,6 +171,7 @@ var pcg:Array[String]
 
 func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 	var packetId = stream.get_u8()
+	print("[DEBUG] _HandleOnePacket processing ID: ", packetId)
 	var pname = ""
 	if packetId < Enums.ServerPacketID.keys().size():
 		pname = Enums.ServerPacketID.keys()[packetId]
@@ -267,10 +268,10 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_HandleCommerceInit()
 		Enums.ServerPacketID.CommerceEnd:
 			_HandleCommerceEnd()
-		Enums.ServerPacketID.TradeOK:
-			pass
-		Enums.ServerPacketID.BankOK:
-			pass
+		#Enums.ServerPacketID.TradeOK:
+			#pass
+		#Enums.ServerPacketID.BankOK:
+			#pass
 		Enums.ServerPacketID.Blind:
 			_handle_blind()
 		Enums.ServerPacketID.BlindNoMore:
@@ -327,12 +328,12 @@ func _HandleOnePacket(stream:StreamPeerBuffer) -> void:
 			_handle_pause_toggle()
 		Enums.ServerPacketID.StopWorking:
 			_handle_stop_working()
-		Enums.ServerPacketID.ShowBlacksmithForm:
-			_handle_show_blacksmith_form()
-		Enums.ServerPacketID.ShowCarpenterForm:
-			_handle_show_carpenter_form()
-		Enums.ServerPacketID.CarpenterObjects:
-			_handle_carpenter_objects(CarpenterObjects.new(stream))
+		#Enums.ServerPacketID.ShowBlacksmithForm:
+			#_handle_show_blacksmith_form()
+		#Enums.ServerPacketID.ShowCarpenterForm:
+			#_handle_show_carpenter_form()
+		#Enums.ServerPacketID.CarpenterObjects:
+			#_handle_carpenter_objects(CarpenterObjects.new(stream))
 		Enums.ServerPacketID.BlacksmithWeapons:
 			_handle_blacksmith_weapons(BlacksmithWeapons.new(stream))
 		Enums.ServerPacketID.BlacksmithArmors:
@@ -421,6 +422,7 @@ func _HandelUpdateExp(p:UpdateExp) -> void:
 			
 			
 func _HandleShowMessageBox(p:ShowMessageBox) -> void:
+	print("[DEBUG] _HandleShowMessageBox called with message: ", p.message)
 	Utils.ShowAlertDialog("Server", p.message, get_parent())
 
 
