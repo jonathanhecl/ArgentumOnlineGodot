@@ -3,7 +3,7 @@ extends Node
 signal connected
 signal disconnected
 signal connection_timeout
-signal dataReceived(data:PackedByteArray)
+signal dataReceived(data: PackedByteArray)
 
 # Constante para habilitar/deshabilitar el log de paquetes
 const LOG_PACKETS := true
@@ -11,8 +11,8 @@ const LOG_PACKETS := true
 # Timeout de conexión en segundos
 const CONNECTION_TIMEOUT := 10.0
 
-var _socket:StreamPeerTCP = StreamPeerTCP.new()
-var _status:int
+var _socket: StreamPeerTCP = StreamPeerTCP.new()
+var _status: int
 var _connection_timer: float = 0.0
 var _is_connecting: bool = false
 
@@ -22,7 +22,7 @@ func _ready() -> void:
 	_connection_timer = 0.0
 	set_process(false)
 	
-func ConnectToHost(host:String, port:int) -> void:
+func ConnectToHost(host: String, port: int) -> void:
 	_status = StreamPeerTCP.STATUS_NONE
 	_connection_timer = 0.0
 	_is_connecting = true
@@ -33,7 +33,7 @@ func DisconnectFromHost() -> void:
 	_is_connecting = false
 	_connection_timer = 0.0
 
-func Send(data:PackedByteArray) -> void:
+func Send(data: PackedByteArray) -> void:
 	if _socket.get_status() == StreamPeerTCP.STATUS_CONNECTED && data.size():
 		# Cifrar los datos antes de enviar (como en VB6 con Security.NAC_E_Byte)
 		var encrypted_data = Security.encrypt_bytes(data)
@@ -82,21 +82,11 @@ func _process(_delta: float) -> void:
 				disconnected.emit()
 				set_process(false);
 			else:
-				var encrypted_data = response[1]
-				# Descifrar los datos recibidos (como en VB6 con Security.NAC_D_Byte)
-				var data = Security.decrypt_bytes(encrypted_data)
+				var data = response[1]
 				
-				# FIX: Detectar si el servidor envió un paquete ShowMessageBox (25) sin cifrar
-				# Esto ocurre cuando hay error de versión, el servidor envía el error y cierra la conexión sin cifrar
-				if Security.redundance == 13 and encrypted_data.size() > 3:
-					if encrypted_data[0] == 25: # ShowMessageBox
-						var msg_len = encrypted_data[1] | (encrypted_data[2] << 8)
-						# Si el largo coincide exactamente con el buffer recibido, es muy probable que sea texto plano
-						# 3 bytes de header (ID + Length) + Length bytes de payload
-						if msg_len + 3 == encrypted_data.size():
-							print("[Security] Detectado paquete ShowMessageBox no cifrado. Usando datos sin descifrar.")
-							data = encrypted_data
-
+				# El servidor NO envía datos cifrados, solo el cliente cifra al enviar.
+				# Por lo tanto, usamos los datos tal cual llegan.
+				
 				if LOG_PACKETS and data.size() > 0:
 					# Mostrar información básica del paquete
 					var packet_id = -1

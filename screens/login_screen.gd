@@ -9,9 +9,9 @@ enum State {
 	RegisterAccount
 }
 
-@export var _loginPanel:LoginPanel
+@export var _loginPanel: LoginPanel
 
-var _state:State
+var _state: State
 
 func _ready() -> void:
 	ClientInterface.connected.connect(_OnConnected)
@@ -19,8 +19,8 @@ func _ready() -> void:
 	ClientInterface.connection_timeout.connect(_OnConnectionTimeout)
 	ClientInterface.dataReceived.connect(_OnDataReceived)
 	
-	_loginPanel.error.connect(func(message): 
-		Utils.ShowAlertDialog("Login", message, self)) 
+	_loginPanel.error.connect(func(message):
+		Utils.ShowAlertDialog("Login", message, self))
 	
 func _OnConnected() -> void:
 	# Resetear clave de cifrado al conectar (como en VB6: Security.Redundance = 13)
@@ -49,27 +49,33 @@ func _GetEnpoint() -> Dictionary:
 		"port": int(%Port.value)
 	}
 
-func _OnDataReceived(data:PackedByteArray) -> void:
+func _OnDataReceived(data: PackedByteArray) -> void:
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = data
 	
+	print("[LoginScreen] Received data: ", data.hex_encode())
+	
 	while stream.get_position() < stream.get_size():
 		var packetId = stream.get_u8()
-		match packetId:
-			Enums.ServerPacketID.ErrorMsg:
-				_HandleErrorMsg(Utils.GetUnicodeString(stream))
-			Enums.ServerPacketID.AccountLogged:
-				_HandleAccountLogged(stream)
-				return
-			_:
-				_HandleLogged(data)
-				return
+		print("[LoginScreen] Processing Packet ID: ", packetId)
+		
+		if packetId == Enums.ServerPacketID.ErrorMsg:
+			print("[LoginScreen] Handling ErrorMsg")
+			_HandleErrorMsg(Utils.GetUnicodeString(stream))
+		elif packetId == Enums.ServerPacketID.AccountLogged:
+			print("[LoginScreen] Handling AccountLogged (108)")
+			_HandleAccountLogged(stream)
+			return
+		else:
+			print("[LoginScreen] Unhandled packet ID: ", packetId, ". Defaulting to _HandleLogged (GameScreen).")
+			_HandleLogged(data)
+			return
 
-func _HandleErrorMsg(message:String) -> void:
+func _HandleErrorMsg(message: String) -> void:
 	Utils.ShowAlertDialog("Server", message, self)
 	ClientInterface.DisconnectFromHost()
 
-func _HandleAccountLogged(stream:StreamPeerBuffer) -> void:
+func _HandleAccountLogged(stream: StreamPeerBuffer) -> void:
 	"""Manejar el paquete AccountLogged que contiene la lista de personajes"""
 	var account_name = Utils.GetUnicodeString(stream)
 	var account_hash = Utils.GetUnicodeString(stream)
@@ -90,9 +96,9 @@ func _HandleAccountLogged(stream:StreamPeerBuffer) -> void:
 		var char_map = stream.get_16()
 		var char_level = stream.get_u8()
 		var char_gold = stream.get_32()
-		var char_criminal = stream.get_u8() != 0  # Boolean
-		var char_dead = stream.get_u8() != 0  # Boolean
-		var char_gm = stream.get_u8() != 0  # Boolean
+		var char_criminal = stream.get_u8() != 0 # Boolean
+		var char_dead = stream.get_u8() != 0 # Boolean
+		var char_gm = stream.get_u8() != 0 # Boolean
 		
 		characters.append({
 			"name": char_name,
@@ -126,7 +132,7 @@ func _HandleAccountLogged(stream:StreamPeerBuffer) -> void:
 	
 	ScreenController.SwitchScreen(char_selection_screen)
 
-func _HandleLogged(data:PackedByteArray) -> void:
+func _HandleLogged(data: PackedByteArray) -> void:
 	# Solo para compatibilidad con el sistema antiguo
 	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
 	screen.networkMessages.append(data)
@@ -139,10 +145,9 @@ func _OnLoginPanelSubmit() -> void:
 func _OnLoginPanelRegister() -> void:
 	_ConnectToHost(State.RegisterAccount)
 		
-func _ConnectToHost(state:State) -> void:
+func _ConnectToHost(state: State) -> void:
 	#if ClientInterface.IsConnected():
 	#	ClientInterface.DisconnectFromHost()
-		
 	_state = state
 	_loginPanel.DisableAuthControls()
 	
