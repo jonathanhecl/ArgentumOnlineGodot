@@ -83,13 +83,31 @@ func _create_preview_renderer() -> void:
 	_preview_renderer.name = "PreviewRenderer"
 	# Escalar el renderer para que se vea grande
 	_preview_renderer.scale = Vector2(4, 4)
+	# Filtro nearest para píxeles nítidos (sin blur)
+	_preview_renderer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
-	# Crear sprites
-	var body = AnimatedSprite2D.new(); _preview_renderer.add_child(body)
-	var head = AnimatedSprite2D.new(); head.position = Vector2(0, -5); _preview_renderer.add_child(head)
-	var helmet = AnimatedSprite2D.new(); helmet.position = Vector2(0, -20); _preview_renderer.add_child(helmet)
-	var shield = AnimatedSprite2D.new(); _preview_renderer.add_child(shield)
-	var weapon = AnimatedSprite2D.new(); _preview_renderer.add_child(weapon)
+	# Crear sprites con filtro nearest
+	var body = AnimatedSprite2D.new()
+	body.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_preview_renderer.add_child(body)
+	
+	var head = AnimatedSprite2D.new()
+	head.position = Vector2(0, -5)
+	head.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_preview_renderer.add_child(head)
+	
+	var helmet = AnimatedSprite2D.new()
+	helmet.position = Vector2(0, -20)
+	helmet.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_preview_renderer.add_child(helmet)
+	
+	var shield = AnimatedSprite2D.new()
+	shield.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_preview_renderer.add_child(shield)
+	
+	var weapon = AnimatedSprite2D.new()
+	weapon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_preview_renderer.add_child(weapon)
 	
 	_preview_renderer._bodyAnimatedSprite = body
 	_preview_renderer._headAnimatedSprite = head
@@ -113,30 +131,85 @@ func _update_character_list() -> void:
 		child.queue_free()
 	_list_buttons.clear()
 	
-	# Crear botones para cada personaje
+	# Crear items para cada personaje
 	for i in range(characters.size()):
 		var char_data = characters[i]
 		var char_name = char_data.get("name", "Sin Nombre")
-		var char_lvl = str(char_data.get("level", 1))
+		var char_lvl = char_data.get("level", 1)
 		var class_id = char_data.get("class", 0)
+		var head_id = char_data.get("head", 1)
 		var char_class = Consts.ClassNames.get(class_id, "Clase")
 		
-		var btn = Button.new()
-		btn.text = char_name + " (Nvl " + char_lvl + " " + char_class + ")"
-		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.custom_minimum_size = Vector2(0, 40)
+		# Contenedor principal clickeable
+		var item_container = Button.new()
+		item_container.flat = true
+		item_container.custom_minimum_size = Vector2(0, 50)
+		item_container.pressed.connect(_on_char_list_item_pressed.bind(i))
 		
-		# Estilo básico
-		btn.flat = false
+		# HBox para organizar: [Cabeza] [Nombre] [Clase] [Nivel]
+		var hbox = HBoxContainer.new()
+		hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+		hbox.add_theme_constant_override("separation", 10)
+		item_container.add_child(hbox)
 		
-		btn.pressed.connect(_on_char_list_item_pressed.bind(i))
+		# Cabeza del personaje
+		var head_container = SubViewportContainer.new()
+		head_container.custom_minimum_size = Vector2(40, 40)
+		head_container.stretch = true
+		head_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hbox.add_child(head_container)
 		
-		character_list.add_child(btn)
-		_list_buttons.append(btn)
+		var head_viewport = SubViewport.new()
+		head_viewport.transparent_bg = true
+		head_viewport.size = Vector2i(40, 40)
+		head_viewport.canvas_item_default_texture_filter = SubViewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+		head_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		head_container.add_child(head_viewport)
 		
-	# Si hay espacio para crear más (hasta MAX), podríamos mostrar slots vacíos o simplemente dejar el botón "Crear" abajo
-	# En WoW se muestran solo los existentes y un botón "Crear Nuevo" si hay espacio.
-	# Aquí ya tenemos el botón "Crear Personaje" en el panel de acciones.
+		var head_sprite = AnimatedSprite2D.new()
+		head_sprite.position = Vector2(20, 28)
+		head_sprite.scale = Vector2(1.5, 1.5)
+		head_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var head_path = "res://Resources/Character/Heads/head_%d.tres" % head_id
+		if ResourceLoader.exists(head_path):
+			head_sprite.sprite_frames = load(head_path)
+			head_sprite.animation = "idle_south"
+			head_sprite.play()
+		head_viewport.add_child(head_sprite)
+		
+		# Nombre del personaje
+		var name_label = Label.new()
+		name_label.text = char_name
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		name_label.add_theme_font_size_override("font_size", 14)
+		hbox.add_child(name_label)
+		
+		# Clase del personaje
+		var class_label = Label.new()
+		class_label.text = char_class
+		class_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		class_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		class_label.add_theme_font_size_override("font_size", 12)
+		class_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		class_label.custom_minimum_size = Vector2(80, 0)
+		hbox.add_child(class_label)
+		
+		# Nivel del personaje (grande y llamativo)
+		var level_label = Label.new()
+		level_label.text = str(char_lvl)
+		level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		level_label.add_theme_font_size_override("font_size", 22)
+		level_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))  # Dorado
+		level_label.custom_minimum_size = Vector2(40, 0)
+		hbox.add_child(level_label)
+		
+		character_list.add_child(item_container)
+		_list_buttons.append(item_container)
 
 func _on_char_list_item_pressed(index: int) -> void:
 	selected_index = index

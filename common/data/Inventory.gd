@@ -15,9 +15,15 @@ func GetSize() -> int:
 	
 	
 func GetSlot(index:int) -> ItemStack:
+	if index < 0 or index >= _slots.size():
+		push_warning("Inventory.GetSlot: Índice %d fuera de rango (tamaño: %d)" % [index, _slots.size()])
+		return null
 	return _slots[index]
-	
-	
+
+
 func SetSlot(index:int, itemStack:ItemStack) -> void:
+	if index < 0 or index >= _slots.size():
+		push_warning("Inventory.SetSlot: Índice %d fuera de rango (tamaño: %d)" % [index, _slots.size()])
+		return
 	_slots[index] = itemStack
 	slotChanged.emit(index, itemStack)
