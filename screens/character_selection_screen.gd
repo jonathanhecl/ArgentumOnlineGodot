@@ -1,7 +1,7 @@
 extends Control
 class_name CharacterSelectionScreen
 
-const MAX_CHARACTERS = 10
+const MAX_CHARACTERS = 10  # Máximo de personajes por cuenta
 
 # Señales
 signal character_selected(character_name: String)
@@ -14,10 +14,15 @@ var characters: Array[Dictionary] = []
 var account_name: String = ""
 var selected_index: int = -1 # 0-9 para los 10 slots
 
+# Referencias a los slots y sus componentes
+var _slot_buttons: Array[Button] = []
+var _slot_name_labels: Array[Label] = []
+var _slot_renderers: Array[CharacterRenderer] = []
+
 # Referencias de UI
 @onready var account_label = %AccountLabel
 @onready var character_grid = %CharacterGrid
-@onready var char_info_panel = %CharInfoPanel
+@onready var char_info_panel = %InfoPanel
 @onready var char_name_label = %CharNameLabel
 @onready var char_class_label = %CharClassLabel
 @onready var char_race_label = %CharRaceLabel
@@ -56,6 +61,8 @@ func _ready() -> void:
 	if characters.size() > 0:
 		print("[CharSelection] Actualizando vista en _ready con ", characters.size(), " personajes")
 		_update_character_view()
+		# Auto-seleccionar el primer personaje
+		_on_slot_click(0)
 
 func set_account_data(acc_name: String, char_list: Array[Dictionary]) -> void:
 	"""Establece los datos de la cuenta y los personajes (como en VB6)"""
@@ -92,12 +99,17 @@ func _create_character_slots() -> void:
 	# Limpiar slots existentes si los hay
 	for child in character_grid.get_children():
 		child.queue_free()
+	
+	# Limpiar arrays de referencias
+	_slot_buttons.clear()
+	_slot_name_labels.clear()
+	_slot_renderers.clear()
 		
 	for i in range(MAX_CHARACTERS):
 		# Usar Button en lugar de PanelContainer para mejor manejo de clicks
 		var slot = Button.new()
 		slot.name = "CharSlot" + str(i)
-		slot.custom_minimum_size = Vector2(110, 130) # Reducido de 140x160
+		slot.custom_minimum_size = Vector2(120, 120)  # Slots cuadrados
 		slot.flat = false
 		
 		# Estilo base del botón
@@ -127,27 +139,33 @@ func _create_character_slots() -> void:
 		
 		# Contenedor interno
 		var vbox = VBoxContainer.new()
+		vbox.name = "VBoxContainer"
 		vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		
-		# Sprite del personaje (placeholder mejorado)
-		var sprite_container = Panel.new()
+		# Contenedor para el sprite del personaje
+		var sprite_container = SubViewportContainer.new()
 		sprite_container.name = "SpriteContainer"
 		sprite_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		sprite_container.custom_minimum_size = Vector2(48, 48) # Reducido de 64x64
+		sprite_container.custom_minimum_size = Vector2(64, 70)
 		sprite_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		sprite_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		sprite_container.stretch = true
 		
-		var sprite_style = StyleBoxFlat.new()
-		sprite_style.bg_color = Color("000000")
-		sprite_style.border_width_left = 1
-		sprite_style.border_width_top = 1
-		sprite_style.border_width_right = 1
-		sprite_style.border_width_bottom = 1
-		sprite_style.border_color = Color("444444")
-		sprite_container.add_theme_stylebox_override("panel", sprite_style)
+		# SubViewport para renderizar el personaje
+		var viewport = SubViewport.new()
+		viewport.name = "SubViewport"
+		viewport.size = Vector2i(64, 70)
+		viewport.transparent_bg = true
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		sprite_container.add_child(viewport)
+		
+		# Crear el CharacterRenderer para este slot
+		var char_renderer = _create_character_renderer()
+		char_renderer.position = Vector2(32, 58) # Centrar en el viewport (x=mitad, y=abajo)
+		viewport.add_child(char_renderer)
 		
 		vbox.add_child(sprite_container)
 		
@@ -162,6 +180,11 @@ func _create_character_slots() -> void:
 		
 		slot.add_child(vbox)
 		
+		# Guardar referencias directas
+		_slot_buttons.append(slot)
+		_slot_name_labels.append(name_label)
+		_slot_renderers.append(char_renderer)
+		
 		# Conectar señal de pressed en lugar de gui_input
 		slot.pressed.connect(_on_slot_pressed.bind(i))
 		
@@ -170,19 +193,11 @@ func _create_character_slots() -> void:
 func _update_character_view() -> void:
 	"""Actualiza la vista de todos los personajes (como Form_Load en VB6)"""
 	print("[CharSelection] Actualizando vista con ", characters.size(), " personajes")
+	print("[CharSelection] Slots creados: ", _slot_buttons.size())
 	
-	for i in range(MAX_CHARACTERS):
-		var slot = character_grid.get_node_or_null("CharSlot" + str(i))
-		if not slot:
-			print("[CharSelection] Slot ", i, " no encontrado")
-			continue
-			
-		var name_label = slot.get_node_or_null("VBoxContainer/NameLabel")
-		var sprite_container = slot.get_node_or_null("VBoxContainer/SpriteContainer")
-		
-		if not name_label:
-			print("[CharSelection] NameLabel no encontrado en slot ", i)
-			continue
+	for i in range(mini(MAX_CHARACTERS, _slot_buttons.size())):
+		var name_label = _slot_name_labels[i]
+		var char_renderer = _slot_renderers[i]
 		
 		# Resetear estilo
 		_update_slot_style(i, false)
@@ -191,30 +206,97 @@ func _update_character_view() -> void:
 		if i < characters.size():
 			var char_data = characters[i]
 			var char_name = char_data.get("name", "")
-			print("[CharSelection] Slot ", i, " - Personaje: ", char_name)
+			print("[CharSelection] Slot ", i, " - Personaje: '", char_name, "'")
 			
 			# Actualizar texto y color
-			name_label.text = char_name
+			name_label.text = char_name if not char_name.is_empty() else "Sin nombre"
 			name_label.add_theme_color_override("font_color", Color("ffffff"))
+			name_label.visible = true
 			
-			if sprite_container:
-				sprite_container.modulate = Color(1, 1, 1, 1)
-			
-			# FORZAR actualización visual
-			name_label.queue_redraw()
-			slot.queue_redraw()
+			# Actualizar el renderer con los datos del personaje
+			_update_character_renderer(char_renderer, char_data)
+			char_renderer.visible = true
 			
 		else:
 			print("[CharSelection] Slot ", i, " - Vacío")
 			name_label.text = "Vacío"
 			name_label.add_theme_color_override("font_color", Color("555555"))
+			name_label.visible = true
 			
-			if sprite_container:
-				sprite_container.modulate = Color(1, 1, 1, 0.2)
-			
-			# FORZAR actualización visual
-			name_label.queue_redraw()
-			slot.queue_redraw()
+			# Ocultar el renderer para slots vacíos
+			char_renderer.visible = false
+
+func _create_character_renderer() -> CharacterRenderer:
+	"""Crea un CharacterRenderer programáticamente para preview"""
+	var renderer = CharacterRenderer.new()
+	renderer.name = "CharRenderer"
+	
+	# Crear los AnimatedSprite2D necesarios
+	var body_sprite = AnimatedSprite2D.new()
+	body_sprite.name = "Body"
+	renderer.add_child(body_sprite)
+	
+	var head_sprite = AnimatedSprite2D.new()
+	head_sprite.name = "Head"
+	head_sprite.position = Vector2(0, -5)
+	renderer.add_child(head_sprite)
+	
+	var helmet_sprite = AnimatedSprite2D.new()
+	helmet_sprite.name = "Helmet"
+	helmet_sprite.position = Vector2(0, -20)
+	renderer.add_child(helmet_sprite)
+	
+	var shield_sprite = AnimatedSprite2D.new()
+	shield_sprite.name = "Shield"
+	renderer.add_child(shield_sprite)
+	
+	var weapon_sprite = AnimatedSprite2D.new()
+	weapon_sprite.name = "Weapon"
+	renderer.add_child(weapon_sprite)
+	
+	# Asignar las referencias al renderer
+	renderer._bodyAnimatedSprite = body_sprite
+	renderer._headAnimatedSprite = head_sprite
+	renderer._helmetAnimatedSprite = helmet_sprite
+	renderer._shieldAnimatedSprite = shield_sprite
+	renderer._weaponAnimatedSprite = weapon_sprite
+	
+	# Cargar sprite frames vacíos por defecto
+	var default_frames = load("res://Resources/Character/none.tres")
+	body_sprite.sprite_frames = default_frames
+	head_sprite.sprite_frames = default_frames
+	helmet_sprite.sprite_frames = default_frames
+	shield_sprite.sprite_frames = default_frames
+	weapon_sprite.sprite_frames = default_frames
+	
+	return renderer
+
+func _update_character_renderer(char_renderer: CharacterRenderer, char_data: Dictionary) -> void:
+	"""Actualiza un CharacterRenderer con los datos del personaje"""
+	# Asignar body, head, weapon, shield, helmet
+	var body_id = char_data.get("body", 0)
+	var head_id = char_data.get("head", 0)
+	var weapon_id = char_data.get("weapon", 0)
+	var shield_id = char_data.get("shield", 0)
+	var helmet_id = char_data.get("helmet", 0)
+	
+	print("[CharSelection] Renderer - Body: ", body_id, " Head: ", head_id, " Weapon: ", weapon_id)
+	
+	# Establecer los valores (esto cargará los sprites automáticamente)
+	if body_id > 0:
+		char_renderer.body = body_id
+	if head_id > 0:
+		char_renderer.head = head_id
+	if weapon_id > 0:
+		char_renderer.weapon = weapon_id
+	if shield_id > 0:
+		char_renderer.shield = shield_id
+	if helmet_id > 0:
+		char_renderer.helmet = helmet_id
+	
+	# Reproducir animación de caminar hacia el sur (más dinámico)
+	char_renderer.heading = Enums.Heading.South
+	char_renderer.Play()  # Animación de caminar en lugar de idle
 
 func _update_slot_style(index: int, selected: bool) -> void:
 	var slot = character_grid.get_node_or_null("CharSlot" + str(index))
@@ -287,7 +369,10 @@ func _on_slot_double_click(slot_index: int) -> void:
 
 func _show_character_info(char_data: Dictionary) -> void:
 	"""Muestra información del personaje seleccionado (como lblCharData en VB6)"""
+	print("[CharSelection] _show_character_info llamado con: ", char_data)
+	print("[CharSelection] char_info_panel es null: ", char_info_panel == null)
 	if not char_info_panel:
+		print("[CharSelection] ERROR: char_info_panel es null!")
 		return
 		
 	char_name_label.text = "Nombre: " + char_data.get("name", "-")
@@ -362,7 +447,21 @@ func _on_connect_pressed() -> void:
 	character_selected.emit(char_name)
 
 func _on_logout_pressed() -> void:
-	"""Cerrar sesión (como uAOSalir_Click)"""
+	"""Cerrar sesión - volver a pantalla de login"""
+	print("[CharSelection] Cerrar sesión presionado")
+	
+	# Limpiar datos de cuenta
+	Global.account_name = ""
+	Global.account_hash = ""
+	
+	# Desconectar del servidor
+	ClientInterface.DisconnectFromHost()
+	
+	# Volver a pantalla de login
+	var login_screen = load("res://screens/login_screen.tscn").instantiate()
+	ScreenController.SwitchScreen(login_screen)
+	
+	# Emitir señal por si alguien la necesita
 	logout_requested.emit()
 
 func _show_error(message: String) -> void:
