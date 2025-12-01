@@ -49,20 +49,27 @@ static func WriteLoginNewAccount(username:String, password:String) -> void:
 	_writer.put_u8(Consts.CLIENT_VERSION_MINOR)
 	_writer.put_u8(Consts.CLIENT_VERSION_REVISION)
 	
-static func WriteLoginNewChar(username:String, password:String, email:String, job:int, race:int, gender:int, home:int, head:int) -> void:
-	_log_outgoing_packet("LoginNewChar", "username: " + username + ", password: " + password + ", email: " + email + ", job: " + str(job) + ", race: " + str(race) + ", gender: " + str(gender) + ", home: " + str(home) + ", head: " + str(head))
+static func WriteLoginNewChar(username:String, account_hash:String, job:int, race:int, gender:int, home:int, head:int) -> void:
+	_log_outgoing_packet("LoginNewChar", "username: " + username + ", job: " + str(job) + ", race: " + str(race) + ", gender: " + str(gender) + ", home: " + str(home) + ", head: " + str(head))
 	_writer.put_u8(Enums.ClientPacketID.LoginNewChar)
-	Utils.PutUnicodeString(_writer, username)
-	Utils.PutUnicodeString(_writer, password)
-	_writer.put_u8(0)
-	_writer.put_u8(13)
-	_writer.put_u8(0)
 	
+	# Nombre del personaje
+	Utils.PutUnicodeString(_writer, username)
+	# Hash de la cuenta
+	Utils.PutUnicodeString(_writer, account_hash)
+	
+	# Versión del cliente
+	_writer.put_u8(Consts.CLIENT_VERSION_MAJOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_MINOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_REVISION)
+	
+	# Datos del personaje
 	_writer.put_u8(race)
 	_writer.put_u8(gender)
 	_writer.put_u8(job)
 	_writer.put_16(head)
-	Utils.PutUnicodeString(_writer, email)
+	
+	# Hogar (ciudad inicial)
 	_writer.put_u8(home)
 	
 static func WriteThrowDice() -> void:

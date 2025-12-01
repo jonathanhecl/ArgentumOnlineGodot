@@ -36,3 +36,21 @@ func PlayAudio(waveId:int, from_server:bool = false, prevent_overlap:bool = fals
 		audioStreamPlayer.finished.connect(audioStreamPlayer.queue_free)
 	
 	audioStreamPlayer.play()
+
+func PlayAudioByName(sound_name: String) -> void:
+	"""Reproduce un sonido por nombre de archivo (sin extensión)"""
+	var path = "res://Assets/Sfx/%s.wav" % sound_name
+	
+	if not ResourceLoader.exists(path):
+		push_error("AudioManager: Audio resource not found: %s" % path)
+		return
+	
+	print("[AudioManager] 🔊 Reproduciendo sonido '%s'" % sound_name)
+	
+	var audioStreamPlayer = AudioStreamPlayer.new()
+	add_child(audioStreamPlayer)
+	
+	audioStreamPlayer.stream = load(path)
+	audioStreamPlayer.bus = "sfx"
+	audioStreamPlayer.finished.connect(audioStreamPlayer.queue_free)
+	audioStreamPlayer.play()

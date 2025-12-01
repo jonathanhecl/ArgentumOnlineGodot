@@ -120,6 +120,7 @@ func _HandleAccountLogged(stream: StreamPeerBuffer) -> void:
 	# Guardar datos de cuenta en Global
 	Global.account_name = account_name
 	Global.account_hash = account_hash
+	Global.account_characters = characters
 	
 	# Cambiar a pantalla de selección de personajes
 	var char_selection_screen = CharacterSelectionScene.instantiate()

@@ -1,25 +1,66 @@
-[gd_scene load_steps=5 format=3 uid="uid://bp35uafwebjdb"]
+[gd_scene load_steps=10 format=3 uid="uid://bp35uafwebjdb"]
 
 [ext_resource type="Script" uid="uid://jq4g00j8tbc4" path="res://screens/character_creation_screen.gd" id="1_tkq11"]
 [ext_resource type="PackedScene" path="res://maps/Map1.tscn" id="2_hwus4"]
+[ext_resource type="PackedScene" uid="uid://twhhld7du3lq" path="res://engine/character/character.tscn" id="3_char"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_hwus4"]
-font_size = 20
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 24
+font_color = Color(1, 0.85, 0.4, 1)
+outline_size = 3
+outline_color = Color(0.2, 0.1, 0, 1)
 
-[sub_resource type="LabelSettings" id="LabelSettings_jj4me"]
+[sub_resource type="LabelSettings" id="LabelSettings_section"]
+font_size = 14
+font_color = Color(1, 0.9, 0.6, 1)
+outline_size = 2
+outline_color = Color(0.1, 0.05, 0, 1)
 
-[node name="CharacterCreationScreen" type="Node" node_paths=PackedStringArray("_usernameLineEdit", "_passwordLineEdit", "_confirmPasswordLineEdit", "_emailLineEdit", "_classOptionButton", "_raceOptionButton", "_genderOptionButton", "_homeOptionButton", "_submitButton", "_attributeContainer")]
+[sub_resource type="LabelSettings" id="LabelSettings_normal"]
+font_size = 12
+font_color = Color(0.9, 0.85, 0.7, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_small"]
+font_size = 11
+font_color = Color(0.8, 0.75, 0.6, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.06, 0.04, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.45, 0.2, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preview"]
+bg_color = Color(0.02, 0.02, 0.02, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.4, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="CharacterCreationScreen" type="Node" node_paths=PackedStringArray("_characterNameEdit", "_classOptionButton", "_raceOptionButton", "_genderOptionButton", "_homeOptionButton", "_previewCharacter", "_headIndexLabel", "_attributeLabels", "_classDescriptionLabel", "_classSpecialtyLabel", "_animationTimer")]
 script = ExtResource("1_tkq11")
-_usernameLineEdit = NodePath("CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/LineEdit")
-_passwordLineEdit = NodePath("CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/LineEdit2")
-_confirmPasswordLineEdit = NodePath("CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/LineEdit3")
-_emailLineEdit = NodePath("CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/LineEdit4")
-_classOptionButton = NodePath("CanvasLayer/PanelContainer/MarginContainer/VBoxContainer/ClassOptionButton")
-_raceOptionButton = NodePath("CanvasLayer/PanelContainer/MarginContainer/VBoxContainer/RaceOptionButton")
-_genderOptionButton = NodePath("CanvasLayer/PanelContainer/MarginContainer/VBoxContainer/GenderOptionButton")
-_homeOptionButton = NodePath("CanvasLayer/PanelContainer/MarginContainer/VBoxContainer/HomeOptionButton")
-_submitButton = NodePath("CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/Submit")
-_attributeContainer = NodePath("CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer")
+_characterNameEdit = NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/NameEdit")
+_classOptionButton = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassOption")
+_raceOptionButton = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/RaceOption")
+_genderOptionButton = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/GenderOption")
+_homeOptionButton = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/HomeOption")
+_previewCharacter = NodePath("UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport/CharacterPreview")
+_headIndexLabel = NodePath("UI/MainContainer/CenterPanel/HeadSelector/HeadIndexLabel")
+_attributeLabels = [NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Attr1"), NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Attr2"), NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Attr3"), NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Attr4"), NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Attr5")]
+_classDescriptionLabel = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassDescription")
+_classSpecialtyLabel = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassSpecialty")
+_animationTimer = NodePath("AnimationTimer")
 
 [node name="MapView" parent="." instance=ExtResource("2_hwus4")]
 metadata/_edit_lock_ = true
@@ -27,230 +68,300 @@ metadata/_edit_lock_ = true
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(1719, 2613)
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="AnimationTimer" type="Timer" parent="."]
+wait_time = 0.15
+autostart = true
 
-[node name="Exit" type="Button" parent="CanvasLayer"]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -48.0
-offset_right = 234.0
-grow_vertical = 0
-text = "Salir"
+[node name="UI" type="CanvasLayer" parent="."]
 
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
+[node name="Background" type="ColorRect" parent="UI"]
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -188.0
-offset_top = -120.5
-offset_bottom = 120.5
-grow_horizontal = 0
-grow_vertical = 2
-metadata/_edit_group_ = true
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.4)
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Clase"
-label_settings = SubResource("LabelSettings_hwus4")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ClassOptionButton" type="OptionButton" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Raza"
-label_settings = SubResource("LabelSettings_hwus4")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RaceOptionButton" type="OptionButton" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label3" type="Label" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Genero"
-label_settings = SubResource("LabelSettings_hwus4")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="GenderOptionButton" type="OptionButton" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-selected = 0
-item_count = 2
-popup/item_0/text = "Hombre"
-popup/item_0/id = 0
-popup/item_1/text = "Mujer"
-popup/item_1/id = 1
-
-[node name="Label4" type="Label" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Hogar"
-label_settings = SubResource("LabelSettings_hwus4")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="HomeOptionButton" type="OptionButton" parent="CanvasLayer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer"]
-anchors_preset = 8
+[node name="Title" type="Label" parent="UI"]
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -147.5
-offset_top = -153.0
-offset_right = 147.5
-offset_bottom = 153.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_group_ = true
-metadata/_edit_lock_ = true
+offset_left = -200.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 45.0
+label_settings = SubResource("LabelSettings_title")
+text = "⚔ FORJA TU DESTINO ⚔"
+horizontal_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer2"]
+[node name="MainContainer" type="HBoxContainer" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 50.0
+offset_right = -20.0
+offset_bottom = -60.0
+theme_override_constants/separation = 15
+
+[node name="LeftPanel" type="PanelContainer" parent="UI/MainContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="LeftMargin" type="MarginContainer" parent="UI/MainContainer/LeftPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer2/MarginContainer"]
+[node name="LeftVBox" type="VBoxContainer" parent="UI/MainContainer/LeftPanel/LeftMargin"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="AccountTitle" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
 layout_mode = 2
-text = "Nombre"
-label_settings = SubResource("LabelSettings_jj4me")
+label_settings = SubResource("LabelSettings_section")
+text = "📜 NOMBRE DEL PERSONAJE"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="LineEdit" type="LineEdit" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="HSeparator1" type="HSeparator" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+
+[node name="NameEdit" type="LineEdit" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+placeholder_text = "Escribe el nombre..."
+max_length = 15
+
+[node name="HSeparator2" type="HSeparator" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+
+[node name="AttrTitle" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_section")
+text = "🎲 ATRIBUTOS"
+horizontal_alignment = 1
+
+[node name="Attr1" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Fuerza: 18"
+
+[node name="Attr2" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Agilidad: 18"
+
+[node name="Attr3" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Inteligencia: 18"
+
+[node name="Attr4" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Carisma: 18"
+
+[node name="Attr5" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Constitución: 18"
+
+[node name="RollDiceButton" type="Button" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "🎲 TIRAR DADOS"
+
+[node name="CenterPanel" type="VBoxContainer" parent="UI/MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="PreviewTitle" type="Label" parent="UI/MainContainer/CenterPanel"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_section")
+text = "👤 TU AVATAR"
+horizontal_alignment = 1
+
+[node name="PreviewContainer" type="PanelContainer" parent="UI/MainContainer/CenterPanel"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_preview")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="UI/MainContainer/CenterPanel/PreviewContainer"]
+layout_mode = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+size = Vector2i(300, 300)
+render_target_update_mode = 4
+
+[node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
+position = Vector2(150, 200)
+scale = Vector2(4, 4)
+
+[node name="HeadSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
 alignment = 1
+theme_override_constants/separation = 8
 
-[node name="Label2" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="HeadPrevBtn" type="Button" parent="UI/MainContainer/CenterPanel/HeadSelector"]
+custom_minimum_size = Vector2(40, 28)
 layout_mode = 2
-text = "Contraseña"
-label_settings = SubResource("LabelSettings_jj4me")
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "◀"
 
-[node name="LineEdit2" type="LineEdit" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="HeadLabel" type="Label" parent="UI/MainContainer/CenterPanel/HeadSelector"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Rostro"
+
+[node name="HeadIndexLabel" type="Label" parent="UI/MainContainer/CenterPanel/HeadSelector"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "1 / 40"
+horizontal_alignment = 1
+
+[node name="HeadNextBtn" type="Button" parent="UI/MainContainer/CenterPanel/HeadSelector"]
+custom_minimum_size = Vector2(40, 28)
+layout_mode = 2
+text = "▶"
+
+[node name="DirectionSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
 alignment = 1
-secret = true
+theme_override_constants/separation = 8
 
-[node name="Label3" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="DirLeftBtn" type="Button" parent="UI/MainContainer/CenterPanel/DirectionSelector"]
+custom_minimum_size = Vector2(40, 28)
 layout_mode = 2
-text = "Confirmar Contraseña"
-label_settings = SubResource("LabelSettings_jj4me")
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "↺"
 
-[node name="LineEdit3" type="LineEdit" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="DirLabel" type="Label" parent="UI/MainContainer/CenterPanel/DirectionSelector"]
 layout_mode = 2
-alignment = 1
-secret = true
+label_settings = SubResource("LabelSettings_normal")
+text = "Girar"
 
-[node name="Label4" type="Label" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="DirRightBtn" type="Button" parent="UI/MainContainer/CenterPanel/DirectionSelector"]
+custom_minimum_size = Vector2(40, 28)
 layout_mode = 2
-text = "Email"
-label_settings = SubResource("LabelSettings_jj4me")
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "↻"
 
-[node name="LineEdit4" type="LineEdit" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="RightPanel" type="PanelContainer" parent="UI/MainContainer"]
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-alignment = 1
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="Submit" type="Button" parent="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Crear Personaje"
-
-[node name="Button" type="Button" parent="CanvasLayer"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -326.0
-offset_top = 105.0
-offset_right = -227.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "Tirar
-Datos"
-
-[node name="PanelContainer5" type="PanelContainer" parent="CanvasLayer"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -358.0
-offset_top = -83.0
-offset_right = -195.0
-offset_bottom = 81.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_group_ = true
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer5"]
+[node name="RightMargin" type="MarginContainer" parent="UI/MainContainer/RightPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PanelContainer5/MarginContainer"]
-unique_name_in_owner = true
+[node name="RightVBox" type="VBoxContainer" parent="UI/MainContainer/RightPanel/RightMargin"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer"]
+[node name="OptionsTitle" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
 layout_mode = 2
+label_settings = SubResource("LabelSettings_section")
+text = "⚔ CARACTERÍSTICAS"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer"]
+[node name="HSeparator1" type="HSeparator" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Label3" type="Label" parent="CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer"]
+[node name="RaceLabel" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
+label_settings = SubResource("LabelSettings_normal")
+text = "Raza:"
 
-[node name="Label4" type="Label" parent="CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer"]
+[node name="RaceOption" type="OptionButton" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Label5" type="Label" parent="CanvasLayer/PanelContainer5/MarginContainer/VBoxContainer"]
+[node name="GenderLabel" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
+label_settings = SubResource("LabelSettings_normal")
+text = "Género:"
 
-[connection signal="pressed" from="CanvasLayer/Exit" to="." method="_Exit"]
-[connection signal="pressed" from="CanvasLayer/PanelContainer2/MarginContainer/VBoxContainer/Submit" to="." method="_OnSubmitButtonPressed"]
-[connection signal="pressed" from="CanvasLayer/Button" to="." method="_ThrowDice"]
+[node name="GenderOption" type="OptionButton" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="ClassLabel" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Clase:"
+
+[node name="ClassOption" type="OptionButton" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="HomeLabel" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Pueblo de Origen:"
+
+[node name="HomeOption" type="OptionButton" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+
+[node name="ClassInfoTitle" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_section")
+text = "📖 INFO DE CLASE"
+horizontal_alignment = 1
+
+[node name="ClassDescription" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_small")
+text = "Descripción de la clase..."
+autowrap_mode = 2
+
+[node name="ClassSpecialty" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_normal")
+text = "Especialidad: Ninguna"
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="UI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -50.0
+offset_right = 180.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 30
+
+[node name="BackButton" type="Button" parent="UI/ButtonsContainer"]
+custom_minimum_size = Vector2(140, 35)
+layout_mode = 2
+text = "← VOLVER"
+
+[node name="CreateButton" type="Button" parent="UI/ButtonsContainer"]
+custom_minimum_size = Vector2(160, 35)
+layout_mode = 2
+text = "⚔ CREAR HÉROE ⚔"
+
+[connection signal="pressed" from="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/RollDiceButton" to="." method="_OnRollDice"]
+[connection signal="pressed" from="UI/MainContainer/CenterPanel/HeadSelector/HeadPrevBtn" to="." method="_OnHeadPrev"]
+[connection signal="pressed" from="UI/MainContainer/CenterPanel/HeadSelector/HeadNextBtn" to="." method="_OnHeadNext"]
+[connection signal="pressed" from="UI/MainContainer/CenterPanel/DirectionSelector/DirLeftBtn" to="." method="_OnDirectionLeft"]
+[connection signal="pressed" from="UI/MainContainer/CenterPanel/DirectionSelector/DirRightBtn" to="." method="_OnDirectionRight"]
+[connection signal="pressed" from="UI/ButtonsContainer/BackButton" to="." method="_OnBack"]
+[connection signal="pressed" from="UI/ButtonsContainer/CreateButton" to="." method="_OnCreateCharacter"]

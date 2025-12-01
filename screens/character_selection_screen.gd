@@ -217,7 +217,10 @@ func _on_create_pressed() -> void:
 	if characters.size() >= MAX_CHARACTERS:
 		_show_error("Ya tienes el máximo de personajes permitidos")
 		return
-	create_character_requested.emit()
+	
+	# Cargar pantalla de creación de personaje directamente
+	var screen = load("uid://bp35uafwebjdb").instantiate()
+	ScreenController.SwitchScreen(screen)
 
 func _on_delete_pressed() -> void:
 	if selected_index < 0 or selected_index >= characters.size(): return
