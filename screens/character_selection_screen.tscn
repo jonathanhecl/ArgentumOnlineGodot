@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://c3qh5dn8xmr2v"]
+[gd_scene load_steps=3 format=3 uid="uid://c3qh5dn8xmr2v"]
 
 [ext_resource type="Script" path="res://screens/character_selection_screen.gd" id="1_v5kqc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_list_bg"]
+bg_color = Color(0.08, 0.08, 0.1, 0.9)
+border_width_left = 2
+border_color = Color(0.2, 0.2, 0.2, 1)
 
 [node name="CharacterSelectionScreen" type="Control"]
 layout_mode = 3
@@ -18,188 +23,150 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.08, 0.1, 1)
+color = Color(0.05, 0.05, 0.07, 1)
 
-[node name="MainContainer" type="MarginContainer" parent="."]
+[node name="MainLayout" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 30
+theme_override_constants/separation = 0
 
-[node name="VBox" type="VBoxContainer" parent="MainContainer"]
+[node name="PreviewArea" type="Control" parent="MainLayout"]
 layout_mode = 2
-theme_override_constants/separation = 25
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
 
-[node name="HeaderPanel" type="PanelContainer" parent="MainContainer/VBox"]
-layout_mode = 2
+[node name="CharacterPreviewAnchor" type="Control" parent="MainLayout/PreviewArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MainContainer/VBox/HeaderPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 15
+[node name="CharacterInfoContainer" type="VBoxContainer" parent="MainLayout/PreviewArea"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 50.0
+offset_right = 200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
 
-[node name="AccountLabel" type="Label" parent="MainContainer/VBox/HeaderPanel/MarginContainer"]
+[node name="CharNameLabel" type="Label" parent="MainLayout/PreviewArea/CharacterInfoContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 42
+text = "Nombre del Personaje"
+horizontal_alignment = 1
+
+[node name="CharDetailsLabel" type="Label" parent="MainLayout/PreviewArea/CharacterInfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+text = "Nivel 1 Humano Mago"
+horizontal_alignment = 1
+
+[node name="CharLocationLabel" type="Label" parent="MainLayout/PreviewArea/CharacterInfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 16
+text = "Mapa: 1"
+horizontal_alignment = 1
+
+[node name="AccountLabel" type="Label" parent="MainLayout/PreviewArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 46.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.5)
 text = "Cuenta: USERNAME"
-horizontal_alignment = 1
+horizontal_alignment = 2
 
-[node name="ContentContainer" type="HBoxContainer" parent="MainContainer/VBox"]
+[node name="SidePanel" type="PanelContainer" parent="MainLayout"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 30
+theme_override_styles/panel = SubResource("StyleBoxFlat_list_bg")
 
-[node name="LeftPanel" type="VBoxContainer" parent="MainContainer/VBox/ContentContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.5
-theme_override_constants/separation = 15
-
-[node name="TitleLabel" type="Label" parent="MainContainer/VBox/ContentContainer/LeftPanel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Selecciona un Personaje"
-horizontal_alignment = 1
-
-[node name="ListPanel" type="PanelContainer" parent="MainContainer/VBox/ContentContainer/LeftPanel"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="MarginContainer" type="MarginContainer" parent="MainContainer/VBox/ContentContainer/LeftPanel/ListPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer/VBox/ContentContainer/LeftPanel/ListPanel/MarginContainer"]
-layout_mode = 2
-
-[node name="CharacterGrid" type="GridContainer" parent="MainContainer/VBox/ContentContainer/LeftPanel/ListPanel/MarginContainer/ScrollContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
-columns = 2
-
-[node name="RightPanel" type="VBoxContainer" parent="MainContainer/VBox/ContentContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 15
-
-[node name="InfoTitleLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Detalles del Personaje"
-horizontal_alignment = 1
-
-[node name="InfoPanel" type="PanelContainer" parent="MainContainer/VBox/ContentContainer/RightPanel"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="MarginContainer" type="MarginContainer" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 25
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 25
-theme_override_constants/margin_bottom = 25
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="CharNameLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Nombre: -"
-
-[node name="HSeparator" type="HSeparator" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="CharClassLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "Clase: -"
-
-[node name="CharRaceLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "Raza: -"
-
-[node name="CharLevelLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "Nivel: -"
-
-[node name="HSeparator2" type="HSeparator" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="CharGoldLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "Oro: -"
-
-[node name="CharMapLabel" type="Label" parent="MainContainer/VBox/ContentContainer/RightPanel/InfoPanel/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "Mapa: -"
-
-[node name="ButtonsPanel" type="PanelContainer" parent="MainContainer/VBox"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="MainContainer/VBox/ButtonsPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="MainLayout/SidePanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 15
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_bottom = 20
 
-[node name="ButtonsContainer" type="HBoxContainer" parent="MainContainer/VBox/ButtonsPanel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainLayout/SidePanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 25
-alignment = 1
+theme_override_constants/separation = 20
 
-[node name="ConnectButton" type="Button" parent="MainContainer/VBox/ButtonsPanel/MarginContainer/ButtonsContainer"]
+[node name="TitleLabel" type="Label" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "PERSONAJES"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharacterList" type="VBoxContainer" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 45)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "CONECTAR"
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
 
-[node name="CreateButton" type="Button" parent="MainContainer/VBox/ButtonsPanel/MarginContainer/ButtonsContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 45)
+[node name="ActionsContainer" type="VBoxContainer" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "CREAR PJ"
+theme_override_constants/separation = 10
 
-[node name="DeleteButton" type="Button" parent="MainContainer/VBox/ButtonsPanel/MarginContainer/ButtonsContainer"]
+[node name="ConnectButton" type="Button" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 45)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "BORRAR PJ"
+theme_override_font_sizes/font_size = 18
+text = "ENTRAR AL MUNDO"
 
-[node name="LogoutButton" type="Button" parent="MainContainer/VBox/ButtonsPanel/MarginContainer/ButtonsContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 45)
+[node name="HSeparator" type="HSeparator" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "CERRAR SESIÓN"
+theme_override_constants/separation = 15
+
+[node name="CreateButton" type="Button" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "CREAR PERSONAJE"
+
+[node name="DeleteButton" type="Button" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "BORRAR PERSONAJE"
+
+[node name="HSeparator2" type="HSeparator" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="LogoutButton" type="Button" parent="MainLayout/SidePanel/MarginContainer/VBoxContainer/ActionsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "SALIR"
