@@ -26,13 +26,20 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	
 	return sprite
 
+func _IsValidGrhIndex(index: int) -> bool:
+	return index > 0 and index < GameAssets.GrhDataList.size()
+
 func _AddTileSetAtlasSource(tiles:PackedInt32Array, tileSet:TileSet) -> void: 
 	for tile in tiles:
-		if tile == 0:
+		if tile == 0 or not _IsValidGrhIndex(tile):
 			continue
 		
 		if GameAssets.GrhDataList[tile].frameCount > 1:
-			tile = GameAssets.GrhDataList[tile].frames[1]
+			var first_frame = GameAssets.GrhDataList[tile].frames[1]
+			if _IsValidGrhIndex(first_frame):
+				tile = first_frame
+			else:
+				continue
 		
 		if GameAssets.GrhDataList[tile].fileId == 0:
 			continue
@@ -42,6 +49,9 @@ func _AddTileSetAtlasSource(tiles:PackedInt32Array, tileSet:TileSet) -> void:
 			continue
 		
 		var texture = GameAssets.GetTexture(grhData.fileId)
+		if texture == null:
+			continue
+			
 		var tileSetAtlasSource = TileSetAtlasSource.new()
 		tileSetAtlasSource.texture_region_size = Vector2(32, 32)
 		tileSetAtlasSource.texture = texture
@@ -60,11 +70,15 @@ func _AddTileMapLayer(tiles:PackedInt32Array, tileSet:TileSet) -> TileMapLayer:
 		for x in 100:
 			var tile = tiles[x + y * 100]
 			
-			if tile == 0:
+			if tile == 0 or not _IsValidGrhIndex(tile):
 				continue
 				
 			if GameAssets.GrhDataList[tile].frameCount > 1:
-				tile = GameAssets.GrhDataList[tile].frames[1]
+				var first_frame = GameAssets.GrhDataList[tile].frames[1]
+				if _IsValidGrhIndex(first_frame):
+					tile = first_frame
+				else:
+					continue
 		
 			var grhData = GameAssets.GrhDataList[tile]
 			if !tileSet.has_source(grhData.fileId):
@@ -136,8 +150,15 @@ func _ExportMap(fileId:int) -> void:
 	layer3.owner = mainNode
 	
 	for object in mapData.layer3:
+		if not _IsValidGrhIndex(object.grhId):
+			continue
+			
 		if GameAssets.GrhDataList[object.grhId].frameCount > 1:
-			object.grhId = GameAssets.GrhDataList[object.grhId].frames[1]
+			var first_frame = GameAssets.GrhDataList[object.grhId].frames[1]
+			if _IsValidGrhIndex(first_frame):
+				object.grhId = first_frame
+			else:
+				continue
 			
 		var grhData = GameAssets.GrhDataList[object.grhId]
 		if grhData.fileId:

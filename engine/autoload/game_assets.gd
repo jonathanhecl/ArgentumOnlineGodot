@@ -53,7 +53,7 @@ func GetMap(fileId:int) -> MapData:
 	var stream = StreamPeerBuffer.new() 
 	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Maps/mapa%d.map" % fileId)
 	
-	# Header
+	# Header: MapVersion(2) + Desc(255) + CRC(4) + MagicWord(4) + Padding(8) = 273 bytes
 	stream.seek(2 + 255 + 4 + 4 + 8)
 	
 	for y in 100:
@@ -61,25 +61,35 @@ func GetMap(fileId:int) -> MapData:
 			var index = x + y * 100
 			var flags = stream.get_u8()
 			
-			mapData.layer1[index] = stream.get_16()
+			# Layer 1 - GrhIndex es Long (4 bytes) en VB6
+			mapData.layer1[index] = stream.get_32()
 			
 			if flags & 0x1:
 				mapData.flags[index] |= Enums.TileState.Blocked
 			if flags & 0x2:
-				mapData.layer2[index] = stream.get_16()
+				# Layer 2 - Long (4 bytes)
+				mapData.layer2[index] = stream.get_32()
 			if flags & 0x4:
-				mapData.layer3.push_back(MapData.Sprite.new(x, y, stream.get_16())) 
+				# Layer 3 - Long (4 bytes)
+				mapData.layer3.push_back(MapData.Sprite.new(x, y, stream.get_32())) 
 			if flags & 0x8:
-				mapData.layer4.push_back(MapData.Sprite.new(x, y, stream.get_16()))
+				# Layer 4 - Long (4 bytes)
+				mapData.layer4.push_back(MapData.Sprite.new(x, y, stream.get_32()))
 			if flags & 0x10:
-				if  stream.get_16() in [1, 2, 4]:
-					mapData.flags[index] |= Enums.TileState.Roof 
+				# Trigger - Integer (2 bytes)
+				var trigger = stream.get_16()
+				if trigger in [1, 2, 4]:
+					mapData.flags[index] |= Enums.TileState.Roof
+			if flags & 0x20:
+				# Particle - Integer (2 bytes)
+				stream.get_16()
 			
+			# Detectar agua basándose en el GrhIndex de layer1
 			if ((mapData.layer1[index] >= 1505 && mapData.layer1[index] <= 1520) || \
 				(mapData.layer1[index] >= 5665 && mapData.layer1[index] <= 5680) || \
 				(mapData.layer1[index] >= 13547 && mapData.layer1[index] <= 13562)) && mapData.layer2[index] == 0:
 					mapData.flags[index] |= Enums.TileState.Water 
-	return mapData;
+	return mapData
 
 func _LoadColours() -> void:
 	var initReader = ConfigFile.new()
