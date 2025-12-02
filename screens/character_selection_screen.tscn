@@ -47,27 +47,29 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_top = 50.0
-offset_bottom = 50.0
+offset_top = -30.0
+offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CharacterInfoContainer" type="VBoxContainer" parent="MainLayout/PreviewArea"]
 layout_mode = 1
-anchors_preset = 5
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
+anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = 50.0
+offset_top = 120.0
 offset_right = 200.0
-offset_bottom = 200.0
+offset_bottom = 280.0
 grow_horizontal = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="CharNameLabel" type="Label" parent="MainLayout/PreviewArea/CharacterInfoContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 28
 text = "Nombre del Personaje"
 horizontal_alignment = 1
 
@@ -75,7 +77,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = "Nivel 1 Humano Mago"
 horizontal_alignment = 1
 
@@ -83,7 +85,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 12
 text = "Mapa: 1"
 horizontal_alignment = 1
 

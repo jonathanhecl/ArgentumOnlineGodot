@@ -22,12 +22,19 @@ static func IsEmpty() -> bool:
 static func Clear() -> void:
 	_writer.clear()
 
-static func WriteLoginExistingCharacter(username:String, password:String) -> void:
-	_log_outgoing_packet("LoginExistingCharacter", "username: " + username + ", password: " + password)
+static func WriteLoginExistingCharacter(char_name: String, account_hash: String) -> void:
+	_log_outgoing_packet("LoginExistingCharacter", "char_name: " + char_name)
 	_writer.put_u8(Enums.ClientPacketID.LoginExistingChar)
-	Utils.PutUnicodeString(_writer, username)
-	Utils.PutUnicodeString(_writer, password)
-	_writer.put_u8(0)
+	
+	# Nombre del personaje
+	Utils.PutUnicodeString(_writer, char_name)
+	# Hash de la cuenta
+	Utils.PutUnicodeString(_writer, account_hash)
+	
+	# Versión del cliente
+	_writer.put_u8(Consts.CLIENT_VERSION_MAJOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_MINOR)
+	_writer.put_u8(Consts.CLIENT_VERSION_REVISION)
 
 static func WriteLoginExistingAccount(username:String, password:String) -> void:
 	_log_outgoing_packet("LoginExistingAccount", "username: " + username + ", password: " + password)

@@ -174,14 +174,22 @@ func _UpdateBodyAndHead() -> void:
 	# Obtener el cuerpo correcto
 	_currentBody = BODY_IDS.get(race_key, 1)
 	
-	# Actualizar el preview
+	# Actualizar el preview sin efecto de refresh
 	if _previewCharacter and _previewCharacter.has_node("Renderer"):
 		var renderer = _previewCharacter.get_node("Renderer")
 		if renderer:
+			# Ocultar renderer antes del cambio
+			renderer.modulate.a = 0.0
+			
+			# Cambiar los recursos
 			renderer.body = _currentBody
 			renderer.head = _currentHead
 			renderer.heading = _currentDirection
 			renderer.Stop()
+			
+			# Crear animación suave de fade-in
+			var tween = create_tween()
+			tween.tween_property(renderer, "modulate:a", 1.0, 0.1)
 	
 	_UpdateHeadLabel()
 

@@ -143,33 +143,46 @@ func _update_character_list() -> void:
 		# Contenedor principal clickeable
 		var item_container = Button.new()
 		item_container.flat = true
-		item_container.custom_minimum_size = Vector2(0, 50)
+		item_container.custom_minimum_size = Vector2(0, 36)
 		item_container.pressed.connect(_on_char_list_item_pressed.bind(i))
 		
-		# HBox para organizar: [Cabeza] [Nombre] [Clase] [Nivel]
+		# HBox para organizar: [Flecha] [Cabeza] [Nombre] [Clase] [Nivel]
 		var hbox = HBoxContainer.new()
 		hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-		hbox.add_theme_constant_override("separation", 10)
+		hbox.add_theme_constant_override("separation", 8)
+		hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		item_container.add_child(hbox)
+		
+		# Flecha de selección (invisible por defecto)
+		var arrow_label = Label.new()
+		arrow_label.name = "Arrow"
+		arrow_label.text = "▶"
+		arrow_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		arrow_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		arrow_label.add_theme_font_size_override("font_size", 12)
+		arrow_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		arrow_label.custom_minimum_size = Vector2(16, 0)
+		arrow_label.visible = false
+		hbox.add_child(arrow_label)
 		
 		# Cabeza del personaje
 		var head_container = SubViewportContainer.new()
-		head_container.custom_minimum_size = Vector2(40, 40)
+		head_container.custom_minimum_size = Vector2(32, 32)
 		head_container.stretch = true
 		head_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hbox.add_child(head_container)
 		
 		var head_viewport = SubViewport.new()
 		head_viewport.transparent_bg = true
-		head_viewport.size = Vector2i(40, 40)
+		head_viewport.size = Vector2i(32, 32)
 		head_viewport.canvas_item_default_texture_filter = SubViewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 		head_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		head_container.add_child(head_viewport)
 		
 		var head_sprite = AnimatedSprite2D.new()
-		head_sprite.position = Vector2(20, 28)
-		head_sprite.scale = Vector2(1.5, 1.5)
+		head_sprite.position = Vector2(16, 42)
+		head_sprite.scale = Vector2(1.2, 1.2)
 		head_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		var head_path = "res://Resources/Character/Heads/head_%d.tres" % head_id
 		if ResourceLoader.exists(head_path):
@@ -184,7 +197,7 @@ func _update_character_list() -> void:
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 13)
 		hbox.add_child(name_label)
 		
 		# Clase del personaje
@@ -192,9 +205,9 @@ func _update_character_list() -> void:
 		class_label.text = char_class
 		class_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		class_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		class_label.add_theme_font_size_override("font_size", 12)
-		class_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-		class_label.custom_minimum_size = Vector2(80, 0)
+		class_label.add_theme_font_size_override("font_size", 11)
+		class_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		class_label.custom_minimum_size = Vector2(70, 0)
 		hbox.add_child(class_label)
 		
 		# Nivel del personaje (grande y llamativo)
@@ -203,9 +216,9 @@ func _update_character_list() -> void:
 		level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		level_label.add_theme_font_size_override("font_size", 22)
+		level_label.add_theme_font_size_override("font_size", 20)
 		level_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))  # Dorado
-		level_label.custom_minimum_size = Vector2(40, 0)
+		level_label.custom_minimum_size = Vector2(35, 0)
 		hbox.add_child(level_label)
 		
 		character_list.add_child(item_container)
@@ -214,13 +227,13 @@ func _update_character_list() -> void:
 func _on_char_list_item_pressed(index: int) -> void:
 	selected_index = index
 	
-	# Actualizar estilos de botones (highlight selected)
+	# Actualizar indicador de selección (flecha)
 	for i in range(_list_buttons.size()):
 		var btn = _list_buttons[i]
-		if i == index:
-			btn.modulate = Color(1, 1, 0) # Amarillo para seleccionado
-		else:
-			btn.modulate = Color(1, 1, 1)
+		var hbox = btn.get_child(0)
+		var arrow = hbox.get_node_or_null("Arrow")
+		if arrow:
+			arrow.visible = (i == index)
 			
 	# Actualizar preview central
 	if index >= 0 and index < characters.size():
@@ -237,7 +250,16 @@ func _on_char_list_item_pressed(index: int) -> void:
 		delete_button.disabled = true
 
 func _update_preview_info(char_data: Dictionary) -> void:
-	char_name_label.text = char_data.get("name", "Sin Nombre")
+	var char_name = char_data.get("name", "Sin Nombre")
+	var is_criminal = char_data.get("criminal", false)
+	
+	char_name_label.text = char_name
+	
+	# Color según criminal/ciudadano
+	if is_criminal:
+		char_name_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))  # Rojo
+	else:
+		char_name_label.add_theme_color_override("font_color", Color(0.2, 0.6, 1.0))  # Azul ciudadano
 	
 	var lvl = str(char_data.get("level", 1))
 	var class_id = char_data.get("class", 0)
@@ -284,7 +306,44 @@ func _on_connect_pressed() -> void:
 	if selected_index >= 0 and selected_index < characters.size():
 		var char_name = characters[selected_index].get("name", "")
 		if not char_name.is_empty():
-			character_selected.emit(char_name)
+			# Guardar el nombre del personaje
+			Global.username = char_name
+			
+			# Conectar para recibir respuesta del servidor
+			if not ClientInterface.dataReceived.is_connected(_on_data_received):
+				ClientInterface.dataReceived.connect(_on_data_received)
+			
+			# Enviar paquete de login con personaje existente
+			GameProtocol.WriteLoginExistingCharacter(char_name, Global.account_hash)
+			ClientInterface.Send(GameProtocol.Flush())
+			
+			# Deshabilitar botón mientras esperamos
+			connect_button.disabled = true
+			connect_button.text = "CONECTANDO..."
+
+func _on_data_received(data: PackedByteArray) -> void:
+	var stream = StreamPeerBuffer.new()
+	stream.data_array = data
+	
+	while stream.get_position() < stream.get_size():
+		var packetId = stream.get_u8()
+		match packetId:
+			Enums.ServerPacketID.ErrorMsg:
+				var error_msg = Utils.GetUnicodeString(stream)
+				_show_error(error_msg)
+				connect_button.disabled = false
+				connect_button.text = "ENTRAR AL MUNDO"
+			_:
+				# Cualquier otro paquete significa que entramos al juego
+				ClientInterface.dataReceived.disconnect(_on_data_received)
+				_enter_game(data)
+				return
+
+func _enter_game(data: PackedByteArray) -> void:
+	# Cargar la pantalla del juego y pasarle los datos iniciales
+	var game_screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
+	game_screen.networkMessages.append(data)
+	ScreenController.SwitchScreen(game_screen)
 
 func _on_create_pressed() -> void:
 	if characters.size() >= MAX_CHARACTERS:
