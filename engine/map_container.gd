@@ -105,7 +105,10 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	return sprite
 
 func _GetLayer(layerName: String) -> Node2D:
-
+	if not _view:
+		push_error("MapContainer: _view is null, LoadMap() must be called first")
+		return null
+		
 	for node in _view.get_children():
 		if node.name == layerName: 
 			return node
