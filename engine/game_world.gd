@@ -11,21 +11,25 @@ func CreateCharacter(data:CharacterCreate) -> Character:
 	_mapContainer.DeleteCharacter(data.charIndex)
 	
 	var character = CharacterScene.instantiate() as Character
-	_mapContainer.AddCharacter(character)
 	
-	character.SetCharacterName(data.name)
-	character.SetCharacterNameColor(Utils.GetNickColor(data.nickColor, data.privileges))
+	# Configurar datos básicos antes de agregar al árbol
 	character.instanceId = data.charIndex
-	character.position = Vector2((data.x - 1) * 32, (data.y - 1) * 32) + Vector2(16, 32);
+	character.position = Vector2((data.x - 1) * 32, (data.y - 1) * 32) + Vector2(16, 32)
 	character.gridPosition = Vector2(data.x, data.y)
 	character.priv = data.privileges
 	
+	# Agregar al árbol para que @onready se inicialice
+	_mapContainer.AddCharacter(character)
+	
+	# Ahora renderer está disponible
+	character.SetCharacterName(data.name)
+	character.SetCharacterNameColor(Utils.GetNickColor(data.nickColor, data.privileges))
 	character.renderer.body = data.body 
-	character.renderer.head = data.head;
-	character.renderer.helmet = data.helmet;
-	character.renderer.weapon = data.weapon;
-	character.renderer.shield = data.shield;
-	character.renderer.heading = data.heading;
+	character.renderer.head = data.head
+	character.renderer.helmet = data.helmet
+	character.renderer.weapon = data.weapon
+	character.renderer.shield = data.shield
+	character.renderer.heading = data.heading
 	
 	# Aplicar configuración global de visibilidad de nombres
 	character.SetNameVisible(Global.show_player_names)
