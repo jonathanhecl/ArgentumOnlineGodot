@@ -35,11 +35,17 @@ func DisconnectFromHost() -> void:
 
 func Send(data: PackedByteArray) -> void:
 	if _socket.get_status() == StreamPeerTCP.STATUS_CONNECTED && data.size():
-		# Cifrar los datos antes de enviar (como en VB6 con Security.NAC_E_Byte)
-		var encrypted_data = Security.encrypt_bytes(data)
-		if LOG_PACKETS:
-			print("[OUTGOING] Enviando %d bytes cifrados (original: %d bytes)" % [encrypted_data.size(), data.size()])
-		_socket.put_data(encrypted_data)
+		# NOTA: El cifrado solo se usa si el servidor tiene AntiExternos habilitado
+		# AOGolang NO tiene AntiExternos, así que enviamos los datos sin cifrar
+		var data_to_send = data
+		if Security.anti_externos_enabled:
+			data_to_send = Security.encrypt_bytes(data)
+			if LOG_PACKETS:
+				print("[OUTGOING] Enviando %d bytes cifrados" % data_to_send.size())
+		else:
+			if LOG_PACKETS:
+				print("[OUTGOING] Enviando %d bytes sin cifrar" % data_to_send.size())
+		_socket.put_data(data_to_send)
 		
 func _process(_delta: float) -> void:
 	_socket.poll()

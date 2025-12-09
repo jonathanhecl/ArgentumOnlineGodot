@@ -339,10 +339,9 @@ func _on_data_received(data: PackedByteArray) -> void:
 				_enter_game(data)
 				return
 
-func _enter_game(data: PackedByteArray) -> void:
-	# Cargar la pantalla del juego y pasarle los datos iniciales
+func _enter_game(_data: PackedByteArray) -> void:
+	# Cargar la pantalla del juego - ProtocolHandler ya maneja los datos
 	var game_screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
-	game_screen.networkMessages.append(data)
 	ScreenController.SwitchScreen(game_screen)
 
 func _on_create_pressed() -> void:

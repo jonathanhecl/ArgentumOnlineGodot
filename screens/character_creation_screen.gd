@@ -117,6 +117,12 @@ func _ready() -> void:
 	_InitializeCharacterPreview()
 	_ThrowDice()
 
+func _exit_tree() -> void:
+	if ClientInterface.disconnected.is_connected(_OnDisconnected):
+		ClientInterface.disconnected.disconnect(_OnDisconnected)
+	if ClientInterface.dataReceived.is_connected(_OnDataReceived):
+		ClientInterface.dataReceived.disconnect(_OnDataReceived)
+
 func _InitializeUI() -> void:
 	# Cargar clases
 	_classOptionButton.clear()
@@ -316,6 +322,8 @@ func _UpdateAttributeDisplay() -> void:
 # === NETWORK ===
 
 func _OnDisconnected() -> void:
+	print("[CharacterCreation] Desconectado del servidor, volviendo a login...")
+	Security.reset_redundance()
 	var screen = load("uid://cd452cndcck7v").instantiate()
 	ScreenController.SwitchScreen(screen)
 

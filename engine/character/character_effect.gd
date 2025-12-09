@@ -13,12 +13,26 @@ func play_effect(id:int, loops:int) -> void:
 	effect_loops = loops
 	
 	if effect_id > 0:
+		var fx_path = "res://Resources/Fxs/fx_%d.tres" % id
+		if not ResourceLoader.exists(fx_path):
+			push_warning("CharacterEffect: FX not found: %s" % fx_path)
+			stop_effect()
+			return
+			
+		sprite_frames = load(fx_path)
+		if not sprite_frames or sprite_frames.get_frame_count("default") == 0:
+			push_warning("CharacterEffect: Invalid FX resource: %s" % fx_path)
+			stop_effect()
+			return
+		
 		visible = true
-		sprite_frames = load("res://Resources/Fxs/fx_%d.tres" % id)
 		play("default")
 		
-		var height = sprite_frames.get_frame_texture("default", 0).get_height()
-		position.y = -height / 2.0 + sprite_frames.get_meta("offset_y")
+		var texture = sprite_frames.get_frame_texture("default", 0)
+		if texture:
+			var height = texture.get_height()
+			var offset_y = sprite_frames.get_meta("offset_y") if sprite_frames.has_meta("offset_y") else 0
+			position.y = -height / 2.0 + offset_y
 	else:
 		stop_effect()
 		

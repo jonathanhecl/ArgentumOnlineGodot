@@ -1,5 +1,9 @@
 extends Node
 
+# Flag para habilitar/deshabilitar el cifrado (como #If AntiExternos en VB6)
+# AOGolang NO tiene AntiExternos habilitado, así que por defecto está en false
+var anti_externos_enabled: bool = true
+
 # Clave de cifrado XOR (como Security.Redundance en VB6)
 # Se inicializa en 13 y luego el servidor puede enviar una nueva clave
 var redundance: int = 13

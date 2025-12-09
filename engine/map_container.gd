@@ -18,10 +18,16 @@ func LoadMap(id:int) -> void:
 	
 	if _view:
 		_view.queue_free()
+	
+	var map_path = "res://Maps/Map%d.tscn" % id
+	if not ResourceLoader.exists(map_path):
+		push_error("MapContainer: Map file not found: %s" % map_path)
+		return
 		
-	_view = load("res://Maps/Map%d.tscn" % id).instantiate()
+	_view = load(map_path).instantiate()
 	_tiles = _view.get_meta("data")
 	%MapView.add_child(_view)
+	print("MapContainer: Loaded map %d" % id)
 
 func GetTile(x:int, y:int) -> int:
 	return _tiles[x + y * 100]
@@ -39,7 +45,13 @@ func UnblockTile (x:int, y:int) -> void:
 
 func AddCharacter(character:Character) -> void:
 	_characterCollection.append(character)
-	_GetLayer("Layer3").add_child(character) 
+	var layer = _GetLayer("Layer3")
+	if layer:
+		layer.add_child(character)
+	else:
+		# Fallback: agregar directamente al MapContainer si el mapa no está cargado
+		add_child(character)
+		push_warning("MapContainer: Layer3 not available, character added to MapContainer directly") 
 		
 func DeleteCharacter(instanceId:int) -> void:
 	var character = GetCharacter(instanceId)
@@ -69,14 +81,16 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 			grhId = GameAssets.GrhDataList[grhId].frames[1]
 		
 		var grhData = GameAssets.GrhDataList[grhId]
-		var sprite = _CreateSprite(grhData, x -1, y - 1)
+		var sprite = _CreateSprite(grhData, x - 1, y - 1)
 		sprite.set_meta(GridPositionKey, Vector2i(x, y))
 		_objectCollection.append(sprite)
 		
-		if sprite.region_rect.size == Vector2(32, 32):
-			_GetLayer("Layer2").add_child(sprite)
+		var layer_name = "Layer2" if sprite.region_rect.size == Vector2(32, 32) else "Layer3"
+		var layer = _GetLayer(layer_name)
+		if layer:
+			layer.add_child(sprite)
 		else:
-			_GetLayer("Layer3").add_child(sprite)
+			push_error("MapContainer: Cannot add object, %s not available" % layer_name)
 	
 func DeleteObject(x:int, y:int) -> void:
 	var node:Node2D = null

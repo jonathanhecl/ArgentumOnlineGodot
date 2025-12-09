@@ -17,20 +17,33 @@ func _ready() -> void:
 	ClientInterface.connected.connect(_OnConnected)
 	ClientInterface.disconnected.connect(_OnDisconnected)
 	ClientInterface.connection_timeout.connect(_OnConnectionTimeout)
-	ClientInterface.dataReceived.connect(_OnDataReceived)
+	
+	# Conectar señales del ProtocolHandler para eventos de login
+	ProtocolHandler.error_msg_received.connect(_on_error_msg)
+	ProtocolHandler.account_logged.connect(_on_account_logged)
+	ProtocolHandler.show_message_box.connect(_on_show_message_box)
+	ProtocolHandler.logged_in.connect(_on_logged_in)
 	
 	_loginPanel.error.connect(func(message):
 		Utils.ShowAlertDialog("Login", message, self))
-	
+
+func _exit_tree() -> void:
+	# Desconectar señales del ProtocolHandler al salir
+	if ProtocolHandler.error_msg_received.is_connected(_on_error_msg):
+		ProtocolHandler.error_msg_received.disconnect(_on_error_msg)
+	if ProtocolHandler.account_logged.is_connected(_on_account_logged):
+		ProtocolHandler.account_logged.disconnect(_on_account_logged)
+	if ProtocolHandler.show_message_box.is_connected(_on_show_message_box):
+		ProtocolHandler.show_message_box.disconnect(_on_show_message_box)
+	if ProtocolHandler.logged_in.is_connected(_on_logged_in):
+		ProtocolHandler.logged_in.disconnect(_on_logged_in)
+
 func _OnConnected() -> void:
-	# Resetear clave de cifrado al conectar (como en VB6: Security.Redundance = 13)
 	Security.reset_redundance()
 	
 	if _state == State.RegisterAccount:
-		# Ir a pantalla de registro de cuenta (requiere email)
 		_show_register_account_dialog()
 	elif _state == State.LoginAccount:
-		# Enviar login de cuenta al servidor
 		GameProtocol.WriteLoginExistingAccount(_loginPanel.GetUsername(), _loginPanel.GetPassword())
 		_Flush()
 	
@@ -49,79 +62,13 @@ func _GetEnpoint() -> Dictionary:
 		"port": int(%Port.value)
 	}
 
-func _OnDataReceived(data: PackedByteArray) -> void:
-	var stream = StreamPeerBuffer.new()
-	stream.data_array = data
-	
-	print("[LoginScreen] Received data: ", data.hex_encode())
-	
-	while stream.get_position() < stream.get_size():
-		var packetId = stream.get_u8()
-		print("[LoginScreen] Processing Packet ID: ", packetId)
-		
-		if packetId == Enums.ServerPacketID.ErrorMsg:
-			print("[LoginScreen] Handling ErrorMsg")
-			_HandleErrorMsg(Utils.GetUnicodeString(stream))
-		elif packetId == Enums.ServerPacketID.AccountLogged:
-			print("[LoginScreen] Handling AccountLogged (108)")
-			_HandleAccountLogged(stream)
-			return
-		else:
-			print("[LoginScreen] Unhandled packet ID: ", packetId, ". Defaulting to _HandleLogged (GameScreen).")
-			_HandleLogged(data)
-			return
+#region Protocol Signal Handlers
 
-func _HandleErrorMsg(message: String) -> void:
+func _on_error_msg(message: String) -> void:
 	Utils.ShowAlertDialog("Server", message, self)
 	ClientInterface.DisconnectFromHost()
 
-func _HandleAccountLogged(stream: StreamPeerBuffer) -> void:
-	"""Manejar el paquete AccountLogged que contiene la lista de personajes"""
-	var account_name = Utils.GetUnicodeString(stream)
-	var account_hash = Utils.GetUnicodeString(stream)
-	var num_characters = stream.get_u8()
-	
-	print("Account logged: ", account_name, " Hash: ", account_hash, " Characters: ", num_characters)
-	
-	var characters: Array[Dictionary] = []
-	for i in range(num_characters):
-		var char_name = Utils.GetUnicodeString(stream)
-		var char_body = stream.get_16()
-		var char_head = stream.get_16()
-		var char_weapon = stream.get_16()
-		var char_shield = stream.get_16()
-		var char_helmet = stream.get_16()
-		var char_class = stream.get_u8()
-		var char_race = stream.get_u8()
-		var char_map = stream.get_16()
-		var char_level = stream.get_u8()
-		var char_gold = stream.get_32()
-		var char_criminal = stream.get_u8() != 0 # Boolean
-		var char_dead = stream.get_u8() != 0 # Boolean
-		var char_gm = stream.get_u8() != 0 # Boolean
-		
-		characters.append({
-			"name": char_name,
-			"level": char_level,
-			"class": char_class,
-			"body": char_body,
-			"head": char_head,
-			"weapon": char_weapon,
-			"shield": char_shield,
-			"helmet": char_helmet,
-			"race": char_race,
-			"map": char_map,
-			"gold": char_gold,
-			"criminal": char_criminal,
-			"dead": char_dead,
-			"gm": char_gm
-		})
-	
-	# Guardar datos de cuenta en Global
-	Global.account_name = account_name
-	Global.account_hash = account_hash
-	Global.account_characters = characters
-	
+func _on_account_logged(account_name: String, _account_hash: String, characters: Array) -> void:
 	# Cambiar a pantalla de selección de personajes
 	var char_selection_screen = CharacterSelectionScene.instantiate()
 	char_selection_screen.set_account_data(account_name, characters)
@@ -133,12 +80,15 @@ func _HandleAccountLogged(stream: StreamPeerBuffer) -> void:
 	
 	ScreenController.SwitchScreen(char_selection_screen)
 
-func _HandleLogged(data: PackedByteArray) -> void:
-	# Solo para compatibilidad con el sistema antiguo
+func _on_show_message_box(message: String) -> void:
+	var root = get_tree().root
+	Utils.ShowAlertDialog("Servidor", message, root)
+
+func _on_logged_in() -> void:
 	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
-	screen.networkMessages.append(data)
-	
 	ScreenController.SwitchScreen(screen)
+
+#endregion
 		
 func _OnLoginPanelSubmit() -> void:
 	_ConnectToHost(State.LoginAccount)

@@ -50,7 +50,7 @@ var shield: int:
 		_set_shield(value)
 
 func Play() -> void:
-	var key = (Enums.Heading.keys()[heading]).to_lower()  
+	var key = _get_heading_key()
 	_bodyAnimatedSprite.play("walk_" + key)
 	_shieldAnimatedSprite.play("walk_" + key)
 	_weaponAnimatedSprite.play("walk_" + key)
@@ -58,12 +58,18 @@ func Play() -> void:
 	_helmetAnimatedSprite.play("idle_" + key)
 	
 func Stop() -> void:
-	var key = (Enums.Heading.keys()[heading]).to_lower()  
+	var key = _get_heading_key()
 	_bodyAnimatedSprite.play("idle_" + key)
 	_shieldAnimatedSprite.play("idle_" + key)
 	_weaponAnimatedSprite.play("idle_" + key)
 	_headAnimatedSprite.play("idle_" + key)
 	_helmetAnimatedSprite.play("idle_" + key)
+
+func _get_heading_key() -> String:
+	var keys = Enums.Heading.keys()
+	if heading >= 0 and heading < keys.size():
+		return keys[heading].to_lower()
+	return "south"  # Default fallback
 
 func _set_weapon(id:int) -> void:
 	_weapon = id 

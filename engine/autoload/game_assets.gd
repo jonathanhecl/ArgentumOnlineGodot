@@ -62,27 +62,29 @@ func GetMap(fileId:int) -> MapData:
 			var flags = stream.get_u8()
 			
 			# Layer 1 - GrhIndex es Long (4 bytes) en VB6
-			mapData.layer1[index] = stream.get_32()
+			mapData.layer1[index] = stream.get_32() # Ground layer
 			
 			if flags & 0x1:
 				mapData.flags[index] |= Enums.TileState.Blocked
 			if flags & 0x2:
 				# Layer 2 - Long (4 bytes)
-				mapData.layer2[index] = stream.get_32()
+				mapData.layer2[index] = stream.get_32() # Decoration layer
 			if flags & 0x4:
 				# Layer 3 - Long (4 bytes)
-				mapData.layer3.push_back(MapData.Sprite.new(x, y, stream.get_32())) 
+				mapData.layer3.push_back(MapData.Sprite.new(x, y, stream.get_32())) # Vertical objects layer
 			if flags & 0x8:
 				# Layer 4 - Long (4 bytes)
-				mapData.layer4.push_back(MapData.Sprite.new(x, y, stream.get_32()))
+				mapData.layer4.push_back(MapData.Sprite.new(x, y, stream.get_32())) # Roof layer (can be hidden)
 			if flags & 0x10:
 				# Trigger - Integer (2 bytes)
+				# 1=BAJOTECHO (hide roof), 2=CASA (hide roof)
 				var trigger = stream.get_16()
-				if trigger in [1, 2, 4]:
+				# mapData.flags[index] = trigger
+				if trigger in [1, 2]:
 					mapData.flags[index] |= Enums.TileState.Roof
-			if flags & 0x20:
-				# Particle - Integer (2 bytes)
-				stream.get_16()
+			# if flags & 0x20:
+			# 	# Particle - Integer (2 bytes)
+			# 	stream.get_16()
 			
 			# Detectar agua basándose en el GrhIndex de layer1
 			if ((mapData.layer1[index] >= 1505 && mapData.layer1[index] <= 1520) || \
