@@ -13,6 +13,17 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 func Deserialize(reader:StreamPeerBuffer) -> void:
 	index = reader.get_u8()
 	
+	# Debug para TODOS los mensajes
+	print("⚠️ MultiMessage: Procesando índice ", index)
+	
+	# Debug para identificar mensajes no reconocidos
+	if index >= 48:  # El enum Messages solo va hasta 47
+		print("⚠️ MultiMessage: Índice no reconocido ", index, ". Consumiendo bytes restantes...")
+		var remaining = reader.get_size() - reader.get_position()
+		print("⚠️ MultiMessage: Consumiendo ", remaining, " bytes restantes")
+		reader.seek(reader.get_size())  # Saltar todos los bytes restantes
+		return
+	
 	match index:
 		Enums.Messages.NPCHitUser:
 			arg1 = reader.get_u8()

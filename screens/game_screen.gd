@@ -345,7 +345,8 @@ func _on_remove_all_dialogs() -> void:
 
 #region Protocol Signal Handlers - Map
 
-func _on_map_changed(map_id: int, _version: int) -> void:
+func _on_map_changed(map_id: int, name_map: String, zone: String) -> void:
+	print("🌍 GameScreen: ¡Se recibió señal de cambio de mapa! Mapa ID: ", map_id, " Nombre: ", name_map, " Zona: ", zone)
 	_gameWorld.SwitchMap(map_id)
 	_gameInput.minimap.load_thumbnail(map_id)
 
@@ -586,9 +587,9 @@ func _on_multi_message(index: int, arg1: int, arg2: int, arg3: int, string_arg1:
 			var message = ""
 			if arg2 >= 60:
 				if arg2 % 60 == 0:
-					message = "%d minutos." % (arg2 / 60)
+					message = "%d minutos." % (arg2 / 60.0)
 				else:
-					message = "%d minutos y %d segundos." % [int(arg2 / 60), int(arg2 % 60)]
+					message = "%d minutos y %d segundos." % [int(arg2 / 60.0), int(arg2) % 60]
 			else:
 				message = "%d segundos." % arg2
 			_gameInput.ShowConsoleMessage("Te encuentras a %d mapas de la %s, este viaje durará %s" % [arg1, string_arg1, message], FontData.new(Color.RED, true))

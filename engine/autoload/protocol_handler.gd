@@ -18,7 +18,7 @@ signal character_changed(data: CharacterChange)
 signal character_change_nick(char_index: int, name: String)
 signal user_char_index_received(char_index: int)
 
-signal map_changed(map_id: int, version: int)
+signal map_changed(map_id: int, name_map: String, zone: String)
 signal area_changed()
 signal pos_updated(x: int, y: int)
 signal force_char_move(heading: int)
@@ -143,15 +143,42 @@ func _handle_incoming_data(data: PackedByteArray) -> void:
 		_handle_one_packet(stream)
 
 func _handle_one_packet(stream: StreamPeerBuffer) -> void:
+	var start_pos = stream.get_position()
 	var packet_id = stream.get_u8()
 	var packet_name = ""
 	
+	# Logging detallado para depurar
+	print("🔍 DEBUG: Stream pos=", start_pos, ", size=", stream.get_size(), ", packet_id=", packet_id)
+	
+	# Mostrar los siguientes bytes para entender qué viene después
+	if stream.get_position() + 4 <= stream.get_size():
+		var next_bytes = []
+		for i in range(4):
+			next_bytes.append(stream.get_u8())
+		print("🔍 DEBUG: Siguientes 4 bytes: ", next_bytes)
+		stream.seek(stream.get_position() - 4)  # Volver a la posición
+	
 	if packet_id < Enums.ServerPacketID.keys().size():
-		packet_name = Enums.ServerPacketID.keys()[packet_id]
+		# Obtener el nombre del paquete por su valor ID, no por posición
+		for key in Enums.ServerPacketID.keys():
+			if Enums.ServerPacketID.get(key) == packet_id:
+				packet_name = key
+				break
+		print("🔍 DEBUG: packet_id=", packet_id, " -> packet_name=", packet_name)
 	else:
 		print("[ProtocolHandler] Paquete desconocido ID: ", packet_id)
 		return
 	
+	# Manejo especial para Logged con ID incorrecto (0) - BUG del servidor
+	if packet_id == 0:
+		print("🔐 ProtocolHandler: ¡Recibido Logged con ID incorrecto (0)! Procesando...")
+		var _p = Logged.new(stream)
+		print("🔐 ProtocolHandler: Stream después de Logged: pos=", stream.get_position(), "/", stream.get_size())
+		print("🔐 ProtocolHandler: ¡Usuario autenticado! Emitiendo señal logged_in...")
+		logged_in.emit()
+		return
+	
+	print("DEBUG: Procesando packet_id=", packet_id, " (", packet_name, ")")
 	match packet_id:
 		# ==================== LOGIN/ACCOUNT PACKETS ====================
 		Enums.ServerPacketID.ErrorMsg:
@@ -167,11 +194,14 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.Logged:
 			var _p = Logged.new(stream)
+			print("🔐 ProtocolHandler: ¡Recibido paquete Logged! Usuario autenticado")
+			print("🔐 ProtocolHandler: Esperando paquete ChangeMap para cargar el mapa...")
 			logged_in.emit()
 		
 		# ==================== CHARACTER PACKETS ====================
 		Enums.ServerPacketID.CharacterCreate:
 			var p = CharacterCreate.new(stream)
+			print("DEBUG: CharacterCreate - charIndex=", p.charIndex, " name=", p.name, " pos=(", p.x, ",", p.y, ")")
 			_process_character_privileges(p)
 			character_created.emit(p)
 		
@@ -226,7 +256,8 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.ChangeMap:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
-			map_changed.emit(p.mapId, p.version)
+			print("DEBUG: Cambiando al mapa ", p.mapId, " - ", p.nameMap, " (", p.zone, ")")
+			map_changed.emit(p.mapId, p.nameMap, p.zone)
 		
 		Enums.ServerPacketID.AreaChanged:
 			var _p = AreaChanged.new(stream)
@@ -234,6 +265,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.PosUpdate:
 			var p = PosUpdate.new(stream)
+			print("DEBUG: PosUpdate - x=", p.x, " y=", p.y)
 			pos_updated.emit(p.x, p.y)
 		
 		Enums.ServerPacketID.ForceCharMove:
@@ -242,6 +274,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.ObjectCreate:
 			var p = ObjectCreate.new(stream)
+			print("DEBUG: ObjectCreate - grhId=", p.grhId, " pos=(", p.x, ",", p.y, ")")
 			object_created.emit(p.grhId, p.x, p.y)
 		
 		Enums.ServerPacketID.ObjectDelete:
@@ -254,6 +287,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		# ==================== INVENTORY/ITEMS PACKETS ====================
 		Enums.ServerPacketID.ChangeInventorySlot:
+			print("DEBUG: Recibido ChangeInventorySlot (47) - Actualizando slot de inventario")
 			var p = ChangeInventorySlot.new(stream)
 			var item_stack = _create_item_stack(p)
 			game_context.playerInventory.SetSlot(p.slot - 1, item_stack)
@@ -261,7 +295,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.ChangeSpellSlot:
 			var p = ChangeSpellSlot.new(stream)
-			spell_slot_changed.emit(p.slot - 1, p.name)
+			spell_slot_changed.emit(p.slot - 1, "")
 		
 		Enums.ServerPacketID.ChangeBankSlot:
 			var p = ChangeBankSlot.new(stream)
@@ -496,6 +530,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.GuildDetails:
 			var p = GuildDetails.new(stream)
+			print("DEBUG: Recibido GuildDetails (80) - Mostrando detalles del clan: ", p.guild_name)
 			var data = {
 				"name": p.guild_name,
 				"founder": p.founder,

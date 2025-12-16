@@ -3,6 +3,7 @@ extends Node
 signal resources_loaded()
 
 @export var progressBar:ProgressBar 
+@export var mainContainer: VBoxContainer 
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.BLACK)	
@@ -36,7 +37,15 @@ func _ready() -> void:
 
 	await get_tree().create_timer(0.25).timeout
 	progressBar.hide()
+	mainContainer.hide()
 	
 	#LoginScreen
-	var screen = load("uid://cd452cndcck7v").instantiate() 
+	var screen_path = "uid://cd452cndcck7v"
+	print("🔍 Main: Cargando pantalla desde UID: ", screen_path)
+	var screen = load(screen_path).instantiate() 
+	print("🔍 Main: Pantalla instanciada: ", screen.get_class())
+	if screen.get_script():
+		print("🔍 Main: Script de la pantalla: ", screen.get_script().get_path())
+	else:
+		print("🔍 Main: ¡ERROR! La pantalla no tiene script!")
 	ScreenController.SwitchScreen(screen)

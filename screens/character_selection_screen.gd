@@ -334,7 +334,9 @@ func _on_data_received(data: PackedByteArray) -> void:
 				connect_button.disabled = false
 				connect_button.text = "ENTRAR AL MUNDO"
 			_:
-				# Cualquier otro paquete significa que entramos al juego
+				# Pasar los datos a ProtocolHandler para que los procese normalmente
+				ProtocolHandler._handle_incoming_data(data)
+				# Ahora sí desconectamos y entramos al juego
 				ClientInterface.dataReceived.disconnect(_on_data_received)
 				_enter_game(data)
 				return

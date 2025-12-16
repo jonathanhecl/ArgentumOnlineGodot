@@ -67,6 +67,10 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 	_mapContainer.AddObject(grhId, x, y)
 	
 func SwitchMap(id:int) -> void:
+	print("🔄 GameWorld: Solicitando cambio al mapa ", id)
+	if not _mapContainer:
+		push_error("GameWorld: _mapContainer es nulo")
+		return
 	_mapContainer.LoadMap(id)
 
 func _PlayerWalkSound(character:Character) -> void:

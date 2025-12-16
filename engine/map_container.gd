@@ -10,24 +10,40 @@ var _objectCollection:Array[Node2D]
 var _tiles:PackedByteArray
 
 func _ready() -> void:
+	print("🏗️ MapContainer: Inicializando contenedor de mapas...")
 	_tiles.resize(100 * 100)
-	_tiles.fill(Enums.TileState.Blocked)  
+	_tiles.fill(Enums.TileState.Blocked)
+	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")  
 	
 func LoadMap(id:int) -> void:
+	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
 	_DeleteEntities()
 	
 	if _view:
+		print("🗺️ MapContainer: Liberando vista anterior del mapa")
 		_view.queue_free()
 	
 	var map_path = "res://Maps/Map%d.tscn" % id
+	print("🗺️ MapContainer: Buscando mapa en ruta: ", map_path)
 	if not ResourceLoader.exists(map_path):
 		push_error("MapContainer: Map file not found: %s" % map_path)
 		return
 		
+	print("🗺️ MapContainer: Cargando escena del mapa...")
 	_view = load(map_path).instantiate()
+	if not _view:
+		push_error("MapContainer: No se pudo instanciar el mapa: %s" % map_path)
+		return
+		
+	print("🗺️ MapContainer: Obteniendo datos del mapa...")
 	_tiles = _view.get_meta("data")
+	if _tiles == null:
+		push_error("MapContainer: El mapa no tiene metadatos 'data'")
+		return
+		
+	print("🗺️ MapContainer: Agregando mapa a MapView...")
 	%MapView.add_child(_view)
-	print("MapContainer: Loaded map %d" % id)
+	print("✅ MapContainer: Mapa ", id, " cargado exitosamente con ", _tiles.size(), " tiles")
 
 func GetTile(x:int, y:int) -> int:
 	return _tiles[x + y * 100]

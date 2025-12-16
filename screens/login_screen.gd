@@ -24,6 +24,40 @@ func _ready() -> void:
 	ProtocolHandler.show_message_box.connect(_on_show_message_box)
 	ProtocolHandler.logged_in.connect(_on_logged_in)
 	
+	print("🔍 LoginScreen._ready: Tamaño del LoginPanel: ", _loginPanel.size)
+	print("🔍 LoginScreen._ready: Posición del LoginPanel: ", _loginPanel.position)
+	print("🔍 LoginScreen._ready: Visible del LoginPanel: ", _loginPanel.visible)
+	
+	# Verificar todos los nodos en el root
+	print("🔍 Nodos en root:")
+	for i in range(get_tree().root.get_child_count()):
+		var child = get_tree().root.get_child(i)
+		print("  [", i, "] ", child.name, " (", child.get_class(), ")")
+		if child is CanvasLayer:
+			print("    -> CanvasLayer layer: ", child.layer)
+	
+	# Verificar el Main container
+	var main_node = get_tree().root.get_node("Main")
+	if main_node:
+		var main_container = main_node.get_node("VBoxContainer")
+		print("🔍 LoginScreen._ready: MainContainer visible: ", main_container.visible)
+		print("🔍 LoginScreen._ready: MainContainer size: ", main_container.size)
+	
+	# Forzar layer alto para el CanvasLayer del login
+	var canvas_layer = _loginPanel.get_parent()
+	if canvas_layer:
+		print("🔍 LoginScreen._ready: CanvasLayer visible: ", canvas_layer.visible)
+		print("🔍 LoginScreen._ready: CanvasLayer is_inside_tree: ", canvas_layer.is_inside_tree())
+		print("🔍 LoginScreen._ready: CanvasLayer layer ANTES: ", canvas_layer.layer)
+		canvas_layer.layer = 100
+		print("🔍 LoginScreen._ready: CanvasLayer layer DESPUÉS: ", canvas_layer.layer)
+		canvas_layer.visible = true
+		print("🔍 LoginScreen._ready: CanvasLayer visible forzado a: ", canvas_layer.visible)
+	
+	# Forzar modulate a blanco para asegurar visibilidad
+	_loginPanel.modulate = Color.WHITE
+	print("🔍 LoginScreen._ready: Modulate del LoginPanel: ", _loginPanel.modulate)
+	
 	_loginPanel.error.connect(func(message):
 		Utils.ShowAlertDialog("Login", message, self))
 

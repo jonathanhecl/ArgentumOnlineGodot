@@ -1,10 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://bea3h14qh8jve"]
+[gd_scene load_steps=3 format=3 uid="uid://bea3h14qh8jve"]
 
 [ext_resource type="Script" uid="uid://c3544f3wcfksc" path="res://ui/login_panel.gd" id="1_6a27a"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.2, 0.2, 0.2, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="LoginPanel" type="PanelContainer"]
 offset_right = 306.0
 offset_bottom = 236.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 script = ExtResource("1_6a27a")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
