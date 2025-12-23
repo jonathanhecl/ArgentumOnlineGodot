@@ -1,12 +1,10 @@
 extends RefCounted
-class_name ShowSignal
+class_name SeeInProcess
 
-var message:String
-var unknown:int
+var arg1:int # BYTE
 
 func _init(reader:StreamPeerBuffer = null) -> void:
 	if reader: deserialize(reader)
 
 func deserialize(reader:StreamPeerBuffer) -> void:
-	message = Utils.GetUnicodeString(reader)
-	unknown = reader.get_32()
+	arg1 = reader.get_u8()

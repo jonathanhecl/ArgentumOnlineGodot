@@ -62,3 +62,21 @@ func _on_btn_move_down_pressed() -> void:
 	_item_list.move_item(get_selected_slot(), get_selected_slot() + 1)
 	_item_list.select(get_selected_slot())
 	GameProtocol.WriteMoveSpell(true, get_selected_slot() + 1) 
+
+
+func update_spell_slot(slot: int, spell_id: int) -> void:
+	var spell_name = ""
+	
+	# Buscar el nombre del hechizo por su ID
+	if spell_id > 0:
+		# TODO: Cargar los nombres de hechizos desde un archivo de datos
+		# Por ahora, mostrar el ID
+		spell_name = "Hechizo " + str(spell_id)
+	else:
+		spell_name = "(None)"
+	
+	# Actualizar el item en la lista
+	if slot > 0 and slot <= _item_list.item_count:
+		_item_list.set_item_text(slot - 1, spell_name)
+	
+	print("Panel de hechizos: actualizado slot ", slot, " con ", spell_name) 

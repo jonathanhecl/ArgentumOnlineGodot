@@ -12,3 +12,4 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	mapId = reader.get_16()  # ReadInteger() en VB6
 	nameMap = Utils.GetUnicodeString(reader)  # ReadASCIIString() en VB6
 	zone = Utils.GetUnicodeString(reader)  # ReadASCIIString() en VB6
+	reader.get_16() # Unused INT param

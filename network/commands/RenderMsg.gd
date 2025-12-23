@@ -1,12 +1,12 @@
 extends RefCounted
-class_name ShowSignal
+class_name RenderMsg
 
-var message:String
-var unknown:int
+var arg1:String # ASCII
+var arg2:int # INT
 
 func _init(reader:StreamPeerBuffer = null) -> void:
 	if reader: deserialize(reader)
 
 func deserialize(reader:StreamPeerBuffer) -> void:
-	message = Utils.GetUnicodeString(reader)
-	unknown = reader.get_32()
+	arg1 = Utils.GetUnicodeString(reader)
+	arg2 = reader.get_16()

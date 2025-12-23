@@ -22,7 +22,7 @@ func deserialize(reader:StreamPeerBuffer) -> void:
 	for i in count:
 		var entry = Entry.new()
 		entry.name = Utils.GetUnicodeString(reader)
-		entry.grh_index = reader.get_16()
+		entry.grh_index = reader.get_32()
 		entry.lin_h = reader.get_16()
 		entry.lin_p = reader.get_16()
 		entry.lin_o = reader.get_16()

@@ -1,0 +1,282 @@
+enum ClientPacketID
+1 | LoginExistingChar | WriteLoginExistingChar | BYTE, ASCII, ASCII, BYTE, BYTE, BYTE
+2 | ThrowDices | WriteThrowDices | BYTE
+3 | LoginNewChar | WriteLoginNewChar | BYTE, ASCII, ASCII, BYTE, BYTE, BYTE, BYTE, BYTE, BYTE, INT, BYTE
+4 | Talk | WriteTalk | BYTE, ASCII
+5 | Yell | WriteYell | BYTE, ASCII
+6 | Whisper | WriteWhisper | BYTE, ASCII, ASCII
+7 | Walk | WriteWalk | BYTE, BYTE
+8 | RequestPositionUpdate | WriteRequestPositionUpdate | BYTE
+9 | Attack | WriteAttack | BYTE
+10 | PickUp | WritePickUp | BYTE
+11 | SafeToggle | WriteSafeToggle | BYTE
+12 | ResuscitationSafeToggle | WriteResuscitationToggle | BYTE
+13 | RequestGuildLeaderInfo | WriteRequestGuildLeaderInfo | BYTE
+14 | RequestAtributes | WriteRequestAtributes | BYTE
+15 | RequestFame | WriteRequestFame | BYTE
+16 | RequestSkills | WriteRequestSkills | BYTE
+17 | RequestMiniStats | WriteRequestMiniStats | BYTE
+18 | CommerceEnd | WriteCommerceEnd | BYTE
+19 | UserCommerceEnd | WriteUserCommerceEnd | BYTE
+20 | UserCommerceConfirm | WriteUserCommerceConfirm | BYTE
+21 | CommerceChat | WriteCommerceChat | BYTE, ASCII
+22 | BankEnd | WriteBankEnd | BYTE
+23 | UserCommerceOk | WriteUserCommerceOk | BYTE
+24 | UserCommerceReject | WriteUserCommerceReject | BYTE
+25 | Drop | WriteDrop | BYTE, BYTE, INT
+26 | CastSpell | WriteCastSpell | BYTE, BYTE
+27 | LeftClick | WriteLeftClick | BYTE, BYTE, BYTE
+28 | DoubleClick | WriteDoubleClick | BYTE, BYTE, BYTE
+29 | Work | WriteWork | BYTE, BYTE
+30 | UseSpellMacro | WriteUseSpellMacro | BYTE
+31 | UseItem | WriteUseItem | BYTE, BYTE
+32 | CraftBlacksmith | WriteCraftBlacksmith | BYTE, INT
+33 | CraftCarpenter | WriteCraftCarpenter | BYTE, INT
+34 | WorkLeftClick | WriteWorkLeftClick | BYTE, BYTE, BYTE, BYTE
+35 | CreateNewGuild | WriteCreateNewGuild | BYTE, ASCII, ASCII, ASCII, ASCII
+36 | sadasdA | Unknown |
+37 | EquipItem | WriteEquipItem | BYTE, BYTE
+38 | ChangeHeading | WriteChangeHeading | BYTE, BYTE
+39 | ModifySkills | WriteModifySkills | BYTE, BYTE
+40 | Train | WriteTrain | BYTE, BYTE
+41 | CommerceBuy | WriteCommerceBuy | BYTE, BYTE, INT
+42 | BankExtractItem | WriteBankExtractItem | BYTE, BYTE, INT
+43 | CommerceSell | WriteCommerceSell | BYTE, BYTE, INT
+44 | BankDeposit | WriteBankDeposit | BYTE, BYTE, INT
+45 | ForumPost | WriteForumPost | BYTE, BYTE, ASCII, ASCII
+46 | MoveSpell | WriteMoveSpell | BYTE, BOOLEAN, BYTE
+47 | MoveBank | WriteMoveBank | BYTE, BOOLEAN, BYTE
+48 | ClanCodexUpdate | WriteClanCodexUpdate | BYTE, ASCII, ASCII
+49 | UserCommerceOffer | WriteUserCommerceOffer | BYTE, BYTE, LONG, BYTE
+50 | GuildAcceptPeace | WriteGuildAcceptPeace | BYTE, ASCII
+51 | GuildRejectAlliance | WriteGuildRejectAlliance | BYTE, ASCII
+52 | GuildRejectPeace | WriteGuildRejectPeace | BYTE, ASCII
+53 | GuildAcceptAlliance | WriteGuildAcceptAlliance | BYTE, ASCII
+54 | GuildOfferPeace | WriteGuildOfferPeace | BYTE, ASCII, ASCII
+55 | GuildOfferAlliance | WriteGuildOfferAlliance | BYTE, ASCII, ASCII
+56 | GuildAllianceDetails | WriteGuildAllianceDetails | BYTE, ASCII
+57 | GuildPeaceDetails | WriteGuildPeaceDetails | BYTE, ASCII
+58 | GuildRequestJoinerInfo | WriteGuildRequestJoinerInfo | BYTE, ASCII
+59 | GuildAlliancePropList | WriteGuildAlliancePropList | BYTE
+60 | GuildPeacePropList | WriteGuildPeacePropList | BYTE
+61 | GuildDeclareWar | WriteGuildDeclareWar | BYTE, ASCII
+62 | GuildNewWebsite | WriteGuildNewWebsite | BYTE, ASCII
+63 | GuildAcceptNewMember | WriteGuildAcceptNewMember | BYTE, ASCII
+64 | GuildRejectNewMember | WriteGuildRejectNewMember | BYTE, ASCII, ASCII
+65 | GuildKickMember | WriteGuildKickMember | BYTE, ASCII
+66 | GuildUpdateNews | WriteGuildUpdateNews | BYTE, ASCII
+67 | GuildMemberInfo | WriteGuildMemberInfo | BYTE, ASCII
+68 | GuildOpenElections | WriteGuildOpenElections | BYTE
+69 | GuildRequestMembership | WriteGuildRequestMembership | BYTE, ASCII, ASCII
+70 | GuildRequestDetails | WriteGuildRequestDetails | BYTE, ASCII
+71 | Online | WriteOnline | BYTE
+72 | Quit | WriteQuit | BYTE
+73 | GuildLeave | WriteGuildLeave | BYTE
+74 | RequestAccountState | WriteRequestAccountState | BYTE
+75 | PetStand | WritePetStand | BYTE
+76 | PetFollow | WritePetFollow | BYTE
+77 | ReleasePet | WriteReleasePet | BYTE
+78 | TrainList | WriteTrainList | BYTE
+79 | Rest | WriteRest | BYTE
+80 | Meditate | WriteMeditate | BYTE
+81 | Resucitate | WriteResucitate | BYTE
+82 | Heal | WriteHeal | BYTE
+83 | Help | WriteHelp | BYTE
+84 | RequestStats | WriteRequestStats | BYTE
+85 | CommerceStart | WriteCommerceStart | BYTE
+86 | BankStart | WriteBankStart | BYTE
+87 | Enlist | WriteEnlist | BYTE
+88 | Information | WriteInformation | BYTE
+89 | Reward | WriteReward | BYTE
+90 | RequestMOTD | WriteRequestMOTD | BYTE
+91 | UpTime | WriteUpTime | BYTE
+92 | PartyLeave | WritePartyLeave | BYTE
+93 | PartyCreate | WritePartyCreate | BYTE
+94 | PartyJoin | WritePartyJoin | BYTE
+95 | Inquiry | WriteInquiry | BYTE
+96 | GuildMessage | WriteGuildMessage | BYTE, ASCII
+97 | PartyMessage | WritePartyMessage | BYTE, ASCII
+98 | GuildOnline | WriteGuildOnline | BYTE
+99 | PartyOnline | WritePartyOnline | BYTE
+100 | CouncilMessage | WriteCouncilMessage | BYTE, ASCII
+101 | RoleMasterRequest | WriteRoleMasterRequest | BYTE, ASCII
+102 | GMRequest | WriteGMRequest | BYTE
+103 | bugReport | WriteBugReport | BYTE, ASCII
+104 | ChangeDescription | WriteChangeDescription | BYTE, ASCII
+105 | GuildVote | WriteGuildVote | BYTE, ASCII
+106 | Punishments | WritePunishments | BYTE, ASCII
+107 | ChangePassword | WriteChangePassword | BYTE, ASCII, ASCII
+108 | Gamble | WriteGamble | BYTE, INT
+109 | InquiryVote | WriteInquiryVote | BYTE, BYTE
+110 | LeaveFaction | WriteLeaveFaction | BYTE
+111 | BankExtractGold | WriteBankExtractGold | BYTE, LONG
+112 | BankDepositGold | WriteBankDepositGold | BYTE, LONG
+113 | Denounce | WriteDenounce | BYTE, ASCII
+114 | GuildFundate | WriteGuildFundate | BYTE
+115 | GuildFundation | WriteGuildFundation | BYTE, BYTE
+116 | PartyKick | WritePartyKick | BYTE, ASCII
+117 | PartySetLeader | WritePartySetLeader | BYTE, ASCII
+118 | PartyAcceptMember | WritePartyAcceptMember | BYTE, ASCII
+119 | Ping | WritePing | BYTE
+120 | RequestPartyForm | WriteRequestPartyForm | BYTE
+121 | ItemUpgrade | WriteItemUpgrade | BYTE, INT
+122 | GMCommands | WriteLimpiarMundo | BYTE, BYTE, ... (Multiplexed / Varios Comandos)
+123 | InitCrafting | WriteInitCrafting | BYTE, LONG, INT
+124 | Home | WriteHome | BYTE
+125 | ShowGuildNews | WriteShowGuildNews | BYTE
+126 | ShareNpc | WriteShareNpc | BYTE
+127 | StopSharingNpc | WriteStopSharingNpc | BYTE
+128 | Consultation | WriteConsultation | BYTE
+129 | moveItem | WriteMoveItem | BYTE, BYTE, BYTE, BYTE
+130 | LoginExistingAccount | WriteLoginExistingAccount | BYTE, ASCII, ASCII, BYTE, BYTE, BYTE    
+131 | LoginNewAccount | WriteLoginNewAccount | BYTE, ASCII, ASCII, BYTE, BYTE, BYTE
+132 | CentinelReport | WriteCentinelReport | BYTE, ASCII
+133 | Ecvc | WriteEnviaCvc | BYTE
+134 | Acvc | WriteAceptarCvc | BYTE
+135 | IrCvc | WriteIrCvc | BYTE
+136 | DragAndDropHechizos | WriteDragAndDropHechizos | BYTE, INT, INT
+137 | Quest | WriteQuest | BYTE
+138 | QuestAccept | WriteQuestAccept | BYTE
+139 | QuestListRequest | WriteQuestListRequest | BYTE
+140 | QuestDetailsRequest | WriteQuestDetailsRequest | BYTE, BYTE
+141 | QuestAbandon | WriteQuestAbandon | BYTE, BYTE
+142 | CambiarContrasena | WriteCambiarContrasena | BYTE, ASCII, ASCII
+143 | FightSend | WriteFightSend | BYTE, ASCII, LONG
+144 | FightAccept | WriteFightAccept | BYTE, ASCII
+145 | CloseGuild | WriteCloseGuild | BYTE
+146 | Discord | WriteDiscord | BYTE, ASCII
+147 | DeleteChar | WriteDeleteChar | BYTE, ASCII, ASCII
+148 | ObtenerDatosServer | WriteObtenerDatosServer | BYTE
+149 | CraftsmanCreate | WriteCraftsmanCreate | BYTE, INT
+150 | AddAmigos | WriteAddAmigo | BYTE, ASCII, BYTE
+151 | DelAmigos | WriteDelAmigo | BYTE, BYTE
+152 | OnAmigos | WriteOnAmigo | BYTE
+153 | MsgAmigos | WriteMsgAmigo | BYTE, ASCII
+154 | Lookprocess | WriteLookProcess | BYTE, ASCII
+155 | SendProcessList | WriteSendProcessList | BYTE, ASCII, ASCII
+156 | SendIfCharIsInChatMode | WriteSetTypingFlagFromUserCharIndex | BYTE
+
+enum ServerPacketID
+1 | logged | HandleLogged | BYTE, BYTE, BYTE, LONG
+2 | RemoveDialogs | HandleRemoveDialogs | BYTE
+3 | RemoveCharDialog | HandleRemoveCharDialog | BYTE, INT
+4 | NavigateToggle | HandleNavigateToggle | BYTE
+5 | Disconnect | HandleDisconnect | BYTE
+6 | CommerceEnd | HandleCommerceEnd | BYTE
+7 | BankEnd | HandleBankEnd | BYTE
+8 | CommerceInit | HandleCommerceInit | BYTE
+9 | BankInit | HandleBankInit | BYTE, LONG
+10 | UserCommerceInit | HandleUserCommerceInit | BYTE, ASCII
+11 | UserCommerceEnd | HandleUserCommerceEnd | BYTE
+12 | UserOfferConfirm | HandleUserOfferConfirm | BYTE
+13 | CommerceChat | HandleCommerceChat | BYTE, ASCII, BYTE
+14 | UpdateSta | HandleUpdateSta | BYTE, INT
+15 | UpdateMana | HandleUpdateMana | BYTE, INT
+16 | UpdateHP | HandleUpdateHP | BYTE, INT
+17 | UpdateGold | HandleUpdateGold | BYTE, LONG
+18 | UpdateBankGold | HandleUpdateBankGold | BYTE, LONG
+19 | UpdateExp | HandleUpdateExp | BYTE, LONG
+20 | ChangeMap | HandleChangeMap | BYTE, INT, ASCII, ASCII, INT
+21 | PosUpdate | HandlePosUpdate | BYTE, BYTE
+22 | ChatOverHead | HandleChatOverHead | BYTE, ASCII, INT, BYTE, BYTE, BYTE
+23 | ConsoleMsg | HandleConsoleMsg | ASCII, BYTE
+24 | GuildChat | HandleGuildChat | BYTE, ASCII
+25 | ShowMessageBox | HandleShowMessageBox | BYTE, ASCII
+26 | UserIndexInServer | HandleUserIndexInServer | BYTE, INT
+27 | UserCharIndexInServer | HandleUserCharIndexInServer | BYTE, INT
+28 | CharacterCreate | HandleCharacterCreate | BYTE, INT, INT, INT, BYTE, BYTE, BYTE, INT, INT, INT, INT, INT, ASCII, BYTE, BYTE
+29 | CharacterRemove | HandleCharacterRemove | BYTE, INT
+30 | CharacterChangeNick | HandleCharacterChangeNick | BYTE, INT, ASCII
+31 | CharacterMove | HandleCharacterMove | BYTE, INT, BYTE, BYTE
+32 | ForceCharMove | HandleForceCharMove | BYTE, BYTE
+33 | CharacterChange | HandleCharacterChange | BYTE, INT, INT, INT, INT, INT, INT, INT
+34 | HeadingChange | HandleHeadingChange | BYTE, INT, BYTE
+35 | ObjectCreate | HandleObjectCreate | BYTE, BYTE, BYTE, LONG
+36 | ObjectDelete | HandleObjectDelete | BYTE, BYTE, BYTE
+37 | BlockPosition | HandleBlockPosition | BYTE, BYTE, BYTE, BOOLEAN
+38 | PlayMp3 | HandlePlayMP3 | BYTE, INT, INT
+39 | PlayMIDI | HandlePlayMIDI | BYTE, INT, INT
+40 | PlayWave | HandlePlayWave | BYTE, BYTE, BYTE, BYTE
+41 | guildList | HandleGuildList | BYTE, ASCII
+42 | AreaChanged | HandleAreaChanged | BYTE, BYTE, BYTE
+43 | PauseToggle | HandlePauseToggle | BYTE
+44 | RainToggle | HandleRainToggle | BYTE
+45 | CreateFX | HandleCreateFX | BYTE, INT, INT, INT
+46 | UpdateUserStats | HandleUpdateUserStats | BYTE, INT, INT, INT, INT, INT, INT, LONG, BYTE, LONG, LONG
+47 | ChangeInventorySlot | HandleChangeInventorySlot | BYTE, BYTE, INT, ASCII, INT, BOOLEAN, LONG, BYTE, INT, INT, INT, INT, SINGLE, BOOLEAN
+48 | ChangeBankSlot | HandleChangeBankSlot | BYTE, BYTE, INT, ASCII, INT, LONG, BYTE, INT, INT, INT, INT, LONG, BOOLEAN
+49 | ChangeSpellSlot | HandleChangeSpellSlot | BYTE, BYTE, INT
+50 | Atributes | HandleAtributes | BYTE, BYTE
+51 | BlacksmithWeapons | HandleBlacksmithWeapons | BYTE, INT, ASCII, LONG, INT, INT, INT, INT, INT
+52 | BlacksmithArmors | HandleBlacksmithArmors | BYTE, INT, ASCII, LONG, INT, INT, INT, INT, INT 
+53 | InitCarpenting | HandleInitCarpenting | BYTE, INT, ASCII, LONG, INT, INT, INT, INT
+54 | RestOK | HandleRestOK | BYTE
+55 | ErrorMsg | HandleErrorMsg |
+56 | Blind | HandleBlind | BYTE
+57 | Dumb | HandleDumb | BYTE
+58 | ShowSignal | HandleShowSignal | BYTE, ASCII, LONG
+59 | ChangeNPCInventorySlot | HandleChangeNPCInventorySlot | BYTE, BYTE, ASCII, INT, SINGLE, LONG, INT, BYTE, INT, INT, INT, INT, BOOLEAN
+60 | UpdateHungerAndThirst | HandleUpdateHungerAndThirst | BYTE, BYTE, BYTE, BYTE, BYTE
+61 | Fame | HandleFame | BYTE, LONG, LONG, LONG, LONG, LONG, LONG, LONG
+62 | MiniStats | HandleMiniStats | BYTE, LONG, LONG, LONG, INT, BYTE, LONG
+63 | LevelUp | HandleLevelUp | BYTE, INT
+64 | AddForumMsg | HandleAddForumMsg |
+65 | ShowForumForm | HandleShowForumForm | BYTE, BYTE, BYTE
+66 | SetInvisible | HandleSetInvisible | BYTE, INT, BOOLEAN
+67 | DiceRoll | HandleDiceRoll | BYTE, BYTE, BYTE, BYTE, BYTE, BYTE
+68 | MeditateToggle | HandleMeditateToggle | BYTE
+69 | BlindNoMore | HandleBlindNoMore | BYTE
+70 | DumbNoMore | HandleDumbNoMore | BYTE
+71 | SendSkills | HandleSendSkills | BYTE, BYTE, BYTE, BYTE
+72 | TrainerCreatureList | HandleTrainerCreatureList | BYTE, ASCII
+73 | guildNews | HandleGuildNews | BYTE, ASCII, ASCII, ASCII
+74 | OfferDetails | HandleOfferDetails | BYTE, ASCII
+75 | AlianceProposalsList | HandleAlianceProposalsList | BYTE, ASCII
+76 | PeaceProposalsList | HandlePeaceProposalsList | BYTE, ASCII
+77 | CharacterInfo | HandleCharacterInfo | BYTE, ASCII, BYTE, BYTE, BYTE, BYTE, LONG, LONG, LONG, ASCII, ASCII, ASCII, BOOLEAN, BOOLEAN, LONG, LONG
+78 | GuildLeaderInfo | HandleGuildLeaderInfo | BYTE, ASCII, ASCII, ASCII, ASCII
+79 | GuildMemberInfo | HandleGuildMemberInfo | BYTE, ASCII, ASCII
+80 | GuildDetails | HandleGuildDetails | BYTE, ASCII, ASCII, ASCII, ASCII, ASCII, INT, BOOLEAN, ASCII, INT, INT, ASCII, ASCII, ASCII
+81 | ShowGuildFundationForm | HandleShowGuildFundationForm | BYTE
+82 | ParalizeOK | HandleParalizeOK | BYTE, INT
+83 | ShowUserRequest | HandleShowUserRequest | BYTE, ASCII
+84 | ChangeUserTradeSlot | HandleChangeUserTradeSlot | BYTE, BYTE, INT, LONG, LONG, BYTE, INT, INT, INT, INT, LONG, ASCII, BOOLEAN
+85 | SendNight | HandleSendNight | BYTE, BOOLEAN
+86 | Pong | HandlePong | BYTE
+87 | UpdateTagAndStatus | HandleUpdateTagAndStatus | BYTE, INT, BYTE, ASCII
+88 | SpawnList | HandleSpawnList | BYTE, ASCII
+89 | ShowSOSForm | HandleShowSOSForm | BYTE, ASCII
+90 | ShowMOTDEditionForm | HandleShowMOTDEditionForm | BYTE, ASCII
+91 | ShowGMPanelForm | HandleShowGMPanelForm | BYTE
+92 | UserNameList | HandleUserNameList | BYTE, ASCII
+93 | ShowDenounces | HandleShowDenounces | BYTE, ASCII
+94 | RecordList | HandleRecordList | BYTE, BYTE, ASCII
+95 | RecordDetails | HandleRecordDetails | BYTE, ASCII, ASCII, BOOLEAN, ASCII, ASCII, ASCII      
+96 | ShowGuildAlign | HandleShowGuildAlign | BYTE
+97 | ShowPartyForm | HandleShowPartyForm | BYTE, BYTE, ASCII, LONG
+98 | UpdateStrenghtAndDexterity | HandleUpdateStrenghtAndDexterity | BYTE, BYTE, BYTE, LONG      
+99 | UpdateStrenght | HandleUpdateStrenght | BYTE, BYTE, LONG
+100 | UpdateDexterity | HandleUpdateDexterity | BYTE, BYTE, LONG
+101 | AddSlots | HandleAddSlots | BYTE, BYTE
+102 | MultiMessage | HandleMultiMessage | BYTE, BYTE, BYTE, INT, INT, INT, INT, INT, INT, LONG, INT, INT, BYTE, INT, INT, BYTE, INT, BYTE, INT, LONG, INT, LONG, BYTE, INT, ASCII, BYTE, ASCII, BYTE, BYTE, BYTE, BYTE, ASCII
+103 | StopWorking | HandleStopWorking | BYTE
+104 | CancelOfferItem | HandleCancelOfferItem | BYTE, BYTE
+105 | PalabrasMagicas | HandlePalabrasMagicas | BYTE, BYTE, INT
+106 | PlayAttackAnim | HandlePlayAttackAnim |
+107 | FXtoMap | HandleFXtoMap | BYTE, BYTE, INT, INT, INT
+108 | AccountLogged | HandleAccountLogged | BYTE, ASCII, ASCII, BYTE, ASCII, INT, INT, INT, INT, INT, BYTE, BYTE, INT, BYTE, LONG, BOOLEAN, BOOLEAN, BOOLEAN
+109 | SearchList | HandleSearchList | BYTE, INT, BOOLEAN, ASCII
+110 | QuestDetails | HandleQuestDetails | BYTE, BYTE, ASCII, ASCII, BYTE, BYTE, INT, INT, BYTE, INT, LONG, LONG, BYTE, INT
+111 | QuestListSend | HandleQuestListSend | BYTE, BYTE, ASCII
+112 | CreateDamage | HandleCreateDamage | BYTE, BYTE
+113 | UserInEvent | HandleUserInEvent | BYTE
+114 | renderMsg | HandleRenderMsg | BYTE, ASCII, INT
+115 | DeletedChar | HandleDeletedChar | BYTE
+116 | EquitandoToggle | HandleEquitandoToggle | BYTE, LONG
+117 | EnviarDatosServer | HandleEnviarDatosServer | BYTE, ASCII, ASCII, ASCII, INT, INT, INT, INT, INT, INT
+118 | InitCraftman | HandleInitCraftman | BYTE, LONG, INT, ASCII, LONG, INT, BYTE, ASCII, LONG, INT, INT
+119 | EnviarListDeAmigos | HandleEnviarListDeAmigos | BYTE, BYTE, ASCII
+120 | SeeInProcess | HandleSeeInProcess | BYTE
+121 | ShowProcess | HandleShowProcess | BYTE, ASCII, ASCII
+122 | Proyectil | HandleProyectil | BYTE, INT, INT, INT
+123 | PlayIsInChatMode | HandlePlayIsInChatMode |

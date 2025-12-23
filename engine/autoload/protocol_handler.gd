@@ -176,6 +176,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		print("🔐 ProtocolHandler: Stream después de Logged: pos=", stream.get_position(), "/", stream.get_size())
 		print("🔐 ProtocolHandler: ¡Usuario autenticado! Emitiendo señal logged_in...")
 		logged_in.emit()
+		print("🔐 ProtocolHandler: ¡Señal logged_in emitida! Esperando paquetes de datos del personaje...")
 		return
 	
 	print("DEBUG: Procesando packet_id=", packet_id, " (", packet_name, ")")
@@ -197,11 +198,12 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			print("🔐 ProtocolHandler: ¡Recibido paquete Logged! Usuario autenticado")
 			print("🔐 ProtocolHandler: Esperando paquete ChangeMap para cargar el mapa...")
 			logged_in.emit()
+			print("🔐 ProtocolHandler: ¡Señal logged_in emitida! Esperando paquetes de datos del personaje...")
 		
 		# ==================== CHARACTER PACKETS ====================
 		Enums.ServerPacketID.CharacterCreate:
 			var p = CharacterCreate.new(stream)
-			print("DEBUG: CharacterCreate - charIndex=", p.charIndex, " name=", p.name, " pos=(", p.x, ",", p.y, ")")
+			print("👤 DEBUG: CharacterCreate - charIndex=", p.charIndex, " name=", p.name, " pos=(", p.x, ",", p.y, ")")
 			_process_character_privileges(p)
 			character_created.emit(p)
 		
@@ -256,7 +258,8 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.ChangeMap:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
-			print("DEBUG: Cambiando al mapa ", p.mapId, " - ", p.nameMap, " (", p.zone, ")")
+			print("🗺️ DEBUG: Cambiando al mapa ", p.mapId, " - ", p.nameMap, " (", p.zone, ")")
+			print("🗺️ DEBUG: Emitiendo señal map_changed...")
 			map_changed.emit(p.mapId, p.nameMap, p.zone)
 		
 		Enums.ServerPacketID.AreaChanged:
@@ -295,7 +298,18 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.ChangeSpellSlot:
 			var p = ChangeSpellSlot.new(stream)
-			spell_slot_changed.emit(p.slot - 1, "")
+			# Actualizar array de hechizos en Global
+			if p.slot >= 1 and p.slot <= Consts.MaxUserHechizos:
+				# Asegurar que el array tenga el tamaño correcto
+				while Global.UserHechizos.size() < Consts.MaxUserHechizos:
+					Global.UserHechizos.append(0)
+				
+				Global.UserHechizos[p.slot - 1] = p.spellId
+				
+				print("Hechizo actualizado: slot ", p.slot, ", ID: ", p.spellId)
+			
+			# Emitir señal con el spell_id para que la UI se actualice
+			spell_slot_changed.emit(p.slot - 1, str(p.spellId))
 		
 		Enums.ServerPacketID.ChangeBankSlot:
 			var p = ChangeBankSlot.new(stream)
@@ -312,6 +326,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		# ==================== STATS PACKETS ====================
 		Enums.ServerPacketID.UpdateUserStats:
 			var p = UpdateUserStats.new(stream)
+			print("📊 DEBUG: UpdateUserStats recibido - HP:", p.minHp, "/", p.maxHp, " - MANA:", p.minMana, "/", p.maxMana, " - ORO:", p.gold)
 			_update_game_context_stats(p)
 			stats_updated.emit(p)
 		
@@ -419,6 +434,11 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.RainToggle:
 			rain_toggle.emit()
 		
+		Enums.ServerPacketID.ChangeUserTradeSlot:
+			var p = ChangeUserTradeSlot.new(stream)
+			# TODO: Implementar lógica de ChangeUserTradeSlot (actualizar UI de comercio)
+			# print("DEBUG: ChangeUserTradeSlot recibido")
+
 		Enums.ServerPacketID.SendNight:
 			var p = SendNight.new(stream)
 			send_night.emit(p.time)
@@ -580,6 +600,62 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			var p = MultiMessage.new(stream)
 			_handle_multi_message(p)
 		
+		Enums.ServerPacketID.InitCraftman:
+			var _p = InitCraftman.new(stream)
+			# TODO: Implement handling logic for InitCraftman
+
+		Enums.ServerPacketID.QuestDetails:
+			var _p = QuestDetails.new(stream)
+			# TODO: Implement handling logic for QuestDetails
+
+		Enums.ServerPacketID.QuestListSend:
+			var _p = QuestListSend.new(stream)
+			# TODO: Implement handling logic for QuestListSend
+
+		Enums.ServerPacketID.SearchList:
+			var _p = SearchList.new(stream)
+			# TODO: Implement handling logic for SearchList
+
+		Enums.ServerPacketID.UserInEvent:
+			var _p = UserInEvent.new(stream)
+			# TODO: Implement handling logic for UserInEvent
+
+		Enums.ServerPacketID.RenderMsg:
+			var _p = RenderMsg.new(stream)
+			# TODO: Implement handling logic for RenderMsg
+
+		Enums.ServerPacketID.DeletedChar:
+			var _p = DeletedChar.new(stream)
+			# TODO: Implement handling logic for DeletedChar
+
+		Enums.ServerPacketID.EquitandoToggle:
+			var _p = EquitandoToggle.new(stream)
+			# TODO: Implement handling logic for EquitandoToggle
+
+		Enums.ServerPacketID.EnviarDatosServer:
+			var _p = EnviarDatosServer.new(stream)
+			# TODO: Implement handling logic for EnviarDatosServer
+
+		Enums.ServerPacketID.EnviarListDeAmigos:
+			var _p = EnviarListDeAmigos.new(stream)
+			# TODO: Implement handling logic for EnviarListDeAmigos
+
+		Enums.ServerPacketID.SeeInProcess:
+			var _p = SeeInProcess.new(stream)
+			# TODO: Implement handling logic for SeeInProcess
+
+		Enums.ServerPacketID.ShowProcess:
+			var _p = ShowProcess.new(stream)
+			# TODO: Implement handling logic for ShowProcess
+
+		Enums.ServerPacketID.Proyectil:
+			var _p = Proyectil.new(stream)
+			# TODO: Implement handling logic for Proyectil
+
+		Enums.ServerPacketID.PlayIsInChatMode:
+			var _p = PlayIsInChatMode.new(stream)
+			# TODO: Implement handling logic for PlayIsInChatMode
+
 		_:
 			print("[ProtocolHandler] Paquete no manejado: ", packet_name, " (ID: ", packet_id, ")")
 

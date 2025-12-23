@@ -1,0 +1,339 @@
+PROTOCOL MIGRATION DIFF REPORT
+==============================
+Source (OLD): PROTOCOL_DOCS.txt
+Target (NEW): PROTOCOL_DOCS_OTRO.txt
+
+########################################
+# CLIENT PACKETS
+########################################
+
+--- [CRITICAL] PARAMETER CHANGES ---PACKET: CentinelReport (ID changed: 97 -> 132)
+  OLD: BYTE, INT
+  NEW: BYTE, ASCII
+  DIFF: Arg[2] type changed: INT -> ASCII
+----------------------------------------
+PACKET: LoginNewChar (ID changed: 2 -> 3)
+  OLD: BYTE, ASCII, ASCII, BYTE, BYTE, BYTE, BYTE, BYTE, BYTE, INT, ASCII, BYTE
+  NEW: BYTE, ASCII, ASCII, BYTE, BYTE, BYTE, BYTE, BYTE, BYTE, INT, BYTE
+  DIFF: Arg[11] type changed: ASCII -> BYTE; REMOVED 1 param(s) from end: BYTE
+----------------------------------------
+
+--- ID SHIFTS (Params Identical) ---Attack: ID 8 -> 9
+BankDeposit: ID 43 -> 44
+BankEnd: ID 21 -> 22
+BankExtractItem: ID 41 -> 42
+BankStart: ID 85 -> 86
+CastSpell: ID 25 -> 26
+ChangeHeading: ID 37 -> 38
+ClanCodexUpdate: ID 47 -> 48
+CommerceBuy: ID 40 -> 41
+CommerceChat: ID 20 -> 21
+CommerceEnd: ID 17 -> 18
+CommerceSell: ID 42 -> 43
+CommerceStart: ID 84 -> 85
+CraftBlacksmith: ID 31 -> 32
+CraftCarpenter: ID 32 -> 33
+CreateNewGuild: ID 34 -> 35
+DoubleClick: ID 27 -> 28
+Drop: ID 24 -> 25
+Enlist: ID 86 -> 87
+EquipItem: ID 36 -> 37
+ForumPost: ID 44 -> 45
+GuildAcceptAlliance: ID 52 -> 53
+GuildAcceptNewMember: ID 62 -> 63
+GuildAcceptPeace: ID 49 -> 50
+GuildAllianceDetails: ID 55 -> 56
+GuildAlliancePropList: ID 58 -> 59
+GuildDeclareWar: ID 60 -> 61
+GuildKickMember: ID 64 -> 65
+GuildLeave: ID 72 -> 73
+GuildMemberInfo: ID 66 -> 67
+GuildMessage: ID 95 -> 96
+GuildNewWebsite: ID 61 -> 62
+GuildOfferAlliance: ID 54 -> 55
+GuildOfferPeace: ID 53 -> 54
+GuildOpenElections: ID 67 -> 68
+GuildPeaceDetails: ID 56 -> 57
+GuildPeacePropList: ID 59 -> 60
+GuildRejectAlliance: ID 50 -> 51
+GuildRejectNewMember: ID 63 -> 64
+GuildRejectPeace: ID 51 -> 52
+GuildRequestDetails: ID 69 -> 70
+GuildRequestJoinerInfo: ID 57 -> 58
+GuildRequestMembership: ID 68 -> 69
+GuildUpdateNews: ID 65 -> 66
+Heal: ID 81 -> 82
+Help: ID 82 -> 83
+Information: ID 87 -> 88
+Inquiry: ID 94 -> 95
+LeftClick: ID 26 -> 27
+LoginExistingChar: ID 0 -> 1
+Meditate: ID 79 -> 80
+ModifySkills: ID 38 -> 39
+MoveBank: ID 46 -> 47
+MoveSpell: ID 45 -> 46
+Online: ID 70 -> 71
+PartyCreate: ID 92 -> 93
+PartyJoin: ID 93 -> 94
+PartyLeave: ID 91 -> 92
+PartyMessage: ID 96 -> 97
+PetFollow: ID 75 -> 76
+PetStand: ID 74 -> 75
+PickUp: ID 9 -> 10
+Quit: ID 71 -> 72
+ReleasePet: ID 76 -> 77
+RequestAccountState: ID 73 -> 74
+RequestAtributes: ID 13 -> 14
+RequestFame: ID 14 -> 15
+RequestGuildLeaderInfo: ID 12 -> 13
+RequestMOTD: ID 89 -> 90
+RequestMiniStats: ID 16 -> 17
+RequestPositionUpdate: ID 7 -> 8
+RequestSkills: ID 15 -> 16
+RequestStats: ID 83 -> 84
+Rest: ID 78 -> 79
+Resucitate: ID 80 -> 81
+ResuscitationSafeToggle: ID 11 -> 12
+Reward: ID 88 -> 89
+SafeToggle: ID 10 -> 11
+Talk: ID 3 -> 4
+ThrowDices: ID 1 -> 2
+Train: ID 39 -> 40
+TrainList: ID 77 -> 78
+UseItem: ID 30 -> 31
+UseSpellMacro: ID 29 -> 30
+UserCommerceConfirm: ID 19 -> 20
+UserCommerceEnd: ID 18 -> 19
+UserCommerceOffer: ID 48 -> 49
+UserCommerceOk: ID 22 -> 23
+UserCommerceReject: ID 23 -> 24
+Walk: ID 6 -> 7
+Whisper: ID 5 -> 6
+Work: ID 28 -> 29
+WorkLeftClick: ID 33 -> 34
+Yell: ID 4 -> 5
+
+--- NEW PACKETS (In Target, not in Old) ---[134] Acvc: BYTE
+[150] AddAmigos: BYTE, ASCII, BYTE
+[142] CambiarContrasena: BYTE, ASCII, ASCII
+[145] CloseGuild: BYTE
+[149] CraftsmanCreate: BYTE, INT
+[151] DelAmigos: BYTE, BYTE
+[147] DeleteChar: BYTE, ASCII, ASCII
+[146] Discord: BYTE, ASCII
+[136] DragAndDropHechizos: BYTE, INT, INT
+[133] Ecvc: BYTE
+[144] FightAccept: BYTE, ASCII
+[143] FightSend: BYTE, ASCII, LONG
+[135] IrCvc: BYTE
+[130] LoginExistingAccount: BYTE, ASCII, ASCII, BYTE, BYTE, BYTE
+[131] LoginNewAccount: BYTE, ASCII, ASCII, BYTE, BYTE, BYTE
+[154] Lookprocess: BYTE, ASCII
+[153] MsgAmigos: BYTE, ASCII
+[148] ObtenerDatosServer: BYTE
+[152] OnAmigos: BYTE
+[137] Quest: BYTE
+[141] QuestAbandon: BYTE, BYTE
+[138] QuestAccept: BYTE
+[140] QuestDetailsRequest: BYTE, BYTE
+[139] QuestListRequest: BYTE
+[156] SendIfCharIsInChatMode: BYTE
+[155] SendProcessList: BYTE, ASCII, ASCII
+[91] UpTime: BYTE
+[129] moveItem: BYTE, BYTE, BYTE, BYTE
+[36] sadasdA: 
+
+--- REMOVED PACKETS (In Old, not in Target) ---[129] MoveItem: BYTE, BYTE, BYTE, BYTE
+[35] SpellInfo: BYTE, BYTE
+[90] Uptime: BYTE
+
+
+########################################
+# SERVER PACKETS
+########################################
+
+--- [CRITICAL] PARAMETER CHANGES ---PACKET: BlacksmithArmors
+  OLD: BYTE, INT, ASCII, INT, INT, INT, INT, INT, INT
+  NEW: BYTE, INT, ASCII, LONG, INT, INT, INT, INT, INT
+  DIFF: Arg[4] type changed: INT -> LONG
+----------------------------------------
+PACKET: BlacksmithWeapons
+  OLD: BYTE, INT, ASCII, INT, INT, INT, INT, INT, INT
+  NEW: BYTE, INT, ASCII, LONG, INT, INT, INT, INT, INT
+  DIFF: Arg[4] type changed: INT -> LONG
+----------------------------------------
+PACKET: ChangeBankSlot
+  OLD: BYTE, BYTE, INT, ASCII, INT, INT, BYTE, INT, INT, INT, INT, LONG
+  NEW: BYTE, BYTE, INT, ASCII, INT, LONG, BYTE, INT, INT, INT, INT, LONG, BOOLEAN
+  DIFF: Arg[6] type changed: INT -> LONG; ADDED 1 param(s) at end: BOOLEAN
+----------------------------------------
+PACKET: ChangeInventorySlot
+  OLD: BYTE, BYTE, INT, ASCII, INT, BOOLEAN, INT, BYTE, INT, INT, INT, INT, SINGLE
+  NEW: BYTE, BYTE, INT, ASCII, INT, BOOLEAN, LONG, BYTE, INT, INT, INT, INT, SINGLE, BOOLEAN
+  DIFF: Arg[7] type changed: INT -> LONG; ADDED 1 param(s) at end: BOOLEAN
+----------------------------------------
+PACKET: ChangeMap (ID changed: 21 -> 20)
+  OLD: BYTE, INT, INT
+  NEW: BYTE, INT, ASCII, ASCII, INT
+  DIFF: Arg[3] type changed: INT -> ASCII; ADDED 2 param(s) at end: ASCII, INT
+----------------------------------------
+PACKET: ChangeNPCInventorySlot
+  OLD: BYTE, BYTE, ASCII, INT, SINGLE, INT, INT, BYTE, INT, INT, INT, INT
+  NEW: BYTE, BYTE, ASCII, INT, SINGLE, LONG, INT, BYTE, INT, INT, INT, INT, BOOLEAN
+  DIFF: Arg[6] type changed: INT -> LONG; ADDED 1 param(s) at end: BOOLEAN
+----------------------------------------
+PACKET: ChangeSpellSlot
+  OLD: BYTE, BYTE, INT, ASCII, ASCII
+  NEW: BYTE, BYTE, INT
+  DIFF: REMOVED 2 param(s) from end: ASCII, ASCII
+----------------------------------------
+PACKET: ChangeUserTradeSlot (ID changed: 86 -> 84)
+  OLD: BYTE, BYTE, INT, BYTE, INT, INT, BYTE, INT
+  NEW: BYTE, BYTE, INT, LONG, LONG, BYTE, INT, INT, INT, INT, LONG, ASCII, BOOLEAN
+  DIFF: Arg[4] type changed: BYTE -> LONG; Arg[5] type changed: INT -> LONG; Arg[6] type changed: INT -> BYTE; Arg[7] type changed: BYTE -> INT; ADDED 5 param(s) at end: INT, INT, LONG, ASCII, BOOLEAN
+----------------------------------------
+PACKET: CharacterChange (ID changed: 34 -> 33)
+  OLD: BYTE, INT, INT, INT, BYTE, INT, INT, INT, INT
+  NEW: BYTE, INT, INT, INT, INT, INT, INT, INT
+  DIFF: Arg[5] type changed: BYTE -> INT; REMOVED 1 param(s) from end: INT
+----------------------------------------
+PACKET: CharacterCreate (ID changed: 29 -> 28)
+  OLD: BYTE, INT, INT, INT, BYTE, BYTE, BYTE, INT, INT, INT, INT, ASCII, BYTE, BYTE
+  NEW: BYTE, INT, INT, INT, BYTE, BYTE, BYTE, INT, INT, INT, INT, INT, ASCII, BYTE, BYTE
+  DIFF: Arg[12] type changed: ASCII -> INT; Arg[13] type changed: BYTE -> ASCII; ADDED 1 param(s) at end: BYTE
+----------------------------------------
+PACKET: MultiMessage (ID changed: 104 -> 102)
+  OLD: BYTE, BYTE, BYTE, INT, INT, INT, INT, INT, INT, LONG, INT, INT, BYTE, INT, INT, BYTE, INT, BYTE, INT, LONG, INT, LONG, BYTE, INT, ASCII
+  NEW: BYTE, BYTE, BYTE, INT, INT, INT, INT, INT, INT, LONG, INT, INT, BYTE, INT, INT, BYTE, INT, BYTE, INT, LONG, INT, LONG, BYTE, INT, ASCII, BYTE, ASCII, BYTE, BYTE, BYTE, BYTE, ASCII
+  DIFF: ADDED 7 param(s) at end: BYTE, ASCII, BYTE, BYTE, BYTE, BYTE, ASCII
+----------------------------------------
+PACKET: ObjectCreate
+  OLD: BYTE, BYTE, BYTE, INT
+  NEW: BYTE, BYTE, BYTE, LONG
+  DIFF: Arg[4] type changed: INT -> LONG
+----------------------------------------
+PACKET: ParalizeOK
+  OLD: BYTE
+  NEW: BYTE, INT
+  DIFF: ADDED 1 param(s) at end: INT
+----------------------------------------
+PACKET: PosUpdate (ID changed: 22 -> 21)
+  OLD: BYTE, BYTE, BYTE
+  NEW: BYTE, BYTE
+  DIFF: REMOVED 1 param(s) from end: BYTE
+----------------------------------------
+PACKET: SendSkills
+  OLD: BYTE, BYTE, BYTE
+  NEW: BYTE, BYTE, BYTE, BYTE
+  DIFF: ADDED 1 param(s) at end: BYTE
+----------------------------------------
+PACKET: ShowSignal
+  OLD: BYTE, ASCII, INT
+  NEW: BYTE, ASCII, LONG
+  DIFF: Arg[3] type changed: INT -> LONG
+----------------------------------------
+PACKET: UpdateDexterity (ID changed: 102 -> 100)
+  OLD: BYTE, BYTE
+  NEW: BYTE, BYTE, LONG
+  DIFF: ADDED 1 param(s) at end: LONG
+----------------------------------------
+PACKET: UpdateStrenght (ID changed: 101 -> 99)
+  OLD: BYTE, BYTE
+  NEW: BYTE, BYTE, LONG
+  DIFF: ADDED 1 param(s) at end: LONG
+----------------------------------------
+PACKET: UpdateStrenghtAndDexterity (ID changed: 100 -> 98)
+  OLD: BYTE, BYTE, BYTE
+  NEW: BYTE, BYTE, BYTE, LONG
+  DIFF: ADDED 1 param(s) at end: LONG
+----------------------------------------
+PACKET: logged (ID changed: 0 -> 1)
+  OLD: BYTE, BYTE
+  NEW: BYTE, BYTE, BYTE, LONG
+  DIFF: ADDED 2 param(s) at end: BYTE, LONG
+----------------------------------------
+
+--- ID SHIFTS (Params Identical) ---AddSlots: ID 103 -> 101
+AreaChanged: ID 41 -> 42
+BankEnd: ID 6 -> 7
+BankInit: ID 8 -> 9
+CancelOfferItem: ID 106 -> 104
+CharacterChangeNick: ID 31 -> 30
+CharacterMove: ID 32 -> 31
+CharacterRemove: ID 30 -> 29
+ChatOverHead: ID 23 -> 22
+CommerceChat: ID 12 -> 13
+CommerceEnd: ID 5 -> 6
+CommerceInit: ID 7 -> 8
+ConsoleMsg: ID 24 -> 23
+CreateFX: ID 44 -> 45
+Disconnect: ID 4 -> 5
+ForceCharMove: ID 33 -> 32
+GuildChat: ID 25 -> 24
+NavigateToggle: ID 3 -> 4
+PauseToggle: ID 42 -> 43
+PlayMIDI: ID 38 -> 39
+PlayWave: ID 39 -> 40
+Pong: ID 88 -> 86
+RainToggle: ID 43 -> 44
+RecordDetails: ID 97 -> 95
+RecordList: ID 96 -> 94
+RemoveCharDialog: ID 2 -> 3
+RemoveDialogs: ID 1 -> 2
+SendNight: ID 87 -> 85
+ShowDenounces: ID 95 -> 93
+ShowGMPanelForm: ID 93 -> 91
+ShowGuildAlign: ID 98 -> 96
+ShowMOTDEditionForm: ID 92 -> 90
+ShowMessageBox: ID 26 -> 25
+ShowPartyForm: ID 99 -> 97
+ShowSOSForm: ID 91 -> 89
+SpawnList: ID 90 -> 88
+StopWorking: ID 105 -> 103
+UpdateBankGold: ID 19 -> 18
+UpdateExp: ID 20 -> 19
+UpdateGold: ID 18 -> 17
+UpdateHP: ID 17 -> 16
+UpdateMana: ID 16 -> 15
+UpdateSta: ID 15 -> 14
+UpdateTagAndStatus: ID 89 -> 87
+UpdateUserStats: ID 45 -> 46
+UserCharIndexInServer: ID 28 -> 27
+UserCommerceEnd: ID 10 -> 11
+UserCommerceInit: ID 9 -> 10
+UserIndexInServer: ID 27 -> 26
+UserNameList: ID 94 -> 92
+UserOfferConfirm: ID 11 -> 12
+guildList: ID 40 -> 41
+
+--- NEW PACKETS (In Target, not in Old) ---[108] AccountLogged: BYTE, ASCII, ASCII, BYTE, ASCII, INT, INT, INT, INT, INT, BYTE, BYTE, INT, BYTE, LONG, BOOLEAN, BOOLEAN, BOOLEAN
+[112] CreateDamage: BYTE, BYTE
+[115] DeletedChar: BYTE
+[117] EnviarDatosServer: BYTE, ASCII, ASCII, ASCII, INT, INT, INT, INT, INT, INT
+[119] EnviarListDeAmigos: BYTE, BYTE, ASCII
+[116] EquitandoToggle: BYTE, LONG
+[107] FXtoMap: BYTE, BYTE, INT, INT, INT
+[34] HeadingChange: BYTE, INT, BYTE
+[53] InitCarpenting: BYTE, INT, ASCII, LONG, INT, INT, INT, INT
+[118] InitCraftman: BYTE, LONG, INT, ASCII, LONG, INT, BYTE, ASCII, LONG, INT, INT
+[105] PalabrasMagicas: BYTE, BYTE, INT
+[106] PlayAttackAnim: 
+[123] PlayIsInChatMode: 
+[38] PlayMp3: BYTE, INT, INT
+[122] Proyectil: BYTE, INT, INT, INT
+[110] QuestDetails: BYTE, BYTE, ASCII, ASCII, BYTE, BYTE, INT, INT, BYTE, INT, LONG, LONG, BYTE, INT
+[111] QuestListSend: BYTE, BYTE, ASCII
+[109] SearchList: BYTE, INT, BOOLEAN, ASCII
+[120] SeeInProcess: BYTE
+[121] ShowProcess: BYTE, ASCII, ASCII
+[113] UserInEvent: BYTE
+[114] renderMsg: BYTE, ASCII, INT
+
+--- REMOVED PACKETS (In Old, not in Target) ---[85] BankOK: BYTE
+[53] CarpenterObjects: BYTE, INT, ASCII, INT, INT, INT, INT, INT
+[13] ShowBlacksmithForm: BYTE
+[14] ShowCarpenterForm: BYTE
+[84] TradeOK: BYTE
+[46] WorkRequestTarget: BYTE, BYTE
+
+

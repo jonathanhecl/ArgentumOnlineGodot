@@ -487,10 +487,10 @@ static func WritePartyMessage(message:String) -> void:
 	Utils.PutUnicodeString(_writer, message)
 
 
-static func WriteCentinelReport(code:int) -> void:
-	_log_outgoing_packet("CentinelReport", "code: " + str(code))
+static func WriteCentinelReport(code:String) -> void:
+	_log_outgoing_packet("CentinelReport", "code: " + code)
 	_writer.put_u8(Enums.ClientPacketID.ClientCentinelReport)
-	_writer.put_16(code)
+	Utils.PutUnicodeString(_writer, code)
 
 
 static func WriteGuildOnline() -> void:
@@ -796,3 +796,126 @@ static func WriteCraftCarpenter(item: int) -> void:
 	_log_outgoing_packet("CraftCarpenter", "item: %d" % item)
 	_writer.put_u8(Enums.ClientPacketID.ClientCraftCarpenter)
 	_writer.put_16(item)
+
+static func WriteAcvc(val: int) -> void:
+	_log_outgoing_packet("Acvc", "val: " + str(val))
+	_writer.put_u8(Enums.ClientPacketID.ClientAcvc)
+	_writer.put_u8(val)
+
+static func WriteAddAmigo(name: String, val: int) -> void:
+	_log_outgoing_packet("AddAmigos", "name: " + name + ", val: " + str(val))
+	_writer.put_u8(Enums.ClientPacketID.ClientAddAmigos)
+	Utils.PutUnicodeString(_writer, name)
+	_writer.put_u8(val)
+
+static func WriteCambiarContrasena(old_pass: String, new_pass: String) -> void:
+	_log_outgoing_packet("CambiarContrasena")
+	_writer.put_u8(Enums.ClientPacketID.ClientCambiarContrasena)
+	Utils.PutUnicodeString(_writer, old_pass)
+	Utils.PutUnicodeString(_writer, new_pass)
+
+static func WriteCloseGuild() -> void:
+	_log_outgoing_packet("CloseGuild")
+	_writer.put_u8(Enums.ClientPacketID.ClientCloseGuild)
+
+static func WriteCraftsmanCreate(item_index: int) -> void:
+	_log_outgoing_packet("CraftsmanCreate", "item_index: " + str(item_index))
+	_writer.put_u8(Enums.ClientPacketID.ClientCraftsmanCreate)
+	_writer.put_16(item_index)
+
+static func WriteDelAmigos(index: int) -> void:
+	_log_outgoing_packet("DelAmigos", "index: " + str(index))
+	_writer.put_u8(Enums.ClientPacketID.ClientDelAmigos)
+	_writer.put_u8(index)
+
+static func WriteDeleteChar(name: String, email: String) -> void:
+	_log_outgoing_packet("DeleteChar", "name: " + name)
+	_writer.put_u8(Enums.ClientPacketID.ClientDeleteChar)
+	Utils.PutUnicodeString(_writer, name)
+	Utils.PutUnicodeString(_writer, email)
+
+static func WriteDiscord(code: String) -> void:
+	_log_outgoing_packet("Discord", "code: " + code)
+	_writer.put_u8(Enums.ClientPacketID.ClientDiscord)
+	Utils.PutUnicodeString(_writer, code)
+
+static func WriteDragAndDropHechizos(slot_orig: int, slot_dest: int) -> void:
+	_log_outgoing_packet("DragAndDropHechizos", "orig: " + str(slot_orig) + ", dest: " + str(slot_dest))
+	_writer.put_u8(Enums.ClientPacketID.ClientDragAndDropHechizos)
+	_writer.put_16(slot_orig)
+	_writer.put_16(slot_dest)
+
+static func WriteEcvc(val: int) -> void:
+	_log_outgoing_packet("Ecvc", "val: " + str(val))
+	_writer.put_u8(Enums.ClientPacketID.ClientEcvc)
+	_writer.put_u8(val)
+
+static func WriteFightAccept(name: String) -> void:
+	_log_outgoing_packet("FightAccept", "name: " + name)
+	_writer.put_u8(Enums.ClientPacketID.ClientFightAccept)
+	Utils.PutUnicodeString(_writer, name)
+
+static func WriteFightSend(name: String, amount: int) -> void:
+	_log_outgoing_packet("FightSend", "name: " + name + ", amount: " + str(amount))
+	_writer.put_u8(Enums.ClientPacketID.ClientFightSend)
+	Utils.PutUnicodeString(_writer, name)
+	_writer.put_32(amount)
+
+static func WriteIrCvc(val: int) -> void:
+	_log_outgoing_packet("IrCvc", "val: " + str(val))
+	_writer.put_u8(Enums.ClientPacketID.ClientIrCvc)
+	_writer.put_u8(val)
+
+static func WriteLookProcess(process_name: String) -> void:
+	_log_outgoing_packet("Lookprocess", "name: " + process_name)
+	_writer.put_u8(Enums.ClientPacketID.ClientLookProcess)
+	Utils.PutUnicodeString(_writer, process_name)
+
+static func WriteMsgAmigos(msg: String) -> void:
+	_log_outgoing_packet("MsgAmigos", "msg: " + msg)
+	_writer.put_u8(Enums.ClientPacketID.ClientMsgAmigos)
+	Utils.PutUnicodeString(_writer, msg)
+
+static func WriteObtenerDatosServer() -> void:
+	_log_outgoing_packet("ObtenerDatosServer")
+	_writer.put_u8(Enums.ClientPacketID.ClientObtenerDatosServer)
+
+static func WriteOnAmigos() -> void:
+	_log_outgoing_packet("OnAmigos")
+	_writer.put_u8(Enums.ClientPacketID.ClientOnAmigos)
+
+static func WriteQuest() -> void:
+	_log_outgoing_packet("Quest")
+	_writer.put_u8(Enums.ClientPacketID.ClientQuest)
+
+static func WriteQuestAbandon(quest_id: int) -> void:
+	_log_outgoing_packet("QuestAbandon", "id: " + str(quest_id))
+	_writer.put_u8(Enums.ClientPacketID.ClientQuestAbandon)
+	_writer.put_u8(quest_id)
+
+static func WriteQuestAccept() -> void:
+	_log_outgoing_packet("QuestAccept")
+	_writer.put_u8(Enums.ClientPacketID.ClientQuestAccept)
+
+static func WriteQuestDetailsRequest(quest_id: int) -> void:
+	_log_outgoing_packet("QuestDetailsRequest", "id: " + str(quest_id))
+	_writer.put_u8(Enums.ClientPacketID.ClientQuestDetailsRequest)
+	_writer.put_u8(quest_id)
+
+static func WriteQuestListRequest() -> void:
+	_log_outgoing_packet("QuestListRequest")
+	_writer.put_u8(Enums.ClientPacketID.ClientQuestListRequest)
+
+static func WriteSendIfCharIsInChatMode() -> void:
+	_log_outgoing_packet("SendIfCharIsInChatMode")
+	_writer.put_u8(Enums.ClientPacketID.ClientSendIfCharIsInChatMode)
+
+static func WriteSendProcessList(processes: String, title: String) -> void:
+	_log_outgoing_packet("SendProcessList")
+	_writer.put_u8(Enums.ClientPacketID.ClientSendProcessList)
+	Utils.PutUnicodeString(_writer, processes)
+	Utils.PutUnicodeString(_writer, title)
+
+static func WriteUpTime() -> void:
+	_log_outgoing_packet("UpTime")
+	_writer.put_u8(Enums.ClientPacketID.ClientUpTime)

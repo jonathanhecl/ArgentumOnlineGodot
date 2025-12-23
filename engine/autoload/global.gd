@@ -3,6 +3,9 @@ extends Node
 var username:String = ""
 var skillPoints:int = 0
 
+# Sistema de hechizos del usuario
+var UserHechizos: Array[int] = []
+
 # Sistema de cuentas
 var account_name:String = ""
 var account_hash:String = ""

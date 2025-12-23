@@ -451,12 +451,7 @@ static func centinel_report(args:ChatCommandArgs) -> void:
 		return
 	
 	var code_str = args.parameters[0]
-	if !code_str.is_valid_int():
-		args.hub_controller.ShowConsoleMessage("El código de verificación debe ser numérico. Utilice /centinela X, siendo X el código de verificación.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
-		return
-	
-	var code = code_str.to_int()
-	GameProtocol.WriteCentinelReport(code)
+	GameProtocol.WriteCentinelReport(code_str)
 
 
 static func guild_online(args:ChatCommandArgs) -> void:

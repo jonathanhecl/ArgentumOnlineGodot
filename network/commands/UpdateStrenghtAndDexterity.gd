@@ -10,3 +10,4 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 func Deserialize(reader:StreamPeerBuffer) -> void:
 	strength = reader.get_u8()
 	dexterity = reader.get_u8()
+	reader.get_32() # Unused LONG param
