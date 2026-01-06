@@ -1,18 +1,29 @@
 extends Node
 
-var _textureList:Dictionary[int, Texture2D]
+# VERSIÓN DEL BÁCULO: 10
+const MAGIC_VERSION = 10
 
-var GrhDataList:Array[GrhData] = []
-var ColoresPJ:Array[Color] = []
-var FontDataList:Array[FontData] = []
-var WeaponAnimationList:Array[GrhAnimationData] = []
-var ShieldAnimationList:Array[GrhAnimationData] = []
-var HeadAnimationList:Array[GrhAnimationData] = []
-var HelmetAnimationList:Array[GrhAnimationData] = []
-var BodyAnimationList:Array[GrhAnimationData] = []
+var _textureList = {}
+
+var GrhDataList = []
+var ColoresPJ = []
+var FontDataList = []
+var WeaponAnimationList = []
+var ShieldAnimationList = []
+var HeadAnimationList = []
+var HelmetAnimationList = []
+var BodyAnimationList = []
+var SpellDataList = []
 
 func _ready() -> void:
-	# Esperar a que Main termine de cargar sus recursos
+	print_rich("[color=yellow][b]*****************************************[/b][/color]")
+	print_rich("[color=yellow][b]SISTEMA DE ASSETS: El báculo se despierta[/b][/color]")
+	print_rich("[color=yellow][b]*****************************************[/b][/color]")
+	
+	# Carga forzada inmediata de hechizos para asegurar que estén en memoria
+	_LoadSpellData()
+	
+	# Esperar a que Main termine de cargar sus recursos para el resto
 	if get_tree().get_root().has_node('Main'):
 		var main = get_node('/root/Main')
 		if main and main.has_signal('resources_loaded'):
@@ -33,6 +44,7 @@ func _load_all_resources() -> void:
 	_LoadHelmetData()
 	_LoadFonts()
 	_LoadColours()
+	_LoadSpellData()
 	print("GameAssets: Todos los recursos han sido cargados")
 	
 func GetTexture(fileId:int) -> Texture2D:
@@ -46,6 +58,25 @@ func GetTexture(fileId:int) -> Texture2D:
 	
 func GetNickColor(id:int) -> Color:
 	return ColoresPJ[id]
+
+func GetSpellName(spell_id_in) -> String:
+	var spell_id = int(spell_id_in)
+	
+	print(">>> [V%d] GetSpellName(%d) - Memoria size: %d" % [MAGIC_VERSION, spell_id, SpellDataList.size()])
+	
+	if SpellDataList.is_empty():
+		print("!!! [V%d] Memoria vacía, iniciando carga de emergencia..." % MAGIC_VERSION)
+		_LoadSpellData()
+	
+	if spell_id == 0:
+		return "(None)"
+		
+	if spell_id > 0 and spell_id < SpellDataList.size():
+		var spell = SpellDataList[spell_id]
+		if spell:
+			return spell.nombre
+	
+	return "Hechizo " + str(spell_id)
 
 func GetMap(fileId:int) -> MapData:
 	var mapData = MapData.new()
@@ -291,3 +322,80 @@ func _LoadHelmetData() -> void:
 		animation.west = stream.get_16()
 		
 		HelmetAnimationList[i] = animation
+
+func _LoadSpellData() -> void:
+	print("--- [V%d] INICIO CARGA HECHIZOS ---" % MAGIC_VERSION)
+	var path = "res://Assets/Init/Hechizos.dat"
+	
+	if !FileAccess.file_exists(path):
+		print("!!! [V%d] ERROR: No existe %s" % [MAGIC_VERSION, path])
+		return
+
+	var initReader = ConfigFile.new()
+	var err = initReader.load(path)
+	if err != OK:
+		print("!!! [V%d] ERROR ConfigFile: %d. Intentando lectura manual..." % [MAGIC_VERSION, err])
+		_LoadSpellDataManual(path)
+		return
+		
+	var count = initReader.get_value("INIT", "NUMHECHIZOS", 0)
+	print("--- [V%d] Hechizos en archivo: %d" % [MAGIC_VERSION, count])
+	
+	SpellDataList.clear()
+	SpellDataList.resize(count + 1)
+	
+	var SpellScript = load("res://common/data/spell_data.gd")
+	for i in range(1, count + 1):
+		var section = "HECHIZO%d" % i
+		if initReader.has_section(section):
+			var spell = SpellScript.new()
+			spell.id = i
+			spell.nombre = initReader.get_value(section, "Nombre", "Hechizo " + str(i))
+			SpellDataList[i] = spell
+	
+	print("--- [V%d] CARGA COMPLETA: %d en memoria" % [MAGIC_VERSION, SpellDataList.size() - 1])
+
+func _LoadSpellDataManual(path: String) -> void:
+	print("--- [V%d] Iniciando lectura manual (fallback de emergencia) ---" % MAGIC_VERSION)
+	var file = FileAccess.open(path, FileAccess.READ)
+	if !file:
+		print("!!! [V%d] ERROR: No se pudo abrir el archivo para lectura manual" % MAGIC_VERSION)
+		return
+	
+	var SpellScript = load("res://common/data/spell_data.gd")
+	var current_spell = null
+	
+	SpellDataList.clear()
+	# Pre-llenamos con nulls para seguridad (AO suele tener ~500 hechizos max)
+	SpellDataList.resize(1000)
+	
+	var loaded_count = 0
+	while !file.eof_reached():
+		var line = file.get_line().strip_edges()
+		if line.is_empty() or line.begins_with("'") or line.begins_with(";"):
+			continue
+			
+		if line.begins_with("[HECHIZO") and line.ends_with("]"):
+			var id_str = line.replace("[HECHIZO", "").replace("]", "")
+			if id_str.is_valid_int():
+				var id = int(id_str)
+				current_spell = SpellScript.new()
+				current_spell.id = id
+				if id < SpellDataList.size():
+					SpellDataList[id] = current_spell
+					loaded_count += 1
+		elif "=" in line and current_spell:
+			var parts = line.split("=", true, 1)
+			var key = parts[0].strip_edges().to_upper()
+			var val = parts[1].strip_edges()
+			
+			match key:
+				"NOMBRE":
+					current_spell.nombre = val
+				"DESC":
+					current_spell.desc = val
+				"PALABRASMAGICAS":
+					current_spell.palabras_magicas = val
+	
+	# Ajustar tamaño al final
+	print("--- [V%d] Lectura manual finalizada. Hechizos cargados: %d ---" % [MAGIC_VERSION, loaded_count])

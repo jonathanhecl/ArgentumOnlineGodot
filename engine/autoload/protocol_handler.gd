@@ -308,8 +308,9 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 				
 				print("Hechizo actualizado: slot ", p.slot, ", ID: ", p.spellId)
 			
-			# Emitir señal con el spell_id para que la UI se actualice
-			spell_slot_changed.emit(p.slot - 1, str(p.spellId))
+			# Emitir señal con el nombre del hechizo para que la UI se actualice
+			var spell_name = GameAssets.GetSpellName(p.spellId)
+			spell_slot_changed.emit(p.slot - 1, spell_name)
 		
 		Enums.ServerPacketID.ChangeBankSlot:
 			var p = ChangeBankSlot.new(stream)
@@ -341,14 +342,13 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			mana_updated.emit(p.min_mana)
 		
 		Enums.ServerPacketID.UpdateSta:
-			var p = UpdateSta.new(stream)
-			game_context.player_stats.sta = p.stamina
-			stamina_updated.emit(p.stamina)
+			var _p = UpdateSta.new(stream)
+			game_context.player_stats.sta = _p.stamina
+			stamina_updated.emit(_p.stamina)
 		
 		Enums.ServerPacketID.UpdateGold:
-			var p = UpdateGold.new(stream)
-			game_context.player_gold = p.gold
-			gold_updated.emit(p.gold)
+			var _p = UpdateGold.new(stream)
+			gold_updated.emit(Global.UserOro)
 		
 		Enums.ServerPacketID.UpdateExp:
 			var p = UpdateExp.new(stream)
@@ -435,7 +435,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			rain_toggle.emit()
 		
 		Enums.ServerPacketID.ChangeUserTradeSlot:
-			var p = ChangeUserTradeSlot.new(stream)
+			var _p = ChangeUserTradeSlot.new(stream)
 			# TODO: Implementar lógica de ChangeUserTradeSlot (actualizar UI de comercio)
 			# print("DEBUG: ChangeUserTradeSlot recibido")
 

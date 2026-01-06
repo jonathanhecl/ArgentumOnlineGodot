@@ -1,4 +1,5 @@
 extends Node
+class_name ProtocolWriteToServer
 
 static var _writer:StreamPeerBuffer = StreamPeerBuffer.new()
 
