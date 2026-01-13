@@ -28,6 +28,10 @@ signal object_deleted(x: int, y: int)
 signal block_position_changed(x: int, y: int, blocked: bool)
 
 signal inventory_slot_changed(slot: int, item_stack: ItemStack)
+signal weapon_updated(min_hit: int, max_hit: int)
+signal armor_updated(min_def: int, max_def: int)
+signal shield_updated(min_def: int, max_def: int)
+signal helm_updated(min_def: int, max_def: int)
 signal spell_slot_changed(slot: int, name: String)
 signal bank_slot_changed(slot: int, item_stack: ItemStack)
 signal npc_inventory_slot_changed(slot: int, item_stack: ItemStack)
@@ -294,6 +298,32 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			var p = ChangeInventorySlot.new(stream)
 			var item_stack = _create_item_stack(p)
 			game_context.playerInventory.SetSlot(p.slot - 1, item_stack)
+			
+			# Manejar lógica de equipamiento similar a VB6
+			if p.equipped:
+				match p.type:
+					Enums.eOBJType.eOBJType_otWeapon:
+						weapon_updated.emit(p.minHit, p.maxHit)
+					Enums.eOBJType.eOBJType_otArmadura:
+						armor_updated.emit(p.minDef, p.maxDef)
+					Enums.eOBJType.eOBJType_otESCUDO:
+						shield_updated.emit(p.minDef, p.maxDef)
+					Enums.eOBJType.eOBJType_otCASCO:
+						helm_updated.emit(p.minDef, p.maxDef)
+			else:
+				# Si el item se desequipa, enviamos 0/0 (o podríamos manejarlo en la UI)
+				# VB6 resetea los labels si el slot desequipado era el que teníamos puesto.
+				# Aquí emitimos la actualización para que la UI decida.
+				match p.type:
+					Enums.eOBJType.eOBJType_otWeapon:
+						weapon_updated.emit(0, 0)
+					Enums.eOBJType.eOBJType_otArmadura:
+						armor_updated.emit(0, 0)
+					Enums.eOBJType.eOBJType_otESCUDO:
+						shield_updated.emit(0, 0)
+					Enums.eOBJType.eOBJType_otCASCO:
+						helm_updated.emit(0, 0)
+						
 			inventory_slot_changed.emit(p.slot - 1, item_stack)
 		
 		Enums.ServerPacketID.ChangeSpellSlot:
