@@ -11,9 +11,11 @@ func _init(reader:StreamPeerBuffer = null) -> void:
 	if reader: Deserialize(reader)
 
 func Deserialize(reader:StreamPeerBuffer) -> void:
-	# Si el servidor tiene AntiExternos habilitado, descomentar esta línea:
-	# var new_key = reader.get_u8()
-	# Security.set_redundance(new_key)
+	# El servidor envía el byte de Redundance (AntiExternos) si está habilitado
+	if Security.anti_externos_enabled:
+		var new_key = reader.get_u8()
+		print("New key: ", new_key)
+		Security.set_redundance(new_key)
 	
 	# Leer la clase del usuario
 	userClass = reader.get_u8()

@@ -2,14 +2,14 @@ extends Node
 
 # Flag para habilitar/deshabilitar el cifrado (como #If AntiExternos en VB6)
 # AOGolang NO tiene AntiExternos habilitado, así que por defecto está en false
-var anti_externos_enabled: bool = true
+var anti_externos_enabled: bool = true # NO TOCAR!
 
 # Clave de cifrado XOR (como Security.Redundance en VB6)
 # Se inicializa en 13 y luego el servidor puede enviar una nueva clave
 var redundance: int = 13
 
 func encrypt_bytes(data: PackedByteArray) -> PackedByteArray:
-	"""Cifra los bytes usando XOR con la clave redundance (como NAC_E_Byte en VB6)"""
+	"""Cifra los bytes usando XOR con la clave redundance"""
 	var encrypted = PackedByteArray()
 	encrypted.resize(data.size())
 	
@@ -19,7 +19,7 @@ func encrypt_bytes(data: PackedByteArray) -> PackedByteArray:
 	return encrypted
 
 func decrypt_bytes(data: PackedByteArray) -> PackedByteArray:
-	"""Descifra los bytes usando XOR con la clave redundance (como NAC_D_Byte en VB6)"""
+	"""Descifra los bytes usando XOR con la clave redundance"""
 	var decrypted = PackedByteArray()
 	decrypted.resize(data.size())
 	

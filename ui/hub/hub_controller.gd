@@ -72,6 +72,12 @@ func _ready() -> void:
 	# Conectar señales del sistema de hotkeys
 	HotkeyConfig.hotkey_changed.connect(_on_hotkey_changed)
 	
+	# Conectar señales del sistema de protocolo para actualizar UI
+	ProtocolHandler.weapon_updated.connect(_on_weapon_updated)
+	ProtocolHandler.armor_updated.connect(_on_armor_updated)
+	ProtocolHandler.shield_updated.connect(_on_shield_updated)
+	ProtocolHandler.helm_updated.connect(_on_helm_updated)
+	
 	# Resto del código existente...
 	_btnOptions.pressed.connect(Callable(self, "_on_btn_options_pressed"))
 	_btnSkills.pressed.connect(Callable(self, "_on_btn_skills_pressed"))
@@ -175,6 +181,18 @@ func update_name_label(value:String) -> void:
 	%LblName.text = str(value)
 	
 	
+func _on_weapon_updated(min_hit: int, max_hit: int) -> void:
+	%LblWeapon.text = "%d/%d" % [min_hit, max_hit]
+
+func _on_armor_updated(min_def: int, max_def: int) -> void:
+	%LblArmor.text = "%d/%d" % [min_def, max_def]
+
+func _on_shield_updated(min_def: int, max_def: int) -> void:
+	%LblShield.text = "%d/%d" % [min_def, max_def]
+
+func _on_helm_updated(min_def: int, max_def: int) -> void:
+	%LblHelmet.text = "%d/%d" % [min_def, max_def]
+
 func update_equipment_label(slot:int, item_stack:ItemStack) -> void:
 	if item_stack.equipped:
 		match item_stack.item.type:
@@ -237,11 +255,11 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 	  
 	if event.pressed && event.button_index == MOUSE_BUTTON_LEFT:
 		if event.double_click:
-			GameProtocol.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
+			ProtocolWriteToServer.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
 			return
 		
 		if _gameContext.usingSkill == 0:
-			GameProtocol.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
+			ProtocolWriteToServer.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
 		else:
 			if _gameContext.usingSkill == Enums.Skill.Proyectiles:
 				if !_gameContext.tick_intervals.request_attack_with_bow():
@@ -257,12 +275,7 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
 					return
 			
-			if _gameContext.usingSkill in [Enums.Skill.Mineria, Enums.Skill.Robar, Enums.Skill.Pesca, Enums.Skill.Talar]:
-				if !_gameContext.tick_intervals.request_work():
-					_restore_default_cursor()
-					return
-		
-			GameProtocol.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
+			ProtocolWriteToServer.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
 			# Restaurar el cursor al predeterminado después de hacer click
 			_restore_default_cursor()
 			print("Cursor restaurado después de hacer click en objetivo")
@@ -296,7 +309,7 @@ func _handle_key_event(event:InputEventKey) -> void:
 	if event.is_action_released("ExitGame"):
 		_exit_game()
 	if event.is_action_pressed("ToggleSafeMode"):
-		GameProtocol.WriteSafeToggle()
+		ProtocolWriteToServer.WriteSafeToggle()
 	if event.is_action_pressed("SpellMacro"):
 		SpellMacroSystem.toggle_spell_macro()
 	
@@ -324,21 +337,21 @@ func _OnConsoleInputTextSubmitted(newText: String) -> void:
 			var receiver = msg.substr(0, space_idx)
 			var body = msg.substr(space_idx + 1).strip_edges()
 			if !body.is_empty():
-				GameProtocol.WriteWhisper(receiver, body)
+				ProtocolWriteToServer.WriteWhisper(receiver, body)
 			else:
 				ShowConsoleMessage("Escribe un mensaje para susurrar. Ej. \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 				return
 	elif newText.begins_with("-"):
 		var yell_text = newText.substr(1).strip_edges()
 		if !yell_text.is_empty():
-			GameProtocol.WriteYell(yell_text)
+			ProtocolWriteToServer.WriteYell(yell_text)
 		else:
 			ShowConsoleMessage("Formato de susurro inválido. Usa: \\nombre mensaje", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 			return
 	else:
 		# Procesar comandos de consola o mensaje de chat normal
 		if !ConsoleCommandProcessor.process(newText, self, _gameContext):
-			GameProtocol.WriteTalk(newText)
+			ProtocolWriteToServer.WriteTalk(newText)
 	
 	# Limpiar y ocultar la consola después de enviar el mensaje
 	_consoleInputLineEdit.text = ""
@@ -352,8 +365,8 @@ func _equip_object() -> void:
 	var slot = _inventoryContainer.GetSelectedSlot()
 	if slot == -1 || _gameContext.trading: return
 
-	GameProtocol.WriteEquipItem(slot + 1)
-
+	ProtocolWriteToServer.WriteEquipItem(slot + 1)
+	
 func _use_object(double_click = false) -> void:
 	if double_click:
 		if !_gameContext.tick_intervals.request_use_item_with_double_click():
@@ -370,14 +383,14 @@ func _use_object(double_click = false) -> void:
 	if item_stack and item_stack.item.type == Enums.eOBJType.eOBJType_otPergaminos:
 		_show_spell_learn_dialog(item_stack.item.name, slot + 1)
 	else:
-		GameProtocol.WriteUseItem(slot + 1)
+		ProtocolWriteToServer.WriteUseItem(slot + 1) 
 	
 	
 func _pickup_object() -> void:
 	if !_gameContext.player_stats.is_alive():
 		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return  
-	GameProtocol.WritePickup()
+	ProtocolWriteToServer.WritePickup()
 
 
 func _drop_object() -> void:
@@ -398,16 +411,16 @@ func _attack() -> void:
 		return
 	
 	if _gameContext.tick_intervals.request_attack():
-		GameProtocol.WriteAttack()
+		ProtocolWriteToServer.WriteAttack()
 
 
 func _request_position_update() -> void:
 	if _gameContext.tick_intervals.request_pos_update():
-		GameProtocol.WriteRequestPositionUpdate()
+		ProtocolWriteToServer.WriteRequestPositionUpdate()
 
 
 func _exit_game() -> void:
-	GameProtocol.WriteQuit()
+	ProtocolWriteToServer.WriteQuit()
 
 func _on_hotkey_changed(action_name: String, key_code: int):
 	print("[HubController] Hotkey cambiado: ", action_name, " -> ", HotkeyConfig.get_key_name(key_code))
@@ -471,14 +484,13 @@ func _tam_animal() -> void:
 	if !_gameContext.player_stats.is_alive():
 		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return 
-	GameProtocol.WriteWork(Enums.Skill.Domar)
-	
-	
+	ProtocolWriteToServer.WriteWork(Enums.Skill.Domar)
+
 func _steal() -> void:
 	if !_gameContext.player_stats.is_alive():
 		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return 
-	GameProtocol.WriteWork(Enums.Skill.Robar)
+	ProtocolWriteToServer.WriteWork(Enums.Skill.Robar)
 
 func _talk() -> void:
 	if _consoleInputLineEdit.visible:
@@ -518,7 +530,7 @@ func _hide() -> void:
 		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return 
 		
-	GameProtocol.WriteWork(Enums.Skill.Ocultarse)
+	ProtocolWriteToServer.WriteWork(Enums.Skill.Ocultarse)
 
 func _meditate() -> void:
 	var stats = _gameContext.player_stats 
@@ -530,13 +542,13 @@ func _meditate() -> void:
 		ShowConsoleMessage("¡¡Estás muerto!!", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		return
 		
-	GameProtocol.WriteMeditate()
+	ProtocolWriteToServer.WriteMeditate()
 
 func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_HandleMouseInput(event)
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and Input.is_key_pressed(KEY_SHIFT):
-			GameProtocol.WriteWarpMeToTarget()
+			ProtocolWriteToServer.WriteWarpMeToTarget()
 			get_viewport().set_input_as_handled()
 			
 
@@ -571,7 +583,7 @@ func _on_console_meta_clicked(meta: Variant) -> void:
 	
 func _on_minimap_click(mouse_position: Vector2) -> void:
 	if _gameContext.player_map > 0:
-		GameProtocol.WriteWarpChar("YO", _gameContext.player_map, int(mouse_position.x), int(mouse_position.y))
+		ProtocolWriteToServer.WriteWarpChar("YO", _gameContext.player_map, int(mouse_position.x), int(mouse_position.y))
 
 func _on_btn_options_pressed() -> void:
 	if _options_window == null:
@@ -586,14 +598,14 @@ func _on_btn_skills_pressed() -> void:
 	# Establecer el flag para indicar que estamos esperando las habilidades
 	_waiting_for_skills_popup = true
 	# Solicitar las habilidades al servidor
-	GameProtocol.WriteRequestSkills()
+	ProtocolWriteToServer.WriteRequestSkills()
 
 func _on_btn_stadistics_pressed() -> void:
 	# Enviar solicitudes para poblar la ventana de estadísticas
-	GameProtocol.WriteRequestAtributes()
-	GameProtocol.WriteRequestSkills()
-	GameProtocol.WriteRequestMiniStats()
-	GameProtocol.WriteRequestFame()
+	ProtocolWriteToServer.WriteRequestAtributes()
+	ProtocolWriteToServer.WriteRequestSkills()
+	ProtocolWriteToServer.WriteRequestMiniStats()
+	ProtocolWriteToServer.WriteRequestFame()
 	# Mostrar/crear la ventana
 	if _stats_window == null:
 		_stats_window = StatsWindowScene.instantiate()
@@ -697,8 +709,7 @@ func _on_btn_guilds_pressed() -> void:
 	# Solo solicitar información al servidor
 	# El servidor responderá con GuildList, GuildMemberInfo o GuildLeaderInfo según el estado del jugador
 	print("[DEBUG] Enviando WriteRequestGuildLeaderInfo...")
-	GameProtocol.WriteRequestGuildLeaderInfo()
-	ClientInterface.Send(GameProtocol.Flush())
+	ProtocolWriteToServer.WriteRequestGuildLeaderInfo()
 	print("[DEBUG] WriteRequestGuildLeaderInfo enviado y flushed")
 
 ## Muestra la ventana de detalles del clan con los datos recibidos
@@ -821,7 +832,7 @@ func _show_spell_learn_dialog(spell_name: String, slot: int) -> void:
 	# Conectar la señal de confirmación
 	dialog.spell_learn_confirmed.connect(func(learn: bool):
 		if learn:
-			GameProtocol.WriteUseItem(slot)
+			ProtocolWriteToServer.WriteUseItem(slot)
 	)
 	
 	# Mostrar el diálogo centrado

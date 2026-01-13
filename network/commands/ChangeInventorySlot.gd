@@ -26,12 +26,12 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	index = reader.get_16();
 	name = Utils.GetUnicodeString(reader)
 	amount = reader.get_16();
-	equipped = reader.get_u8();
-	grhId = reader.get_32();  # ReadLong() en VB6 = 4 bytes
+	equipped = reader.get_u8() != 0;
+	grhId = reader.get_32();
 	type = reader.get_u8();
 	maxHit = reader.get_16();
 	minHit = reader.get_16();
 	maxDef = reader.get_16();
 	minDef = reader.get_16();
 	salePrice = int(reader.get_float());
-	incompatible = reader.get_u8();  # ReadBoolean() en VB6
+	incompatible = reader.get_u8() != 0;

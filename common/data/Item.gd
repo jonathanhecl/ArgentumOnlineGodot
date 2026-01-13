@@ -16,7 +16,7 @@ const UsableTypes = \
 	Enums.eOBJType.eOBJType_otPociones,
 	Enums.eOBJType.eOBJType_otBebidas,
 	Enums.eOBJType.eOBJType_otPergaminos,
-	Enums.eOBJType.eOBJType_otGuita,
+	Enums.eOBJType.eOBJType_otOro,
 	Enums.eOBJType.eOBJType_otUseOnce
 ]
 

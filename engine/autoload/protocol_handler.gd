@@ -151,11 +151,16 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 	var packet_id = stream.get_u8()
 	var packet_name = ""
 	
-	# Logging detallado para depurar
-	print("🔍 DEBUG: Stream pos=", start_pos, ", size=", stream.get_size(), ", packet_id=", packet_id)
+	# Logging detallado solo si no es un paquete muy frecuente
+	var should_log = packet_id != Enums.ServerPacketID.ChangeInventorySlot \
+		and packet_id != Enums.ServerPacketID.ChangeSpellSlot \
+		and packet_id != Enums.ServerPacketID.EnviarListDeAmigos
 	
-	# Mostrar los siguientes bytes para entender qué viene después
-	if stream.get_position() + 4 <= stream.get_size():
+	if should_log:
+		print("🔍 DEBUG: Stream pos=", start_pos, ", size=", stream.get_size(), ", packet_id=", packet_id)
+	
+	# Mostrar los siguientes bytes solo si no es frecuente
+	if should_log and stream.get_position() + 4 <= stream.get_size():
 		var next_bytes = []
 		for i in range(4):
 			next_bytes.append(stream.get_u8())
@@ -168,22 +173,22 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			if Enums.ServerPacketID.get(key) == packet_id:
 				packet_name = key
 				break
-		print("🔍 DEBUG: packet_id=", packet_id, " -> packet_name=", packet_name)
+		if should_log:
+			print("🔍 DEBUG: packet_id=", packet_id, " -> packet_name=", packet_name)
 	else:
 		print("[ProtocolHandler] Paquete desconocido ID: ", packet_id)
 		return
 	
-	# Manejo especial para Logged con ID incorrecto (0) - BUG del servidor
+	# Si el packet_id es 0, es un byte de datos mal interpretado - el stream está desincronizado
+	# NO procesar como Logged, simplemente salir para evitar más corrupción
 	if packet_id == 0:
-		print("🔐 ProtocolHandler: ¡Recibido Logged con ID incorrecto (0)! Procesando...")
-		var _p = Logged.new(stream)
-		print("🔐 ProtocolHandler: Stream después de Logged: pos=", stream.get_position(), "/", stream.get_size())
-		print("🔐 ProtocolHandler: ¡Usuario autenticado! Emitiendo señal logged_in...")
-		logged_in.emit()
-		print("🔐 ProtocolHandler: ¡Señal logged_in emitida! Esperando paquetes de datos del personaje...")
+		print("⚠️ ProtocolHandler: packet_id=0 detectado - posible desincronización del stream")
+		print("⚠️ Stream pos=", stream.get_position(), "/", stream.get_size())
+		# Intentar resincronizar buscando un packet_id válido conocido
 		return
 	
-	print("DEBUG: Procesando packet_id=", packet_id, " (", packet_name, ")")
+	if should_log:
+		print("DEBUG: Procesando packet_id=", packet_id, " (", packet_name, ")")
 	match packet_id:
 		# ==================== LOGIN/ACCOUNT PACKETS ====================
 		Enums.ServerPacketID.ErrorMsg:
@@ -262,8 +267,13 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.ChangeMap:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
-			print("🗺️ DEBUG: Cambiando al mapa ", p.mapId, " - ", p.nameMap, " (", p.zone, ")")
-			print("🗺️ DEBUG: Emitiendo señal map_changed...")
+			print("--------------------------------------------------")
+			print("🗺️ [CAMBIO DE MAPA] RECIBIDO")
+			print("🗺️ ID Mapa: ", p.mapId)
+			print("🗺️ Nombre: ", p.nameMap)
+			print("🗺️ Zona: ", p.zone)
+			print("🗺️ Posición Actual en Stream: ", stream.get_position())
+			print("--------------------------------------------------")
 			map_changed.emit(p.mapId, p.nameMap, p.zone)
 		
 		Enums.ServerPacketID.AreaChanged:
@@ -272,7 +282,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.PosUpdate:
 			var p = PosUpdate.new(stream)
-			print("DEBUG: PosUpdate - x=", p.x, " y=", p.y)
+			print("📍 [POSICIÓN] x=", p.x, " y=", p.y)
 			pos_updated.emit(p.x, p.y)
 		
 		Enums.ServerPacketID.ForceCharMove:
@@ -452,6 +462,10 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			guild_chat_received.emit(p.chat)
 		
 		# ==================== AUDIO PACKETS ====================
+		Enums.ServerPacketID.PlayMp3:
+			var _p = PlayMp3.new(stream)
+			# TODO: Implementar reproducción de MP3
+		
 		Enums.ServerPacketID.PlayMIDI:
 			var p = PlayMidi.new(stream)
 			play_midi.emit(p.midiId, p.loops)
@@ -816,9 +830,9 @@ func _handle_multi_message(p: MultiMessage) -> void:
 		Enums.Messages.WorkRequestTarget:
 			game_context.usingSkill = p.arg1
 			work_request_target.emit(p.arg1)
-		Enums.Messages.Home:
+		Enums.Messages.GoHome:
 			game_context.traveling = true
-		Enums.Messages.FinishHome, Enums.Messages.CancelHome:
+		Enums.Messages.FinishHome, Enums.Messages.CancelGoHome:
 			game_context.traveling = false
 
 #endregion

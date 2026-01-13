@@ -76,6 +76,18 @@ static func GetUnicodeString(stream: StreamPeer) -> String:
 		return data.get_string_from_ascii()
 	return ""
 
+static func BytesToDecimal(data: PackedByteArray) -> String:
+	var dec_str = ""
+	for i in range(0, data.size()):
+		dec_str += "%d " % data[i]
+	return dec_str.strip_edges()
+
+static func BytesToHex(data: PackedByteArray) -> String:
+	var hex_str = ""
+	for i in range(0, data.size()):
+		hex_str += "%02X " % data[i]
+	return hex_str.strip_edges()
+
 static func GetUnicodeArrayString(stream: StreamPeer) -> Array[String]:
 	var size = stream.get_16()
 	if size > 0:

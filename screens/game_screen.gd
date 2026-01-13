@@ -553,7 +553,7 @@ func _on_multi_message(index: int, arg1: int, arg2: int, arg3: int, string_arg1:
 			_gameInput.ShowConsoleMessage("¡¡¡La criatura te ha matado!!!", FontData.new(Color.RED, true))
 		Enums.Messages.BlockedWithShieldUser:
 			_gameInput.ShowConsoleMessage("¡¡¡Has rechazado el ataque con el escudo!!!", FontData.new(Color.RED, true))
-		Enums.Messages.BlockedWithShieldother:
+		Enums.Messages.BlockedWithShieldOther:
 			_gameInput.ShowConsoleMessage("¡¡¡El usuario rechazó el ataque con su escudo!!!", FontData.new(Color.RED, true))
 		Enums.Messages.UserSwing:
 			_gameInput.ShowConsoleMessage("¡¡¡Has fallado el golpe!!!", FontData.new(Color.RED, true))
@@ -583,7 +583,7 @@ func _on_multi_message(index: int, arg1: int, arg2: int, arg3: int, string_arg1:
 		Enums.Messages.UserKill:
 			var char_name = _gameWorld.GetCharacter(arg1).GetCharacterName() if _gameWorld.GetCharacter(arg1) else "?"
 			_gameInput.ShowConsoleMessage("%s te ha matado!" % char_name, FontData.new(Color.RED, true))
-		Enums.Messages.Home:
+		Enums.Messages.GoHome:
 			var message = ""
 			if arg2 >= 60:
 				if arg2 % 60 == 0:
@@ -595,7 +595,7 @@ func _on_multi_message(index: int, arg1: int, arg2: int, arg3: int, string_arg1:
 			_gameInput.ShowConsoleMessage("Te encuentras a %d mapas de la %s, este viaje durará %s" % [arg1, string_arg1, message], FontData.new(Color.RED, true))
 		Enums.Messages.FinishHome:
 			_gameInput.ShowConsoleMessage("Has llegado a tu hogar. El viaje ha finalizado.", FontData.new(Color.WHITE))
-		Enums.Messages.CancelHome:
+		Enums.Messages.CancelGoHome:
 			_gameInput.ShowConsoleMessage("Tu viaje ha sido cancelado.", FontData.new(Color.RED))
 
 func _on_work_request_target(skill_id: int) -> void:

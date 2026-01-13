@@ -34,17 +34,16 @@ func DisconnectFromHost() -> void:
 	_connection_timer = 0.0
 
 func Send(data: PackedByteArray) -> void:
-	if _socket.get_status() == StreamPeerTCP.STATUS_CONNECTED && data.size():
-		# NOTA: El cifrado solo se usa si el servidor tiene AntiExternos habilitado
+	if _socket.get_status() == StreamPeerTCP.STATUS_CONNECTED && data.size():# NOTA: El cifrado solo se usa si el servidor tiene AntiExternos habilitado
 		# AOGolang NO tiene AntiExternos, así que enviamos los datos sin cifrar
 		var data_to_send = data
 		if Security.anti_externos_enabled:
 			data_to_send = Security.encrypt_bytes(data)
 			if LOG_PACKETS:
-				print("[OUTGOING] Enviando %d bytes cifrados" % data_to_send.size())
+				print("[OUTGOING] Enviando %d bytes cifrados" % data_to_send.size() + " DATA original: " + Utils.BytesToDecimal(data))
 		else:
 			if LOG_PACKETS:
-				print("[OUTGOING] Enviando %d bytes sin cifrar" % data_to_send.size())
+				print("[OUTGOING] Enviando %d bytes sin cifrar" % data_to_send.size() + " DATA original: " + Utils.BytesToDecimal(data))
 		_socket.put_data(data_to_send)
 		
 func _process(_delta: float) -> void:
@@ -106,12 +105,10 @@ func _process(_delta: float) -> void:
 					if data.size() >= 3:
 						packet_length = (data[2] << 8) | data[1]
 					
-					# Convertir los bytes a formato legible
-					var hex_str = ""
-					for i in range(0, data.size()):
-						hex_str += "%02X " % data[i]
+					# Convertir los bytes a formato legible usando la función global
+					var dec_str = Utils.BytesToDecimal(data)
 					
 					# Mostrar información del paquete
-					print("[INCOMING] Packet ID: %d (0x%02X), Longitud: %d, Bytes: %s" % [packet_id, packet_id, packet_length, hex_str])
+					print("[INCOMING] Packet ID: %d (0x%02X), Longitud: %d, Bytes: %s" % [packet_id, packet_id, packet_length, dec_str])
 				
 				dataReceived.emit(data)
