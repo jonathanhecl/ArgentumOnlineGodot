@@ -1,0 +1,48 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ii7mp"]
+region = Rect2(32, 0, 17, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c1fua"]
+region = Rect2(16, 0, 17, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_be2do"]
+region = Rect2(0, 0, 17, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_er3fr"]
+region = Rect2(47, 0, 17, 16)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ii7mp")
+}],
+"loop": true,
+"name": &"idle_east",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c1fua")
+}],
+"loop": true,
+"name": &"idle_north",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_be2do")
+}],
+"loop": true,
+"name": &"idle_south",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_er3fr")
+}],
+"loop": true,
+"name": &"idle_west",
+"speed": 5.0
+}]

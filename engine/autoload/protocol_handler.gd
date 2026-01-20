@@ -268,12 +268,17 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
 			print("--------------------------------------------------")
-			print("🗺️ [CAMBIO DE MAPA] RECIBIDO")
+			print("🗺️ [REVELACIÓN DE DESTINO] ¡EL MAPA HA SIDO ENTREGADO!")
 			print("🗺️ ID Mapa: ", p.mapId)
 			print("🗺️ Nombre: ", p.nameMap)
 			print("🗺️ Zona: ", p.zone)
 			print("🗺️ Posición Actual en Stream: ", stream.get_position())
 			print("--------------------------------------------------")
+			
+			# ¡ALTO AHÍ! Aquí es donde el báculo se detiene para que inspecciones la verdad.
+			# Puedes ver los valores arriba en la consola antes de continuar.
+			# breakpoint
+			
 			map_changed.emit(p.mapId, p.nameMap, p.zone)
 		
 		Enums.ServerPacketID.AreaChanged:

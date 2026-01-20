@@ -293,7 +293,7 @@ tile_set = SubResource("TileSet_rgpmo")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@390" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@394" type="Sprite2D" parent="Layer3"]
 position = Vector2(208, 288)
 texture = ExtResource("4_vbe4b")
 offset = Vector2(0, -128)

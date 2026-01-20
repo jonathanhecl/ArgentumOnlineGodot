@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=18 format=3 uid="uid://ddeqxk64xbeuy"]
+[gd_resource type="SpriteFrames" load_steps=18 format=3]
 
-[ext_resource type="Texture2D" uid="uid://bvm6q206dfeqi" path="res://Assets/Gfx/4164.png" id="1_ln3hg"]
+[ext_resource type="Texture2D" path="res://Assets/Gfx/4164.png" id="1_ln3hg"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_riqeq"]
 atlas = ExtResource("1_ln3hg")
@@ -168,5 +168,5 @@ animations = [{
 "name": &"walk_west",
 "speed": 12.0
 }]
-metadata/offsetX = 0
-metadata/offsetY = 0
+metadata/offset_x = 0
+metadata/offset_y = 0

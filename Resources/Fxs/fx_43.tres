@@ -1,0 +1,53 @@
+[gd_resource type="SpriteFrames" load_steps=8 format=3]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5c3va"]
+region = Rect2(0, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hlt2l"]
+region = Rect2(96, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qlj5p"]
+region = Rect2(192, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cqm1i"]
+region = Rect2(288, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_toj0t"]
+region = Rect2(384, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1hgdy"]
+region = Rect2(480, 0, 96, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ttcph"]
+region = Rect2(576, 0, 96, 120)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5c3va")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hlt2l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qlj5p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cqm1i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_toj0t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1hgdy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ttcph")
+}],
+"loop": false,
+"name": &"default",
+"speed": 12.0
+}]
+metadata/offset_x = 0
+metadata/offset_y = 0

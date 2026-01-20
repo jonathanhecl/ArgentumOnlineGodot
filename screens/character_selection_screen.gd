@@ -314,8 +314,8 @@ func _on_connect_pressed() -> void:
 				ClientInterface.dataReceived.connect(_on_data_received)
 			
 			# Enviar paquete de login con personaje existente
-			GameProtocol.WriteLoginExistingCharacter(char_name, Global.account_hash)
-			ClientInterface.Send(GameProtocol.Flush())
+			ProtocolWriteToServer.WriteLoginExistingCharacter(char_name, Global.account_hash)
+			ClientInterface.Send(ProtocolWriteToServer.Flush())
 			
 			# Deshabilitar botón mientras esperamos
 			connect_button.disabled = true

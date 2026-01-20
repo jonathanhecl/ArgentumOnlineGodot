@@ -38,7 +38,7 @@ const NumSkills = 20
 const NumAtributos = 5
 const NumClases = 12
 const NumRazas = 5
-const NumCiudades = 6
+const NumCiudades = 5
 const MaxSkillpoints = 100
 
 const MessageUserHittedByUser: Dictionary[int, String] = {
@@ -108,10 +108,9 @@ const ClassNames: Dictionary[int, String] = {
 }
 
 const HomeNames: Dictionary[int, String] = {
-	Enums.Home.Arghal: "Arghal",
-	Enums.Home.Arkhein: "Arkhein",
-	Enums.Home.Lindos: "Lindos",
 	Enums.Home.Ullathorpe: "Ullathorpe",
+	Enums.Home.Nix: "Nix",
 	Enums.Home.Banderbill: "Banderbill",
-	Enums.Home.Nix: "Nix"
+	Enums.Home.Lindos: "Lindos",
+	Enums.Home.Arghal: "Arghal"
 }

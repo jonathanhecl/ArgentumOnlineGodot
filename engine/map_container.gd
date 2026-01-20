@@ -93,6 +93,10 @@ func SetAllCharacterNamesVisible(names_visible:bool) -> void:
 	
 func AddObject(grhId:int, x:int, y:int) -> void:
 	if grhId > 0:
+		if grhId >= GameAssets.GrhDataList.size():
+			push_error("MapContainer: Error crítico - GrhId %d fuera de rango (Total cargados: %d). ¿Falta indexar o actualizar graficos.ind?" % [grhId, GameAssets.GrhDataList.size()])
+			return
+
 		if GameAssets.GrhDataList[grhId].frameCount > 1:
 			grhId = GameAssets.GrhDataList[grhId].frames[1]
 		

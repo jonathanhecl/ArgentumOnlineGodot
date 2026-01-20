@@ -343,28 +343,28 @@ tile_set = SubResource("TileSet_mjfud")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@12118" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@12217" type="Sprite2D" parent="Layer3"]
 position = Vector2(80, 3040)
 texture = ExtResource("4_7dnra")
 offset = Vector2(0, -168)
 region_enabled = true
 region_rect = Rect2(0, 0, 293, 336)
 
-[node name="@Sprite2D@12119" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@12218" type="Sprite2D" parent="Layer3"]
 position = Vector2(272, 3040)
 texture = ExtResource("5_32bfh")
 offset = Vector2(0, -194)
 region_enabled = true
 region_rect = Rect2(0, 0, 312, 388)
 
-[node name="@Sprite2D@12120" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@12219" type="Sprite2D" parent="Layer3"]
 position = Vector2(112, 3136)
 texture = ExtResource("5_32bfh")
 offset = Vector2(0, -194)
 region_enabled = true
 region_rect = Rect2(0, 0, 312, 388)
 
-[node name="@Sprite2D@12121" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@12220" type="Sprite2D" parent="Layer3"]
 position = Vector2(208, 3168)
 texture = ExtResource("6_cc3lm")
 offset = Vector2(0, -230)

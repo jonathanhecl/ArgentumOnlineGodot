@@ -1457,2240 +1457,2276 @@ tile_set = SubResource("TileSet_nqf5p")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@18812" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19403" type="Sprite2D" parent="Layer3"]
 position = Vector2(2768, 32)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(256, 64, 32, 32)
 
-[node name="@Sprite2D@18813" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19404" type="Sprite2D" parent="Layer3"]
 position = Vector2(1168, 128)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18814" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19405" type="Sprite2D" parent="Layer3"]
 position = Vector2(1936, 128)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18815" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19406" type="Sprite2D" parent="Layer3"]
 position = Vector2(2992, 128)
 texture = ExtResource("21_xpswd")
 offset = Vector2(0, -112)
 region_enabled = true
 region_rect = Rect2(0, 0, 320, 224)
 
-[node name="@Sprite2D@18816" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19407" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 160)
 texture = ExtResource("22_sb5gd")
 offset = Vector2(0, -160)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 320)
 
-[node name="@Sprite2D@18817" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19408" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 160)
 texture = ExtResource("22_sb5gd")
 offset = Vector2(0, -160)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 320)
 
-[node name="@Sprite2D@18818" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19409" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 160)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18819" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19410" type="Sprite2D" parent="Layer3"]
 position = Vector2(2224, 192)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18820" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19411" type="Sprite2D" parent="Layer3"]
 position = Vector2(1040, 256)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18821" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19412" type="Sprite2D" parent="Layer3"]
 position = Vector2(1168, 256)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18822" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19413" type="Sprite2D" parent="Layer3"]
 position = Vector2(1616, 256)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18823" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19414" type="Sprite2D" parent="Layer3"]
 position = Vector2(2064, 256)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18824" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19415" type="Sprite2D" parent="Layer3"]
 position = Vector2(2800, 320)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18825" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19416" type="Sprite2D" parent="Layer3"]
 position = Vector2(624, 352)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18826" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19417" type="Sprite2D" parent="Layer3"]
 position = Vector2(1392, 352)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18827" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19418" type="Sprite2D" parent="Layer3"]
 position = Vector2(496, 384)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18828" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19419" type="Sprite2D" parent="Layer3"]
 position = Vector2(2288, 384)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18829" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19420" type="Sprite2D" parent="Layer3"]
 position = Vector2(496, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18830" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19421" type="Sprite2D" parent="Layer3"]
 position = Vector2(624, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18831" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19422" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18832" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19423" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 416)
 texture = ExtResource("24_nv0fh")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18833" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19424" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18834" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19425" type="Sprite2D" parent="Layer3"]
 position = Vector2(1104, 416)
 texture = ExtResource("24_nv0fh")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18835" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19426" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18836" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19427" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18837" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19428" type="Sprite2D" parent="Layer3"]
 position = Vector2(1488, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18838" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19429" type="Sprite2D" parent="Layer3"]
 position = Vector2(1616, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18839" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19430" type="Sprite2D" parent="Layer3"]
 position = Vector2(1744, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18840" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19431" type="Sprite2D" parent="Layer3"]
 position = Vector2(1872, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18841" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19432" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18842" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19433" type="Sprite2D" parent="Layer3"]
 position = Vector2(2128, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18843" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19434" type="Sprite2D" parent="Layer3"]
 position = Vector2(2256, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18844" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19435" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18845" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19436" type="Sprite2D" parent="Layer3"]
 position = Vector2(2512, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18846" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19437" type="Sprite2D" parent="Layer3"]
 position = Vector2(2640, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18847" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19438" type="Sprite2D" parent="Layer3"]
 position = Vector2(2672, 416)
 texture = ExtResource("23_al6fl")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 160, 128)
 
-[node name="@Sprite2D@18848" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19439" type="Sprite2D" parent="Layer3"]
 position = Vector2(464, 448)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18849" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19440" type="Sprite2D" parent="Layer3"]
 position = Vector2(560, 448)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18850" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19441" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 448)
 texture = ExtResource("25_2wdyy")
 offset = Vector2(0, -32)
 region_enabled = true
 region_rect = Rect2(0, 0, 128, 64)
 
-[node name="@Sprite2D@18851" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19442" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 448)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18852" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19443" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 480)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18853" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19444" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 512)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18854" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19445" type="Sprite2D" parent="Layer3"]
 position = Vector2(624, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18855" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19446" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18856" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19447" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18857" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19448" type="Sprite2D" parent="Layer3"]
 position = Vector2(1648, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18858" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19449" type="Sprite2D" parent="Layer3"]
 position = Vector2(1968, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18859" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19450" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 544)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18860" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19451" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 544)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18861" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19452" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 544)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18862" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19453" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 576)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18863" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19454" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 608)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18864" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19455" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 640)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18865" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19456" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 672)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18866" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19457" type="Sprite2D" parent="Layer3"]
 position = Vector2(624, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18867" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19458" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18868" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19459" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18869" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19460" type="Sprite2D" parent="Layer3"]
 position = Vector2(1648, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18870" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19461" type="Sprite2D" parent="Layer3"]
 position = Vector2(1968, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18871" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19462" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 704)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18872" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19463" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 704)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18873" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19464" type="Sprite2D" parent="Layer3"]
 position = Vector2(624, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18874" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19465" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18875" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19466" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18876" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19467" type="Sprite2D" parent="Layer3"]
 position = Vector2(1648, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18877" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19468" type="Sprite2D" parent="Layer3"]
 position = Vector2(1968, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18878" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19469" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 736)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18879" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19470" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 736)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18880" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19471" type="Sprite2D" parent="Layer3"]
 position = Vector2(560, 768)
 texture = ExtResource("30_iitc5")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18881" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19472" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 768)
 texture = ExtResource("31_sjkop")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18882" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19473" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 768)
 texture = ExtResource("32_mgpwg")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18883" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19474" type="Sprite2D" parent="Layer3"]
 position = Vector2(1584, 768)
 texture = ExtResource("33_2qjsy")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18884" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19475" type="Sprite2D" parent="Layer3"]
 position = Vector2(1904, 768)
 texture = ExtResource("34_oyqim")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18885" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19476" type="Sprite2D" parent="Layer3"]
 position = Vector2(2320, 768)
 texture = ExtResource("35_d0rgw")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18886" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19477" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 768)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18887" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19478" type="Sprite2D" parent="Layer3"]
 position = Vector2(3056, 768)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18888" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19479" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 800)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18889" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19480" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 832)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18890" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19481" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 832)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18891" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19482" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 864)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18892" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19483" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 896)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18893" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19484" type="Sprite2D" parent="Layer3"]
 position = Vector2(656, 928)
 texture = ExtResource("36_t01lg")
 offset = Vector2(0, -24)
 region_enabled = true
 region_rect = Rect2(0, 0, 53, 48)
 
-[node name="@Sprite2D@18894" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19485" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 928)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18895" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19486" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 928)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18896" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19487" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 928)
 texture = ExtResource("37_ip3lf")
 offset = Vector2(0, -30)
 region_enabled = true
 region_rect = Rect2(0, 0, 60, 60)
 
-[node name="@Sprite2D@18897" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19488" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 928)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18898" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19489" type="Sprite2D" parent="Layer3"]
 position = Vector2(2064, 928)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18899" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19490" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 928)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18900" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19491" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 928)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18901" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19492" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 960)
 texture = ExtResource("38_bsxsi")
 offset = Vector2(0, -40)
 region_enabled = true
 region_rect = Rect2(0, 0, 70, 80)
 
-[node name="@Sprite2D@18902" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19493" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 960)
 texture = ExtResource("39_a6ntr")
 offset = Vector2(0, -30)
 region_enabled = true
 region_rect = Rect2(0, 0, 40, 60)
 
-[node name="@Sprite2D@18903" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19494" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 960)
 texture = ExtResource("40_o3ikq")
 offset = Vector2(0, -29.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 50, 59)
 
-[node name="@Sprite2D@18904" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19495" type="Sprite2D" parent="Layer3"]
 position = Vector2(2128, 960)
 texture = ExtResource("41_404rg")
 offset = Vector2(0, -32.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 62, 65)
 
-[node name="@Sprite2D@18905" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19496" type="Sprite2D" parent="Layer3"]
 position = Vector2(2320, 960)
 texture = ExtResource("42_k6qib")
 offset = Vector2(0, -40.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 51, 81)
 
-[node name="@Sprite2D@18906" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19497" type="Sprite2D" parent="Layer3"]
 position = Vector2(2448, 960)
 texture = ExtResource("43_bkbdo")
 offset = Vector2(0, -21)
 region_enabled = true
 region_rect = Rect2(0, 0, 50, 42)
 
-[node name="@Sprite2D@18907" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19498" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 960)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18908" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19499" type="Sprite2D" parent="Layer3"]
 position = Vector2(944, 992)
 texture = ExtResource("44_q41sx")
 offset = Vector2(0, -37.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 150, 75)
 
-[node name="@Sprite2D@18909" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19500" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 992)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18910" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19501" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1024)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18911" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19502" type="Sprite2D" parent="Layer3"]
 position = Vector2(1872, 1056)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(352, 96, 32, 32)
 
-[node name="@Sprite2D@18912" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19503" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1056)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18913" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19504" type="Sprite2D" parent="Layer3"]
 position = Vector2(2736, 1056)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18914" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19505" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 1088)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18915" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19506" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 1088)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18916" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19507" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 1088)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18917" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19508" type="Sprite2D" parent="Layer3"]
 position = Vector2(2064, 1088)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18918" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19509" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 1088)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18919" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19510" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1088)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18920" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19511" type="Sprite2D" parent="Layer3"]
 position = Vector2(464, 1120)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(480, 96, 32, 32)
 
-[node name="@Sprite2D@18921" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19512" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 1120)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18922" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19513" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 1120)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18923" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19514" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 1120)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18924" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19515" type="Sprite2D" parent="Layer3"]
 position = Vector2(2064, 1120)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18925" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19516" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 1120)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18926" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19517" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1120)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18927" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19518" type="Sprite2D" parent="Layer3"]
 position = Vector2(656, 1152)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18928" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19519" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 1152)
 texture = ExtResource("45_xj883")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@18929" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19520" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 1152)
 texture = ExtResource("46_jcs5o")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18930" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19521" type="Sprite2D" parent="Layer3"]
 position = Vector2(1168, 1152)
 texture = ExtResource("47_7koxy")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18931" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19522" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 1152)
 texture = ExtResource("48_fm8yo")
 offset = Vector2(0, -27)
 region_enabled = true
 region_rect = Rect2(0, 0, 60, 54)
 
-[node name="@Sprite2D@18932" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19523" type="Sprite2D" parent="Layer3"]
 position = Vector2(1552, 1152)
 texture = ExtResource("49_a33ae")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18933" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19524" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 1152)
 texture = ExtResource("50_6u3n0")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18934" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19525" type="Sprite2D" parent="Layer3"]
 position = Vector2(2320, 1152)
 texture = ExtResource("51_n3721")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@18935" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19526" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1152)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18936" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19527" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1184)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18937" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19528" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1216)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18938" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19529" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1248)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18939" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19530" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1280)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18940" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19531" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 1312)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18941" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19532" type="Sprite2D" parent="Layer3"]
 position = Vector2(1584, 1312)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18942" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19533" type="Sprite2D" parent="Layer3"]
 position = Vector2(1904, 1312)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18943" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19534" type="Sprite2D" parent="Layer3"]
 position = Vector2(2224, 1312)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@18944" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19535" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1312)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18945" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19536" type="Sprite2D" parent="Layer3"]
 position = Vector2(1808, 1344)
 texture = ExtResource("52_5fbl2")
 offset = Vector2(0, -9)
 region_enabled = true
 region_rect = Rect2(0, 0, 33, 18)
 
-[node name="@Sprite2D@18946" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19537" type="Sprite2D" parent="Layer3"]
 position = Vector2(1840, 1344)
 texture = ExtResource("52_5fbl2")
 offset = Vector2(0, -9)
 region_enabled = true
 region_rect = Rect2(0, 0, 33, 18)
 
-[node name="@Sprite2D@18947" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19538" type="Sprite2D" parent="Layer3"]
 position = Vector2(1872, 1344)
 texture = ExtResource("53_4wgc5")
 offset = Vector2(0, -9)
 region_enabled = true
 region_rect = Rect2(0, 0, 33, 18)
 
-[node name="@Sprite2D@18948" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19539" type="Sprite2D" parent="Layer3"]
 position = Vector2(1968, 1344)
 texture = ExtResource("52_5fbl2")
 offset = Vector2(0, -9)
 region_enabled = true
 region_rect = Rect2(0, 0, 33, 18)
 
-[node name="@Sprite2D@18949" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19540" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 1344)
 texture = ExtResource("52_5fbl2")
 offset = Vector2(0, -9)
 region_enabled = true
 region_rect = Rect2(0, 0, 33, 18)
 
-[node name="@Sprite2D@18950" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19541" type="Sprite2D" parent="Layer3"]
 position = Vector2(2672, 1344)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18951" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19542" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1344)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18952" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19543" type="Sprite2D" parent="Layer3"]
 position = Vector2(2960, 1344)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18953" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19544" type="Sprite2D" parent="Layer3"]
 position = Vector2(3120, 1344)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18954" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19545" type="Sprite2D" parent="Layer3"]
 position = Vector2(528, 1376)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18955" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19546" type="Sprite2D" parent="Layer3"]
 position = Vector2(2448, 1376)
 texture = ExtResource("54_kgkf0")
 offset = Vector2(0, -87.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 128, 175)
 
-[node name="@Sprite2D@18956" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19547" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1376)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18957" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19548" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1408)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18958" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19549" type="Sprite2D" parent="Layer3"]
 position = Vector2(944, 1440)
 texture = ExtResource("55_m3n8i")
 offset = Vector2(0, -32)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 64)
 
-[node name="@Sprite2D@18959" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19550" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1440)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18960" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19551" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 1472)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18961" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19552" type="Sprite2D" parent="Layer3"]
 position = Vector2(1584, 1472)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18962" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19553" type="Sprite2D" parent="Layer3"]
 position = Vector2(1904, 1472)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18963" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19554" type="Sprite2D" parent="Layer3"]
 position = Vector2(2224, 1472)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@18964" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19555" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1472)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18965" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19556" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 1504)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18966" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19557" type="Sprite2D" parent="Layer3"]
 position = Vector2(1584, 1504)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18967" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19558" type="Sprite2D" parent="Layer3"]
 position = Vector2(1904, 1504)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18968" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19559" type="Sprite2D" parent="Layer3"]
 position = Vector2(2224, 1504)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@18969" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19560" type="Sprite2D" parent="Layer3"]
 position = Vector2(2544, 1504)
 texture = ExtResource("56_4h58e")
 offset = Vector2(0, -144)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 288)
 
-[node name="@Sprite2D@18970" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19561" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1504)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18971" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19562" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 1504)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18972" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19563" type="Sprite2D" parent="Layer3"]
 position = Vector2(3024, 1504)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18973" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19564" type="Sprite2D" parent="Layer3"]
 position = Vector2(1520, 1536)
 texture = ExtResource("57_a2xpe")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18974" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19565" type="Sprite2D" parent="Layer3"]
 position = Vector2(1840, 1536)
 texture = ExtResource("58_133h3")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18975" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19566" type="Sprite2D" parent="Layer3"]
+position = Vector2(2160, 1536)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 32)
+
+[node name="@Sprite2D@19567" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1536)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18976" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19568" type="Sprite2D" parent="Layer3"]
 position = Vector2(752, 1568)
 texture = ExtResource("59_2n656")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18977" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19569" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1568)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18978" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19570" type="Sprite2D" parent="Layer3"]
 position = Vector2(3056, 1568)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18979" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19571" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1600)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18980" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19572" type="Sprite2D" parent="Layer3"]
 position = Vector2(592, 1632)
 texture = ExtResource("60_hc63f")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@18981" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19573" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1632)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18982" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19574" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 1664)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18983" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19575" type="Sprite2D" parent="Layer3"]
 position = Vector2(1744, 1664)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18984" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19576" type="Sprite2D" parent="Layer3"]
 position = Vector2(1936, 1664)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18985" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19577" type="Sprite2D" parent="Layer3"]
 position = Vector2(2032, 1664)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18986" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19578" type="Sprite2D" parent="Layer3"]
 position = Vector2(2448, 1664)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18987" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19579" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1664)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18988" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19580" type="Sprite2D" parent="Layer3"]
 position = Vector2(2256, 1696)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18989" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19581" type="Sprite2D" parent="Layer3"]
 position = Vector2(2512, 1696)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18990" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19582" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1696)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18991" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19583" type="Sprite2D" parent="Layer3"]
 position = Vector2(2960, 1696)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18992" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19584" type="Sprite2D" parent="Layer3"]
 position = Vector2(1168, 1728)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18993" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19585" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1728)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18994" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19586" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 1728)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18995" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19587" type="Sprite2D" parent="Layer3"]
 position = Vector2(1392, 1760)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@18996" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19588" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1760)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18997" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19589" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1792)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@18998" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19590" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 1824)
 texture = ExtResource("61_2ybsx")
 offset = Vector2(0, -20)
 region_enabled = true
 region_rect = Rect2(0, 0, 82, 40)
 
-[node name="@Sprite2D@18999" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19591" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 1824)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@19000" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19592" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 1824)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@19001" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19593" type="Sprite2D" parent="Layer3"]
 position = Vector2(2352, 1824)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@19002" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19594" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1824)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19003" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19595" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1856)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19004" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19596" type="Sprite2D" parent="Layer3"]
 position = Vector2(1200, 1888)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19005" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19597" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 1888)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19006" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19598" type="Sprite2D" parent="Layer3"]
 position = Vector2(2672, 1888)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19007" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19599" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1888)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19008" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19600" type="Sprite2D" parent="Layer3"]
 position = Vector2(2192, 1920)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 96, 32, 32)
 
-[node name="@Sprite2D@19009" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19601" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1920)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19010" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19602" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1952)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19011" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19603" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 1952)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19012" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19604" type="Sprite2D" parent="Layer3"]
 position = Vector2(1168, 1984)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19013" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19605" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 1984)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@19014" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19606" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 1984)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@19015" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19607" type="Sprite2D" parent="Layer3"]
 position = Vector2(2352, 1984)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@19016" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19608" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 1984)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19017" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19609" type="Sprite2D" parent="Layer3"]
 position = Vector2(3152, 1984)
 texture = ExtResource("62_hycfg")
 offset = Vector2(0, -160)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 320)
 
-[node name="@Sprite2D@19018" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19610" type="Sprite2D" parent="Layer3"]
 position = Vector2(1680, 2016)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@19019" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19611" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 2016)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@19020" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19612" type="Sprite2D" parent="Layer3"]
 position = Vector2(2352, 2016)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@19021" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19613" type="Sprite2D" parent="Layer3"]
 position = Vector2(2544, 2016)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 96, 32, 32)
 
-[node name="@Sprite2D@19022" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19614" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2016)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19023" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19615" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 2048)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19024" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19616" type="Sprite2D" parent="Layer3"]
 position = Vector2(1616, 2048)
 texture = ExtResource("63_ly1kk")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@19025" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19617" type="Sprite2D" parent="Layer3"]
 position = Vector2(1936, 2048)
 texture = ExtResource("64_noovh")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@19026" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19618" type="Sprite2D" parent="Layer3"]
 position = Vector2(2288, 2048)
 texture = ExtResource("65_18nel")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 63, 32)
 
-[node name="@Sprite2D@19027" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19619" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2048)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19028" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19620" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 2080)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(128, 96, 32, 32)
 
-[node name="@Sprite2D@19029" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19621" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 2080)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19030" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19622" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2080)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19031" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19623" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2112)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19032" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19624" type="Sprite2D" parent="Layer3"]
 position = Vector2(1200, 2144)
 texture = ExtResource("66_a33ow")
 offset = Vector2(0, -50)
 region_enabled = true
 region_rect = Rect2(0, 0, 26, 100)
 
-[node name="@Sprite2D@19033" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19625" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 2144)
 texture = ExtResource("67_reffe")
 offset = Vector2(0, -38.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 100, 77)
 
-[node name="@Sprite2D@19034" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19626" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 2144)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 96, 32, 32)
 
-[node name="@Sprite2D@19035" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19627" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2144)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19036" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19628" type="Sprite2D" parent="Layer3"]
 position = Vector2(1552, 2176)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19037" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19629" type="Sprite2D" parent="Layer3"]
 position = Vector2(1776, 2176)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19038" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19630" type="Sprite2D" parent="Layer3"]
 position = Vector2(2096, 2176)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19039" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19631" type="Sprite2D" parent="Layer3"]
 position = Vector2(2160, 2176)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19040" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19632" type="Sprite2D" parent="Layer3"]
 position = Vector2(2448, 2176)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19041" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19633" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2176)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19042" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19634" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 2208)
 texture = ExtResource("68_mnxu8")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@19043" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19635" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 2208)
 texture = ExtResource("69_al3h3")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@19044" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19636" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2208)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19045" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19637" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2240)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19046" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19638" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 2240)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19047" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19639" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2272)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19048" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19640" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 2304)
 texture = ExtResource("70_tfwj0")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@19049" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19641" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 2304)
 texture = ExtResource("27_o1tsm")
 offset = Vector2(0, -48)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 96)
 
-[node name="@Sprite2D@19050" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19642" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 2304)
 texture = ExtResource("71_ot3e4")
 offset = Vector2(0, -27.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 20, 55)
 
-[node name="@Sprite2D@19051" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19643" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 2304)
 texture = ExtResource("71_ot3e4")
 offset = Vector2(0, -27.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 20, 55)
 
-[node name="@Sprite2D@19052" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19644" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2304)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19053" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19645" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 2336)
 texture = ExtResource("72_q5b8u")
 offset = Vector2(0, -25)
 region_enabled = true
 region_rect = Rect2(0, 0, 40, 50)
 
-[node name="@Sprite2D@19054" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19646" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 2336)
 texture = ExtResource("72_q5b8u")
 offset = Vector2(0, -25)
 region_enabled = true
 region_rect = Rect2(0, 0, 40, 50)
 
-[node name="@Sprite2D@19055" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19647" type="Sprite2D" parent="Layer3"]
 position = Vector2(1648, 2336)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19056" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19648" type="Sprite2D" parent="Layer3"]
 position = Vector2(2512, 2336)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19057" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19649" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2336)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19058" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19650" type="Sprite2D" parent="Layer3"]
 position = Vector2(1840, 2368)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19059" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19651" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 2368)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19060" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19652" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 2368)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19061" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19653" type="Sprite2D" parent="Layer3"]
 position = Vector2(2544, 2368)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 96, 32, 32)
 
-[node name="@Sprite2D@19062" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19654" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2368)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19063" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19655" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 2368)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(96, 96, 32, 32)
 
-[node name="@Sprite2D@19064" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19656" type="Sprite2D" parent="Layer3"]
 position = Vector2(1200, 2400)
 texture = ExtResource("73_2xswc")
 offset = Vector2(0, -50)
 region_enabled = true
 region_rect = Rect2(0, 0, 26, 100)
 
-[node name="@Sprite2D@19065" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19657" type="Sprite2D" parent="Layer3"]
 position = Vector2(1392, 2400)
 texture = ExtResource("73_2xswc")
 offset = Vector2(0, -50)
 region_enabled = true
 region_rect = Rect2(0, 0, 26, 100)
 
-[node name="@Sprite2D@19066" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19658" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2400)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19067" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19659" type="Sprite2D" parent="Layer3"]
 position = Vector2(816, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19068" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19660" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19069" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19661" type="Sprite2D" parent="Layer3"]
 position = Vector2(880, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19070" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19662" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19071" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19663" type="Sprite2D" parent="Layer3"]
 position = Vector2(944, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19072" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19664" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 2432)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19073" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19665" type="Sprite2D" parent="Layer3"]
 position = Vector2(2672, 2432)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19074" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19666" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2432)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19075" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19667" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 2464)
 texture = ExtResource("28_6m51r")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 160)
 
-[node name="@Sprite2D@19076" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19668" type="Sprite2D" parent="Layer3"]
 position = Vector2(2000, 2464)
 texture = ExtResource("75_fa0mb")
 offset = Vector2(0, -21.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 51, 43)
 
-[node name="@Sprite2D@19077" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19669" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2464)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19078" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19670" type="Sprite2D" parent="Layer3"]
 position = Vector2(112, 2496)
 texture = ExtResource("76_5y15w")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19079" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19671" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 2496)
 texture = ExtResource("29_apq0k")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 32)
 
-[node name="@Sprite2D@19080" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19672" type="Sprite2D" parent="Layer3"]
 position = Vector2(2256, 2496)
 texture = ExtResource("77_xcvh1")
 offset = Vector2(0, -160)
 region_enabled = true
 region_rect = Rect2(0, 0, 282, 320)
 
-[node name="@Sprite2D@19081" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19673" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2496)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19082" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19674" type="Sprite2D" parent="Layer3"]
 position = Vector2(816, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19083" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19675" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19084" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19676" type="Sprite2D" parent="Layer3"]
 position = Vector2(880, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19085" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19677" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19086" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19678" type="Sprite2D" parent="Layer3"]
 position = Vector2(944, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(32, 0, 32, 32)
 
-[node name="@Sprite2D@19087" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19679" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 2528)
 texture = ExtResource("74_fnmah")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19088" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19680" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 2528)
 texture = ExtResource("78_6hgeb")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 32)
 
-[node name="@Sprite2D@19089" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19681" type="Sprite2D" parent="Layer3"]
+position = Vector2(1680, 2528)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 32)
+
+[node name="@Sprite2D@19682" type="Sprite2D" parent="Layer3"]
 position = Vector2(1936, 2528)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19090" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19683" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2528)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19091" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19684" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 2560)
 texture = ExtResource("79_07la6")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19092" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19685" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 2560)
 texture = ExtResource("80_2ab04")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 32)
 
-[node name="@Sprite2D@19093" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19686" type="Sprite2D" parent="Layer3"]
 position = Vector2(2192, 2560)
 texture = ExtResource("36_t01lg")
 offset = Vector2(0, -24)
 region_enabled = true
 region_rect = Rect2(0, 0, 53, 48)
 
-[node name="@Sprite2D@19094" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19687" type="Sprite2D" parent="Layer3"]
 position = Vector2(2384, 2560)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19095" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19688" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2560)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19096" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19689" type="Sprite2D" parent="Layer3"]
+position = Vector2(784, 2592)
+offset = Vector2(0, -53.5)
+region_enabled = true
+region_rect = Rect2(0, 146, 66, 107)
+
+[node name="@Sprite2D@19690" type="Sprite2D" parent="Layer3"]
 position = Vector2(848, 2592)
 texture = ExtResource("81_j6wda")
 offset = Vector2(0, -32)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 64)
 
-[node name="@Sprite2D@19097" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19691" type="Sprite2D" parent="Layer3"]
 position = Vector2(912, 2592)
 texture = ExtResource("82_ddb5e")
 offset = Vector2(0, -32)
 region_enabled = true
 region_rect = Rect2(0, 0, 64, 64)
 
-[node name="@Sprite2D@19098" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19692" type="Sprite2D" parent="Layer3"]
 position = Vector2(1552, 2592)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19099" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19693" type="Sprite2D" parent="Layer3"]
 position = Vector2(2096, 2592)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19100" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19694" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2592)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19101" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19695" type="Sprite2D" parent="Layer3"]
+position = Vector2(880, 2624)
+offset = Vector2(0, -36.5)
+region_enabled = true
+region_rect = Rect2(0, 0, 96, 73)
+
+[node name="@Sprite2D@19696" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2624)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19102" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19697" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2656)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19103" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19698" type="Sprite2D" parent="Layer3"]
 position = Vector2(1072, 2688)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19104" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19699" type="Sprite2D" parent="Layer3"]
 position = Vector2(1200, 2688)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(224, 96, 32, 32)
 
-[node name="@Sprite2D@19105" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19700" type="Sprite2D" parent="Layer3"]
 position = Vector2(1296, 2688)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(224, 96, 32, 32)
 
-[node name="@Sprite2D@19106" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19701" type="Sprite2D" parent="Layer3"]
 position = Vector2(1392, 2688)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(128, 96, 32, 32)
 
-[node name="@Sprite2D@19107" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19702" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2688)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19108" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19703" type="Sprite2D" parent="Layer3"]
 position = Vector2(720, 2720)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19109" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19704" type="Sprite2D" parent="Layer3"]
 position = Vector2(2096, 2720)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(192, 96, 32, 32)
 
-[node name="@Sprite2D@19110" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19705" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2720)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19111" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19706" type="Sprite2D" parent="Layer3"]
 position = Vector2(2864, 2720)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19112" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19707" type="Sprite2D" parent="Layer3"]
 position = Vector2(464, 2752)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19113" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19708" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2752)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19114" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19709" type="Sprite2D" parent="Layer3"]
 position = Vector2(976, 2784)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19115" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19710" type="Sprite2D" parent="Layer3"]
 position = Vector2(1136, 2784)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(160, 96, 32, 32)
 
-[node name="@Sprite2D@19116" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19711" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 2784)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(224, 96, 32, 32)
 
-[node name="@Sprite2D@19117" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19712" type="Sprite2D" parent="Layer3"]
 position = Vector2(2672, 2784)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19118" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19713" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2784)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19119" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19714" type="Sprite2D" parent="Layer3"]
+position = Vector2(528, 2816)
+offset = Vector2(0, -32)
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 64)
+
+[node name="@Sprite2D@19715" type="Sprite2D" parent="Layer3"]
+position = Vector2(848, 2816)
+offset = Vector2(0, -32)
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 64)
+
+[node name="@Sprite2D@19716" type="Sprite2D" parent="Layer3"]
 position = Vector2(1744, 2816)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19120" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19717" type="Sprite2D" parent="Layer3"]
 position = Vector2(1936, 2816)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19121" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19718" type="Sprite2D" parent="Layer3"]
 position = Vector2(2256, 2816)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19122" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19719" type="Sprite2D" parent="Layer3"]
 position = Vector2(2512, 2816)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@19123" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19720" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2816)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19124" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19721" type="Sprite2D" parent="Layer3"]
 position = Vector2(1232, 2848)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(288, 64, 32, 32)
 
-[node name="@Sprite2D@19125" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19722" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 2848)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(320, 64, 32, 32)
 
-[node name="@Sprite2D@19126" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19723" type="Sprite2D" parent="Layer3"]
 position = Vector2(1872, 2848)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(192, 96, 32, 32)
 
-[node name="@Sprite2D@19127" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19724" type="Sprite2D" parent="Layer3"]
 position = Vector2(2192, 2848)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(160, 96, 32, 32)
 
-[node name="@Sprite2D@19128" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19725" type="Sprite2D" parent="Layer3"]
 position = Vector2(2416, 2848)
 texture = ExtResource("18_gxi8l")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(96, 96, 32, 32)
 
-[node name="@Sprite2D@19129" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19726" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2848)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19130" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19727" type="Sprite2D" parent="Layer3"]
 position = Vector2(2704, 2880)
 texture = ExtResource("26_peb4v")
 offset = Vector2(0, -80)
 region_enabled = true
 region_rect = Rect2(0, 0, 32, 160)
 
-[node name="@Sprite2D@19131" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@19728" type="Sprite2D" parent="Layer3"]
 position = Vector2(3184, 2944)
 texture = ExtResource("20_yttai")
 offset = Vector2(0, -128)

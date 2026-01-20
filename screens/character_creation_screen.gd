@@ -128,21 +128,28 @@ func _InitializeUI() -> void:
 	_classOptionButton.clear()
 	for i in range(1, Consts.NumClases + 1):
 		_classOptionButton.add_item(Consts.ClassNames[i])
+		_classOptionButton.set_item_id(_classOptionButton.get_item_count() - 1, i)
 	
 	# Cargar razas
 	_raceOptionButton.clear()
 	for i in range(1, Consts.NumRazas + 1):
 		_raceOptionButton.add_item(Consts.RaceNames[i])
+		_raceOptionButton.set_item_id(_raceOptionButton.get_item_count() - 1, i)
 	
 	# Cargar géneros
 	_genderOptionButton.clear()
 	_genderOptionButton.add_item("Hombre")
+	_genderOptionButton.set_item_id(0, 1) # Hombre = 1
 	_genderOptionButton.add_item("Mujer")
+	_genderOptionButton.set_item_id(1, 2) # Mujer = 2
 	
-	# Cargar hogares
+	# Cargar hogares (1 a NumCiudades inclusive, igual que VB6)
 	_homeOptionButton.clear()
-	for i in range(1, Consts.NumCiudades):
-		_homeOptionButton.add_item(Consts.HomeNames[i])
+	for i in range(1, Consts.NumCiudades + 1):
+		var city_name = Consts.HomeNames.get(i, "")
+		if city_name != "":
+			_homeOptionButton.add_item(city_name)
+			_homeOptionButton.set_item_id(_homeOptionButton.get_item_count() - 1, i)
 	
 	# Conectar señales de los selectores
 	_classOptionButton.item_selected.connect(_OnClassSelected)
@@ -343,9 +350,10 @@ func _OnDataReceived(data: PackedByteArray) -> void:
 				return
 
 func _HandleLogged(data: PackedByteArray) -> void:
-	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
-	screen.networkMessages.append(data)
+	# Pasar los datos a ProtocolHandler para que los procese normalmente
+	ProtocolHandler._handle_incoming_data(data)
 	
+	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
 	ScreenController.SwitchScreen(screen)
 	ClientInterface.dataReceived.disconnect(_OnDataReceived)
 
@@ -362,11 +370,11 @@ func _OnRollDice() -> void:
 	_ThrowDice()
 
 func _ThrowDice() -> void:
-	GameProtocol.WriteThrowDice()
+	ProtocolWriteToServer.WriteThrowDice()
 	_Flush()
 
 func _Flush() -> void:
-	ClientInterface.Send(GameProtocol.Flush())
+	ClientInterface.Send(ProtocolWriteToServer.Flush())
 
 func _OnCreateCharacter() -> void:
 	# Validaciones
@@ -394,14 +402,27 @@ func _OnCreateCharacter() -> void:
 		return
 	
 	# Todo OK, crear el personaje usando datos de la cuenta actual
-	GameProtocol.WriteLoginNewChar(
+	var job_id = _classOptionButton.get_selected_id()
+	var race_id = _raceOptionButton.get_selected_id()
+	var gender_id = _genderOptionButton.get_selected_id()
+	var home_id = _homeOptionButton.get_selected_id()
+	
+	print("[DEBUG] Creando personaje con los siguientes IDs:")
+	print(" - Nombre: ", char_name)
+	print(" - Clase ID: ", job_id, " (", _classOptionButton.text, ")")
+	print(" - Raza ID: ", race_id, " (", _raceOptionButton.text, ")")
+	print(" - Género ID: ", gender_id, " (", _genderOptionButton.text, ")")
+	print(" - Hogar ID: ", home_id, " (", _homeOptionButton.text, ")")
+	print(" - Cabeza: ", _currentHead)
+
+	ProtocolWriteToServer.WriteLoginNewChar(
 		char_name,
 		Global.account_hash,
-		_classOptionButton.selected + 1,  # job/clase
-		_raceOptionButton.selected + 1,   # raza
-		_genderOptionButton.selected + 1, # género
-		_homeOptionButton.selected + 1,   # hogar
-		_currentHead                       # cabeza
+		job_id,
+		race_id,
+		gender_id,
+		home_id,
+		_currentHead
 	)
 	_Flush()
 

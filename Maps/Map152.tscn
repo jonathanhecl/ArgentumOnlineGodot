@@ -839,21 +839,21 @@ tile_set = SubResource("TileSet_pgedk")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@2404" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@2480" type="Sprite2D" parent="Layer3"]
 position = Vector2(1328, 96)
 texture = ExtResource("7_yq0jr")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@2405" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@2481" type="Sprite2D" parent="Layer3"]
 position = Vector2(1264, 128)
 texture = ExtResource("7_yq0jr")
 offset = Vector2(0, -128)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 256)
 
-[node name="@Sprite2D@2406" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@2482" type="Sprite2D" parent="Layer3"]
 position = Vector2(1520, 128)
 texture = ExtResource("7_yq0jr")
 offset = Vector2(0, -128)

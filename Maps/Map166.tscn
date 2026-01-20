@@ -180,14 +180,14 @@ tile_set = SubResource("TileSet_om07r")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@5654" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@5736" type="Sprite2D" parent="Layer3"]
 position = Vector2(400, 320)
 texture = ExtResource("4_kr0ey")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(128, 96, 32, 32)
 
-[node name="@Sprite2D@5655" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@5737" type="Sprite2D" parent="Layer3"]
 position = Vector2(400, 2912)
 texture = ExtResource("4_kr0ey")
 offset = Vector2(0, -16)

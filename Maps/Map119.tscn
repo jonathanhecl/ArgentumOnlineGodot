@@ -168,9 +168,21 @@ tile_set = SubResource("TileSet_tcgwy")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@1495" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@1501" type="Sprite2D" parent="Layer3"]
+position = Vector2(368, 2912)
+offset = Vector2(0, -128)
+region_enabled = true
+region_rect = Rect2(0, 0, 256, 256)
+
+[node name="@Sprite2D@1502" type="Sprite2D" parent="Layer3"]
 position = Vector2(368, 3072)
 texture = ExtResource("2_ku3lb")
 offset = Vector2(0, -64)
 region_enabled = true
 region_rect = Rect2(0, 0, 128, 128)
+
+[node name="@Sprite2D@1503" type="Sprite2D" parent="Layer3"]
+position = Vector2(208, 3200)
+offset = Vector2(0, -128)
+region_enabled = true
+region_rect = Rect2(0, 0, 256, 256)

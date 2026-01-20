@@ -251,35 +251,35 @@ tile_set = SubResource("TileSet_uto6i")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@17654" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18225" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 1728)
 texture = ExtResource("5_uo43t")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(256, 96, 32, 32)
 
-[node name="@Sprite2D@17655" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18226" type="Sprite2D" parent="Layer3"]
 position = Vector2(1712, 1728)
 texture = ExtResource("5_uo43t")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(128, 96, 32, 32)
 
-[node name="@Sprite2D@17656" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18227" type="Sprite2D" parent="Layer3"]
 position = Vector2(1520, 1888)
 texture = ExtResource("6_qs4aw")
 offset = Vector2(0, -75.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 177, 151)
 
-[node name="@Sprite2D@17657" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18228" type="Sprite2D" parent="Layer3"]
 position = Vector2(1360, 1984)
 texture = ExtResource("5_uo43t")
 offset = Vector2(0, -16)
 region_enabled = true
 region_rect = Rect2(480, 0, 32, 32)
 
-[node name="@Sprite2D@17658" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18229" type="Sprite2D" parent="Layer3"]
 position = Vector2(1712, 1984)
 texture = ExtResource("5_uo43t")
 offset = Vector2(0, -16)

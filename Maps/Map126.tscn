@@ -341,14 +341,26 @@ tile_set = SubResource("TileSet_ecxb6")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@1692" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@1700" type="Sprite2D" parent="Layer3"]
+position = Vector2(144, 288)
+offset = Vector2(0, -160)
+region_enabled = true
+region_rect = Rect2(0, 0, 256, 320)
+
+[node name="@Sprite2D@1701" type="Sprite2D" parent="Layer3"]
+position = Vector2(368, 352)
+offset = Vector2(0, -160)
+region_enabled = true
+region_rect = Rect2(0, 0, 256, 320)
+
+[node name="@Sprite2D@1702" type="Sprite2D" parent="Layer3"]
 position = Vector2(1520, 1664)
 texture = ExtResource("4_l80mu")
 offset = Vector2(0, -147.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 256, 295)
 
-[node name="@Sprite2D@1693" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@1703" type="Sprite2D" parent="Layer3"]
 position = Vector2(688, 2400)
 texture = ExtResource("4_l80mu")
 offset = Vector2(0, -147.5)

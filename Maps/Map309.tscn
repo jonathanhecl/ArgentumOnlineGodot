@@ -985,14 +985,14 @@ tile_set = SubResource("TileSet_ccuhb")
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="@Sprite2D@17746" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18317" type="Sprite2D" parent="Layer3"]
 position = Vector2(1648, 2944)
 texture = ExtResource("18_2buxi")
 offset = Vector2(0, -42.5)
 region_enabled = true
 region_rect = Rect2(0, 0, 31, 85)
 
-[node name="@Sprite2D@17747" type="Sprite2D" parent="Layer3"]
+[node name="@Sprite2D@18318" type="Sprite2D" parent="Layer3"]
 position = Vector2(1872, 2944)
 texture = ExtResource("18_2buxi")
 offset = Vector2(0, -42.5)

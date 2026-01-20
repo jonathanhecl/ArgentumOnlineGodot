@@ -92,8 +92,10 @@ func _ExportAll() -> void:
 	
 	await _Bodies()
 	await _Heads()
+	await _Helmets()
 	await _Weapons()
 	await _Shields()
+	await _Fxs()
 	await _ExportMaps()
 	
 	labelStatus.text = "¡Exportación completada con éxito!"
@@ -173,7 +175,15 @@ func _ExportMap(fileId:int) -> void:
 
 
 func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
+	if grhId <= 0 or grhId >= GameAssets.GrhDataList.size():
+		spriteFrames.add_animation("idle_" + name)
+		return
+
 	var frame = GameAssets.GrhDataList[grhId]
+	if frame == null:
+		spriteFrames.add_animation("idle_" + name)
+		return
+		
 	var atlasTexture = AtlasTexture.new()
 	
 	atlasTexture.region = frame.region
@@ -189,12 +199,24 @@ func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void
 	spriteFrames.set_animation_speed("idle_" + name, 1)
 	spriteFrames.set_animation_speed("walk_" + name, 12.0)
 	
-	var frames = GameAssets.GrhDataList[grhId].frames
+	if grhId <= 0 or grhId >= GameAssets.GrhDataList.size():
+		return
+		
+	var grh = GameAssets.GrhDataList[grhId]
+	if grh == null:
+		return
+	
+	var frames = grh.frames
 	for i in range(1, frames.size()):
-		var frame = GameAssets.GrhDataList[frames[i]]
+		var frameIndex = frames[i]
+		if frameIndex <= 0 or frameIndex >= GameAssets.GrhDataList.size():
+			continue
+			
+		var frame = GameAssets.GrhDataList[frameIndex]
 		
 		if frame.fileId == 0:
-			push_error("Frame {%d} has no file" % frames[i]) 
+			# push_error("Frame {%d} has no file" % frames[i])
+			continue
 		
 		var atlasTexture = AtlasTexture.new();
 		atlasTexture.region = frame.region
@@ -214,6 +236,9 @@ func _Bodies() -> void:
 		# Forzar actualización de la UI
 		await get_tree().process_frame
 		var data = GameAssets.BodyAnimationList[i]
+		if data == null:
+			continue
+			
 		var spriteFrames = SpriteFrames.new()
 		
 		spriteFrames.set_meta("offset_x", data.offsetX);
@@ -227,7 +252,10 @@ func _Bodies() -> void:
 		
 		var save_path = "res://Resources/Character/Bodies/body_%d.tres" % i
 		_ensure_directory_exists(save_path.get_base_dir())
-		ResourceSaver.save(spriteFrames, save_path);	
+		ResourceSaver.save(spriteFrames, save_path);
+		
+	labelStatus.text = "Exportando cuerpos... (%d/%d)" % [total, total]
+	await get_tree().process_frame	
 	
 func _Weapons() -> void:
 	var total = GameAssets.WeaponAnimationList.size() - 1
@@ -242,6 +270,9 @@ func _Weapons() -> void:
 			continue
 			
 		var data = GameAssets.WeaponAnimationList[i]
+		if data == null:
+			continue
+
 		var spriteFrames = SpriteFrames.new()
 
 		spriteFrames.remove_animation("default")
@@ -253,6 +284,9 @@ func _Weapons() -> void:
 		var save_path = "res://Resources/Character/Weapons/weapon_%d.tres" % i
 		_ensure_directory_exists(save_path.get_base_dir())
 		ResourceSaver.save(spriteFrames, save_path);	
+
+	labelStatus.text = "Exportando armas... (%d/%d)" % [total, total]
+	await get_tree().process_frame	
 
 func _Shields() -> void:
 	var total = GameAssets.ShieldAnimationList.size() - 1
@@ -267,6 +301,9 @@ func _Shields() -> void:
 			continue
 			
 		var data = GameAssets.ShieldAnimationList[i]
+		if data == null:
+			continue
+
 		var spriteFrames = SpriteFrames.new()
 
 		spriteFrames.remove_animation("default")
@@ -278,6 +315,9 @@ func _Shields() -> void:
 		var save_path = "res://Resources/Character/Shields/shield_%d.tres" % i
 		_ensure_directory_exists(save_path.get_base_dir())
 		ResourceSaver.save(spriteFrames, save_path);	
+
+	labelStatus.text = "Exportando escudos... (%d/%d)" % [total, total]
+	await get_tree().process_frame	
 		
 func _Heads() -> void:
 	var total = GameAssets.HeadAnimationList.size() - 1
@@ -289,10 +329,14 @@ func _Heads() -> void:
 			# Forzar actualización de la UI
 			await get_tree().process_frame
 		var data = GameAssets.HeadAnimationList[i]
+		if data == null:
+			continue
+			
 		var spriteFrames = SpriteFrames.new()
 		
-		if 0 in [data.east, data.north, data.south, data.west]:
-			continue
+		# Eliminada restricción estricta de 0 en direcciones
+		# if 0 in [data.east, data.north, data.south, data.west]:
+		# 	continue
 			
 		spriteFrames.remove_animation("default")
 		_AttachHeadAnimation(spriteFrames, "west", data.west);
@@ -304,13 +348,27 @@ func _Heads() -> void:
 		_ensure_directory_exists(save_path.get_base_dir())
 		ResourceSaver.save(spriteFrames, save_path);	
 
+	labelStatus.text = "Exportando cabezas... (%d/%d)" % [total, total]
+	await get_tree().process_frame	
+
 func _Helmets() -> void:
+	var total = GameAssets.HelmetAnimationList.size() - 1
+	labelStatus.text = "Exportando cascos... (0/%d)" % total
+	
 	for i in range(1, GameAssets.HelmetAnimationList.size()):
+		if i % 10 == 0:
+			labelStatus.text = "Exportando cascos... (%d/%d)" % [i, total]
+			await get_tree().process_frame
+			
 		var data = GameAssets.HelmetAnimationList[i]
+		if data == null:
+			continue
+
 		var spriteFrames = SpriteFrames.new()
 		
-		if 0 in [data.east, data.north, data.south, data.west]:
-			continue
+		# Eliminada restricción estricta de 0 en direcciones
+		# if 0 in [data.east, data.north, data.south, data.west]:
+		# 	continue
 			
 		spriteFrames.remove_animation("default")
 		_AttachHeadAnimation(spriteFrames, "west", data.west);
@@ -320,21 +378,34 @@ func _Helmets() -> void:
 		
 		ResourceSaver.save(spriteFrames, "res://Resources/Character/Helmets/helmet_%d.tres" % i);	
 
+	labelStatus.text = "Exportando cascos... (%d/%d)" % [total, total]
+	await get_tree().process_frame	
+
 
 func _Fxs() -> void: 
-	var stream = StreamPeerBuffer.new()
-	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Init/fxs.ind")
+	var path = "res://Assets/Init/fxs.ini"
+	var initReader = ConfigFile.new()
+	var err = initReader.load(path)
 	
-	#Get header
-	stream.get_data(255)
-	stream.get_32()
-	stream.get_32()
+	if err != OK:
+		push_error("No se pudo cargar %s" % path)
+		return
+		
+	var count = initReader.get_value("INIT", "NumFxs", 0)
+	labelStatus.text = "Exportando FXs... (0/%d)" % count
+	await get_tree().process_frame
 	
-	var count = stream.get_16()
-	for i in count:
-		var grh_id = stream.get_16()
-		var offset_x = stream.get_16()
-		var offset_y = stream.get_16()
+	for i in range(1, count + 1):
+		var section = "FX%d" % i
+		if !initReader.has_section(section):
+			continue
+			
+		var grh_id = initReader.get_value(section, "Animacion", 0)
+		var offset_x = initReader.get_value(section, "OffsetX", 0)
+		var offset_y = initReader.get_value(section, "OffsetY", 0)
+		
+		if grh_id <= 0 or grh_id >= GameAssets.GrhDataList.size():
+			continue
 		
 		var frames = GameAssets.GrhDataList[grh_id].frames 
 		var spriteFrames = SpriteFrames.new()
@@ -353,7 +424,13 @@ func _Fxs() -> void:
 			
 			spriteFrames.add_frame("default", atlas_texture)
 			
-		ResourceSaver.save(spriteFrames, "res://Resources/Fxs/fx_%d.tres" % (i + 1))	
+		var save_path = "res://Resources/Fxs/fx_%d.tres" % i
+		_ensure_directory_exists(save_path.get_base_dir())
+		ResourceSaver.save(spriteFrames, save_path)
+		
+		if i % 5 == 0:
+			labelStatus.text = "Exportando FXs... (%d/%d)" % [i, count]
+			await get_tree().process_frame	
 
 ### PACKAGES
 

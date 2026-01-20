@@ -183,6 +183,8 @@ func _LoadGrhData() -> void:
 	#Get number of grh
 	var count = stream.get_32()
 	
+	print("GameAssets: Cargando %d gráficos desde graficos.ind" % count)
+	
 	GrhDataList.resize(count + 1)
 	GrhDataList.fill(GrhData.new())
 	
@@ -216,17 +218,21 @@ func _LoadWeaponData() -> void:
 	
 	var count = initReader.get_value("INIT", "NumArmas")
 	WeaponAnimationList.resize(count + 1)
-	WeaponAnimationList.fill(GrhAnimationData.new())
+	# Eliminado fill para evitar instancias compartidas. Los índices vacíos serán null.
+	
+	# Obtener todas las secciones una sola vez para buscar
+	var sections = initReader.get_sections()
 	
 	for i in range(1, count + 1):
-		if !initReader.has_section("ARMA%d" % i) : 
+		var section_name = _find_section_case_insensitive(sections, "ARMA%d" % i)
+		if section_name.is_empty():
 			continue
 		
 		var animation = GrhAnimationData.new()
-		animation.north = initReader.get_value("ARMA%d" % i, "Dir1")
-		animation.east  = initReader.get_value("ARMA%d" % i, "Dir2")
-		animation.south = initReader.get_value("ARMA%d" % i, "Dir3")
-		animation.west  = initReader.get_value("ARMA%d" % i, "Dir4")
+		animation.north = initReader.get_value(section_name, "Dir1")
+		animation.east  = initReader.get_value(section_name, "Dir2")
+		animation.south = initReader.get_value(section_name, "Dir3")
+		animation.west  = initReader.get_value(section_name, "Dir4")
 		WeaponAnimationList[i] = animation 
 
 func _LoadShieldData() -> void:
@@ -235,93 +241,112 @@ func _LoadShieldData() -> void:
 	
 	var count = initReader.get_value("INIT", "NumEscudos")
 	ShieldAnimationList.resize(count + 1)
-	ShieldAnimationList.fill(GrhAnimationData.new())
+	
+	var sections = initReader.get_sections()
 	
 	for i in range(1, count + 1):
-		if !initReader.has_section("ESC%d" % i) : 
+		var section_name = _find_section_case_insensitive(sections, "ESC%d" % i)
+		if section_name.is_empty():
 			continue
 		
 		var animation = GrhAnimationData.new()
-		animation.north = initReader.get_value("ESC%d" % i, "Dir1")
-		animation.east  = initReader.get_value("ESC%d" % i, "Dir2")
-		animation.south = initReader.get_value("ESC%d" % i, "Dir3")
-		animation.west  = initReader.get_value("ESC%d" % i, "Dir4")
+		animation.north = initReader.get_value(section_name, "Dir1")
+		animation.east  = initReader.get_value(section_name, "Dir2")
+		animation.south = initReader.get_value(section_name, "Dir3")
+		animation.west  = initReader.get_value(section_name, "Dir4")
 		ShieldAnimationList[i] = animation 
 
 func _LoadBodiesData() -> void:
+	# Leer desde archivo binario Personajes.ind (formato VB6)
+	# Estructura: Cabecera(263 bytes) + NumCuerpos(2 bytes) + N * tIndiceCuerpo(20 bytes)
+	# tIndiceCuerpo: Body(1-4) as Long (4x4=16 bytes) + HeadOffsetX(2) + HeadOffsetY(2) = 20 bytes
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Init/personajes.ind")
 	
-	#Get header
-	stream.get_data(255)
-	stream.get_32()
-	stream.get_32()
+	# Saltar cabecera: Desc(255) + CRC(4) + MagicWord(4) = 263 bytes
+	stream.seek(263)
 	
-	#Get count
+	# Leer número de cuerpos (Integer = 2 bytes en VB6)
 	var count = stream.get_16()
+	print("GameAssets: Cargando %d cuerpos desde personajes.ind" % count)
 	
 	BodyAnimationList.resize(count + 1)
-	BodyAnimationList.fill(GrhAnimationData.new())
 	
 	for i in range(1, count + 1):
 		var animation = GrhAnimationData.new()
-		animation.north = stream.get_16()
-		animation.east = stream.get_16()
-		animation.south = stream.get_16()
-		animation.west = stream.get_16()
-		
-		animation.offsetX = stream.get_16()
-		animation.offsetY = stream.get_16()
+		# Body(1) = North, Body(2) = East, Body(3) = South, Body(4) = West
+		animation.north = stream.get_32()  # Body(1) - Long
+		animation.east = stream.get_32()   # Body(2) - Long
+		animation.south = stream.get_32()  # Body(3) - Long
+		animation.west = stream.get_32()   # Body(4) - Long
+		animation.offsetX = stream.get_16() # HeadOffsetX - Integer (signed)
+		animation.offsetY = stream.get_16() # HeadOffsetY - Integer (signed)
 		
 		BodyAnimationList[i] = animation
 
 func _LoadHeadData() -> void:
+	# Leer desde archivo binario Cabezas.ind (formato VB6)
+	# Estructura: Cabecera(263 bytes) + NumHeads(2 bytes) + N * tIndiceCabeza(16 bytes)
+	# tIndiceCabeza: Head(1-4) as Long (4x4=16 bytes)
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Init/cabezas.ind")
 	
-	#Get header
-	stream.get_data(255)
-	stream.get_32()
-	stream.get_32()
+	# Saltar cabecera: Desc(255) + CRC(4) + MagicWord(4) = 263 bytes
+	stream.seek(263)
 	
-	#Get count
+	# Leer número de cabezas (Integer = 2 bytes en VB6)
 	var count = stream.get_16()
+	print("GameAssets: Cargando %d cabezas desde cabezas.ind" % count)
 	
 	HeadAnimationList.resize(count + 1)
-	HeadAnimationList.fill(GrhAnimationData.new())
 	
 	for i in range(1, count + 1):
 		var animation = GrhAnimationData.new()
-		animation.north = stream.get_16()
-		animation.east = stream.get_16()
-		animation.south = stream.get_16()
-		animation.west = stream.get_16()
+		# Head(1) = North, Head(2) = East, Head(3) = South, Head(4) = West
+		animation.north = stream.get_32()  # Head(1) - Long
+		animation.east = stream.get_32()   # Head(2) - Long
+		animation.south = stream.get_32()  # Head(3) - Long
+		animation.west = stream.get_32()   # Head(4) - Long
 		
 		HeadAnimationList[i] = animation
-		 
+
 func _LoadHelmetData() -> void:
+	# Leer desde archivo binario Cascos.ind (formato VB6)
+	# Estructura: Cabecera(263 bytes) + NumCascos(2 bytes) + N * tIndiceCabeza(16 bytes)
+	# tIndiceCabeza: Head(1-4) as Long (4x4=16 bytes)
 	var stream = StreamPeerBuffer.new()
 	stream.data_array = FileAccess.get_file_as_bytes("res://Assets/Init/cascos.ind")
 	
-	#Get header
-	stream.get_data(255)
-	stream.get_32()
-	stream.get_32()
+	# Saltar cabecera: Desc(255) + CRC(4) + MagicWord(4) = 263 bytes
+	stream.seek(263)
 	
-	#Get count
+	# Leer número de cascos (Integer = 2 bytes en VB6)
 	var count = stream.get_16()
+	print("GameAssets: Cargando %d cascos desde cascos.ind" % count)
 	
 	HelmetAnimationList.resize(count + 1)
-	HelmetAnimationList.fill(GrhAnimationData.new())
 	
 	for i in range(1, count + 1):
 		var animation = GrhAnimationData.new()
-		animation.north = stream.get_16()
-		animation.east = stream.get_16()
-		animation.south = stream.get_16()
-		animation.west = stream.get_16()
+		# Head(1) = North, Head(2) = East, Head(3) = South, Head(4) = West
+		animation.north = stream.get_32()  # Head(1) - Long
+		animation.east = stream.get_32()   # Head(2) - Long
+		animation.south = stream.get_32()  # Head(3) - Long
+		animation.west = stream.get_32()   # Head(4) - Long
 		
 		HelmetAnimationList[i] = animation
+
+func _find_section_case_insensitive(sections: PackedStringArray, target: String) -> String:
+	# Búsqueda optimizada: Primero intentamos coincidencia exacta
+	if sections.has(target):
+		return target
+		
+	# Si falla, buscamos case-insensitive
+	var target_lower = target.to_lower()
+	for s in sections:
+		if s.to_lower() == target_lower:
+			return s
+	return ""
 
 func _LoadSpellData() -> void:
 	print("--- [V%d] INICIO CARGA HECHIZOS ---" % MAGIC_VERSION)

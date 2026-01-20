@@ -14,3 +14,27 @@ tile_set = SubResource("TileSet_8qew5")
 
 [node name="Layer3" type="Node2D" parent="."]
 y_sort_enabled = true
+
+[node name="@Sprite2D@9947" type="Sprite2D" parent="Layer3"]
+position = Vector2(1936, 1632)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(128, 64, 32, 32)
+
+[node name="@Sprite2D@9948" type="Sprite2D" parent="Layer3"]
+position = Vector2(1936, 1664)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(128, 96, 32, 32)
+
+[node name="@Sprite2D@9949" type="Sprite2D" parent="Layer3"]
+position = Vector2(1136, 2272)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(224, 64, 32, 32)
+
+[node name="@Sprite2D@9950" type="Sprite2D" parent="Layer3"]
+position = Vector2(1168, 2272)
+offset = Vector2(0, -16)
+region_enabled = true
+region_rect = Rect2(128, 64, 32, 32)

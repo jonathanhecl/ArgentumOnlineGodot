@@ -51,25 +51,59 @@ var shield: int:
 
 func Play() -> void:
 	var key = _get_heading_key()
-	_bodyAnimatedSprite.play("walk_" + key)
-	_shieldAnimatedSprite.play("walk_" + key)
-	_weaponAnimatedSprite.play("walk_" + key)
-	_headAnimatedSprite.play("idle_" + key)
-	_helmetAnimatedSprite.play("idle_" + key)
+	var opposite_key = _get_opposite_key(key)
+	
+	_play_directional_animation(_bodyAnimatedSprite, "walk_", key, opposite_key)
+	_play_directional_animation(_shieldAnimatedSprite, "walk_", key, opposite_key)
+	_play_directional_animation(_weaponAnimatedSprite, "walk_", key, opposite_key)
+	_play_directional_animation(_headAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_helmetAnimatedSprite, "idle_", key, opposite_key)
 	
 func Stop() -> void:
 	var key = _get_heading_key()
-	_bodyAnimatedSprite.play("idle_" + key)
-	_shieldAnimatedSprite.play("idle_" + key)
-	_weaponAnimatedSprite.play("idle_" + key)
-	_headAnimatedSprite.play("idle_" + key)
-	_helmetAnimatedSprite.play("idle_" + key)
+	var opposite_key = _get_opposite_key(key)
+	
+	_play_directional_animation(_bodyAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_shieldAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_weaponAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_headAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_helmetAnimatedSprite, "idle_", key, opposite_key)
+
+func _play_directional_animation(sprite: AnimatedSprite2D, prefix: String, key: String, opposite_key: String) -> void:
+	if not sprite.sprite_frames:
+		return
+		
+	var anim_name = prefix + key
+	var opposite_anim_name = prefix + opposite_key
+	
+	if sprite.sprite_frames.has_animation(anim_name):
+		sprite.play(anim_name)
+		sprite.flip_h = false
+	elif sprite.sprite_frames.has_animation(opposite_anim_name):
+		sprite.play(opposite_anim_name)
+		sprite.flip_h = true
+	else:
+		# Fallback a sur si no hay ni la dirección ni su opuesta
+		# Esto evita que desaparezca, aunque la dirección sea incorrecta
+		var fallback = prefix + "south"
+		if sprite.sprite_frames.has_animation(fallback):
+			sprite.play(fallback)
+			sprite.flip_h = false
 
 func _get_heading_key() -> String:
 	var keys = Enums.Heading.keys()
 	if heading >= 0 and heading < keys.size():
 		return keys[heading].to_lower()
 	return "south"  # Default fallback
+
+func _get_opposite_key(key: String) -> String:
+	match key:
+		"east": return "west"
+		"west": return "east"
+		"north": return "south"
+		"south": return "north"
+	return "south"
+
 
 func _set_weapon(id:int) -> void:
 	_weapon = id 
