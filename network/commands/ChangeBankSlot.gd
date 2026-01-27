@@ -25,7 +25,7 @@ func Deserialize(reader:StreamPeerBuffer) -> void:
 	index = reader.get_16();
 	name = Utils.GetUnicodeString(reader)
 	amount = reader.get_16();
-	grhId = reader.get_32();  # ReadLong() en VB6 = 4 bytes
+	grhId = reader.get_32();
 	type = reader.get_u8();
 	maxHit = reader.get_16();
 	minHit = reader.get_16();

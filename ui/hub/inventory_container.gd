@@ -80,14 +80,16 @@ func _get_slot_under_mouse() -> int:
 	return -1
 
 func _InventorySlotOnPressed(index:int) -> void:
-	# Click izquierdo: solo selección visual, no ejecuta acción
+	# Click izquierdo: selección visual y actualización de información
 	if _selectedSlot != index:
 		if GetInventorySlot(_selectedSlot):
 			GetInventorySlot(_selectedSlot).SetSelected(false)
 		
 		GetInventorySlot(index).SetSelected(true)
 		_selectedSlot = index
-	# Removido: slotPressed.emit(index) - ya no usa automáticamente con un clic
+	
+	# Emitir señal para actualizar información del ítem (como en el cliente VB6)
+	slotPressed.emit(index)
 
 func _InventorySlotOnDoubleClicked(index:int) -> void:
 	# Doble clic: usar el item

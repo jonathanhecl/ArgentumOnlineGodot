@@ -393,7 +393,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.UpdateGold:
 			var _p = UpdateGold.new(stream)
-			gold_updated.emit(Global.UserOro)
+			gold_updated.emit(_p.gold)
 		
 		Enums.ServerPacketID.UpdateExp:
 			var p = UpdateExp.new(stream)
@@ -482,6 +482,9 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.RainToggle:
 			rain_toggle.emit()
+		
+		Enums.ServerPacketID.ShowSignal:
+			var _p = ShowSignal.new(stream)
 		
 		Enums.ServerPacketID.ChangeUserTradeSlot:
 			var _p = ChangeUserTradeSlot.new(stream)
@@ -783,7 +786,7 @@ func _create_bank_item_stack(p: ChangeBankSlot) -> ItemStack:
 	item.minHit = p.minHit
 	item.maxDef = p.maxDef
 	item.minDef = p.minDef
-	item.salePrice = p.salePrice
+	item.salePrice = p.valor
 	
 	if p.grhId > 0:
 		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)

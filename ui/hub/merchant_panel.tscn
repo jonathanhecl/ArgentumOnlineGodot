@@ -8,7 +8,7 @@
 [sub_resource type="FontVariation" id="FontVariation_nqjup"]
 base_font = ExtResource("4_co15t")
 
-[node name="MerchantPanel" type="TextureRect" node_paths=PackedStringArray("_merchantInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_quantitySpinBox")]
+[node name="MerchantPanel" type="TextureRect" node_paths=PackedStringArray("_merchantInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_itemIcon", "_quantitySpinBox")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -25,6 +25,7 @@ script = ExtResource("1_j83ap")
 _merchantInventoryContainer = NodePath("ScrollContainer/MerchantInventory")
 _playerInventoryContainer = NodePath("PlayerInventory")
 _infoLabel = NodePath("Info")
+_itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
 metadata/_edit_lock_ = true
 
@@ -35,16 +36,28 @@ offset_top = 27.0
 offset_right = 431.0
 offset_bottom = 47.0
 
-[node name="Info" type="Label" parent="."]
+[node name="ItemIcon" type="TextureRect" parent="."]
 layout_mode = 0
 offset_left = 147.0
-offset_top = 46.0
+offset_top = 48.0
+offset_right = 195.0
+offset_bottom = 96.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="Label" parent="."]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 48.0
 offset_right = 318.0
-offset_bottom = 101.0
+offset_bottom = 110.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = SubResource("FontVariation_nqjup")
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
-vertical_alignment = 1
+vertical_alignment = 0
+text_overrun_behavior = 0
+autowrap_mode = 3
 clip_text = true
 
 [node name="PlayerInventory" parent="." instance=ExtResource("2_cer8s")]

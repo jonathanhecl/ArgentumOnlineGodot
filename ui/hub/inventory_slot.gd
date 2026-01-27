@@ -14,8 +14,14 @@ var _last_click_time: float = 0.0
 # Tooltip global compartido entre todos los slots
 static var _shared_tooltip: InventoryTooltip = null
 static var _tooltip_layer: CanvasLayer = null
+static var _tooltips_enabled: bool = true
 
 const DOUBLE_CLICK_TIME: float = 0.5
+
+static func SetTooltipsEnabled(enabled: bool) -> void:
+	_tooltips_enabled = enabled
+	if not enabled and _shared_tooltip != null:
+		_shared_tooltip.hide_tooltip()
   
 func SetQuantity(quantity:int) -> void:
 	_item_quantity = quantity
@@ -52,6 +58,9 @@ func _create_shared_tooltip() -> void:
 		print("[Tooltip] Tooltip global agregado al CanvasLayer: ", _shared_tooltip)
 
 func _show_tooltip() -> void:
+	if not _tooltips_enabled:
+		return
+	
 	if _item_name != "":
 		print("[Tooltip] Mostrando tooltip para: ", _item_name)
 		_create_shared_tooltip()

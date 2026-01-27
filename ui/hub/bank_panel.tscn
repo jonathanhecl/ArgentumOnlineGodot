@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c4skiho4j6vjn"]
+[gd_scene format=3 uid="uid://c4skiho4j6vjn"]
 
 [ext_resource type="Texture2D" uid="uid://c3pbnw16wyg28" path="res://Assets/UI/Boveda.jpg" id="1_udis2"]
 [ext_resource type="Script" uid="uid://cfiou2t86w2ko" path="res://ui/hub/bank_panel.gd" id="1_x0502"]
@@ -11,7 +11,7 @@ base_font = ExtResource("4_e1jaj")
 [sub_resource type="LabelSettings" id="LabelSettings_x0502"]
 font_size = 12
 
-[node name="BankPanel" type="TextureRect" node_paths=PackedStringArray("_bankInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_quantitySpinBox", "_goldLabel", "_quantityGoldSpinBox")]
+[node name="BankPanel" type="TextureRect" unique_id=85968283 node_paths=PackedStringArray("_bankInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_itemIcon", "_quantitySpinBox", "_goldLabel", "_quantityGoldSpinBox")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -28,19 +28,20 @@ script = ExtResource("1_x0502")
 _bankInventoryContainer = NodePath("BankInventory")
 _playerInventoryContainer = NodePath("PlayerInventory")
 _infoLabel = NodePath("Info")
+_itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
 _goldLabel = NodePath("LblGold")
 _quantityGoldSpinBox = NodePath("QuantityGold")
 metadata/_edit_lock_ = true
 
-[node name="BtnClose" type="TextureButton" parent="."]
+[node name="BtnClose" type="TextureButton" parent="." unique_id=582287382]
 layout_mode = 0
 offset_left = 414.0
 offset_top = 27.0
 offset_right = 434.0
 offset_bottom = 47.0
 
-[node name="Quantity" type="SpinBox" parent="."]
+[node name="Quantity" type="SpinBox" parent="." unique_id=817931464]
 layout_mode = 0
 offset_left = 203.0
 offset_top = 256.0
@@ -52,7 +53,7 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="PlayerInventory" parent="." instance=ExtResource("2_udis2")]
+[node name="PlayerInventory" parent="." unique_id=1284779154 instance=ExtResource("2_udis2")]
 custom_minimum_size = Vector2(160, 160)
 layout_mode = 0
 offset_left = 266.0
@@ -61,7 +62,7 @@ offset_right = 426.0
 offset_bottom = 415.0
 columns = 5
 
-[node name="BankInventory" parent="." instance=ExtResource("2_udis2")]
+[node name="BankInventory" parent="." unique_id=2101610904 instance=ExtResource("2_udis2")]
 custom_minimum_size = Vector2(160, 256)
 layout_mode = 0
 offset_left = 37.0
@@ -70,26 +71,29 @@ offset_right = 197.0
 offset_bottom = 351.0
 columns = 5
 
-[node name="Info" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -91.0
-offset_top = 183.0
-offset_right = 96.0
-offset_bottom = 238.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ItemIcon" type="TextureRect" parent="." unique_id=1620776567]
+layout_mode = 0
+offset_left = 145.0
+offset_top = 455.0
+offset_right = 193.0
+offset_bottom = 503.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="Label" parent="." unique_id=285970118]
+layout_mode = 0
+offset_left = 197.0
+offset_top = 452.0
+offset_right = 324.0
+offset_bottom = 505.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = SubResource("FontVariation_7ls34")
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
-vertical_alignment = 1
+autowrap_mode = 3
 clip_text = true
 
-[node name="QuantityGold" type="SpinBox" parent="."]
+[node name="QuantityGold" type="SpinBox" parent="." unique_id=1194510037]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -102,11 +106,11 @@ offset_right = 92.0
 offset_bottom = -145.0
 grow_horizontal = 2
 grow_vertical = 2
-max_value = 1e+07
+max_value = 10000000.0
 rounded = true
 update_on_text_changed = true
 
-[node name="LblGold" type="Label" parent="."]
+[node name="LblGold" type="Label" parent="." unique_id=591492614]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -122,28 +126,28 @@ horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="BtnExtractGold" type="TextureButton" parent="."]
+[node name="BtnExtractGold" type="TextureButton" parent="." unique_id=1508759746]
 layout_mode = 0
 offset_left = 332.0
 offset_top = 71.0
 offset_right = 416.0
 offset_bottom = 113.0
 
-[node name="BtnDepositGold" type="TextureButton" parent="."]
+[node name="BtnDepositGold" type="TextureButton" parent="." unique_id=1651976669]
 layout_mode = 0
 offset_left = 45.0
 offset_top = 68.0
 offset_right = 152.0
 offset_bottom = 110.0
 
-[node name="BtnExtract" type="TextureButton" parent="."]
+[node name="BtnExtract" type="TextureButton" parent="." unique_id=1418511027]
 layout_mode = 0
 offset_left = 223.0
 offset_top = 291.0
 offset_right = 240.0
 offset_bottom = 308.0
 
-[node name="BtnDeposit" type="TextureButton" parent="."]
+[node name="BtnDeposit" type="TextureButton" parent="." unique_id=235210992]
 layout_mode = 0
 offset_left = 222.0
 offset_top = 233.0
