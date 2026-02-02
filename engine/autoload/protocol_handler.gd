@@ -115,6 +115,11 @@ signal multi_message_received(index: int, arg1: int, arg2: int, arg3: int, strin
 # Buffer de mensajes pendientes
 var _pending_messages: Array[PackedByteArray] = []
 
+# Logging temporal de paquetes (activar para depurar desincronizaciones)
+var packet_debug_enabled: bool = true
+
+const _CREATE_DAMAGE_PACKET = preload("res://network/commands/CreateDamage.gd")
+
 # Estado del juego global
 var game_context: GameContext = GameContext.new()
 var main_character_id: int = -1
@@ -152,7 +157,8 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 	var packet_name = ""
 	
 	# Logging detallado solo si no es un paquete muy frecuente
-	var should_log = packet_id != Enums.ServerPacketID.ChangeInventorySlot \
+	var should_log = packet_debug_enabled \
+		and packet_id != Enums.ServerPacketID.ChangeInventorySlot \
 		and packet_id != Enums.ServerPacketID.ChangeSpellSlot \
 		and packet_id != Enums.ServerPacketID.EnviarListDeAmigos
 	
@@ -651,6 +657,9 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.MultiMessage:
 			var p = MultiMessage.new(stream)
 			_handle_multi_message(p)
+		
+		Enums.ServerPacketID.CreateDamage:
+			var _p = _CREATE_DAMAGE_PACKET.new(stream)
 		
 		Enums.ServerPacketID.InitCraftman:
 			var _p = InitCraftman.new(stream)
