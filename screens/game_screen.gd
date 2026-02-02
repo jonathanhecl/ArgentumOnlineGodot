@@ -115,6 +115,8 @@ func _MovePlayer(heading:int) -> void:
 	else:
 		if character.renderer.heading != heading:
 			GameProtocol.WriteChangeHeading(heading)
+			character.renderer.heading = heading
+			character.renderer.Stop()
 	
 	_gameInput.minimap.update_player_position(character.gridPosition.x, character.gridPosition.y)
 	 
@@ -164,6 +166,7 @@ func _connect_protocol_signals() -> void:
 	ProtocolHandler.character_moved.connect(_on_character_moved)
 	ProtocolHandler.character_changed.connect(_on_character_changed)
 	ProtocolHandler.character_change_nick.connect(_on_character_change_nick)
+	ProtocolHandler.character_heading_changed.connect(_on_character_heading_changed)
 	ProtocolHandler.user_char_index_received.connect(_on_user_char_index)
 	ProtocolHandler.set_invisible.connect(_on_set_invisible)
 	ProtocolHandler.fx_created.connect(_on_fx_created)
@@ -206,6 +209,7 @@ func _connect_protocol_signals() -> void:
 	# Console/Chat signals
 	ProtocolHandler.console_message.connect(_on_console_message)
 	ProtocolHandler.show_message_box.connect(_on_show_message_box)
+	ProtocolHandler.damage_created.connect(_on_damage_created)
 	
 	# Commerce signals
 	ProtocolHandler.commerce_init.connect(_on_commerce_init)
@@ -241,7 +245,7 @@ func _disconnect_protocol_signals() -> void:
 	# Desconectar todas las señales del ProtocolHandler
 	var signals_to_disconnect = [
 		"character_created", "character_removed", "character_moved", "character_changed",
-		"character_change_nick", "user_char_index_received", "set_invisible", "fx_created",
+		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created",
 		"update_tag_and_status", "chat_over_head", "remove_char_dialog", "remove_all_dialogs",
 		"map_changed", "pos_updated", "force_char_move", "object_created", "object_deleted",
 		"block_position_changed", "inventory_slot_changed", "spell_slot_changed",
@@ -255,7 +259,7 @@ func _disconnect_protocol_signals() -> void:
 		"guild_member_info_received", "guild_leader_info_received", "guild_details_received",
 		"guild_news_received", "offer_details_received", "alliance_proposals_received",
 		"peace_proposals_received", "trainer_creature_list_received", "multi_message_received",
-		"work_request_target"
+		"work_request_target", "damage_created"
 	]
 	for signal_name in signals_to_disconnect:
 		if ProtocolHandler.has_signal(signal_name):
@@ -299,12 +303,20 @@ func _on_character_changed(data: CharacterChange) -> void:
 	character.renderer.helmet = data.helmet
 	character.renderer.weapon = data.weapon
 	character.renderer.shield = data.shield
-	character.renderer.heading = data.heading
 
 func _on_character_change_nick(char_index: int, char_name: String) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
 	if character:
 		character.SetCharacterName(char_name)
+
+func _on_character_heading_changed(char_index: int, heading: int) -> void:
+	var character = _gameWorld.GetCharacter(char_index)
+	if character:
+		character.renderer.heading = heading
+		if character.isMoving:
+			character.renderer.Play()
+		else:
+			character.renderer.Stop()
 
 func _on_user_char_index(char_index: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
@@ -461,6 +473,10 @@ func _on_mini_stats_received(data: Dictionary) -> void:
 
 func _on_console_message(message: String, font_data: FontData) -> void:
 	_gameInput.ShowConsoleMessage(message, font_data)
+
+func _on_damage_created(x: int, y: int, damage: int, damage_type: int) -> void:
+	if _gameWorld:
+		_gameWorld.AddDamageText(x, y, damage, damage_type)
 
 func _on_show_message_box(message: String) -> void:
 	Utils.ShowAlertDialog("Server", message, get_parent())

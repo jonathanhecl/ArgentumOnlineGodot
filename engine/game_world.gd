@@ -1,6 +1,7 @@
 extends Node2D
 class_name GameWorld
 const CharacterScene = preload("uid://twhhld7du3lq")
+const DamageTextScene = preload("res://engine/rendering/damage_text.gd")
 
 @export var _mapContainer:MapContainer
 
@@ -65,6 +66,14 @@ func DeleteObject(x:int, y:int) -> void:
 func AddObject(grhId:int, x:int, y:int) -> void:
 	DeleteObject(x, y);
 	_mapContainer.AddObject(grhId, x, y)
+
+func AddDamageText(x: int, y: int, damage: int, damage_type: int) -> void:
+	if not _mapContainer:
+		return
+	var damage_text = DamageTextScene.new()
+	damage_text.position = Vector2((x - 1) * Consts.TileSize + 16, (y - 1) * Consts.TileSize + 16)
+	damage_text.setup(damage, damage_type)
+	_mapContainer.AddDamageText(damage_text)
 	
 func SwitchMap(id:int) -> void:
 	print("🔄 GameWorld: Solicitando cambio al mapa ", id)

@@ -50,6 +50,15 @@ const MessageUserHittedByUser: Dictionary[int, String] = {
 	bTorso: "!!{0} te ha pegado en el torso por {1}!!",
 }
 
+const MessageNPCHitUser: Dictionary[int, String] = {
+	bCabeza: "¡¡La criatura te ha pegado en la cabeza por {0}!!",
+	bPiernaIzquierda: "¡¡La criatura te ha pegado en el brazo izquierdo por {0}!!",
+	bPiernaDerecha: "¡¡La criatura te ha pegado en el brazo derecho por {0}!!",
+	bBrazoDerecho: "¡¡La criatura te ha pegado en la pierna derecha por {0}!!",
+	bBrazoIzquierdo: "¡¡La criatura te ha pegado en la pierna izquierda por {0}!!",
+	bTorso: "¡¡La criatura te ha pegado en el torso por {0}!!",
+}
+
 const MessageUserHittedUser: Dictionary[int, String] = {
 	bCabeza: "¡¡Le has pegado a {0} en la cabeza por por {1}!!",
 	bPiernaIzquierda: "¡¡Le has pegado a {0} en el brazo izquierdo por {1}!!",

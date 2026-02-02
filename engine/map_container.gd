@@ -111,6 +111,14 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 			layer.add_child(sprite)
 		else:
 			push_error("MapContainer: Cannot add object, %s not available" % layer_name)
+
+func AddDamageText(damage_text: Node2D) -> void:
+	var layer = _GetLayer("Layer3")
+	if layer:
+		layer.add_child(damage_text)
+	else:
+		add_child(damage_text)
+		push_warning("MapContainer: Layer3 not available, damage text added to MapContainer directly")
 	
 func DeleteObject(x:int, y:int) -> void:
 	var node:Node2D = null

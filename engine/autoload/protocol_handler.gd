@@ -16,6 +16,7 @@ signal character_removed(char_index: int)
 signal character_moved(char_index: int, x: int, y: int)
 signal character_changed(data: CharacterChange)
 signal character_change_nick(char_index: int, name: String)
+signal character_heading_changed(char_index: int, heading: int)
 signal user_char_index_received(char_index: int)
 
 signal map_changed(map_id: int, name_map: String, zone: String)
@@ -66,6 +67,8 @@ signal play_midi(midi_id: int, loops: int)
 signal play_wave(wave_id: int, x: int, y: int)
 signal rain_toggle()
 signal send_night(time: int)
+
+signal damage_created(x: int, y: int, damage: int, damage_type: int)
 
 signal commerce_init()
 signal commerce_end()
@@ -119,6 +122,7 @@ var _pending_messages: Array[PackedByteArray] = []
 var packet_debug_enabled: bool = true
 
 const _CREATE_DAMAGE_PACKET = preload("res://network/commands/CreateDamage.gd")
+const _HEADING_CHANGE_PACKET = preload("res://network/commands/HeadingChange.gd")
 
 # Estado del juego global
 var game_context: GameContext = GameContext.new()
@@ -233,6 +237,10 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.CharacterChange:
 			var p = CharacterChange.new(stream)
 			character_changed.emit(p)
+		
+		Enums.ServerPacketID.HeadingChange:
+			var p = _HEADING_CHANGE_PACKET.new(stream)
+			character_heading_changed.emit(p.charIndex, p.heading)
 		
 		Enums.ServerPacketID.CharacterChangeNick:
 			var p = CharacterChangeNick.new(stream)
@@ -659,7 +667,8 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			_handle_multi_message(p)
 		
 		Enums.ServerPacketID.CreateDamage:
-			var _p = _CREATE_DAMAGE_PACKET.new(stream)
+			var p = _CREATE_DAMAGE_PACKET.new(stream)
+			damage_created.emit(p.x, p.y, p.damage, p.color)
 		
 		Enums.ServerPacketID.InitCraftman:
 			var _p = InitCraftman.new(stream)
