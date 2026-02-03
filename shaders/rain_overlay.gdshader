@@ -33,8 +33,9 @@ uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del vient
 
 uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;     // Intensidad de salpicaduras
 uniform float lightning_flash : hint_range(0.0, 1.0) = 0.2;      // Flash de relámpago
-uniform float lightning_intensity : hint_range(0.0, 5.0) = 2.0;  // Intensidad de rayos
+uniform float lightning_intensity : hint_range(0.0, 5.0) = 0.5;  // Intensidad de rayos
 uniform float lightning_frequency : hint_range(0.0, 5.0) = 0.1;  // Frecuencia de rayos
+uniform float rain_opacity : hint_range(0.0, 1.0) = 0.0;         // Opacidad para fade in/out
 
 // ============================================
 // === REFERENCIAS DEL MUNDO (Auto-set)     ===
@@ -350,6 +351,9 @@ void fragment() {
 	// Add subtle vignette to rain (more rain visible at edges)
 	float vignette = 1.0 - length((uv - 0.5) * 0.5);
 	alpha *= mix(0.8, 1.0, vignette);
+	
+	// Aplicar opacidad global para fade in/out de la lluvia
+	alpha *= rain_opacity;
 	
 	COLOR = vec4(final_color, alpha);
 }

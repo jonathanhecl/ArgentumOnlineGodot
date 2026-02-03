@@ -24,6 +24,9 @@ var _rain_start_player: AudioStreamPlayer = null
 var _rain_loop_player: AudioStreamPlayer = null
 var _rain_end_player: AudioStreamPlayer = null
 
+# Sistema de fade para el shader de lluvia
+var _rain_fade_tween: Tween = null
+
 # Acceso al contexto global
 var _gameContext: GameContext:
 	get: return ProtocolHandler.game_context
@@ -414,15 +417,53 @@ func _on_block_position(x: int, y: int, blocked: bool) -> void:
 
 func _on_rain_toggle() -> void:
 	_is_raining = not _is_raining
-	if _rainOverlay:
-		_rainOverlay.visible = _is_raining
 	
 	if _is_raining:
 		_gameInput.ShowConsoleMessage("Está lloviendo.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		_start_rain_sound_sequence()
+		_fade_in_rain()
 	else:
 		_gameInput.ShowConsoleMessage("Ha dejado de llover.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		_stop_rain_sound_sequence()
+		_fade_out_rain()
+
+func _fade_in_rain() -> void:
+	if not _rainOverlay:
+		return
+	
+	_rainOverlay.visible = true
+	
+	# Cancelar cualquier fade anterior
+	if _rain_fade_tween and _rain_fade_tween.is_valid():
+		_rain_fade_tween.kill()
+	
+	# Iniciar opacidad en 0 y hacer fade in
+	if _rainOverlay.material:
+		_rainOverlay.material.set_shader_parameter("rain_opacity", 0.0)
+	
+	# El fade in dura ~1.5 segundos (coincide con el sonido de inicio)
+	_rain_fade_tween = create_tween()
+	_rain_fade_tween.tween_method(_set_rain_opacity, 0.0, 1.0, 1.5)
+
+func _fade_out_rain() -> void:
+	if not _rainOverlay:
+		return
+	
+	# Cancelar cualquier fade anterior
+	if _rain_fade_tween and _rain_fade_tween.is_valid():
+		_rain_fade_tween.kill()
+	
+	# El fade out dura ~2 segundos (coincide con el sonido de fin)
+	_rain_fade_tween = create_tween()
+	_rain_fade_tween.tween_method(_set_rain_opacity, 1.0, 0.0, 2.0)
+	_rain_fade_tween.finished.connect(_on_rain_fade_out_finished)
+
+func _set_rain_opacity(opacity: float) -> void:
+	if _rainOverlay and _rainOverlay.material:
+		_rainOverlay.material.set_shader_parameter("rain_opacity", opacity)
+
+func _on_rain_fade_out_finished() -> void:
+	_rainOverlay.visible = false
 
 func _start_rain_sound_sequence() -> void:
 	# Detener cualquier audio de lluvia anterior
