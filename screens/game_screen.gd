@@ -19,6 +19,11 @@ var _input:Dictionary[String, int] = {
 var _is_raining: bool = false
 var _player_velocity_y: float = 0.0  # Para efecto de lluvia relativo al movimiento
 
+# Sistema de audio para lluvia
+var _rain_start_player: AudioStreamPlayer = null
+var _rain_loop_player: AudioStreamPlayer = null
+var _rain_end_player: AudioStreamPlayer = null
+
 # Acceso al contexto global
 var _gameContext: GameContext:
 	get: return ProtocolHandler.game_context
@@ -411,10 +416,91 @@ func _on_rain_toggle() -> void:
 	_is_raining = not _is_raining
 	if _rainOverlay:
 		_rainOverlay.visible = _is_raining
+	
 	if _is_raining:
 		_gameInput.ShowConsoleMessage("Está lloviendo.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		_start_rain_sound_sequence()
 	else:
 		_gameInput.ShowConsoleMessage("Ha dejado de llover.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+		_stop_rain_sound_sequence()
+
+func _start_rain_sound_sequence() -> void:
+	# Detener cualquier audio de lluvia anterior
+	_stop_all_rain_sounds()
+	
+	# 1. Reproducir sonido de inicio
+	if ResourceLoader.exists("res://Assets/Sfx/lluviaoutst.wav"):
+		_rain_start_player = AudioStreamPlayer.new()
+		add_child(_rain_start_player)
+		_rain_start_player.stream = load("res://Assets/Sfx/lluviaoutst.wav")
+		_rain_start_player.bus = "sfx"
+		
+		# Conectar para reproducir el loop cuando termine el start
+		_rain_start_player.finished.connect(_on_rain_start_finished)
+		_rain_start_player.play()
+	else:
+		# Si no existe el start, ir directamente al loop
+		_start_rain_loop()
+
+func _on_rain_start_finished() -> void:
+	# Limpiar el player de inicio
+	if _rain_start_player:
+		_rain_start_player.queue_free()
+		_rain_start_player = null
+	# Iniciar el loop
+	_start_rain_loop()
+
+func _start_rain_loop() -> void:
+	if ResourceLoader.exists("res://Assets/Sfx/lluviaout.wav"):
+		_rain_loop_player = AudioStreamPlayer.new()
+		add_child(_rain_loop_player)
+		var stream = load("res://Assets/Sfx/lluviaout.wav") as AudioStreamWAV
+		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		stream.loop_begin = 0
+		stream.loop_end = stream.mix_rate * int(stream.get_length())
+		_rain_loop_player.stream = stream
+		_rain_loop_player.bus = "sfx"
+		_rain_loop_player.play()
+
+func _stop_rain_sound_sequence() -> void:
+	# Detener el loop
+	if _rain_loop_player:
+		_rain_loop_player.stop()
+		_rain_loop_player.queue_free()
+		_rain_loop_player = null
+	
+	# Reproducir sonido de fin
+	if ResourceLoader.exists("res://Assets/Sfx/lluviaoutend.wav"):
+		_rain_end_player = AudioStreamPlayer.new()
+		add_child(_rain_end_player)
+		_rain_end_player.stream = load("res://Assets/Sfx/lluviaoutend.wav")
+		_rain_end_player.bus = "sfx"
+		_rain_end_player.finished.connect(_on_rain_end_finished)
+		_rain_end_player.play()
+
+func _on_rain_end_finished() -> void:
+	if _rain_end_player:
+		_rain_end_player.queue_free()
+		_rain_end_player = null
+
+func _stop_all_rain_sounds() -> void:
+	if _rain_start_player:
+		if _rain_start_player.is_playing():
+			_rain_start_player.stop()
+		_rain_start_player.queue_free()
+		_rain_start_player = null
+	
+	if _rain_loop_player:
+		if _rain_loop_player.is_playing():
+			_rain_loop_player.stop()
+		_rain_loop_player.queue_free()
+		_rain_loop_player = null
+	
+	if _rain_end_player:
+		if _rain_end_player.is_playing():
+			_rain_end_player.stop()
+		_rain_end_player.queue_free()
+		_rain_end_player = null
 
 func _update_rain_world_offset(camera_pos: Vector2) -> void:
 	if _rainOverlay and _rainOverlay.material:

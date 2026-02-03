@@ -33,8 +33,8 @@ uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del vient
 
 uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;     // Intensidad de salpicaduras
 uniform float lightning_flash : hint_range(0.0, 1.0) = 0.2;      // Flash de relámpago
-uniform float lightning_intensity : hint_range(0.0, 5.0) = 2.0;  // Intensidad de rayos (AUMENTADO)
-uniform float lightning_frequency : hint_range(0.0, 5.0) = 1.5;  // Frecuencia de rayos (AUMENTADO)
+uniform float lightning_intensity : hint_range(0.0, 5.0) = 2.0;  // Intensidad de rayos
+uniform float lightning_frequency : hint_range(0.0, 5.0) = 0.1;  // Frecuencia de rayos
 
 // ============================================
 // === REFERENCIAS DEL MUNDO (Auto-set)     ===
