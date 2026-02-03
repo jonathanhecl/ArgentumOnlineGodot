@@ -60,7 +60,9 @@ static var command_handler:Dictionary[String, Callable] = {
 	"telep": teleport_char,
 	"teleploc": teleport_me_to_target,
 	"hogar": home,
-	"ping": ping
+	"ping": ping,
+	# DEBUG: Comando para probar efecto de lluvia visual. Se removerá próximamente.
+	"lluvia": debug_toggle_rain
 }
 
 static func process(newText: String, hub_controller:HubController, game_context:GameContext) -> bool:
@@ -610,3 +612,10 @@ static func test_dialog(args:ChatCommandArgs) -> void:
 			var player = game_screen.get_node("Player") as Character
 			if player:
 				player.Say(random_message, color)
+
+
+# DEBUG: Función para probar el efecto visual de lluvia localmente.
+# Emite la señal rain_toggle sin esperar al servidor.
+# Se removerá próximamente una vez finalizada la depuración del shader.
+static func debug_toggle_rain(_args:ChatCommandArgs) -> void:
+	ProtocolHandler.rain_toggle.emit()

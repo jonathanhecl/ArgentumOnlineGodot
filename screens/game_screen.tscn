@@ -10,6 +10,7 @@
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
 [ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
+[ext_resource type="Shader" path="res://shaders/rain_overlay.gdshader" id="10_rain_shader"]
 [ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://ui/hub/minimap.tscn" id="12_s70vx"]
 [ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://ui/hub/stat_bar.tscn" id="13_u317p"]
 [ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
@@ -38,6 +39,9 @@ bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
 [sub_resource type="FontVariation" id="FontVariation_ayhfv"]
 base_font = ExtResource("7_rqp22")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rain"]
+shader = ExtResource("10_rain_shader")
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwwhr"]
 atlas = ExtResource("14_7ceix")
 region = Rect2(3, 3, 89, 11)
@@ -65,11 +69,12 @@ region = Rect2(3, 85, 175, 18)
 [sub_resource type="LabelSettings" id="LabelSettings_ehycb"]
 font_size = 12
 
-[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera")]
+[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera", "_rainOverlay")]
 script = ExtResource("1_p7x0p")
 _gameInput = NodePath("HubController")
 _gameWorld = NodePath("HubController/MainViewportContainer/Viewport/GameWorld")
 _camera = NodePath("HubController/MainViewportContainer/Viewport/GameWorld/Camera2D")
+_rainOverlay = NodePath("HubController/MainViewportContainer/RainOverlay")
 
 [node name="HubController" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
@@ -99,6 +104,16 @@ metadata/_edit_lock_ = true
 handle_input_locally = false
 size = Vector2i(544, 416)
 render_target_update_mode = 4
+
+[node name="RainOverlay" type="ColorRect" parent="HubController/MainViewportContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_rain")
+visible = false
 
 [node name="GameWorld" type="Node2D" parent="HubController/MainViewportContainer/Viewport" node_paths=PackedStringArray("_mapContainer")]
 position = Vector2(0, -1)

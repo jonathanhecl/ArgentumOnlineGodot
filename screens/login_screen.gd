@@ -119,7 +119,7 @@ func _on_show_message_box(message: String) -> void:
 	Utils.ShowAlertDialog("Servidor", message, root)
 
 func _on_logged_in() -> void:
-	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
+	var screen = load("uid://b2dyxo3826bub").instantiate()
 	ScreenController.SwitchScreen(screen)
 
 #endregion

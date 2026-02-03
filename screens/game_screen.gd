@@ -7,6 +7,7 @@ var _scaled_crosshair_cursor = null
 @export var _gameInput:HubController
 @export var _gameWorld:GameWorld
 @export var _camera:Camera2D
+@export var _rainOverlay: ColorRect
 
 var _input:Dictionary[String, int] = {
 	"ui_left" = Enums.Heading.West,
@@ -14,6 +15,8 @@ var _input:Dictionary[String, int] = {
 	"ui_up" = Enums.Heading.North,
 	"ui_down" = Enums.Heading.South,
 }
+
+var _is_raining: bool = false
 
 # Acceso al contexto global
 var _gameContext: GameContext:
@@ -41,6 +44,9 @@ func _ready() -> void:
 		_crosshair_cursor = load("res://Assets/Cursors/crosshair.png")
 		if _crosshair_cursor:
 			_scaled_crosshair_cursor = _scale_cursor(_crosshair_cursor, 0.5)
+	
+	if _rainOverlay:
+		_rainOverlay.visible = _is_raining
 
 func _exit_tree() -> void:
 	# Limpiar referencias globales
@@ -85,6 +91,7 @@ func _UpdateCameraPosition() -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
 	if character && _camera:
 		_camera.position = character.position
+		_update_rain_world_offset(character.position)
 
 func _CheckKeys() -> void:
 	if _gameContext.traveling || _gameContext.mirandoForo ||\
@@ -221,6 +228,7 @@ func _connect_protocol_signals() -> void:
 	# Status toggles
 	ProtocolHandler.stop_working.connect(_on_stop_working)
 	ProtocolHandler.pong_received.connect(_on_pong_received)
+	ProtocolHandler.rain_toggle.connect(_on_rain_toggle)
 	
 	# Guild signals
 	ProtocolHandler.show_guild_align.connect(_on_show_guild_align)
@@ -259,7 +267,7 @@ func _disconnect_protocol_signals() -> void:
 		"guild_member_info_received", "guild_leader_info_received", "guild_details_received",
 		"guild_news_received", "offer_details_received", "alliance_proposals_received",
 		"peace_proposals_received", "trainer_creature_list_received", "multi_message_received",
-		"work_request_target", "damage_created"
+		"work_request_target", "damage_created", "rain_toggle"
 	]
 	for signal_name in signals_to_disconnect:
 		if ProtocolHandler.has_signal(signal_name):
@@ -284,6 +292,8 @@ func _on_character_moved(char_index: int, x: int, y: int) -> void:
 		return
 	var addX = x - character.gridPosition.x
 	var addY = y - character.gridPosition.y
+	if addX == 0 and addY == 0:
+		return
 	var heading = Enums.Heading.South
 	if Utils.Sgn(addX) == 1:
 		heading = Enums.Heading.East
@@ -387,6 +397,19 @@ func _on_block_position(x: int, y: int, blocked: bool) -> void:
 		_gameWorld.GetMapContainer().BlockTile(x - 1, y - 1)
 	else:
 		_gameWorld.GetMapContainer().UnblockTile(x - 1, y - 1)
+
+func _on_rain_toggle() -> void:
+	_is_raining = not _is_raining
+	if _rainOverlay:
+		_rainOverlay.visible = _is_raining
+	if _is_raining:
+		_gameInput.ShowConsoleMessage("Está lloviendo.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+	else:
+		_gameInput.ShowConsoleMessage("Ha dejado de llover.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+
+func _update_rain_world_offset(camera_pos: Vector2) -> void:
+	if _rainOverlay and _rainOverlay.material:
+		_rainOverlay.material.set_shader_parameter("world_offset", camera_pos)
 
 #endregion
 
