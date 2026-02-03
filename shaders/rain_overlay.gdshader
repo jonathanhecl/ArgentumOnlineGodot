@@ -10,13 +10,12 @@ uniform vec4 rain_color_mid : source_color = vec4(1.0, 1.0, 1.0, 0.7);    // BLA
 uniform vec4 rain_color_back : source_color = vec4(1.0, 1.0, 1.0, 1.0);   // BLANCO - Gotas traseras (pequeñas, lentas)
 uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 1.0, 0.5);      // BLANCO - Salpicaduras en el suelo
 uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIOLETA - Relámpagos
-uniform vec4 droplet_color : source_color = vec4(1.0, 0.0, 0.0, 1.0);     // ROJO - Gotitas en pantalla
 
 // ============================================
 // === APARIENCIA / TAMAÑO (Debug Visual)   ===
 // ============================================
 
-uniform float rain_thickness : hint_range(0.4, 2.0) = 5.0;   // Grosor de las líneas de lluvia
+uniform float rain_thickness : hint_range(0.4, 2.0) = 10.0;   // Grosor de las líneas de lluvia
 uniform float rain_length : hint_range(0.4, 2.0) = 1.0;      // Longitud de las gotas
 
 // ============================================
@@ -33,10 +32,9 @@ uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del vient
 // ============================================
 
 uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;     // Intensidad de salpicaduras
-uniform float drip_intensity : hint_range(0.0, 1.0) = 0.4;       // Gotitas en pantalla
 uniform float lightning_flash : hint_range(0.0, 1.0) = 0.0;      // Flash de relámpago
 uniform float lightning_intensity : hint_range(0.0, 1.0) = 0.5;  // Intensidad de rayos
-uniform float lightning_frequency : hint_range(0.0, 2.0) = 0.3;  // Frecuencia de rayos
+uniform float lightning_frequency : hint_range(0.0, 2.0) = 5;  // Frecuencia de rayos
 
 // ============================================
 // === REFERENCIAS DEL MUNDO (Auto-set)     ===
@@ -230,31 +228,6 @@ float lightning(vec2 uv, float t) {
 	return lightning_effect * lightning_intensity;
 }
 
-// Small droplets accumulated on screen
-float droplets(vec2 uv, float t) {
-	float drops = 0.0;
-	
-	for (float i = 0.0; i < 15.0; i++) {
-		vec2 pos = hash22(vec2(i * 57.12, i * 113.45));
-		float size = mix(0.008, 0.02, hash(vec2(i, 10.0)));
-		
-		// Subtle movement
-		pos.x += sin(t * 0.2 + i * 0.5) * 0.01;
-		pos.y += fract(t * 0.02 + hash(vec2(i, 5.0))) * 0.1;
-		pos = fract(pos);
-		
-		float dist = length(uv - pos);
-		float drop = smoothstep(size, size * 0.3, dist);
-		
-		// Lens distortion effect (brighter center)
-		float highlight = smoothstep(size * 0.8, size * 0.2, dist) * 0.5;
-		
-		drops += (drop * 0.3 + highlight);
-	}
-	
-	return drops * drip_intensity * 0.5;
-}
-
 void fragment() {
 	vec2 uv = UV;
 	float t = TIME;
@@ -277,10 +250,9 @@ void fragment() {
 	// Calcular otros efectos
 	float splash = splashes(world_uv_front, t);
 	float light = lightning(uv, t);
-	float drops = droplets(uv, t);
 	
 	// Combinar todas las intensidades para el alpha
-	float total = rain_front + rain_mid + rain_back + splash + light + drops;
+	float total = rain_front + rain_mid + rain_back + splash + light;
 	
 	// Aplicar colores configurables a cada elemento
 	vec3 final_color = vec3(0.0);
@@ -289,7 +261,6 @@ void fragment() {
 	final_color += rain_color_back.rgb * rain_back;     // AZUL - Gotas traseras
 	final_color += splash_color.rgb * splash;           // AMARILLO - Salpicaduras
 	final_color += lightning_color.rgb * light;         // VIOLETA - Relámpagos
-	final_color += droplet_color.rgb * drops;           // NARANJA - Gotitas
 	
 	// Lightning flash effect
 	float flash = lightning_flash * (0.5 + 0.5 * sin(TIME * 30.0));
@@ -302,8 +273,7 @@ void fragment() {
 		rain_mid * rain_color_mid.a +
 		rain_back * rain_color_back.a +
 		splash * splash_color.a +
-		light * lightning_color.a +
-		drops * droplet_color.a,
+		light * lightning_color.a,
 		0.0, 1.0
 	);
 	
