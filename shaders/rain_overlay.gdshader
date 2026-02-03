@@ -5,12 +5,12 @@ render_mode unshaded;
 // === COLORES CONFIGURABLES (Debug Visual) ===
 // ============================================
 
-uniform vec4 rain_color_front : source_color = vec4(1.0, 0.0, 0.0, 1.0);  // ROJO - Gotas frontales (grandes, rápidas)
-uniform vec4 rain_color_mid : source_color = vec4(0.0, 1.0, 0.0, 1.0);    // VERDE - Gotas medias
-uniform vec4 rain_color_back : source_color = vec4(0.0, 0.0, 1.0, 1.0);   // AZUL - Gotas traseras (pequeñas, lentas)
-uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 0.0, 1.0);      // AMARILLO - Salpicaduras en el suelo
+uniform vec4 rain_color_front : source_color = vec4(1.0, 1.0, 1.0, 0.5);  // BLANCO - Gotas frontales (grandes, rápidas)
+uniform vec4 rain_color_mid : source_color = vec4(1.0, 1.0, 1.0, 0.7);    // BLANCO - Gotas medias
+uniform vec4 rain_color_back : source_color = vec4(1.0, 1.0, 1.0, 1.0);   // BLANCO - Gotas traseras (pequeñas, lentas)
+uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 1.0, 0.5);      // BLANCO - Salpicaduras en el suelo
 uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIOLETA - Relámpagos
-uniform vec4 droplet_color : source_color = vec4(1.0, 0.5, 0.0, 1.0);     // NARANJA - Gotitas en pantalla
+uniform vec4 droplet_color : source_color = vec4(1.0, 0.0, 0.0, 1.0);     // ROJO - Gotitas en pantalla
 
 // ============================================
 // === APARIENCIA / TAMAÑO (Debug Visual)   ===
@@ -264,9 +264,9 @@ void fragment() {
 	vec2 world_uv = uv + world_uv_offset;
 	
 	// Calcular coordenadas de mundo para cada capa (parallax)
-	vec2 world_uv_front = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 1.0;
-	vec2 world_uv_mid = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 0.7;
-	vec2 world_uv_back = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 0.4;
+	vec2 world_uv_front = uv + vec2(world_offset.x, world_offset.y) * world_scale * 1.0;
+	vec2 world_uv_mid = uv + vec2(world_offset.x, world_offset.y) * world_scale * 0.7;
+	vec2 world_uv_back = uv + vec2(world_offset.x, world_offset.y) * world_scale * 0.4;
 	
 	// Separar las capas de lluvia para aplicar colores individuales
 	// Capas más cercanas reaccionan más al movimiento del jugador (parallax)
