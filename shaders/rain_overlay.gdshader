@@ -9,7 +9,7 @@ uniform vec4 rain_color_front : source_color = vec4(1.0, 1.0, 1.0, 0.5);  // BLA
 uniform vec4 rain_color_mid : source_color = vec4(1.0, 1.0, 1.0, 0.7);    // BLANCO - Gotas medias
 uniform vec4 rain_color_back : source_color = vec4(1.0, 1.0, 1.0, 1.0);   // BLANCO - Gotas traseras (pequeñas, lentas)
 uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 1.0, 0.5);      // BLANCO - Salpicaduras en el suelo
-uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIOLETA - Relámpagos
+uniform vec4 lightning_color : source_color = vec4(1.0, 1.0, 1.0, 0.8);   // BLANCO - Relámpagos
 
 // ============================================
 // === APARIENCIA / TAMAÑO (Debug Visual)   ===
@@ -23,7 +23,7 @@ uniform float rain_length : hint_range(0.4, 2.0) = 1.0;      // Longitud de las 
 // ============================================
 
 uniform float rain_density : hint_range(0.0, 1.0) = 0.4;     // Cantidad de gotas
-uniform float rain_speed : hint_range(0.1, 5.0) = 5.0;       // Velocidad de caída
+uniform float rain_speed : hint_range(0.1, 10.0) = 5.0;      // Velocidad de caída
 uniform float rain_angle : hint_range(-0.5, 0.5) = 0.1;      // Inclinación por viento
 uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del viento
 
@@ -259,6 +259,7 @@ float lightning(vec2 uv, float t) {
 		float cycle_duration = 4.0 / lightning_frequency;
 		float cycle_time = mod(t + hash(vec2(i, 0.0)) * cycle_duration, cycle_duration);
 		float cycle_norm = cycle_time / cycle_duration;
+		float strike_id = floor((t + hash(vec2(i, 0.0)) * cycle_duration) / cycle_duration);
 		
 		// El rayo aparece al inicio del ciclo
 		float flash_start = 0.0;
@@ -272,13 +273,13 @@ float lightning(vec2 uv, float t) {
 		}
 		
 		if (flash_intensity > 0.01) {
-			// Posición aleatoria del rayo (en la parte superior de la pantalla)
-			float start_x = 0.1 + hash(vec2(seed, 1.0)) * 0.8;
-			vec2 start_pos = vec2(start_x, 1.05);
+			// Posición aleatoria del rayo - INICIA desde la PARTE SUPERIOR
+			float start_x = 0.05 + hash(vec2(seed, strike_id + 1.0)) * 0.90;
+			vec2 start_pos = vec2(start_x, -0.05);  // ARRIBA (fuera de pantalla)
 			
-			// El rayo puede ir hacia abajo o en ángulo
-			float end_x = start_x + (hash(vec2(seed, 2.0)) - 0.5) * 0.4;
-			vec2 end_pos = vec2(end_x, 0.1 + hash(vec2(seed, 3.0)) * 0.4);
+			// El rayo desciende hacia abajo
+			float end_x = start_x + (hash(vec2(seed, strike_id + 2.0)) - 0.5) * 0.6;
+			vec2 end_pos = vec2(end_x, 0.5 + hash(vec2(seed, strike_id + 3.0)) * 0.5);  // ABAJO (mitad-inferior)
 			
 			// Generar el rayo
 			float thickness = 0.008 + hash(vec2(seed, 4.0)) * 0.012;
