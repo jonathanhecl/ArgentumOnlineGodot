@@ -1,7 +1,10 @@
 shader_type canvas_item;
 render_mode unshaded;
 
-// Colores configurables para cada elemento
+// ============================================
+// === COLORES CONFIGURABLES (Debug Visual) ===
+// ============================================
+
 uniform vec4 rain_color_front : source_color = vec4(1.0, 0.0, 0.0, 1.0);  // ROJO - Gotas frontales (grandes, rápidas)
 uniform vec4 rain_color_mid : source_color = vec4(0.0, 1.0, 0.0, 1.0);    // VERDE - Gotas medias
 uniform vec4 rain_color_back : source_color = vec4(0.0, 0.0, 1.0, 1.0);   // AZUL - Gotas traseras (pequeñas, lentas)
@@ -9,18 +12,38 @@ uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 0.0, 1.0);      // AMA
 uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIOLETA - Relámpagos
 uniform vec4 droplet_color : source_color = vec4(1.0, 0.5, 0.0, 1.0);     // NARANJA - Gotitas en pantalla
 
-uniform float rain_density : hint_range(0.0, 1.0) = 0.4;
-uniform float rain_speed : hint_range(0.1, 3.0) = 1.5;
-uniform float rain_angle : hint_range(-0.5, 0.5) = 0.1;
-uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;
-uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;
-uniform float drip_intensity : hint_range(0.0, 1.0) = 0.4;
-uniform float lightning_flash : hint_range(0.0, 1.0) = 0.0;
-uniform float lightning_intensity : hint_range(0.0, 1.0) = 0.5;
-uniform float lightning_frequency : hint_range(0.0, 2.0) = 0.3;
+// ============================================
+// === APARIENCIA / TAMAÑO (Debug Visual)   ===
+// ============================================
+
+uniform float rain_thickness : hint_range(0.4, 2.0) = 5.0;   // Grosor de las líneas de lluvia
+uniform float rain_length : hint_range(0.4, 2.0) = 1.0;      // Longitud de las gotas
+
+// ============================================
+// === COMPORTAMIENTO DE LA LLUVIA          ===
+// ============================================
+
+uniform float rain_density : hint_range(0.0, 1.0) = 0.4;     // Cantidad de gotas
+uniform float rain_speed : hint_range(0.1, 3.0) = 1.5;       // Velocidad de caída
+uniform float rain_angle : hint_range(-0.5, 0.5) = 0.1;      // Inclinación por viento
+uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del viento
+
+// ============================================
+// === EFECTOS ADICIONALES                  ===
+// ============================================
+
+uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;     // Intensidad de salpicaduras
+uniform float drip_intensity : hint_range(0.0, 1.0) = 0.4;       // Gotitas en pantalla
+uniform float lightning_flash : hint_range(0.0, 1.0) = 0.0;      // Flash de relámpago
+uniform float lightning_intensity : hint_range(0.0, 1.0) = 0.5;  // Intensidad de rayos
+uniform float lightning_frequency : hint_range(0.0, 2.0) = 0.3;  // Frecuencia de rayos
+
+// ============================================
+// === REFERENCIAS DEL MUNDO (Auto-set)     ===
+// ============================================
+
 uniform vec2 world_offset = vec2(0.0, 0.0);
 uniform float world_scale = 0.003;
-uniform float player_velocity_y = 0.0;  // Velocidad vertical del jugador (-1 a 1)
 
 // Hash functions for procedural noise
 float hash(vec2 p) {
@@ -57,11 +80,12 @@ float noise(vec2 p) {
 float raindrops(vec2 uv, vec2 world_uv, float t, float layer, float velocity_modifier) {
 	float scale = mix(20.0, 50.0, layer);
 	// Velocidad base + modificador por movimiento del jugador
-	// velocity_modifier > 0 (caminando hacia abajo) = gotas más lentas
-	// velocity_modifier < 0 (caminando hacia arriba) = gotas más rápidas
-	float speed = mix(0.8, 1.6, layer) * rain_speed * (1.0 - velocity_modifier * 0.5);
-	float thickness = mix(0.035, 0.018, layer);
-	float length_factor = mix(0.45, 0.25, layer);
+	// velocity_modifier > 0 (caminando hacia arriba) = gotas más lentas
+	// velocity_modifier < 0 (caminando hacia abajo) = gotas más rápidas
+	float velocity_factor = clamp(1.0 - velocity_modifier * 0.9, 0.35, 2.0);
+	float speed = mix(0.8, 1.6, layer) * rain_speed * velocity_factor;
+	float thickness = mix(0.035, 0.018, layer) * rain_thickness;
+	float length_factor = mix(0.45, 0.25, layer) * rain_length;
 	
 	// Use world coordinates for rain position (doesn't move with camera)
 	vec2 p = world_uv;
@@ -246,9 +270,9 @@ void fragment() {
 	
 	// Separar las capas de lluvia para aplicar colores individuales
 	// Capas más cercanas reaccionan más al movimiento del jugador (parallax)
-	float rain_front = raindrops(uv, world_uv_front, t, 0.0, player_velocity_y * 1.0) * 1.0;
-	float rain_mid = raindrops(uv, world_uv_mid, t, 0.5, player_velocity_y * 0.6) * 0.6;
-	float rain_back = raindrops(uv, world_uv_back, t, 1.0, player_velocity_y * 0.3) * 0.3;
+	float rain_front = raindrops(uv, world_uv_front, t, 0.0, 1.0) * 1.0;
+	float rain_mid = raindrops(uv, world_uv_mid, t, 0.5, 0.6) * 0.6;
+	float rain_back = raindrops(uv, world_uv_back, t, 1.0, 0.3) * 0.3;
 	
 	// Calcular otros efectos
 	float splash = splashes(world_uv_front, t);
