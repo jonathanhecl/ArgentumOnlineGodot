@@ -15,7 +15,7 @@ uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIO
 // === APARIENCIA / TAMAÑO (Debug Visual)   ===
 // ============================================
 
-uniform float rain_thickness : hint_range(0.4, 2.0) = 10.0;   // Grosor de las líneas de lluvia
+uniform float rain_thickness : hint_range(0.4, 2.0) = 5.0;   // Grosor de las líneas de lluvia
 uniform float rain_length : hint_range(0.4, 2.0) = 1.0;      // Longitud de las gotas
 
 // ============================================
@@ -23,7 +23,7 @@ uniform float rain_length : hint_range(0.4, 2.0) = 1.0;      // Longitud de las 
 // ============================================
 
 uniform float rain_density : hint_range(0.0, 1.0) = 0.4;     // Cantidad de gotas
-uniform float rain_speed : hint_range(0.1, 3.0) = 1.5;       // Velocidad de caída
+uniform float rain_speed : hint_range(0.1, 5.0) = 5.0;       // Velocidad de caída
 uniform float rain_angle : hint_range(-0.5, 0.5) = 0.1;      // Inclinación por viento
 uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del viento
 
@@ -32,9 +32,9 @@ uniform float wind_strength : hint_range(0.0, 1.0) = 0.3;    // Fuerza del vient
 // ============================================
 
 uniform float splash_intensity : hint_range(0.0, 1.0) = 0.6;     // Intensidad de salpicaduras
-uniform float lightning_flash : hint_range(0.0, 1.0) = 0.0;      // Flash de relámpago
-uniform float lightning_intensity : hint_range(0.0, 1.0) = 0.5;  // Intensidad de rayos
-uniform float lightning_frequency : hint_range(0.0, 2.0) = 10;  // Frecuencia de rayos
+uniform float lightning_flash : hint_range(0.0, 1.0) = 0.2;      // Flash de relámpago
+uniform float lightning_intensity : hint_range(0.0, 5.0) = 2.0;  // Intensidad de rayos (AUMENTADO)
+uniform float lightning_frequency : hint_range(0.0, 5.0) = 1.5;  // Frecuencia de rayos (AUMENTADO)
 
 // ============================================
 // === REFERENCIAS DEL MUNDO (Auto-set)     ===
@@ -181,51 +181,120 @@ float splashes(vec2 world_uv, float t) {
 	return splash * splash_intensity;
 }
 
-// Lightning bolts across the sky
-float lightning(vec2 uv, float t) {
-	float lightning_effect = 0.0;
+// ============================================
+// === SISTEMA DE RAYOS PROCEDIMENTAL       ===
+// === Generación fractal de relámpagos     ===
+// ============================================
+
+// Genera un rayo con múltiples segmentos y ramificaciones
+float generate_lightning_bolt(vec2 uv, vec2 start, vec2 end, float seed, float thickness) {
+	float bolt = 0.0;
+	vec2 pos = start;
+	vec2 dir = normalize(end - start);
+	float dist = length(end - start);
+	float traveled = 0.0;
 	
-	// Multiple lightning bolts
-	for (float i = 0.0; i < 3.0; i++) {
-		// Random bolt position and timing
-		float bolt_x = hash(vec2(i * 41.23, 0.0));
-		float bolt_seed = i * 73.156;
+	// Número de segmentos del rayo principal
+	int segments = 12;
+	float segment_length = dist / float(segments);
+	
+	vec2 current = start;
+	
+	for (int i = 0; i < segments; i++) {
+		// Jitter aleatorio para cada segmento
+		float jitter_x = (hash(vec2(seed, float(i) * 3.7)) - 0.5) * 0.15;
+		float jitter_y = (hash(vec2(seed * 2.3, float(i) * 5.1)) - 0.5) * 0.1;
 		
-		// Lightning strike pattern
-		float strike_period = mix(3.0, 8.0, hash(vec2(i, 1.0)));
-		float strike_time = fract(t / strike_period + hash(vec2(i, 2.0)));
+		vec2 jitter = vec2(jitter_x, jitter_y);
+		vec2 next = current + dir * segment_length + jitter;
 		
-		// Quick flash at the start
-		float flash_duration = 0.15;
-		float is_flashing = step(strike_time, flash_duration);
+		// Dibujar segmento actual
+		vec2 seg_dir = next - current;
+		float seg_len = length(seg_dir);
+		vec2 seg_norm = normalize(seg_dir);
 		
-		// Create branching effect
-		vec2 bolt_start = vec2(bolt_x, 1.0);
-		vec2 delta = uv - bolt_start;
+		// Distancia al segmento de línea
+		vec2 to_point = uv - current;
+		float proj = clamp(dot(to_point, seg_norm), 0.0, seg_len);
+		vec2 closest = current + seg_norm * proj;
+		float d = length(uv - closest);
 		
-		// Main bolt line (vertical with slight jitter)
-		float jitter = sin(uv.y * 20.0 + bolt_seed) * 0.03;
-		float bolt_width = 0.008;
-		float main_bolt = smoothstep(bolt_width, 0.0, abs(delta.x - jitter)) * 
-						  step(0.0, delta.y) * step(delta.y, 0.6);
+		// Añadir grosor con glow
+		bolt += smoothstep(thickness * 2.0, 0.0, d) * 0.8;
+		bolt += smoothstep(thickness * 6.0, thickness * 2.0, d) * 0.3;
 		
-		// Secondary branches
-		float branch1 = smoothstep(0.006, 0.0, abs(delta.x - jitter - 0.05)) * 
-					    step(0.2, delta.y) * step(delta.y, 0.5);
-		float branch2 = smoothstep(0.006, 0.0, abs(delta.x - jitter + 0.04)) * 
-					    step(0.3, delta.y) * step(delta.y, 0.55);
+		// Ramificaciones secundarias (30% de probabilidad por segmento)
+		if (hash(vec2(seed, float(i) * 7.9)) > 0.7 && i > 2 && i < segments - 2) {
+			vec2 branch_dir = vec2(seg_norm.y, -seg_norm.x); // Perpendicular
+			if (hash(vec2(seed, float(i) * 2.1)) > 0.5) branch_dir = -branch_dir;
+			
+			float branch_len = seg_len * (0.5 + hash(vec2(seed, float(i) * 4.3)) * 0.5);
+			vec2 branch_end = current + branch_dir * branch_len;
+			
+			// Dibujar rama
+			vec2 branch_seg = branch_end - current;
+			vec2 branch_norm = normalize(branch_seg);
+			float branch_proj = clamp(dot(uv - current, branch_norm), 0.0, length(branch_seg));
+			vec2 branch_closest = current + branch_norm * branch_proj;
+			float branch_d = length(uv - branch_closest);
+			
+			bolt += smoothstep(thickness * 1.2, 0.0, branch_d) * 0.5;
+		}
 		
-		// Glow around bolt
-		float glow = smoothstep(0.08, 0.0, abs(delta.x - jitter)) * 
-					 step(0.0, delta.y) * step(delta.y, 0.6) * 0.3;
-		
-		// Fade in and out
-		float fade = is_flashing * (1.0 - smoothstep(0.0, flash_duration, strike_time));
-		
-		lightning_effect += (main_bolt + branch1 * 0.6 + branch2 * 0.6 + glow) * fade;
+		current = next;
 	}
 	
-	return lightning_effect * lightning_intensity;
+	return bolt;
+}
+
+// Sistema de rayos principal
+float lightning(vec2 uv, float t) {
+	float result = 0.0;
+	
+	// 3 rayos principales por tormenta
+	for (float i = 0.0; i < 3.0; i++) {
+		float seed = i * 123.456;
+		
+		// Timing del rayo - cada rayo tiene su propio ciclo
+		float cycle_duration = 4.0 / lightning_frequency;
+		float cycle_time = mod(t + hash(vec2(i, 0.0)) * cycle_duration, cycle_duration);
+		float cycle_norm = cycle_time / cycle_duration;
+		
+		// El rayo aparece al inicio del ciclo
+		float flash_start = 0.0;
+		float flash_duration = 0.4;
+		float flash_intensity = 0.0;
+		
+		if (cycle_norm < flash_duration) {
+			// Fade in rápido, fade out más lento
+			float flash_prog = cycle_norm / flash_duration;
+			flash_intensity = exp(-flash_prog * 4.0) * (1.0 - flash_prog * 0.3);
+		}
+		
+		if (flash_intensity > 0.01) {
+			// Posición aleatoria del rayo (en la parte superior de la pantalla)
+			float start_x = 0.1 + hash(vec2(seed, 1.0)) * 0.8;
+			vec2 start_pos = vec2(start_x, 1.05);
+			
+			// El rayo puede ir hacia abajo o en ángulo
+			float end_x = start_x + (hash(vec2(seed, 2.0)) - 0.5) * 0.4;
+			vec2 end_pos = vec2(end_x, 0.1 + hash(vec2(seed, 3.0)) * 0.4);
+			
+			// Generar el rayo
+			float thickness = 0.008 + hash(vec2(seed, 4.0)) * 0.012;
+			float bolt = generate_lightning_bolt(uv, start_pos, end_pos, seed, thickness);
+			
+			// Glow ambiental alrededor del rayo
+			float glow_radius = 0.25;
+			vec2 bolt_center = (start_pos + end_pos) * 0.5;
+			float dist_to_bolt = length(uv - bolt_center);
+			float ambient_glow = smoothstep(glow_radius, 0.0, dist_to_bolt) * 0.15;
+			
+			result += (bolt + ambient_glow) * flash_intensity;
+		}
+	}
+	
+	return result * lightning_intensity;
 }
 
 void fragment() {
