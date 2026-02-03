@@ -17,6 +17,7 @@ var _input:Dictionary[String, int] = {
 }
 
 var _is_raining: bool = false
+var _player_velocity_y: float = 0.0  # Para efecto de lluvia relativo al movimiento
 
 # Acceso al contexto global
 var _gameContext: GameContext:
@@ -110,6 +111,14 @@ func _MovePlayer(heading:int) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
 	if character == null || character.isMoving:
 		return
+	
+	# Actualizar velocidad vertical para efecto de lluvia
+	# Norte (arriba) = con la lluvia = gotas más lentas (valor positivo)
+	# Sur (abajo) = contra la lluvia = gotas más rápidas (valor negativo)
+	if heading == Enums.Heading.North:
+		_player_velocity_y = 1.0
+	elif heading == Enums.Heading.South:
+		_player_velocity_y = -1.0
 		
 	var newGridLocation = character.gridPosition + Vector2i(Utils.HeadingToVector(heading))
 	if _CanMoveTo(newGridLocation.x, newGridLocation.y) && !_gameContext.userParalizado:
@@ -410,6 +419,9 @@ func _on_rain_toggle() -> void:
 func _update_rain_world_offset(camera_pos: Vector2) -> void:
 	if _rainOverlay and _rainOverlay.material:
 		_rainOverlay.material.set_shader_parameter("world_offset", camera_pos)
+		_rainOverlay.material.set_shader_parameter("player_velocity_y", _player_velocity_y)
+		# Suavizar la velocidad hacia 0 cuando no se mueve
+		_player_velocity_y = lerp(_player_velocity_y, 0.0, 0.15)
 
 #endregion
 

@@ -1,7 +1,14 @@
 shader_type canvas_item;
 render_mode unshaded;
 
-uniform vec4 rain_color : source_color = vec4(0.7, 0.85, 1.0, 0.5);
+// Colores configurables para cada elemento
+uniform vec4 rain_color_front : source_color = vec4(1.0, 0.0, 0.0, 1.0);  // ROJO - Gotas frontales (grandes, rápidas)
+uniform vec4 rain_color_mid : source_color = vec4(0.0, 1.0, 0.0, 1.0);    // VERDE - Gotas medias
+uniform vec4 rain_color_back : source_color = vec4(0.0, 0.0, 1.0, 1.0);   // AZUL - Gotas traseras (pequeñas, lentas)
+uniform vec4 splash_color : source_color = vec4(1.0, 1.0, 0.0, 1.0);      // AMARILLO - Salpicaduras en el suelo
+uniform vec4 lightning_color : source_color = vec4(0.8, 0.0, 1.0, 1.0);   // VIOLETA - Relámpagos
+uniform vec4 droplet_color : source_color = vec4(1.0, 0.5, 0.0, 1.0);     // NARANJA - Gotitas en pantalla
+
 uniform float rain_density : hint_range(0.0, 1.0) = 0.4;
 uniform float rain_speed : hint_range(0.1, 3.0) = 1.5;
 uniform float rain_angle : hint_range(-0.5, 0.5) = 0.1;
@@ -13,6 +20,7 @@ uniform float lightning_intensity : hint_range(0.0, 1.0) = 0.5;
 uniform float lightning_frequency : hint_range(0.0, 2.0) = 0.3;
 uniform vec2 world_offset = vec2(0.0, 0.0);
 uniform float world_scale = 0.003;
+uniform float player_velocity_y = 0.0;  // Velocidad vertical del jugador (-1 a 1)
 
 // Hash functions for procedural noise
 float hash(vec2 p) {
@@ -46,9 +54,12 @@ float noise(vec2 p) {
 }
 
 // Main falling raindrops - multiple layers for depth (world-space)
-float raindrops(vec2 uv, vec2 world_uv, float t, float layer) {
+float raindrops(vec2 uv, vec2 world_uv, float t, float layer, float velocity_modifier) {
 	float scale = mix(20.0, 50.0, layer);
-	float speed = mix(0.8, 1.6, layer) * rain_speed;
+	// Velocidad base + modificador por movimiento del jugador
+	// velocity_modifier > 0 (caminando hacia abajo) = gotas más lentas
+	// velocity_modifier < 0 (caminando hacia arriba) = gotas más rápidas
+	float speed = mix(0.8, 1.6, layer) * rain_speed * (1.0 - velocity_modifier * 0.5);
 	float thickness = mix(0.035, 0.018, layer);
 	float length_factor = mix(0.45, 0.25, layer);
 	
@@ -228,43 +239,49 @@ void fragment() {
 	vec2 world_uv_offset = vec2(world_offset.x, -world_offset.y) * world_scale;
 	vec2 world_uv = uv + world_uv_offset;
 	
-	// Accumulate rain from multiple layers (depth effect)
-	// Each layer uses slightly different world offset for parallax
-	float rain = 0.0;
+	// Calcular coordenadas de mundo para cada capa (parallax)
 	vec2 world_uv_front = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 1.0;
 	vec2 world_uv_mid = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 0.7;
 	vec2 world_uv_back = uv + vec2(world_offset.x, -world_offset.y) * world_scale * 0.4;
 	
-	rain += raindrops(uv, world_uv_front, t, 0.0) * 1.0;   // Front layer - bigger, faster
-	rain += raindrops(uv, world_uv_mid, t, 0.5) * 0.6;     // Middle layer
-	rain += raindrops(uv, world_uv_back, t, 1.0) * 0.3;    // Back layer - smaller, slower
+	// Separar las capas de lluvia para aplicar colores individuales
+	// Capas más cercanas reaccionan más al movimiento del jugador (parallax)
+	float rain_front = raindrops(uv, world_uv_front, t, 0.0, player_velocity_y * 1.0) * 1.0;
+	float rain_mid = raindrops(uv, world_uv_mid, t, 0.5, player_velocity_y * 0.6) * 0.6;
+	float rain_back = raindrops(uv, world_uv_back, t, 1.0, player_velocity_y * 0.3) * 0.3;
 	
-	// Splashes in world space (stay in place when camera moves)
+	// Calcular otros efectos
 	float splash = splashes(world_uv_front, t);
-	
-	// Lightning and droplets stay on screen (camera-relative)
 	float light = lightning(uv, t);
 	float drops = droplets(uv, t);
 	
-	// Combine all effects
-	float total = rain + splash + light + drops;
+	// Combinar todas las intensidades para el alpha
+	float total = rain_front + rain_mid + rain_back + splash + light + drops;
 	
-	// Color variation - slightly different tint for different effects
-	vec3 rain_col = rain_color.rgb;
-	vec3 splash_col = rain_color.rgb * vec3(1.1, 1.1, 1.2); // Slightly brighter splashes
-	vec3 lightning_col = vec3(0.8, 0.9, 1.0); // Bright white-blue lightning
-	vec3 drop_col = rain_color.rgb * vec3(0.9, 0.95, 1.0);  // Slightly darker droplets
-	
-	vec3 final_color = rain_col * rain + splash_col * splash + lightning_col * light + drop_col * drops;
-	final_color = final_color / max(total, 0.001);
+	// Aplicar colores configurables a cada elemento
+	vec3 final_color = vec3(0.0);
+	final_color += rain_color_front.rgb * rain_front;   // ROJO - Gotas frontales
+	final_color += rain_color_mid.rgb * rain_mid;       // VERDE - Gotas medias
+	final_color += rain_color_back.rgb * rain_back;     // AZUL - Gotas traseras
+	final_color += splash_color.rgb * splash;           // AMARILLO - Salpicaduras
+	final_color += lightning_color.rgb * light;         // VIOLETA - Relámpagos
+	final_color += droplet_color.rgb * drops;           // NARANJA - Gotitas
 	
 	// Lightning flash effect
 	float flash = lightning_flash * (0.5 + 0.5 * sin(TIME * 30.0));
 	final_color += vec3(flash * 0.3);
 	total += flash * 0.1;
 	
-	// Final alpha with nice falloff
-	float alpha = clamp(total * rain_color.a, 0.0, 1.0);
+	// Final alpha combinando todos los alphas
+	float alpha = clamp(
+		rain_front * rain_color_front.a +
+		rain_mid * rain_color_mid.a +
+		rain_back * rain_color_back.a +
+		splash * splash_color.a +
+		light * lightning_color.a +
+		drops * droplet_color.a,
+		0.0, 1.0
+	);
 	
 	// Add subtle vignette to rain (more rain visible at edges)
 	float vignette = 1.0 - length((uv - 0.5) * 0.5);
