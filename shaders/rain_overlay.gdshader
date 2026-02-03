@@ -264,13 +264,14 @@ float lightning(vec2 uv, float t) {
 		
 		// El rayo aparece al inicio del ciclo
 		float flash_start = 0.0;
-		float flash_duration = 0.4;
+		float flash_duration = 0.15;  // MUY RÁPIDO - 150ms total
 		float flash_intensity = 0.0;
 		
 		if (cycle_norm < flash_duration) {
-			// Fade in rápido, fade out más lento
+			// Flash instantáneo, fade out muy rápido (como rayo real)
 			float flash_prog = cycle_norm / flash_duration;
-			flash_intensity = exp(-flash_prog * 4.0) * (1.0 - flash_prog * 0.3);
+			// Pico inmediato, caída exponencial agresiva
+			flash_intensity = exp(-flash_prog * 10.0);
 		}
 		
 		if (flash_intensity > 0.01) {
