@@ -492,6 +492,20 @@ func _on_block_position(x: int, y: int, blocked: bool) -> void:
 		_gameWorld.GetMapContainer().UnblockTile(x - 1, y - 1)
 
 func _on_rain_toggle() -> void:
+	# No activar lluvia en mapas tipo dungeon/cueva
+	if _is_current_map_a_dungeon():
+		if not _is_raining:
+			# Si intentan activar lluvia en dungeon, mostrar mensaje y no hacer nada
+			print("[RAIN] Lluvia bloqueada: estás en un dungeon/interior (", _pending_map_zone, ")")
+			return
+		else:
+			# Si está lloviendo y entramos a dungeon, detener la lluvia
+			_is_raining = false
+			_gameInput.ShowConsoleMessage("Has entrado a un lugar cubierto. La lluvia cesa.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+			_stop_rain_sound_sequence()
+			_fade_out_rain()
+			return
+	
 	_is_raining = not _is_raining
 	
 	if _is_raining:
@@ -502,6 +516,24 @@ func _on_rain_toggle() -> void:
 		_gameInput.ShowConsoleMessage("Ha dejado de llover.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		_stop_rain_sound_sequence()
 		_fade_out_rain()
+
+func _is_current_map_a_dungeon() -> bool:
+	"""Verifica si el mapa actual es un dungeon/cueva/interior donde no llueve"""
+	var zone_lower = _pending_map_zone.to_lower()
+	
+	# Lista de palabras clave que indican mapas interiores/dungeons
+	var dungeon_keywords = [
+		"dungeon", "cueva", "catacumba", "cripta", "mazmorra", 
+		"interior", "casa", "tienda", "castillo", "fortaleza",
+		"templo", "gruta", "caverna", "mina", "túnel", "tunnel",
+		"sótano", "sotano", "bodega", "cellar", "cave"
+	]
+	
+	for keyword in dungeon_keywords:
+		if zone_lower.contains(keyword):
+			return true
+	
+	return false
 
 func _setup_map_transition_timer() -> void:
 	if _map_transition_timer:
