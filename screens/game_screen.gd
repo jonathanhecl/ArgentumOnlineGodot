@@ -27,6 +27,21 @@ var _rain_end_player: AudioStreamPlayer = null
 # Sistema de fade para el shader de lluvia
 var _rain_fade_tween: Tween = null
 
+const _MAP_TILE_SIZE := 100
+const _MAP_BORDER_THRESHOLD_TILES := 20
+
+var _pending_map_transition_effect: bool = false
+var _pending_map_id: int = -1
+var _pending_map_name: String = ""
+var _pending_map_zone: String = ""
+var _last_known_x: int = -1
+var _last_known_y: int = -1
+var _pre_transition_map_x: int = -1
+var _pre_transition_map_y: int = -1
+var _map_transition_timer: Timer = null
+var _map_transition_overlay: ColorRect = null
+var _map_transition_tween: Tween = null
+
 # Acceso al contexto global
 var _gameContext: GameContext:
 	get: return ProtocolHandler.game_context
@@ -57,6 +72,9 @@ func _ready() -> void:
 	if _rainOverlay:
 		_rainOverlay.visible = _is_raining
 
+	_setup_map_transition_timer()
+	_setup_map_transition_overlay()
+
 func _exit_tree() -> void:
 	# Limpiar referencias globales
 	ProtocolHandler.game_world = null
@@ -67,6 +85,14 @@ func _exit_tree() -> void:
 		ClientInterface.disconnected.disconnect(_OnDisconnected)
 	
 	_disconnect_protocol_signals()
+
+	if _map_transition_overlay:
+		_map_transition_overlay.queue_free()
+		_map_transition_overlay = null
+		
+	if _map_transition_timer:
+		_map_transition_timer.queue_free()
+		_map_transition_timer = null
 
 # Función para escalar el cursor a un tamaño más pequeño
 func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
@@ -120,6 +146,10 @@ func _MovePlayer(heading:int) -> void:
 	if character == null || character.isMoving:
 		return
 	
+	# Actualizar posición conocida antes del movimiento
+	_last_known_x = character.gridPosition.x
+	_last_known_y = character.gridPosition.y
+	
 	# Actualizar velocidad vertical para efecto de lluvia
 	# Norte (arriba) = con la lluvia = gotas más lentas (valor positivo)
 	# Sur (abajo) = contra la lluvia = gotas más rápidas (valor negativo)
@@ -143,6 +173,9 @@ func _MovePlayer(heading:int) -> void:
 			character.renderer.Stop()
 	
 	_gameInput.minimap.update_player_position(character.gridPosition.x, character.gridPosition.y)
+	
+	_last_known_x = character.gridPosition.x
+	_last_known_y = character.gridPosition.y
 	 
 func _CanMoveTo(x:int, y:int) -> bool:
 	var map = _gameWorld.GetMapContainer()
@@ -299,6 +332,9 @@ func _disconnect_protocol_signals() -> void:
 
 func _on_character_created(data: CharacterCreate) -> void:
 	_gameWorld.CreateCharacter(data)
+	
+	if data.charIndex == _mainCharacterInstanceId:
+		_check_and_play_map_transition(data.x, data.y)
 
 func _on_character_removed(char_index: int) -> void:
 	_gameWorld.DeleteCharacter(char_index)
@@ -386,16 +422,56 @@ func _on_remove_all_dialogs() -> void:
 
 func _on_map_changed(map_id: int, name_map: String, zone: String) -> void:
 	print("🌍 GameScreen: ¡Se recibió señal de cambio de mapa! Mapa ID: ", map_id, " Nombre: ", name_map, " Zona: ", zone)
+	
+	# Usar la última posición conocida en vez de consultar al personaje (que ya pudo ser borrado por el servidor)
+	_pre_transition_map_x = _last_known_x
+	_pre_transition_map_y = _last_known_y
+		
+	_pending_map_transition_effect = true
+	_pending_map_id = map_id
+	_pending_map_name = name_map
+	_pending_map_zone = zone
+	
+	if _map_transition_timer:
+		_map_transition_timer.start(1.5)
+		
 	_gameWorld.SwitchMap(map_id)
 	_gameInput.minimap.load_thumbnail(map_id)
 
 func _on_pos_updated(x: int, y: int) -> void:
+	var target_position = Vector2((x - 1) * 32, (y - 1) * 32) + Vector2(16, 32)
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
 	if character:
 		character.StopMoving()
 		character.gridPosition = Vector2i(x, y)
-		character.position = Vector2((x - 1) * 32, (y - 1) * 32) + Vector2(16, 32)
+		character.position = target_position
 		_gameInput.minimap.update_player_position(x, y)
+		_last_known_x = x
+		_last_known_y = y
+
+	_check_and_play_map_transition(x, y)
+
+func _check_and_play_map_transition(x: int, y: int) -> void:
+	if _pending_map_transition_effect:
+		_pending_map_transition_effect = false
+		if _map_transition_timer:
+			_map_transition_timer.stop()
+			
+		var transition_info = _get_map_transition_info(x, y)
+		var transition_type = transition_info["type"]
+		var reason = transition_info["reason"]
+		
+		_report_map_transition(transition_type, reason, x, y)
+		
+		# Asegurarse que el personaje existe antes de transicionar borde
+		var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
+		
+		if transition_type == "INTERIOR_FADE" or transition_type == "UNKNOWN":
+			_play_non_border_map_transition_effect(transition_type)
+		elif character != null:
+			_play_border_map_transition(character, transition_type, x, y)
+		else:
+			print("[MAP TRANSITION] Advertencia: Personaje no encontrado para transición de borde.")
 
 func _on_force_char_move(heading: int) -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
@@ -426,6 +502,165 @@ func _on_rain_toggle() -> void:
 		_gameInput.ShowConsoleMessage("Ha dejado de llover.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 		_stop_rain_sound_sequence()
 		_fade_out_rain()
+
+func _setup_map_transition_timer() -> void:
+	if _map_transition_timer:
+		return
+		
+	_map_transition_timer = Timer.new()
+	_map_transition_timer.one_shot = true
+	_map_transition_timer.timeout.connect(_on_map_transition_timeout)
+	add_child(_map_transition_timer)
+
+func _on_map_transition_timeout() -> void:
+	if _pending_map_transition_effect:
+		_pending_map_transition_effect = false
+		print("[MAP TRANSITION] Timeout esperado posición! Ejecutando fade default.")
+		if _gameInput:
+			_gameInput.ShowConsoleMessage("[MAP TRANSITION] Timeout. Usando fade de emergencia.", FontData.new(Color.RED))
+		_play_non_border_map_transition_effect("TIMEOUT")
+
+func _setup_map_transition_overlay() -> void:
+	if _map_transition_overlay:
+		return
+
+	_map_transition_overlay = ColorRect.new()
+	_map_transition_overlay.name = "MapTransitionOverlay"
+	_map_transition_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_transition_overlay.color = Color(1, 1, 1, 1) # El shader define el color real
+	_map_transition_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	
+	var shader_material = ShaderMaterial.new()
+	shader_material.shader = load("res://shaders/iris_transition.gdshader")
+	shader_material.set_shader_parameter("progress", 0.0)
+	shader_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
+	_map_transition_overlay.material = shader_material
+	
+	# Agregar el overlay directamente al viewport container para que tape solo el render del mapa
+	var viewport_container = _gameInput.get_node("MainViewportContainer")
+	if viewport_container:
+		viewport_container.add_child(_map_transition_overlay)
+	else:
+		add_child(_map_transition_overlay)
+
+func _is_interior_map_transition_position(x: int, y: int) -> bool:
+	var interior_min = _MAP_BORDER_THRESHOLD_TILES + 1
+	var interior_max = _MAP_TILE_SIZE - _MAP_BORDER_THRESHOLD_TILES
+	return x >= interior_min \
+		and x <= interior_max \
+		and y >= interior_min \
+		and y <= interior_max
+
+func _get_map_transition_info(x: int, y: int) -> Dictionary:
+	var info = { "type": "INTERIOR_FADE", "reason": "" }
+
+	# Si no tenemos posición anterior, es un teleport de entrada al juego o reconexión
+	if _pre_transition_map_x == -1 or _pre_transition_map_y == -1:
+		info["reason"] = "Sin posición anterior (_pre_x/y = -1). Teleport o primera entrada."
+		return info
+
+	var prev_x = _pre_transition_map_x
+	var prev_y = _pre_transition_map_y
+	var max_edge = _MAP_TILE_SIZE - _MAP_BORDER_THRESHOLD_TILES
+	
+	# Comprobamos si el salto de coordenadas corresponde a cruzar un borde caminando.
+	var walked_east = prev_x >= max_edge and x <= _MAP_BORDER_THRESHOLD_TILES
+	var walked_west = prev_x <= _MAP_BORDER_THRESHOLD_TILES and x >= max_edge
+	var walked_south = prev_y >= max_edge and y <= _MAP_BORDER_THRESHOLD_TILES
+	var walked_north = prev_y <= _MAP_BORDER_THRESHOLD_TILES and y >= max_edge
+
+	if walked_east:
+		info["type"] = "BORDER_LEFT"
+		info["reason"] = "Cruce contiguo ESTE (prev_x:%d >= %d -> x:%d <= %d)" % [prev_x, max_edge, x, _MAP_BORDER_THRESHOLD_TILES]
+		return info
+	if walked_west:
+		info["type"] = "BORDER_RIGHT"
+		info["reason"] = "Cruce contiguo OESTE (prev_x:%d <= %d -> x:%d >= %d)" % [prev_x, _MAP_BORDER_THRESHOLD_TILES, x, max_edge]
+		return info
+	if walked_south:
+		info["type"] = "BORDER_TOP"
+		info["reason"] = "Cruce contiguo SUR (prev_y:%d >= %d -> y:%d <= %d)" % [prev_y, max_edge, y, _MAP_BORDER_THRESHOLD_TILES]
+		return info
+	if walked_north:
+		info["type"] = "BORDER_BOTTOM"
+		info["reason"] = "Cruce contiguo NORTE (prev_y:%d <= %d -> y:%d >= %d)" % [prev_y, _MAP_BORDER_THRESHOLD_TILES, y, max_edge]
+		return info
+
+	# Si las posiciones no corresponden a un paso de mapa contiguo
+	info["reason"] = "Teleport/Cueva detectado. Salto de prev(%d,%d) a nueva(%d,%d) no cumple criterio contiguo (Threshold: %d)" % [prev_x, prev_y, x, y, _MAP_BORDER_THRESHOLD_TILES]
+	return info
+
+func _report_map_transition(transition_type: String, reason: String, x: int, y: int) -> void:
+	var message = "[MAP TRANSITION] type=%s map=%d (%s) pos=(%d,%d)\n-> %s" % [
+		transition_type,
+		_pending_map_id,
+		_pending_map_name,
+		x,
+		y,
+		reason
+	]
+	print("==================================================")
+	print(message)
+	print("==================================================")
+	if _gameInput:
+		_gameInput.ShowConsoleMessage(message, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+
+func _play_border_map_transition(character: Character, transition_type: String, x: int, y: int) -> void:
+	# Nos aseguramos de forzar stop y reset de estados
+	character.StopMoving()
+	
+	var heading = _get_border_transition_heading(transition_type)
+	if heading == Enums.Heading.None:
+		return
+
+	var target_position = Vector2((x - 1) * 32, (y - 1) * 32) + Vector2(16, 32)
+	var heading_vector = Vector2(Utils.HeadingToVector(heading))
+	character.position = target_position - (heading_vector * Consts.TileSize)
+	character.gridPosition = Vector2i(x, y)
+	character.renderer.heading = heading
+	
+	# Ocultamos capa por 1 frame para evitar parpadeos y luego lo deslizamos
+	character.visible = false
+	get_tree().create_timer(0.05).timeout.connect(func():
+		if is_instance_valid(character):
+			character.visible = true
+	)
+	character.MoveTo(heading)
+
+func _get_border_transition_heading(transition_type: String) -> int:
+	match transition_type:
+		"BORDER_LEFT":
+			return Enums.Heading.East
+		"BORDER_RIGHT":
+			return Enums.Heading.West
+		"BORDER_TOP":
+			return Enums.Heading.South
+		"BORDER_BOTTOM":
+			return Enums.Heading.North
+		_:
+			return Enums.Heading.None
+
+func _play_non_border_map_transition_effect(_reason: String = "") -> void:
+	if not _map_transition_overlay:
+		return
+
+	if _map_transition_tween and _map_transition_tween.is_valid():
+		_map_transition_tween.kill()
+
+	# Arranca cerrado (pantalla negra) para ocultar el destello/creación de red
+	_map_transition_overlay.material.set_shader_parameter("progress", 1.0)
+	
+	_map_transition_tween = create_tween()
+	# Mantiene cerrado un instante muy corto
+	_map_transition_tween.tween_interval(0.15)
+	
+	# Abre el iris rápidamente hacia los bordes
+	_map_transition_tween.tween_method(
+		func(val): _map_transition_overlay.material.set_shader_parameter("progress", val), 
+		1.0, 
+		0.0, 
+		0.45
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _fade_in_rain() -> void:
 	if not _rainOverlay:
