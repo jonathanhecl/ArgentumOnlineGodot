@@ -30,6 +30,12 @@ var _rain_fade_tween: Tween = null
 const _MAP_TILE_SIZE := 100
 const _MAP_BORDER_THRESHOLD_TILES := 20
 
+# GRH IDs de portales mágicos (para detección de transición especial)
+const PORTAL_GRH_IDS: Array[int] = [
+	661,
+]
+const PORTAL_DETECTION_RADIUS: int = 2  # Radio en tiles para detectar portales cercanos
+
 var _pending_map_transition_effect: bool = false
 var _pending_map_id: int = -1
 var _pending_map_name: String = ""
@@ -41,6 +47,15 @@ var _pre_transition_map_y: int = -1
 var _map_transition_timer: Timer = null
 var _map_transition_overlay: ColorRect = null
 var _map_transition_tween: Tween = null
+var _is_portal_transition: bool = false  # Indica si es una transición de portal mágico
+var _portal_from_origin_pending: bool = false
+var _portal_origin_grh_id: int = -1
+
+# Seguimiento de objetos portal cercanos para detección
+var _nearby_portal_objects: Dictionary = {}  # {Vector2i: grh_id} - portales detectados cerca del jugador
+
+# DEBUG: Modo debug para mostrar información de objetos al hacer clic
+var _debug_click_mode: bool = true  # Activado por defecto para ayudar a identificar portales
 
 # Acceso al contexto global
 var _gameContext: GameContext:
@@ -122,6 +137,90 @@ func _process(_delta: float) -> void:
 	_UpdateCameraPosition()
 	_FlushData()
 	
+	# DEBUG: Presionar F9 para toggle del modo debug de click
+	if Input.is_action_just_pressed("ui_focus_next"):  # F9 por defecto
+		_debug_click_mode = !_debug_click_mode
+		print("[DEBUG] Modo click debug: " + ("ACTIVADO" if _debug_click_mode else "DESACTIVADO"))
+
+func _unhandled_input(event: InputEvent) -> void:
+	# DEBUG: Mostrar información de objetos al hacer clic
+	if _debug_click_mode and event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_show_debug_info_at_mouse_position(event.position)
+
+func _show_debug_info_at_mouse_position(screen_pos: Vector2) -> void:
+	"""Muestra información detallada de objetos en la posición del mouse"""
+	if not _gameWorld or not _camera:
+		return
+
+	# Convertir posición de pantalla global a posición local del área de juego
+	var viewport_container = _gameInput.get_node("MainViewportContainer") as Control
+	if not viewport_container:
+		print("[DEBUG CLICK] MainViewportContainer no encontrado")
+		return
+
+	var local_pos = screen_pos - viewport_container.global_position
+	if local_pos.x < 0 or local_pos.y < 0 or local_pos.x > viewport_container.size.x or local_pos.y > viewport_container.size.y:
+		print("[DEBUG CLICK] Click fuera del área de juego")
+		return
+
+	# Convertir a coordenadas mundo usando cámara (viewport centrado en la cámara)
+	var camera_zoom = _camera.zoom if _camera else Vector2.ONE
+	var world_pos = _camera.global_position + (local_pos - (viewport_container.size * 0.5)) * camera_zoom
+	
+	# Convertir a coordenadas de tile (1-100)
+	var tile_x = int(world_pos.x / 32) + 1
+	var tile_y = int(world_pos.y / 32) + 1
+	
+	# Verificar límites del mapa
+	if tile_x < 1 or tile_x > 100 or tile_y < 1 or tile_y > 100:
+		print("[DEBUG CLICK] Fuera de límites del mapa: (%d, %d)" % [tile_x, tile_y])
+		return
+	
+	print("\n========================================")
+	print("[DEBUG CLICK] Posición clickeada:")
+	print("  Pantalla: (%.1f, %.1f)" % [screen_pos.x, screen_pos.y])
+	print("  Local Viewport: (%.1f, %.1f)" % [local_pos.x, local_pos.y])
+	print("  Mundo: (%.1f, %.1f)" % [world_pos.x, world_pos.y])
+	print("  Tile: (%d, %d)" % [tile_x, tile_y])
+	
+	# Obtener información del mapa
+	var map_container = _gameWorld.GetMapContainer()
+	if not map_container:
+		print("[DEBUG CLICK] MapContainer no disponible")
+		return
+	
+	# Verificar estado del tile
+	var tile_state = map_container.GetTile(tile_x - 1, tile_y - 1)
+	print("  Estado del tile: %d (%s)" % [tile_state, "Bloqueado" if tile_state & Enums.TileState.Blocked else "Libre"])
+	
+	# Verificar objetos en esa posición
+	var objects = map_container.GetObjectsAt(tile_x, tile_y)
+	if objects.size() > 0:
+		print("\n  OBJETOS ENCONTRADOS (%d):" % objects.size())
+		for i in range(objects.size()):
+			var obj = objects[i]
+			print("    [%d] GRH ID: %d" % [i + 1, obj["grh_id"]])
+			print("        Posición: (%.1f, %.1f)" % [obj["position"].x, obj["position"].y])
+			print("        Textura: %s" % obj["texture"])
+			
+			# Verificar si es un portal conocido
+			if obj["grh_id"] in PORTAL_GRH_IDS:
+				print("        >>> ES UN PORTAL CONOCIDO! <<<")
+	else:
+		print("\n  No hay objetos en esta posición")
+	
+	# Verificar personajes
+	var character = map_container.GetCharacterAt(tile_x, tile_y)
+	if character:
+		var char_info = map_container.GetCharacterDebugInfo(tile_x, tile_y)
+		print("\n  PERSONAJE ENCONTRADO:")
+		print("    Nombre: %s" % char_info.get("name", "N/A"))
+		print("    ID: %d" % char_info.get("instance_id", -1))
+		print("    Body: %d, Head: %d" % [char_info.get("body", -1), char_info.get("head", -1)])
+	
+	print("========================================\n")
+	
 func _UpdateCameraPosition() -> void:
 	var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
 	if character && _camera:
@@ -159,6 +258,14 @@ func _MovePlayer(heading:int) -> void:
 		_player_velocity_y = -1.0
 		
 	var newGridLocation = character.gridPosition + Vector2i(Utils.HeadingToVector(heading))
+	var portal_info = _get_portal_info_at_tile(newGridLocation.x, newGridLocation.y)
+	if portal_info["found"]:
+		_portal_from_origin_pending = true
+		_portal_origin_grh_id = portal_info["grh_id"]
+	else:
+		_portal_from_origin_pending = false
+		_portal_origin_grh_id = -1
+
 	if _CanMoveTo(newGridLocation.x, newGridLocation.y) && !_gameContext.userParalizado:
 		#TODO 
 		#No se porque esto esta asi. Lo unico que logra es que el personaje pegue un salto cuando camina
@@ -426,6 +533,14 @@ func _on_map_changed(map_id: int, name_map: String, zone: String) -> void:
 	# Usar la última posición conocida en vez de consultar al personaje (que ya pudo ser borrado por el servidor)
 	_pre_transition_map_x = _last_known_x
 	_pre_transition_map_y = _last_known_y
+
+	# Detección robusta: si no venimos ya marcados desde _MovePlayer,
+	# verificar el tile de origen antes de cambiar de mapa (aún está cargado el mapa viejo)
+	if not _portal_from_origin_pending and _pre_transition_map_x > 0 and _pre_transition_map_y > 0:
+		var origin_portal_info = _get_portal_info_at_tile(_pre_transition_map_x, _pre_transition_map_y)
+		if origin_portal_info["found"]:
+			_portal_from_origin_pending = true
+			_portal_origin_grh_id = origin_portal_info["grh_id"]
 		
 	_pending_map_transition_effect = true
 	_pending_map_id = map_id
@@ -456,6 +571,14 @@ func _check_and_play_map_transition(x: int, y: int) -> void:
 		_pending_map_transition_effect = false
 		if _map_transition_timer:
 			_map_transition_timer.stop()
+		
+		# Verificar si es una transición de portal mágico
+		_is_portal_transition = _detect_portal_transition()
+		
+		if _is_portal_transition:
+			_report_map_transition("PORTAL_MAGIC", "Portal mágico detectado por GRH o posición especial", x, y)
+			_play_portal_transition_effect()
+			return
 			
 		var transition_info = _get_map_transition_info(x, y)
 		var transition_type = transition_info["type"]
@@ -481,9 +604,17 @@ func _on_force_char_move(heading: int) -> void:
 
 func _on_object_created(grh_id: int, x: int, y: int) -> void:
 	_gameWorld.AddObject(grh_id, x, y)
+	
+	# Verificar si es un objeto portal conocido
+	if grh_id in PORTAL_GRH_IDS:
+		_nearby_portal_objects[Vector2i(x, y)] = grh_id
 
 func _on_object_deleted(x: int, y: int) -> void:
 	_gameWorld.DeleteObject(x, y)
+	# Limpiar de seguimiento si existe
+	var pos = Vector2i(x, y)
+	if pos in _nearby_portal_objects:
+		_nearby_portal_objects.erase(pos)
 
 func _on_block_position(x: int, y: int, blocked: bool) -> void:
 	if blocked:
@@ -693,6 +824,89 @@ func _play_non_border_map_transition_effect(_reason: String = "") -> void:
 		0.0, 
 		0.45
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+func _detect_portal_transition() -> bool:
+	"""Detecta si la transición actual es a través de un portal mágico"""
+	# Prioridad absoluta: origen confirmado en tile portal
+	if _portal_from_origin_pending:
+		print("[PORTAL] Origen portal confirmado. GRH: %d" % _portal_origin_grh_id)
+		_portal_from_origin_pending = false
+		_portal_origin_grh_id = -1
+		return true
+
+	# Verificar si el nombre de la zona o mapa contiene palabras de portal
+	var zone_lower = _pending_map_zone.to_lower()
+	var map_name_lower = _pending_map_name.to_lower()
+	
+	var portal_keywords = ["portal", "teleport", "dimensión", "dimension", "mágico", "magico", "hechizo"]
+	
+	for keyword in portal_keywords:
+		if zone_lower.contains(keyword) or map_name_lower.contains(keyword):
+			return true
+	
+	# Verificar si hay objetos portal cercanos al personaje antes del cambio de mapa
+	if not _nearby_portal_objects.is_empty():
+		# Limpiar después de detectar para no afectar futuras transiciones
+		_nearby_portal_objects.clear()
+		return true
+
+	return false
+
+func _get_portal_info_at_tile(tile_x: int, tile_y: int) -> Dictionary:
+	var result := {"found": false, "grh_id": -1}
+	var map_container = _gameWorld.GetMapContainer()
+	if not map_container:
+		return result
+
+	var objects = map_container.GetObjectsAt(tile_x, tile_y)
+	for obj in objects:
+		var grh_id = int(obj.get("grh_id", -1))
+		if grh_id in PORTAL_GRH_IDS:
+			result["found"] = true
+			result["grh_id"] = grh_id
+			return result
+
+	return result
+
+func _play_portal_transition_effect() -> void:
+	"""Reproduce la animación de transición de portal mágico con shader especial"""
+	if not _map_transition_overlay:
+		return
+	
+	if _map_transition_tween and _map_transition_tween.is_valid():
+		_map_transition_tween.kill()
+	
+	# Configurar el shader de portal
+	var portal_material = ShaderMaterial.new()
+	portal_material.shader = load("res://shaders/portal_transition.gdshader")
+	portal_material.set_shader_parameter("progress", 0.0)
+	portal_material.set_shader_parameter("portal_color", Color(0.70, 0.34, 0.98, 1.0))
+	portal_material.set_shader_parameter("swirl_speed", 2.0)
+	_map_transition_overlay.material = portal_material
+
+	_map_transition_tween = create_tween()
+
+	# Progresión continua y cinematográfica: energía -> remolino -> disolución fluida
+	_map_transition_tween.tween_method(
+		func(val): _map_transition_overlay.material.set_shader_parameter("progress", val),
+		0.0,
+		1.0,
+		1.15
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	# Al finalizar, restaurar el shader original (iris) para futuras transiciones
+	_map_transition_tween.finished.connect(func():
+		print("[PORTAL] Transición de portal completada")
+		# Restaurar material original después de un momento
+		get_tree().create_timer(0.25).timeout.connect(func():
+			if _map_transition_overlay:
+				var iris_material = ShaderMaterial.new()
+				iris_material.shader = load("res://shaders/iris_transition.gdshader")
+				_map_transition_overlay.material = iris_material
+		)
+	)
+	
+	print("[PORTAL] Iniciando transición mágica de portal...")
 
 func _fade_in_rain() -> void:
 	if not _rainOverlay:

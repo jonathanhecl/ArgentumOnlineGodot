@@ -56,9 +56,6 @@ func _update_player_dot_position() -> void:
 	var px = (float(tx - 1) / float(MAP_TILE_SIZE - 1)) * size.x
 	var py = (float(ty - 1) / float(MAP_TILE_SIZE - 1)) * size.y
 	_player_dot_position = Vector2(px, py)
-	
-	# Debug
-	print("[MINIMAP] Tile original: (%d, %d) | Con offset: (%d, %d) -> Pixel: (%.1f, %.1f)" % [_player_tile_x, _player_tile_y, tx, ty, px, py])
 
 func load_thumbnail(map_id:int) -> void:
 	_current_map_id = map_id
@@ -99,9 +96,6 @@ func _draw() -> void:
 	var dot_offset = Vector2(DOT_SIZE * 0.5, DOT_SIZE * 0.5)
 	var draw_pos = _player_dot_position - dot_offset
 	draw_rect(Rect2(draw_pos, Vector2(DOT_SIZE, DOT_SIZE)), Color.RED, true)
-	
-	# Debug: mostrar dónde se dibujó el punto
-	print("[MINIMAP DRAW] Dibujando punto en: (%.1f, %.1f) | size: %s" % [draw_pos.x, draw_pos.y, str(size)])
 
 
 func _on_gui_input(event: InputEvent) -> void:

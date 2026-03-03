@@ -103,6 +103,7 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 		var grhData = GameAssets.GrhDataList[grhId]
 		var sprite = _CreateSprite(grhData, x - 1, y - 1)
 		sprite.set_meta(GridPositionKey, Vector2i(x, y))
+		sprite.set_meta("grh_id", grhId)
 		_objectCollection.append(sprite)
 		
 		var layer_name = "Layer2" if sprite.region_rect.size == Vector2(32, 32) else "Layer3"
@@ -131,6 +132,41 @@ func DeleteObject(x:int, y:int) -> void:
 	if node:
 		_objectCollection.erase(node)
 		node.queue_free()
+
+# DEBUG: Obtener información de objetos en una posición
+func GetObjectsAt(x:int, y:int) -> Array[Dictionary]:
+	var result:Array[Dictionary] = []
+	
+	for object in _objectCollection:
+		if object.get_meta(GridPositionKey) == Vector2i(x, y):
+			var info = {
+				"grh_id": -1,
+				"position": object.position,
+				"grid_pos": Vector2i(x, y),
+				"texture": ""
+			}
+			if object.texture:
+				info["texture"] = object.texture.resource_path
+			# Intentar obtener el GRH ID del nombre del nodo o metadata
+			if object.has_meta("grh_id"):
+				info["grh_id"] = object.get_meta("grh_id")
+			result.append(info)
+	
+	return result
+
+# DEBUG: Obtener personaje en una posición (ya existe GetCharacterAt pero este loguea más info)
+func GetCharacterDebugInfo(x:int, y:int) -> Dictionary:
+	var character = GetCharacterAt(x, y)
+	if character:
+		return {
+			"instance_id": character.instanceId,
+			"name": character.GetCharacterName(),
+			"grid_pos": Vector2i(x, y),
+			"position": character.position,
+			"body": character.renderer.body if character.renderer else -1,
+			"head": character.renderer.head if character.renderer else -1
+		}
+	return {}
 	
 func _DeleteEntities() -> void:
 	_characterCollection.clear()
