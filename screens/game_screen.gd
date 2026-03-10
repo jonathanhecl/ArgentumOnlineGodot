@@ -34,10 +34,12 @@ const _MAP_BORDER_THRESHOLD_TILES := 20
 const PORTAL_GRH_IDS: Array[int] = [
 	661,
 ]
+const SPECIAL_PORTAL_MAP_ID: int = 168
 const PORTAL_DETECTION_RADIUS: int = 2  # Radio en tiles para detectar portales cercanos
 
 var _pending_map_transition_effect: bool = false
 var _pending_map_id: int = -1
+var _pre_transition_map_id: int = -1
 var _pending_map_name: String = ""
 var _pending_map_zone: String = ""
 var _last_known_x: int = -1
@@ -48,6 +50,8 @@ var _map_transition_timer: Timer = null
 var _map_transition_overlay: ColorRect = null
 var _map_transition_tween: Tween = null
 var _is_portal_transition: bool = false  # Indica si es una transición de portal mágico
+var _is_portal_transition_playing: bool = false
+var _portal_restore_request_id: int = 0
 var _portal_from_origin_pending: bool = false
 var _portal_origin_grh_id: int = -1
 
@@ -514,6 +518,11 @@ func _on_chat_over_head(char_index: int, message: String, color: Color) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
 	if character:
 		character.Say(message, color)
+		if Global.showNpcDialogInConsole and _gameInput and char_index != _mainCharacterInstanceId:
+			var speaker_name = character.GetCharacterName().strip_edges()
+			if speaker_name.is_empty():
+				speaker_name = "NPC"
+			_gameInput.ShowConsoleMessage("%s: %s" % [speaker_name, message], FontData.new(color))
 
 func _on_remove_char_dialog(char_index: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
@@ -543,6 +552,7 @@ func _on_map_changed(map_id: int, name_map: String, zone: String) -> void:
 			_portal_origin_grh_id = origin_portal_info["grh_id"]
 		
 	_pending_map_transition_effect = true
+	_pre_transition_map_id = _pending_map_id
 	_pending_map_id = map_id
 	_pending_map_name = name_map
 	_pending_map_zone = zone
@@ -676,8 +686,17 @@ func _setup_map_transition_timer() -> void:
 	add_child(_map_transition_timer)
 
 func _on_map_transition_timeout() -> void:
+	if _is_portal_transition_playing:
+		print("[MAP TRANSITION] Timeout ignorado: transición portal en curso.")
+		return
+
 	if _pending_map_transition_effect:
 		_pending_map_transition_effect = false
+		if _pending_map_id == SPECIAL_PORTAL_MAP_ID or _pre_transition_map_id == SPECIAL_PORTAL_MAP_ID:
+			print("[MAP TRANSITION] Timeout en transición especial 168: usando efecto portal.")
+			_play_portal_transition_effect()
+			return
+
 		print("[MAP TRANSITION] Timeout esperado posición! Ejecutando fade default.")
 		if _gameInput:
 			_gameInput.ShowConsoleMessage("[MAP TRANSITION] Timeout. Usando fade de emergencia.", FontData.new(Color.RED))
@@ -807,11 +826,27 @@ func _play_non_border_map_transition_effect(_reason: String = "") -> void:
 	if not _map_transition_overlay:
 		return
 
+	if _is_portal_transition_playing:
+		print("[MAP TRANSITION] Iris omitido: transición portal en curso.")
+		return
+
+	if _pending_map_id == SPECIAL_PORTAL_MAP_ID or _pre_transition_map_id == SPECIAL_PORTAL_MAP_ID:
+		print("[MAP TRANSITION] Iris omitido: transición especial 168 debe usar portal.")
+		return
+
+	# Invalida restauraciones tardías de portal que podrían pisar este material
+	_portal_restore_request_id += 1
+
 	if _map_transition_tween and _map_transition_tween.is_valid():
 		_map_transition_tween.kill()
 
+	var iris_material = ShaderMaterial.new()
+	iris_material.shader = load("res://shaders/iris_transition.gdshader")
+	iris_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
+	_map_transition_overlay.material = iris_material
+
 	# Arranca cerrado (pantalla negra) para ocultar el destello/creación de red
-	_map_transition_overlay.material.set_shader_parameter("progress", 1.0)
+	iris_material.set_shader_parameter("progress", 1.0)
 	
 	_map_transition_tween = create_tween()
 	# Mantiene cerrado un instante muy corto
@@ -819,7 +854,7 @@ func _play_non_border_map_transition_effect(_reason: String = "") -> void:
 	
 	# Abre el iris rápidamente hacia los bordes
 	_map_transition_tween.tween_method(
-		func(val): _map_transition_overlay.material.set_shader_parameter("progress", val), 
+		func(val): if is_instance_valid(iris_material): iris_material.set_shader_parameter("progress", val),
 		1.0, 
 		0.0, 
 		0.45
@@ -827,6 +862,11 @@ func _play_non_border_map_transition_effect(_reason: String = "") -> void:
 
 func _detect_portal_transition() -> bool:
 	"""Detecta si la transición actual es a través de un portal mágico"""
+	# Mapa especial: forzar efecto portal al entrar o salir del 168
+	if _pending_map_id == SPECIAL_PORTAL_MAP_ID or _pre_transition_map_id == SPECIAL_PORTAL_MAP_ID:
+		print("[PORTAL] Mapa especial %d detectado (origen=%d destino=%d)" % [SPECIAL_PORTAL_MAP_ID, _pre_transition_map_id, _pending_map_id])
+		return true
+
 	# Prioridad absoluta: origen confirmado en tile portal
 	if _portal_from_origin_pending:
 		print("[PORTAL] Origen portal confirmado. GRH: %d" % _portal_origin_grh_id)
@@ -872,6 +912,10 @@ func _play_portal_transition_effect() -> void:
 	"""Reproduce la animación de transición de portal mágico con shader especial"""
 	if not _map_transition_overlay:
 		return
+
+	_portal_restore_request_id += 1
+	var request_id = _portal_restore_request_id
+	_is_portal_transition_playing = true
 	
 	if _map_transition_tween and _map_transition_tween.is_valid():
 		_map_transition_tween.kill()
@@ -879,7 +923,7 @@ func _play_portal_transition_effect() -> void:
 	# Configurar el shader de portal
 	var portal_material = ShaderMaterial.new()
 	portal_material.shader = load("res://shaders/portal_transition.gdshader")
-	portal_material.set_shader_parameter("progress", 0.0)
+	portal_material.set_shader_parameter("progress", 0.5)
 	portal_material.set_shader_parameter("portal_color", Color(0.70, 0.34, 0.98, 1.0))
 	portal_material.set_shader_parameter("swirl_speed", 2.0)
 	_map_transition_overlay.material = portal_material
@@ -888,20 +932,29 @@ func _play_portal_transition_effect() -> void:
 
 	# Progresión continua y cinematográfica: energía -> remolino -> disolución fluida
 	_map_transition_tween.tween_method(
-		func(val): _map_transition_overlay.material.set_shader_parameter("progress", val),
-		0.0,
+		func(val): if is_instance_valid(portal_material): portal_material.set_shader_parameter("progress", val),
+		0.5,
 		1.0,
-		1.15
+		0.62
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
 	# Al finalizar, restaurar el shader original (iris) para futuras transiciones
 	_map_transition_tween.finished.connect(func():
+		if request_id != _portal_restore_request_id:
+			return
+
 		print("[PORTAL] Transición de portal completada")
+		_is_portal_transition_playing = false
 		# Restaurar material original después de un momento
 		get_tree().create_timer(0.25).timeout.connect(func():
+			if request_id != _portal_restore_request_id:
+				return
+
 			if _map_transition_overlay:
 				var iris_material = ShaderMaterial.new()
 				iris_material.shader = load("res://shaders/iris_transition.gdshader")
+				iris_material.set_shader_parameter("progress", 0.0)
+				iris_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
 				_map_transition_overlay.material = iris_material
 		)
 	)

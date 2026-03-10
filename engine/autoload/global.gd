@@ -21,6 +21,7 @@ signal custom_cursor_changed(value:bool)
 signal player_names_visibility_changed(visible:bool)
 signal fps_visibility_changed(visible:bool)
 signal animated_dialog_changed(value:bool)
+signal npc_dialog_console_changed(value:bool)
 
 # Variable interna para show_player_names
 var _show_player_names:bool = true
@@ -30,6 +31,9 @@ var _show_fps_counter:bool = false
 
 # Variable interna para diálogo animado (true = animado, false = instantáneo)
 var _animatedDialog:bool = true
+
+# Variable interna para mostrar diálogo de NPC en consola
+var _showNpcDialogInConsole:bool = false
 
 var show_player_names:bool:
 	set(value):
@@ -52,6 +56,13 @@ var animatedDialog:bool:
 		save_animated_dialog()
 	get:
 		return _animatedDialog
+
+var showNpcDialogInConsole:bool:
+	set(value):
+		_showNpcDialogInConsole = value
+		emit_signal("npc_dialog_console_changed", _showNpcDialogInConsole)
+	get:
+		return _showNpcDialogInConsole
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -139,6 +150,10 @@ func _ready() -> void:
 		# Cargar configuración de diálogo animado
 		var saved_animated_dialog = cfg.get_value("ui", "animated_dialog", animatedDialog)
 		animatedDialog = bool(saved_animated_dialog)
+
+		# Cargar configuración de diálogo de NPC en consola
+		var saved_npc_dialog_console = cfg.get_value("ui", "show_npc_dialog_in_console", showNpcDialogInConsole)
+		showNpcDialogInConsole = bool(saved_npc_dialog_console)
 
 func save_animated_dialog() -> void:
 	var cfg = ConfigFile.new()

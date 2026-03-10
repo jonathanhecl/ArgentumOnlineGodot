@@ -56,6 +56,8 @@ void fragment() {
 
 	// Blanco mágico envolvente + ráfaga final suave
 	float white_layer = wave * (0.65 + 0.25 * t_peak) + core * 0.85;
+	float instant_white_flash = 1.0 - smoothstep(0.50, 0.62, progress);
+	white_layer += instant_white_flash * 1.35;
 	float bloom = smoothstep(0.35, 0.85, progress) * (1.0 - t_release * 0.6);
 
 	vec3 col = vec3(0.0);
@@ -64,7 +66,7 @@ void fragment() {
 	col += vec3(1.0, 0.97, 0.92) * stars;
 
 	// Fade-out fluido para revelar mapa nuevo
-	float fade_out = 1.0 - smoothstep(0.82, 1.0, progress);
+	float fade_out = 1.0 - smoothstep(0.70, 1.0, progress);
 	float alpha = clamp((white_layer * 0.85 + violet_flow * 0.45 + stars * 0.5), 0.0, 1.0) * fade_out;
 
 	COLOR = vec4(col, alpha);

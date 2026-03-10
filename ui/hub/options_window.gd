@@ -11,6 +11,7 @@ var checkCustomCursor: CheckBox
 var checkShowPlayerNames: CheckBox
 var checkShowFPS: CheckBox
 var checkInstantDialog: CheckBox
+var checkNpcDialogConsole: CheckBox
 # Botón de configuración de hotkeys
 var hotkeyConfigButton: Button
 # Botón de PING
@@ -47,6 +48,9 @@ func _ready() -> void:
 	
 	# Configurar checkbox para diálogo instantáneo
 	_setup_instant_dialog_option()
+
+	# Crear checkbox para mostrar diálogo de NPC en consola
+	_create_npc_dialog_console_option()
 	
 	# Crear botón de PING
 	_create_ping_button()
@@ -81,6 +85,9 @@ func _on_show_fps_toggled(button_pressed: bool) -> void:
 
 func _on_instant_dialog_toggled(button_pressed: bool) -> void:
 	Global.animatedDialog = button_pressed
+
+func _on_npc_dialog_console_toggled(button_pressed: bool) -> void:
+	Global.showNpcDialogInConsole = button_pressed
 
 func _on_ping_button_pressed() -> void:
 	# Obtener el game_context desde game_screen (el padre directo)
@@ -132,6 +139,14 @@ func _create_show_fps_option() -> void:
 	# Añadir el checkbox directamente al VBox principal
 	$VBox.add_child(checkShowFPS)
 
+func _create_npc_dialog_console_option() -> void:
+	checkNpcDialogConsole = CheckBox.new()
+	checkNpcDialogConsole.name = "CheckNpcDialogConsole"
+	checkNpcDialogConsole.text = "Mostrar diálogos de NPC en consola"
+	checkNpcDialogConsole.button_pressed = Global.showNpcDialogInConsole
+	checkNpcDialogConsole.connect("toggled", Callable(self, "_on_npc_dialog_console_toggled"))
+	$VBox.add_child(checkNpcDialogConsole)
+
 # Función para crear el botón de PING
 func _create_ping_button() -> void:
 	# Crear el botón
@@ -172,6 +187,7 @@ func _on_save_settings() -> void:
 	cfg.set_value("ui", "show_player_names", checkShowPlayerNames.button_pressed)
 	cfg.set_value("ui", "show_fps_counter", checkShowFPS.button_pressed)
 	cfg.set_value("ui", "animated_dialog", checkInstantDialog.button_pressed)
+	cfg.set_value("ui", "show_npc_dialog_in_console", checkNpcDialogConsole.button_pressed)
 	cfg.save("user://options.cfg")
 
 func _setup_instant_dialog_option() -> void:

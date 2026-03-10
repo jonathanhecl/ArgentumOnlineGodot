@@ -46,8 +46,12 @@ func _on_btn_cast_pressed() -> void:
 
 
 func _on_btn_info_pressed() -> void:
-	if get_selected_slot() == -1: return
-	GameProtocol.WriteSpellInfo(get_selected_slot() + 1)
+	var slot = get_selected_slot()
+	if slot == -1 or _item_list.get_item_text(slot) == "(None)":
+		return
+
+	# No-op: el cliente actual no implementa solicitud de info de hechizo.
+	return
 
 
 func _on_btn_move_up_pressed() -> void:
