@@ -27,7 +27,6 @@ _playerInventoryContainer = NodePath("PlayerInventory")
 _infoLabel = NodePath("Info")
 _itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
-metadata/_edit_lock_ = true
 
 [node name="BtnClose" type="TextureButton" parent="."]
 layout_mode = 0

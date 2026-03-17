@@ -2,6 +2,7 @@ extends Node2D
 class_name MapContainer
 
 const GridPositionKey = "GridPosition"
+const CORE_VIEW_SIZE := Vector2(541, 413)
 
 var _view:Node2D
 
@@ -64,6 +65,7 @@ func AddCharacter(character:Character) -> void:
 	var layer = _GetLayer("Layer3")
 	if layer:
 		layer.add_child(character)
+		_apply_peripheral_spawn_effect(character)
 	else:
 		# Fallback: agregar directamente al MapContainer si el mapa no está cargado
 		add_child(character)
@@ -110,6 +112,7 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 		var layer = _GetLayer(layer_name)
 		if layer:
 			layer.add_child(sprite)
+			_apply_peripheral_spawn_effect(sprite)
 		else:
 			push_error("MapContainer: Cannot add object, %s not available" % layer_name)
 
@@ -181,6 +184,30 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	sprite.offset = Vector2(0, -sprite.region_rect.size.y / 2);
 	
 	return sprite
+
+func _apply_peripheral_spawn_effect(node: CanvasItem) -> void:
+	if not is_instance_valid(node):
+		return
+	if not _is_in_peripheral_zone(node.global_position):
+		return
+	node.modulate = Color(1, 1, 1, 0)
+	var tween := create_tween()
+	tween.tween_property(node, "modulate", Color(1, 1, 1, 1), 0.45)
+
+func _is_in_peripheral_zone(world_position: Vector2) -> bool:
+	var viewport := get_viewport()
+	if not viewport:
+		return false
+	var camera := viewport.get_camera_2d()
+	if not camera:
+		return false
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size == Vector2.ZERO:
+		return false
+	var core_origin := (viewport_size - CORE_VIEW_SIZE) * 0.5
+	var core_rect := Rect2(core_origin, CORE_VIEW_SIZE)
+	var screen_position := (world_position - camera.global_position) / camera.zoom + (viewport_size * 0.5)
+	return not core_rect.has_point(screen_position)
 
 func _GetLayer(layerName: String) -> Node2D:
 	if not _view:

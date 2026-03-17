@@ -63,7 +63,6 @@ _classSpecialtyLabel = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVB
 _animationTimer = NodePath("AnimationTimer")
 
 [node name="MapView" parent="." instance=ExtResource("2_hwus4")]
-metadata/_edit_lock_ = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(1719, 2613)

@@ -64,7 +64,7 @@ func DeleteObject(x:int, y:int) -> void:
 	_mapContainer.DeleteObject(x, y)
 
 func AddObject(grhId:int, x:int, y:int) -> void:
-	DeleteObject(x, y);
+	DeleteObject(x, y)
 	_mapContainer.AddObject(grhId, x, y)
 
 func AddDamageText(x: int, y: int, damage: int, damage_type: int) -> void:

@@ -1,6 +1,8 @@
 extends CanvasLayer
 class_name HubController
 
+const REAL_GAME_VIEW_SIZE := Vector2(541, 413)
+
 # Función para restaurar el cursor al predeterminado
 func _restore_default_cursor() -> void:
 	if _gameContext.usingSkill != 0:
@@ -232,6 +234,13 @@ func update_equipment_label(slot:int, item_stack:ItemStack) -> void:
 func _CameraTransformVector(vec:Vector2) -> Vector2:
 	return _camera.get_canvas_transform().affine_inverse() * vec
 
+func _get_real_game_view_rect() -> Rect2:
+	var viewport_container := get_node_or_null("MainViewportContainer") as Control
+	if not viewport_container:
+		return Rect2()
+	var rect_position := (viewport_container.size - REAL_GAME_VIEW_SIZE) * 0.5
+	return Rect2(rect_position, REAL_GAME_VIEW_SIZE)
+
 func _on_console_font_size_changed(value:int) -> void:
 	_apply_console_font_size(value)
 
@@ -248,6 +257,9 @@ func _apply_console_font_size(value:int) -> void:
 	_consoleRichTextLabel.set("theme_override_font_sizes/bold_italics_font_size", value)
 
 func _HandleMouseInput(event:InputEventMouseButton) -> void:
+	var real_game_view_rect := _get_real_game_view_rect()
+	if real_game_view_rect.size != Vector2.ZERO and not real_game_view_rect.has_point(event.position):
+		return
 	var mouse_tile_position = Vector2i((_CameraTransformVector(event.position) / 32.0).ceil()) 
 	
 	if _gameContext.trading:
@@ -817,6 +829,13 @@ func get_mouse_tile_position() -> Vector2i:
 		return Vector2i.ZERO
 	
 	var mouse_pos = viewport.get_mouse_position()
+	var viewport_container := get_node_or_null("MainViewportContainer") as Control
+	if viewport_container:
+		var local_mouse_pos: Vector2 = mouse_pos - viewport_container.global_position
+		var real_game_view_rect := _get_real_game_view_rect()
+		if real_game_view_rect.size != Vector2.ZERO and not real_game_view_rect.has_point(local_mouse_pos):
+			return Vector2i.ZERO
+		mouse_pos = local_mouse_pos
 	var mouse_tile_position = Vector2i((_CameraTransformVector(mouse_pos) / 32.0).ceil())
 	mouse_tile_position.y =mouse_tile_position.y - 5
 	return mouse_tile_position

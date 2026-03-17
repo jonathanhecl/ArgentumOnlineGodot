@@ -1,22 +1,42 @@
-[gd_scene load_steps=31 format=3 uid="uid://b2dyxo3826bub"]
+[gd_scene format=3 uid="uid://b2dyxo3826bub"]
 
 [ext_resource type="Script" uid="uid://f2uhmm6ihlir" path="res://screens/game_screen.gd" id="1_p7x0p"]
 [ext_resource type="Script" uid="uid://d0pmiko84khl7" path="res://ui/hub/hub_controller.gd" id="2_b7a1e"]
 [ext_resource type="Script" uid="uid://fcg5o8wa46y5" path="res://engine/game_world.gd" id="2_nvp4f"]
 [ext_resource type="PackedScene" uid="uid://4ont2joynfbs" path="res://engine/map_container.tscn" id="2_sne8m"]
-[ext_resource type="Texture2D" uid="uid://6wbudjggjoyn" path="res://Assets/UI/VentanaPrincipal.jpg" id="3_6rrxf"]
+[ext_resource type="Texture2D" uid="uid://cj2k2dl2ludxh" path="res://Assets/UI/VentanaPrincipal1080p.png" id="3_6rrxf"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://ui/hub/inventory_container.tscn" id="3_q7e6u"]
 [ext_resource type="FontFile" uid="uid://b2p50emcdbfkt" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Regular.ttf" id="7_rqp22"]
 [ext_resource type="FontFile" uid="uid://dbw0g6ktxq562" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Italic.ttf" id="8_s70vx"]
 [ext_resource type="FontFile" uid="uid://6qyycyyfwleu" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-BoldItalic.ttf" id="9_u317p"]
 [ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="10_7ceix"]
-[ext_resource type="Shader" path="res://shaders/rain_overlay.gdshader" id="10_rain_shader"]
+[ext_resource type="Shader" uid="uid://cvdpbkur4il7n" path="res://shaders/rain_overlay.gdshader" id="10_rain_shader"]
 [ext_resource type="PackedScene" uid="uid://bx1gpuqy2er8h" path="res://ui/hub/minimap.tscn" id="12_s70vx"]
 [ext_resource type="PackedScene" uid="uid://7gtb4htuo6c8" path="res://ui/hub/stat_bar.tscn" id="13_u317p"]
 [ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
 [ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://ui/hub/stat_bar.gd" id="15_dlj5t"]
-[ext_resource type="Texture2D" uid="uid://dkhonpkjanea7" path="res://Assets/UI/panel_inventario.jpg" id="16_t2d6d"]
 [ext_resource type="PackedScene" uid="uid://cmwexlttk8ltw" path="res://ui/hub/spell_list_panel.tscn" id="17_t2d6d"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rain"]
+shader = ExtResource("10_rain_shader")
+shader_parameter/rain_color_front = Color(1, 1, 1, 0.5)
+shader_parameter/rain_color_mid = Color(1, 1, 1, 0.7)
+shader_parameter/rain_color_back = Color(1, 1, 1, 1)
+shader_parameter/splash_color = Color(1, 1, 1, 0.5)
+shader_parameter/lightning_color = Color(1, 1, 1, 0.8)
+shader_parameter/rain_thickness = 5.0
+shader_parameter/rain_length = 1.0
+shader_parameter/rain_density = 0.4
+shader_parameter/rain_speed = 5.0
+shader_parameter/rain_angle = 0.1
+shader_parameter/wind_strength = 0.3
+shader_parameter/splash_intensity = 0.6
+shader_parameter/lightning_flash = 0.2
+shader_parameter/lightning_intensity = 0.5
+shader_parameter/lightning_frequency = 0.1
+shader_parameter/rain_opacity = 0.0
+shader_parameter/world_offset = Vector2(0, 0)
+shader_parameter/world_scale = 0.003
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -38,9 +58,6 @@ bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
 
 [sub_resource type="FontVariation" id="FontVariation_ayhfv"]
 base_font = ExtResource("7_rqp22")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_rain"]
-shader = ExtResource("10_rain_shader")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwwhr"]
 atlas = ExtResource("14_7ceix")
@@ -69,66 +86,137 @@ region = Rect2(3, 85, 175, 18)
 [sub_resource type="LabelSettings" id="LabelSettings_ehycb"]
 font_size = 12
 
-[node name="GameScreen" type="Node" node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera", "_rainOverlay")]
+[node name="GameScreen" type="Node" unique_id=609864467 node_paths=PackedStringArray("_gameInput", "_gameWorld", "_camera", "_rainOverlay")]
 script = ExtResource("1_p7x0p")
 _gameInput = NodePath("HubController")
 _gameWorld = NodePath("HubController/MainViewportContainer/Viewport/GameWorld")
 _camera = NodePath("HubController/MainViewportContainer/Viewport/GameWorld/Camera2D")
 _rainOverlay = NodePath("HubController/MainViewportContainer/RainOverlay")
 
-[node name="HubController" type="CanvasLayer" parent="." node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="HubController" type="CanvasLayer" parent="." unique_id=68307642 node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("Inventory-Spell/InventoryPanel/InventoryContainer")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
 _camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
 
-[node name="TextureRect" type="TextureRect" parent="HubController"]
-offset_right = 800.0
-offset_bottom = 600.0
+[node name="TextureRect" type="TextureRect" parent="HubController" unique_id=955848253]
+offset_right = 1920.0
+offset_bottom = 1080.0
 texture = ExtResource("3_6rrxf")
-metadata/_edit_lock_ = true
 
-[node name="MainViewportContainer" type="SubViewportContainer" parent="HubController"]
-custom_minimum_size = Vector2(544, 416)
-offset_left = 10.0
-offset_top = 134.0
-offset_right = 554.0
-offset_bottom = 550.0
+[node name="MainViewportContainer" type="SubViewportContainer" parent="HubController" unique_id=1195275678]
+custom_minimum_size = Vector2(1451, 753)
+offset_left = 20.0
+offset_top = 238.0
+offset_right = 1472.0
+offset_bottom = 991.0
 focus_mode = 0
 stretch = true
 metadata/_edit_group_ = true
-metadata/_edit_lock_ = true
 
-[node name="Viewport" type="SubViewport" parent="HubController/MainViewportContainer"]
+[node name="Viewport" type="SubViewport" parent="HubController/MainViewportContainer" unique_id=1997888074]
 handle_input_locally = false
-size = Vector2i(544, 416)
+size = Vector2i(1452, 753)
 render_target_update_mode = 4
 
-[node name="RainOverlay" type="ColorRect" parent="HubController/MainViewportContainer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-material = SubResource("ShaderMaterial_rain")
-visible = false
-
-[node name="GameWorld" type="Node2D" parent="HubController/MainViewportContainer/Viewport" node_paths=PackedStringArray("_mapContainer")]
+[node name="GameWorld" type="Node2D" parent="HubController/MainViewportContainer/Viewport" unique_id=830839902 node_paths=PackedStringArray("_mapContainer")]
 position = Vector2(0, -1)
 script = ExtResource("2_nvp4f")
 _mapContainer = NodePath("MapContainer")
 
-[node name="Camera2D" type="Camera2D" parent="HubController/MainViewportContainer/Viewport/GameWorld"]
+[node name="Camera2D" type="Camera2D" parent="HubController/MainViewportContainer/Viewport/GameWorld" unique_id=1061333980]
 
-[node name="MapContainer" parent="HubController/MainViewportContainer/Viewport/GameWorld" instance=ExtResource("2_sne8m")]
+[node name="MapContainer" parent="HubController/MainViewportContainer/Viewport/GameWorld" unique_id=829348348 instance=ExtResource("2_sne8m")]
 
-[node name="Console" type="RichTextLabel" parent="HubController"]
-offset_left = 11.0
-offset_top = 5.0
-offset_right = 446.0
-offset_bottom = 105.0
+[node name="RainOverlay" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=1330754428]
+visible = false
+material = SubResource("ShaderMaterial_rain")
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PeripheralFogOverlay" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=114420338]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PeripheralFogTop" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001001]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1451.0
+offset_bottom = 120.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
+
+[node name="PeripheralFogTopInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001005]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 120.0
+offset_right = 1451.0
+offset_bottom = 170.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
+
+[node name="PeripheralFogBottom" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001002]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 633.0
+offset_right = 1451.0
+offset_bottom = 753.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
+
+[node name="PeripheralFogBottomInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001006]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 583.0
+offset_right = 1451.0
+offset_bottom = 633.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
+
+[node name="PeripheralFogLeft" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001003]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 170.0
+offset_right = 320.0
+offset_bottom = 583.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
+
+[node name="PeripheralFogLeftInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001007]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 170.0
+offset_right = 455.0
+offset_bottom = 583.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
+
+[node name="PeripheralFogRight" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001004]
+layout_mode = 0
+offset_left = 1131.0
+offset_top = 170.0
+offset_right = 1451.0
+offset_bottom = 583.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
+
+[node name="PeripheralFogRightInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001008]
+layout_mode = 0
+offset_left = 996.0
+offset_top = 170.0
+offset_right = 1131.0
+offset_bottom = 583.0
+mouse_filter = 2
+color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
+
+[node name="Console" type="RichTextLabel" parent="HubController" unique_id=795344829]
+offset_left = 30.0
+offset_top = 15.0
+offset_right = 1273.0
+offset_bottom = 184.0
 theme_override_fonts/normal_font = SubResource("FontVariation_ltsmt")
 theme_override_fonts/bold_font = SubResource("FontVariation_t2d6d")
 theme_override_fonts/bold_italics_font = SubResource("FontVariation_ehycb")
@@ -136,195 +224,183 @@ theme_override_fonts/italics_font = SubResource("FontVariation_dlj5t")
 bbcode_enabled = true
 scroll_following = true
 
-[node name="ConsoleInput" type="LineEdit" parent="HubController"]
+[node name="ConsoleInput" type="LineEdit" parent="HubController" unique_id=841654397]
 visible = false
-offset_left = 11.0
-offset_top = 108.0
-offset_right = 553.0
-offset_bottom = 132.0
+offset_left = 28.0
+offset_top = 126.0
+offset_right = 1446.0
+offset_bottom = 154.0
 theme_override_fonts/font = SubResource("FontVariation_gwwhr")
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")
 
-[node name="Minimap" parent="HubController" instance=ExtResource("12_s70vx")]
-offset_left = 454.0
+[node name="Minimap" parent="HubController" unique_id=860760806 instance=ExtResource("12_s70vx")]
+offset_left = 1290.0
 offset_top = 5.0
-offset_right = 554.0
-offset_bottom = 105.0
-metadata/_edit_lock_ = true
+offset_right = 1473.0
+offset_bottom = 188.0
 
-[node name="Labels" type="Node" parent="HubController"]
+[node name="Labels" type="Node" parent="HubController" unique_id=686681830]
 
-[node name="LblGold" type="Label" parent="HubController/Labels"]
+[node name="LblGold" type="Label" parent="HubController/Labels" unique_id=450156568]
 unique_name_in_owner = true
-offset_left = 715.0
-offset_top = 388.0
-offset_right = 788.0
-offset_bottom = 408.0
+offset_left = 1776.0
+offset_top = 706.0
+offset_right = 1894.0
+offset_bottom = 726.0
 theme_override_colors/font_color = Color(0.886754, 0.581706, 0, 1)
 theme_override_fonts/font = ExtResource("7_rqp22")
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblStrength" type="Label" parent="HubController/Labels"]
+[node name="LblStrength" type="Label" parent="HubController/Labels" unique_id=53679378]
 unique_name_in_owner = true
-offset_left = 511.0
-offset_top = 566.0
-offset_right = 539.0
-offset_bottom = 589.0
+offset_left = 1410.0
+offset_top = 1031.0
+offset_right = 1438.0
+offset_bottom = 1054.0
 theme_override_colors/font_color = Color(0, 0.54902, 0, 1)
 text = "38"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblAgility" type="Label" parent="HubController/Labels"]
+[node name="LblAgility" type="Label" parent="HubController/Labels" unique_id=1574025734]
 unique_name_in_owner = true
-offset_left = 453.0
-offset_top = 566.0
-offset_right = 481.0
-offset_bottom = 589.0
+offset_left = 1304.0
+offset_top = 1030.0
+offset_right = 1332.0
+offset_bottom = 1053.0
 theme_override_colors/font_color = Color(0, 0.854902, 0, 1)
 text = "38"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblLevel" type="Label" parent="HubController/Labels"]
+[node name="LblLevel" type="Label" parent="HubController/Labels" unique_id=2048313599]
 unique_name_in_owner = true
-offset_left = 574.0
-offset_top = 59.0
-offset_right = 602.0
-offset_bottom = 82.0
+offset_left = 1521.0
+offset_top = 115.0
+offset_right = 1549.0
+offset_bottom = 138.0
 text = "99"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblName" type="Label" parent="HubController/Labels"]
+[node name="LblName" type="Label" parent="HubController/Labels" unique_id=2082912235]
 unique_name_in_owner = true
-offset_left = 620.0
-offset_top = 40.0
-offset_right = 776.0
-offset_bottom = 63.0
+offset_left = 1631.0
+offset_top = 78.0
+offset_right = 1835.0
+offset_bottom = 106.0
 text = "Dummy"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblArmor" type="Label" parent="HubController/Labels"]
+[node name="LblArmor" type="Label" parent="HubController/Labels" unique_id=1462884432]
 unique_name_in_owner = true
-offset_left = 34.0
-offset_top = 566.0
-offset_right = 69.0
-offset_bottom = 589.0
+visible = false
+offset_left = 1508.0
+offset_top = 846.0
+offset_right = 1543.0
+offset_bottom = 869.0
 theme_override_fonts/font = SubResource("FontVariation_ayhfv")
 text = "0/0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblHelmet" type="Label" parent="HubController/Labels"]
+[node name="LblHelmet" type="Label" parent="HubController/Labels" unique_id=1669943598]
 unique_name_in_owner = true
-offset_left = 91.0
-offset_top = 566.0
-offset_right = 126.0
-offset_bottom = 589.0
+visible = false
+offset_left = 1568.0
+offset_top = 846.0
+offset_right = 1603.0
+offset_bottom = 869.0
 theme_override_fonts/font = SubResource("FontVariation_ayhfv")
 text = "0/0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblWeapon" type="Label" parent="HubController/Labels"]
+[node name="LblWeapon" type="Label" parent="HubController/Labels" unique_id=325484343]
 unique_name_in_owner = true
-offset_left = 149.0
-offset_top = 565.0
-offset_right = 184.0
-offset_bottom = 588.0
+visible = false
+offset_left = 1628.0
+offset_top = 846.0
+offset_right = 1663.0
+offset_bottom = 869.0
 theme_override_fonts/font = SubResource("FontVariation_ayhfv")
 text = "0/0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="LblShield" type="Label" parent="HubController/Labels"]
+[node name="LblShield" type="Label" parent="HubController/Labels" unique_id=2025238042]
 unique_name_in_owner = true
-offset_left = 207.0
-offset_top = 565.0
-offset_right = 242.0
-offset_bottom = 588.0
+visible = false
+offset_left = 1688.0
+offset_top = 846.0
+offset_right = 1723.0
+offset_bottom = 869.0
 theme_override_fonts/font = SubResource("FontVariation_ayhfv")
 text = "0/0"
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
-metadata/_edit_lock_ = true
 
-[node name="StatBars" type="Node" parent="HubController"]
+[node name="StatBars" type="Node" parent="HubController" unique_id=1276409344]
 
-[node name="StaminaStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
-offset_left = 574.0
-offset_top = 402.0
-offset_right = 663.0
-offset_bottom = 413.0
+[node name="StaminaStatBar" parent="HubController/StatBars" unique_id=603941630 instance=ExtResource("13_u317p")]
+offset_left = 1510.0
+offset_top = 725.0
+offset_right = 1678.0
+offset_bottom = 742.0
 texture_progress = SubResource("AtlasTexture_gwwhr")
-metadata/_edit_lock_ = true
 
-[node name="HealthStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
-offset_left = 574.0
-offset_top = 432.0
-offset_right = 663.0
-offset_bottom = 443.0
+[node name="HealthStatBar" parent="HubController/StatBars" unique_id=340573870 instance=ExtResource("13_u317p")]
+offset_left = 1516.0
+offset_top = 777.0
+offset_right = 1684.0
+offset_bottom = 801.0
 texture_progress = SubResource("AtlasTexture_ehycb")
-metadata/_edit_lock_ = true
 
-[node name="ManaStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
-offset_left = 574.0
-offset_top = 464.0
-offset_right = 663.0
-offset_bottom = 475.0
+[node name="ManaStatBar" parent="HubController/StatBars" unique_id=1859227552 instance=ExtResource("13_u317p")]
+offset_left = 1508.0
+offset_top = 837.0
+offset_right = 1671.0
+offset_bottom = 856.0
 texture_progress = SubResource("AtlasTexture_t2d6d")
-metadata/_edit_lock_ = true
 
-[node name="HungerStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
-offset_left = 574.0
-offset_top = 496.0
-offset_right = 663.0
-offset_bottom = 507.0
+[node name="HungerStatBar" parent="HubController/StatBars" unique_id=1099376017 instance=ExtResource("13_u317p")]
+offset_left = 1508.0
+offset_top = 893.0
+offset_right = 1672.0
+offset_bottom = 916.0
 texture_progress = SubResource("AtlasTexture_dlj5t")
-metadata/_edit_lock_ = true
 
-[node name="ThirstStatBar" parent="HubController/StatBars" instance=ExtResource("13_u317p")]
-offset_left = 574.0
-offset_top = 526.0
-offset_right = 663.0
-offset_bottom = 537.0
+[node name="ThirstStatBar" parent="HubController/StatBars" unique_id=176892941 instance=ExtResource("13_u317p")]
+offset_left = 1510.0
+offset_top = 948.0
+offset_right = 1676.0
+offset_bottom = 968.0
 texture_progress = SubResource("AtlasTexture_ce3ml")
-metadata/_edit_lock_ = true
 
-[node name="ExperienceStatBar" type="TextureProgressBar" parent="HubController/StatBars"]
-offset_left = 610.0
-offset_top = 72.0
-offset_right = 785.0
-offset_bottom = 90.0
+[node name="ExperienceStatBar" type="TextureProgressBar" parent="HubController/StatBars" unique_id=1056686806]
+offset_left = 1585.0
+offset_top = 135.0
+offset_right = 1882.0
+offset_bottom = 153.0
 max_value = 0.0
 texture_progress = SubResource("AtlasTexture_7ceix")
 script = ExtResource("15_dlj5t")
 metadata/_edit_group_ = true
-metadata/_edit_lock_ = true
 
-[node name="Label" type="Label" parent="HubController/StatBars/ExperienceStatBar"]
+[node name="Label" type="Label" parent="HubController/StatBars/ExperienceStatBar" unique_id=1598350852]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -336,40 +412,36 @@ label_settings = SubResource("LabelSettings_ehycb")
 horizontal_alignment = 1
 clip_text = true
 
-[node name="Buttons" type="Node" parent="HubController"]
+[node name="Buttons" type="Node" parent="HubController" unique_id=1362466075]
 
-[node name="BtnQuit" type="TextureButton" parent="HubController/Buttons"]
-offset_left = 772.0
-offset_top = 12.0
-offset_right = 789.0
-offset_bottom = 29.0
-metadata/_edit_lock_ = true
+[node name="BtnQuit" type="TextureButton" parent="HubController/Buttons" unique_id=2038568365]
+offset_left = 1869.0
+offset_top = 25.0
+offset_right = 1897.0
+offset_bottom = 52.0
 
-[node name="BtnDropGold" type="TextureButton" parent="HubController/Buttons"]
-offset_left = 695.0
-offset_top = 390.0
-offset_right = 788.0
-offset_bottom = 408.0
+[node name="BtnDropGold" type="TextureButton" parent="HubController/Buttons" unique_id=1698396220]
+offset_left = 1730.0
+offset_top = 701.0
+offset_right = 1896.0
+offset_bottom = 734.0
 
-[node name="BtnMinimize" type="TextureButton" parent="HubController/Buttons"]
-offset_left = 753.0
-offset_top = 12.0
-offset_right = 770.0
-offset_bottom = 29.0
-metadata/_edit_lock_ = true
+[node name="BtnMinimize" type="TextureButton" parent="HubController/Buttons" unique_id=1092796760]
+offset_left = 1840.0
+offset_top = 25.0
+offset_right = 1864.0
+offset_bottom = 49.0
 
-[node name="Inventory-Spell" type="Node" parent="HubController"]
+[node name="Inventory-Spell" type="Node" parent="HubController" unique_id=1098988584]
 
-[node name="InventoryPanel" type="TextureRect" parent="HubController/Inventory-Spell"]
-offset_left = 561.0
-offset_top = 98.0
-offset_right = 789.0
-offset_bottom = 350.0
-texture = ExtResource("16_t2d6d")
+[node name="InventoryPanel" type="TextureRect" parent="HubController/Inventory-Spell" unique_id=598634840]
+offset_left = 1557.0
+offset_top = 309.0
+offset_right = 1852.0
+offset_bottom = 604.0
 metadata/_edit_group_ = true
-metadata/_edit_lock_ = true
 
-[node name="InventoryContainer" parent="HubController/Inventory-Spell/InventoryPanel" instance=ExtResource("3_q7e6u")]
+[node name="InventoryContainer" parent="HubController/Inventory-Spell/InventoryPanel" unique_id=1030668282 instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(160, 160)
 layout_mode = 1
 anchors_preset = 6
@@ -377,73 +449,71 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -189.0
-offset_top = -47.0
-offset_right = -29.0
-offset_bottom = 113.0
+offset_left = -188.0
+offset_top = -34.0
+offset_right = -28.0
+offset_bottom = 126.0
 grow_horizontal = 0
 grow_vertical = 2
 columns = 5
 
-[node name="SpellListPanel" parent="HubController/Inventory-Spell" instance=ExtResource("17_t2d6d")]
+[node name="SpellListPanel" parent="HubController/Inventory-Spell" unique_id=709116271 instance=ExtResource("17_t2d6d")]
 visible = false
-offset_left = 561.0
-offset_top = 98.0
-offset_right = 789.0
-offset_bottom = 350.0
-metadata/_edit_lock_ = true
+offset_left = 1495.0
+offset_top = 116.0
+offset_right = 1723.0
+offset_bottom = 368.0
+texture = null
 
-[node name="ShowInventory" type="TextureButton" parent="HubController/Inventory-Spell"]
-offset_left = 574.0
-offset_top = 138.0
-offset_right = 674.0
-offset_bottom = 166.0
+[node name="ShowInventory" type="TextureButton" parent="HubController/Inventory-Spell" unique_id=110784670]
+offset_left = 1511.0
+offset_top = 246.0
+offset_right = 1694.0
+offset_bottom = 293.0
 focus_mode = 0
-metadata/_edit_lock_ = true
 
-[node name="ShowSpells" type="TextureButton" parent="HubController/Inventory-Spell"]
-offset_left = 677.0
-offset_top = 138.0
-offset_right = 776.0
-offset_bottom = 166.0
+[node name="ShowSpells" type="TextureButton" parent="HubController/Inventory-Spell" unique_id=478954838]
+offset_left = 1700.0
+offset_top = 246.0
+offset_right = 1878.0
+offset_bottom = 293.0
 focus_mode = 0
-metadata/_edit_lock_ = true
 
-[node name="Buttons-Misc" type="Node" parent="HubController"]
+[node name="Buttons-Misc" type="Node" parent="HubController" unique_id=1277782475]
 
-[node name="btnSkills" type="TextureButton" parent="HubController/Buttons-Misc"]
-offset_left = 578.0
-offset_top = 78.0
-offset_right = 597.0
-offset_bottom = 94.0
+[node name="btnSkills" type="TextureButton" parent="HubController/Buttons-Misc" unique_id=1090041404]
+offset_left = 1523.0
+offset_top = 140.0
+offset_right = 1548.0
+offset_bottom = 163.0
 
-[node name="btnStadistics" type="TextureButton" parent="HubController/Buttons-Misc"]
-offset_left = 693.0
-offset_top = 422.0
-offset_right = 777.0
-offset_bottom = 441.0
+[node name="btnStadistics" type="TextureButton" parent="HubController/Buttons-Misc" unique_id=1699174383]
+offset_left = 1722.0
+offset_top = 764.0
+offset_right = 1882.0
+offset_bottom = 791.0
 
-[node name="btnOptions" type="TextureButton" parent="HubController/Buttons-Misc"]
-offset_left = 693.0
-offset_top = 446.0
-offset_right = 777.0
-offset_bottom = 465.0
+[node name="btnOptions" type="TextureButton" parent="HubController/Buttons-Misc" unique_id=9778685]
+offset_left = 1720.0
+offset_top = 808.0
+offset_right = 1883.0
+offset_bottom = 836.0
 
-[node name="btnGuilds" type="TextureButton" parent="HubController/Buttons-Misc"]
-offset_left = 693.0
-offset_top = 470.0
-offset_right = 777.0
-offset_bottom = 489.0
+[node name="btnGuilds" type="TextureButton" parent="HubController/Buttons-Misc" unique_id=1022490244]
+offset_left = 1723.0
+offset_top = 852.0
+offset_right = 1881.0
+offset_bottom = 880.0
 
-[node name="btnGroups" type="TextureButton" parent="HubController/Buttons-Misc"]
-offset_left = 693.0
-offset_top = 497.0
-offset_right = 777.0
-offset_bottom = 516.0
+[node name="btnGroups" type="TextureButton" parent="HubController/Buttons-Misc" unique_id=1423752212]
+offset_left = 1722.0
+offset_top = 895.0
+offset_right = 1880.0
+offset_bottom = 930.0
 
-[node name="Timers" type="Node" parent="."]
+[node name="Timers" type="Node" parent="." unique_id=1567674692]
 
-[node name="PingTimer" type="Timer" parent="Timers"]
+[node name="PingTimer" type="Timer" parent="Timers" unique_id=1524441546]
 
 [connection signal="gui_input" from="HubController/MainViewportContainer" to="HubController" method="_on_main_viewport_container_gui_input"]
 [connection signal="gui_input" from="HubController/Console" to="HubController" method="_on_console_gui_input"]

@@ -32,7 +32,6 @@ _itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
 _goldLabel = NodePath("LblGold")
 _quantityGoldSpinBox = NodePath("QuantityGold")
-metadata/_edit_lock_ = true
 
 [node name="BtnClose" type="TextureButton" parent="." unique_id=582287382]
 layout_mode = 0
