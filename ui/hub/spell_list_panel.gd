@@ -5,7 +5,7 @@ class_name SpellListPanel
 
 func _ready() -> void:
 	for i in Consts.MaxUserHechizos:
-		_item_list.add_item("(None)")
+		_item_list.add_item("(Nada)")
 	
 	# Conectar la selección de hechizos al sistema de macro
 	_item_list.item_selected.connect(_on_spell_selected)
@@ -38,7 +38,7 @@ func get_selected_spell_text() -> String:
 
 func _on_btn_cast_pressed() -> void:
 	var slot = get_selected_slot() 
-	if slot == -1 || _item_list.get_item_text(slot) == "(None)": 
+	if slot == -1 || _item_list.get_item_text(slot) == "(Nada)": 
 		return 
 		
 	ProtocolWriteToServer.WriteCastSpell(slot + 1)
@@ -47,7 +47,7 @@ func _on_btn_cast_pressed() -> void:
 
 func _on_btn_info_pressed() -> void:
 	var slot = get_selected_slot()
-	if slot == -1 or _item_list.get_item_text(slot) == "(None)":
+	if slot == -1 or _item_list.get_item_text(slot) == "(Nada)":
 		return
 
 	# No-op: el cliente actual no implementa solicitud de info de hechizo.
@@ -75,7 +75,7 @@ func update_spell_slot(slot: int, spell_id: int) -> void:
 	if spell_id > 0:
 		spell_name = GameAssets.GetSpellName(spell_id)
 	else:
-		spell_name = "(None)"
+		spell_name = "(Nada)"
 	
 	print("Panel de hechizos: DEBUG - update_spell_slot(", slot, ", ", spell_id, ") recibió nombre: ", spell_name)
 	

@@ -3,22 +3,30 @@ class_name MapContainer
 
 const GridPositionKey = "GridPosition"
 const CORE_VIEW_SIZE := Vector2(541, 413)
+const CORE_RECT := Rect2(455, 170, 541, 413)
+const FADE_DURATION := 0.4
+const DOOR_SERVER_GRH_IDS: Array[int] = []
 
 var _view:Node2D
 
 var _characterCollection:Array[Character]
 var _objectCollection:Array[Node2D]
 var _tiles:PackedByteArray
+var _door_open_state_by_tile: Dictionary = {}
 
 func _ready() -> void:
 	print("🏗️ MapContainer: Inicializando contenedor de mapas...")
 	_tiles.resize(100 * 100)
 	_tiles.fill(Enums.TileState.Blocked)
-	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")  
+	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")
+
+func _process(_delta: float) -> void:
+	_update_entities_visibility()  
 	
 func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
 	_DeleteEntities()
+	_door_open_state_by_tile.clear()
 	
 	if _view:
 		print("🗺️ MapContainer: Liberando vista anterior del mapa")
@@ -65,10 +73,11 @@ func AddCharacter(character:Character) -> void:
 	var layer = _GetLayer("Layer3")
 	if layer:
 		layer.add_child(character)
-		_apply_peripheral_spawn_effect(character)
+		_apply_initial_visibility(character)
 	else:
 		# Fallback: agregar directamente al MapContainer si el mapa no está cargado
 		add_child(character)
+		_apply_initial_visibility(character)
 		push_warning("MapContainer: Layer3 not available, character added to MapContainer directly") 
 		
 func DeleteCharacter(instanceId:int) -> void:
@@ -106,13 +115,14 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 		var sprite = _CreateSprite(grhData, x - 1, y - 1)
 		sprite.set_meta(GridPositionKey, Vector2i(x, y))
 		sprite.set_meta("grh_id", grhId)
+		sprite.set_meta("is_server_object", true)
 		_objectCollection.append(sprite)
 		
 		var layer_name = "Layer2" if sprite.region_rect.size == Vector2(32, 32) else "Layer3"
 		var layer = _GetLayer(layer_name)
 		if layer:
 			layer.add_child(sprite)
-			_apply_peripheral_spawn_effect(sprite)
+			_apply_initial_object_visibility(sprite)
 		else:
 			push_error("MapContainer: Cannot add object, %s not available" % layer_name)
 
@@ -185,29 +195,127 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	
 	return sprite
 
-func _apply_peripheral_spawn_effect(node: CanvasItem) -> void:
-	if not is_instance_valid(node):
-		return
-	if not _is_in_peripheral_zone(node.global_position):
-		return
-	node.modulate = Color(1, 1, 1, 0)
-	var tween := create_tween()
-	tween.tween_property(node, "modulate", Color(1, 1, 1, 1), 0.45)
-
-func _is_in_peripheral_zone(world_position: Vector2) -> bool:
+func _update_entities_visibility() -> void:
 	var viewport := get_viewport()
 	if not viewport:
-		return false
+		return
 	var camera := viewport.get_camera_2d()
 	if not camera:
-		return false
+		return
 	var viewport_size := viewport.get_visible_rect().size
 	if viewport_size == Vector2.ZERO:
+		return
+	for character in _characterCollection:
+		if is_instance_valid(character):
+			_check_entity_visibility(character, camera, viewport_size)
+	for obj in _objectCollection:
+		if is_instance_valid(obj):
+			_check_object_visibility(obj, camera, viewport_size)
+
+func _apply_initial_visibility(entity: CanvasItem) -> void:
+	var viewport := get_viewport()
+	if not viewport:
+		return
+	var camera := viewport.get_camera_2d()
+	if not camera:
+		return
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size == Vector2.ZERO:
+		return
+	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var is_in_core := CORE_RECT.has_point(screen_pos)
+	entity.set_meta("_in_core", is_in_core)
+	entity.modulate.a = 1.0 if is_in_core else 0.0
+
+func _apply_initial_object_visibility(entity: CanvasItem) -> void:
+	var viewport := get_viewport()
+	if not viewport:
+		return
+	var camera := viewport.get_camera_2d()
+	if not camera:
+		return
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size == Vector2.ZERO:
+		return
+	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var is_in_core := CORE_RECT.has_point(screen_pos)
+	entity.set_meta("_in_core", is_in_core)
+	if is_in_core:
+		entity.modulate.a = 1.0
+		return
+	if _is_door_server_object(entity):
+		entity.modulate.a = 1.0
+		return
+	entity.modulate.a = 0.0
+
+func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
+	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var is_in_core := CORE_RECT.has_point(screen_pos)
+	if not entity.has_meta("_in_core"):
+		entity.set_meta("_in_core", is_in_core)
+		entity.modulate.a = 1.0 if is_in_core else 0.0
+		return
+	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
+	if is_in_core == was_in_core:
+		return
+	entity.set_meta("_in_core", is_in_core)
+	_fade_entity(entity, 1.0 if is_in_core else 0.0)
+
+func _check_object_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
+	if not entity.has_meta("_in_core"):
+		_apply_initial_object_visibility(entity)
+		return
+	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var is_in_core := CORE_RECT.has_point(screen_pos)
+	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
+	if is_in_core == was_in_core:
+		if not is_in_core and _is_door_server_object(entity):
+			entity.modulate.a = 1.0
+		return
+	entity.set_meta("_in_core", is_in_core)
+	if is_in_core:
+		_fade_entity(entity, 1.0)
+		return
+	if _is_door_server_object(entity):
+		_fade_entity(entity, 1.0)
+		return
+	_fade_entity(entity, 0.0)
+
+func RegisterServerDoorState(tile_x: int, tile_y: int, blocked: bool) -> void:
+	var tile := Vector2i(tile_x, tile_y)
+	_door_open_state_by_tile[tile] = not blocked
+	for obj in _objectCollection:
+		if not is_instance_valid(obj):
+			continue
+		if obj.get_meta(GridPositionKey, Vector2i(-1, -1)) != tile:
+			continue
+		if not _is_door_server_object(obj):
+			continue
+		var is_in_core: bool = obj.get_meta("_in_core", true)
+		if is_in_core:
+			obj.modulate.a = 1.0
+		else:
+			obj.modulate.a = 1.0
+
+func _is_door_server_object(entity: CanvasItem) -> bool:
+	if not entity.get_meta("is_server_object", false):
 		return false
-	var core_origin := (viewport_size - CORE_VIEW_SIZE) * 0.5
-	var core_rect := Rect2(core_origin, CORE_VIEW_SIZE)
-	var screen_position := (world_position - camera.global_position) / camera.zoom + (viewport_size * 0.5)
-	return not core_rect.has_point(screen_position)
+	var grh_id: int = entity.get_meta("grh_id", -1)
+	if grh_id in DOOR_SERVER_GRH_IDS:
+		return true
+	var tile: Vector2i = entity.get_meta(GridPositionKey, Vector2i(-1, -1))
+	return _door_open_state_by_tile.has(tile)
+
+func _is_door_open(entity: CanvasItem) -> bool:
+	var tile: Vector2i = entity.get_meta(GridPositionKey, Vector2i(-1, -1))
+	return _door_open_state_by_tile.get(tile, false)
+
+func _world_to_screen(world_pos: Vector2, camera: Camera2D, viewport_size: Vector2) -> Vector2:
+	return (world_pos - camera.global_position) / camera.zoom + (viewport_size * 0.5)
+
+func _fade_entity(entity: CanvasItem, target_alpha: float) -> void:
+	var tween := create_tween()
+	tween.tween_property(entity, "modulate:a", target_alpha, FADE_DURATION)
 
 func _GetLayer(layerName: String) -> Node2D:
 	if not _view:

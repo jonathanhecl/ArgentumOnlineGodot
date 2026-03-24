@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://dxc2lq5b3lc1f" path="res://Assets/UI/stat_bars.png" id="14_7ceix"]
 [ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://ui/hub/stat_bar.gd" id="15_dlj5t"]
 [ext_resource type="PackedScene" uid="uid://cmwexlttk8ltw" path="res://ui/hub/spell_list_panel.tscn" id="17_t2d6d"]
+[ext_resource type="Shader" uid="uid://d3lpbsjhi70vv" path="res://shaders/peripheral_fog.gdshader" id="18_fog_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rain"]
 shader = ExtResource("10_rain_shader")
@@ -37,6 +38,9 @@ shader_parameter/lightning_frequency = 0.1
 shader_parameter/rain_opacity = 0.0
 shader_parameter/world_offset = Vector2(0, 0)
 shader_parameter/world_scale = 0.003
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_peripheral_fog"]
+shader = ExtResource("18_fog_shader")
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -135,82 +139,13 @@ material = SubResource("ShaderMaterial_rain")
 layout_mode = 2
 mouse_filter = 2
 
-[node name="PeripheralFogOverlay" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=114420338]
-visible = false
-layout_mode = 2
+[node name="PeripheralFogOverlay" type="ColorRect" parent="HubController" unique_id=114420338]
+material = SubResource("ShaderMaterial_peripheral_fog")
+offset_left = 20.0
+offset_top = 238.0
+offset_right = 1471.0
+offset_bottom = 991.0
 mouse_filter = 2
-
-[node name="PeripheralFogTop" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001001]
-layout_mode = 0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 1451.0
-offset_bottom = 120.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
-
-[node name="PeripheralFogTopInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001005]
-layout_mode = 0
-offset_left = 0.0
-offset_top = 120.0
-offset_right = 1451.0
-offset_bottom = 170.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
-
-[node name="PeripheralFogBottom" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001002]
-layout_mode = 0
-offset_left = 0.0
-offset_top = 633.0
-offset_right = 1451.0
-offset_bottom = 753.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
-
-[node name="PeripheralFogBottomInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001006]
-layout_mode = 0
-offset_left = 0.0
-offset_top = 583.0
-offset_right = 1451.0
-offset_bottom = 633.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
-
-[node name="PeripheralFogLeft" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001003]
-layout_mode = 0
-offset_left = 0.0
-offset_top = 170.0
-offset_right = 320.0
-offset_bottom = 583.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
-
-[node name="PeripheralFogLeftInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001007]
-layout_mode = 0
-offset_left = 320.0
-offset_top = 170.0
-offset_right = 455.0
-offset_bottom = 583.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
-
-[node name="PeripheralFogRight" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001004]
-layout_mode = 0
-offset_left = 1131.0
-offset_top = 170.0
-offset_right = 1451.0
-offset_bottom = 583.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.52)
-
-[node name="PeripheralFogRightInner" type="ColorRect" parent="HubController/MainViewportContainer" unique_id=210001008]
-layout_mode = 0
-offset_left = 996.0
-offset_top = 170.0
-offset_right = 1131.0
-offset_bottom = 583.0
-mouse_filter = 2
-color = Color(0.0352941, 0.0431373, 0.054902, 0.24)
 
 [node name="Console" type="RichTextLabel" parent="HubController" unique_id=795344829]
 offset_left = 30.0
@@ -443,27 +378,19 @@ metadata/_edit_group_ = true
 
 [node name="InventoryContainer" parent="HubController/Inventory-Spell/InventoryPanel" unique_id=1030668282 instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(160, 160)
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -188.0
-offset_top = -34.0
-offset_right = -28.0
-offset_bottom = 126.0
-grow_horizontal = 0
-grow_vertical = 2
+layout_mode = 0
+offset_left = 59.0
+offset_top = 59.0
+offset_right = 237.0
+offset_bottom = 237.0
 columns = 5
 
 [node name="SpellListPanel" parent="HubController/Inventory-Spell" unique_id=709116271 instance=ExtResource("17_t2d6d")]
 visible = false
-offset_left = 1495.0
-offset_top = 116.0
-offset_right = 1723.0
-offset_bottom = 368.0
-texture = null
+offset_left = 1490.0
+offset_top = 172.0
+offset_right = 1900.0
+offset_bottom = 626.0
 
 [node name="ShowInventory" type="TextureButton" parent="HubController/Inventory-Spell" unique_id=110784670]
 offset_left = 1511.0

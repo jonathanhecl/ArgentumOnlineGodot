@@ -627,6 +627,7 @@ func _on_object_deleted(x: int, y: int) -> void:
 		_nearby_portal_objects.erase(pos)
 
 func _on_block_position(x: int, y: int, blocked: bool) -> void:
+	_gameWorld.GetMapContainer().RegisterServerDoorState(x, y, blocked)
 	if blocked:
 		_gameWorld.GetMapContainer().BlockTile(x - 1, y - 1)
 	else:
