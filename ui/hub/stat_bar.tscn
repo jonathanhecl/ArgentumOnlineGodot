@@ -1,22 +1,24 @@
-[gd_scene load_steps=3 format=3 uid="uid://7gtb4htuo6c8"]
+[gd_scene format=3 uid="uid://7gtb4htuo6c8"]
 
 [ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://ui/hub/stat_bar.gd" id="1_dvkvp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_u317p"]
 font_size = 10
 
-[node name="StatBar" type="TextureProgressBar"]
+[node name="StatBar" type="TextureProgressBar" unique_id=2134914305]
 offset_right = 89.0
 offset_bottom = 11.0
 max_value = 0.0
 rounded = true
 script = ExtResource("1_dvkvp")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=1914048003]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -2.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "0/0"

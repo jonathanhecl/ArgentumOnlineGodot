@@ -2,6 +2,9 @@ extends Control
 class_name CharacterSelectionScreen
 
 const MAX_CHARACTERS = 10
+const MAP_TILE_SIZE := 32.0
+const MAP_TILES_PER_SIDE := 100.0
+const MAP_PREVIEW_PADDING := 1.08
 
 # Señales
 signal character_selected(character_name: String)
@@ -21,6 +24,11 @@ var selected_index: int = -1
 @onready var char_name_label = %CharNameLabel
 @onready var char_details_label = %CharDetailsLabel
 @onready var char_location_label = %CharLocationLabel
+@onready var map_preview_container: SubViewportContainer = %MapPreviewContainer
+@onready var map_preview_viewport: SubViewport = %MapPreviewViewport
+@onready var map_preview_root: Node2D = %MapPreviewRoot
+@onready var map_preview_camera: Camera2D = %MapPreviewCamera
+@onready var map_preview_overlay: ColorRect = %MapPreviewOverlay
 
 @onready var connect_button = %ConnectButton
 @onready var create_button = %CreateButton
@@ -29,6 +37,8 @@ var selected_index: int = -1
 
 # Preview Renderer
 var _preview_renderer: CharacterRenderer
+var _preview_map_node: Node2D
+var _preview_map_id: int = -1
 
 # List Buttons
 var _list_buttons: Array[Button] = []
@@ -45,6 +55,7 @@ func _ready() -> void:
 		
 	# Crear el renderer para el preview central
 	_create_preview_renderer()
+	_setup_map_preview()
 	
 	# Limpiar labels
 	_clear_character_info()
@@ -55,6 +66,43 @@ func _ready() -> void:
 		_update_character_list()
 		# Seleccionar el primero por defecto
 		_on_char_list_item_pressed(0)
+
+func _setup_map_preview() -> void:
+	if map_preview_container and not map_preview_container.resized.is_connected(_on_map_preview_resized):
+		map_preview_container.resized.connect(_on_map_preview_resized)
+	_sync_map_preview_viewport_size()
+	_configure_map_preview_overlay()
+
+func _configure_map_preview_overlay() -> void:
+	if not map_preview_overlay:
+		return
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+
+void fragment() {
+	float top = smoothstep(0.0, 0.7, UV.y) * 0.45;
+	float bottom = smoothstep(0.2, 1.0, UV.y) * 0.25;
+	float side = smoothstep(0.0, 0.25, abs(UV.x - 0.5) * 2.0) * 0.18;
+	float alpha = clamp(0.16 + top + bottom + side, 0.0, 0.72);
+	COLOR = vec4(0.02, 0.03, 0.05, alpha);
+}
+"""
+	var shader_material := ShaderMaterial.new()
+	shader_material.shader = shader
+	map_preview_overlay.material = shader_material
+
+func _on_map_preview_resized() -> void:
+	_sync_map_preview_viewport_size()
+
+func _sync_map_preview_viewport_size() -> void:
+	if not map_preview_container or not map_preview_viewport:
+		return
+	var viewport_container_size: Vector2 = map_preview_container.size
+	if viewport_container_size.x <= 0.0 or viewport_container_size.y <= 0.0:
+		return
+	map_preview_viewport.size = Vector2i(viewport_container_size)
+	_fit_map_preview_camera()
 
 func set_account_data(acc_name: String, char_list: Array[Dictionary]) -> void:
 	account_name = acc_name
@@ -240,6 +288,7 @@ func _on_char_list_item_pressed(index: int) -> void:
 		var char_data = characters[index]
 		_update_preview_info(char_data)
 		_update_preview_renderer(char_data)
+		_update_preview_map(char_data)
 		
 		# Habilitar botones
 		connect_button.disabled = false
@@ -276,6 +325,39 @@ func _update_preview_info(char_data: Dictionary) -> void:
 	char_details_label.visible = true
 	char_location_label.visible = true
 
+func _update_preview_map(char_data: Dictionary) -> void:
+	var map_id := int(char_data.get("map", 1))
+	if map_id == _preview_map_id and _preview_map_node and is_instance_valid(_preview_map_node):
+		_fit_map_preview_camera()
+		return
+	_preview_map_id = map_id
+	_clear_preview_map_node()
+
+	var map_path := "res://Maps/Map%d.tscn" % map_id
+	if not ResourceLoader.exists(map_path):
+		return
+	var packed := load(map_path) as PackedScene
+	if not packed:
+		return
+	var map_instance := packed.instantiate()
+	if not (map_instance is Node2D):
+		map_instance.queue_free()
+		return
+	_preview_map_node = map_instance as Node2D
+	map_preview_root.add_child(_preview_map_node)
+	_fit_map_preview_camera()
+
+func _fit_map_preview_camera() -> void:
+	if not map_preview_camera or not map_preview_viewport:
+		return
+	var viewport_size := Vector2(map_preview_viewport.size)
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+	var map_world_size := Vector2(MAP_TILE_SIZE * MAP_TILES_PER_SIDE, MAP_TILE_SIZE * MAP_TILES_PER_SIDE)
+	var zoom_factor: float = max(map_world_size.x / viewport_size.x, map_world_size.y / viewport_size.y) * MAP_PREVIEW_PADDING
+	map_preview_camera.position = map_world_size * 0.5
+	map_preview_camera.zoom = Vector2(zoom_factor, zoom_factor)
+
 func _update_preview_renderer(char_data: Dictionary) -> void:
 	if not _preview_renderer: return
 	
@@ -301,6 +383,13 @@ func _clear_character_info() -> void:
 	char_location_label.text = ""
 	if _preview_renderer:
 		_preview_renderer.visible = false
+	_clear_preview_map_node()
+	_preview_map_id = -1
+
+func _clear_preview_map_node() -> void:
+	if _preview_map_node and is_instance_valid(_preview_map_node):
+		_preview_map_node.queue_free()
+	_preview_map_node = null
 
 func _on_connect_pressed() -> void:
 	if selected_index >= 0 and selected_index < characters.size():

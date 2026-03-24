@@ -39,6 +39,42 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
+[node name="MapPreviewContainer" type="SubViewportContainer" parent="MainLayout/PreviewArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+mouse_filter = 2
+
+[node name="MapPreviewViewport" type="SubViewport" parent="MainLayout/PreviewArea/MapPreviewContainer"]
+unique_name_in_owner = true
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="MapPreviewRoot" type="Node2D" parent="MainLayout/PreviewArea/MapPreviewContainer/MapPreviewViewport"]
+unique_name_in_owner = true
+
+[node name="MapPreviewCamera" type="Camera2D" parent="MainLayout/PreviewArea/MapPreviewContainer/MapPreviewViewport/MapPreviewRoot"]
+unique_name_in_owner = true
+enabled = true
+position_smoothing_enabled = false
+
+[node name="MapPreviewOverlay" type="ColorRect" parent="MainLayout/PreviewArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.03, 0.05, 0.58)
+
 [node name="CharacterPreviewAnchor" type="Control" parent="MainLayout/PreviewArea"]
 unique_name_in_owner = true
 layout_mode = 1

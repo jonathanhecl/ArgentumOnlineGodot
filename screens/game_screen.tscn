@@ -293,36 +293,41 @@ clip_text = true
 [node name="StaminaStatBar" parent="HubController/StatBars" unique_id=603941630 instance=ExtResource("13_u317p")]
 offset_left = 1510.0
 offset_top = 725.0
-offset_right = 1678.0
-offset_bottom = 742.0
+offset_right = 1599.0
+offset_bottom = 736.0
+scale = Vector2(1.8, 1.8)
 texture_progress = SubResource("AtlasTexture_gwwhr")
 
 [node name="HealthStatBar" parent="HubController/StatBars" unique_id=340573870 instance=ExtResource("13_u317p")]
-offset_left = 1516.0
+offset_left = 1510.0
 offset_top = 777.0
-offset_right = 1684.0
-offset_bottom = 801.0
+offset_right = 1599.0
+offset_bottom = 788.0
+scale = Vector2(1.8, 1.8)
 texture_progress = SubResource("AtlasTexture_ehycb")
 
 [node name="ManaStatBar" parent="HubController/StatBars" unique_id=1859227552 instance=ExtResource("13_u317p")]
 offset_left = 1508.0
 offset_top = 837.0
-offset_right = 1671.0
-offset_bottom = 856.0
+offset_right = 1597.0
+offset_bottom = 848.0
+scale = Vector2(1.8, 1.8)
 texture_progress = SubResource("AtlasTexture_t2d6d")
 
 [node name="HungerStatBar" parent="HubController/StatBars" unique_id=1099376017 instance=ExtResource("13_u317p")]
 offset_left = 1508.0
 offset_top = 893.0
-offset_right = 1672.0
-offset_bottom = 916.0
+offset_right = 1597.0
+offset_bottom = 904.0
+scale = Vector2(1.8, 1.8)
 texture_progress = SubResource("AtlasTexture_dlj5t")
 
 [node name="ThirstStatBar" parent="HubController/StatBars" unique_id=176892941 instance=ExtResource("13_u317p")]
-offset_left = 1510.0
+offset_left = 1508.0
 offset_top = 948.0
-offset_right = 1676.0
-offset_bottom = 968.0
+offset_right = 1597.0
+offset_bottom = 959.0
+scale = Vector2(1.8, 1.8)
 texture_progress = SubResource("AtlasTexture_ce3ml")
 
 [node name="ExperienceStatBar" type="TextureProgressBar" parent="HubController/StatBars" unique_id=1056686806]
@@ -379,10 +384,10 @@ metadata/_edit_group_ = true
 [node name="InventoryContainer" parent="HubController/Inventory-Spell/InventoryPanel" unique_id=1030668282 instance=ExtResource("3_q7e6u")]
 custom_minimum_size = Vector2(160, 160)
 layout_mode = 0
-offset_left = 59.0
-offset_top = 59.0
-offset_right = 237.0
-offset_bottom = 237.0
+offset_left = 5.0
+offset_top = 6.0
+offset_right = 289.0
+offset_bottom = 290.0
 columns = 5
 
 [node name="SpellListPanel" parent="HubController/Inventory-Spell" unique_id=709116271 instance=ExtResource("17_t2d6d")]
