@@ -514,28 +514,33 @@ func _talk() -> void:
 	_consoleInputLineEdit.grab_focus()
 	
 
-func _take_screenshot() -> void: 
+func _take_screenshot() -> void:
 	await RenderingServer.frame_post_draw
-	
+
 	var viewport = get_viewport()
 	var image = viewport.get_texture().get_image()
-	
+
 	var now = Time.get_datetime_dict_from_system()
 	var date_time = "%04d_%02d_%02d %02d_%02d_%02d" % [now.year, now.month, now.day, now.hour, now.minute, now.second]
-	
-	var path = "user://screenshots/%s.png" % date_time
-	var absolute_path = ProjectSettings.globalize_path("user://screenshots/%s.png" % date_time) 
-	
-	var meta_data = {
-		"type" : "screenshot",
-		"path" : absolute_path
-	} 
-	
-	var meta_string = JSON.stringify(meta_data)
-	
-	if image.save_png(path) == OK:
-		ShowConsoleMessage("[url=%s]¡Screen Capturada![/url]" % meta_string, FontData.new(Color.WHITE)) 		
-		pass
+
+	if OS.has_feature("web"):
+		var png_bytes = image.save_png_to_buffer()
+		var b64 = Marshalls.raw_to_base64(png_bytes)
+		var js_code = """
+			var a = document.createElement('a');
+			a.href = 'data:image/png;base64,{b64}';
+			a.download = 'screenshot_{dt}.png';
+			a.click();
+		""".format({"b64": b64, "dt": date_time})
+		JavaScriptBridge.eval(js_code)
+		ShowConsoleMessage("¡Screen Capturada!", FontData.new(Color.WHITE))
+	else:
+		var path = "user://screenshots/%s.png" % date_time
+		var absolute_path = ProjectSettings.globalize_path("user://screenshots/%s.png" % date_time)
+		var meta_data = {"type": "screenshot", "path": absolute_path}
+		var meta_string = JSON.stringify(meta_data)
+		if image.save_png(path) == OK:
+			ShowConsoleMessage("[url=%s]¡Screen Capturada![/url]" % meta_string, FontData.new(Color.WHITE))
 		
 func _hide() -> void:
 	if !_gameContext.player_stats.is_alive():
@@ -570,7 +575,8 @@ func _on_btn_quit_pressed() -> void:
  
 
 func _on_btn_minimize_pressed() -> void:
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)
+	if not OS.has_feature("web"):
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)
 
 
 func _on_btn_drop_gold_pressed() -> void:
@@ -590,7 +596,8 @@ func _on_console_meta_clicked(meta: Variant) -> void:
 	if data == null: return
 	
 	if data["type"] == "screenshot":
-		OS.shell_open(data["path"])
+		if not OS.has_feature("web"):
+			OS.shell_open(data["path"])
 	
 	
 func _on_minimap_click(mouse_position: Vector2) -> void:
