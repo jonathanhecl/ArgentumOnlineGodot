@@ -13,7 +13,6 @@ var checkShowFPS: CheckBox
 var checkInstantDialog: CheckBox
 var checkNpcDialogConsole: CheckBox
 var checkMoveWhileTalking: CheckBox
-var checkShowShadows: CheckBox
 # Botón de configuración de hotkeys
 var hotkeyConfigButton: Button
 # Botón de PING
@@ -56,9 +55,6 @@ func _ready() -> void:
 
 	# Crear checkbox para movimiento mientras se habla
 	_create_move_while_talking_option()
-
-	# Crear checkbox para visibilidad de sombras
-	_create_show_shadows_option()
 	
 	# Crear botón de PING
 	_create_ping_button()
@@ -99,9 +95,6 @@ func _on_npc_dialog_console_toggled(button_pressed: bool) -> void:
 
 func _on_move_while_talking_toggled(button_pressed: bool) -> void:
 	Global.moveWhileTalking = button_pressed
-
-func _on_show_shadows_toggled(button_pressed: bool) -> void:
-	Global.show_shadows = button_pressed
 
 func _on_ping_button_pressed() -> void:
 	# Obtener el game_context desde game_screen (el padre directo)
@@ -169,14 +162,6 @@ func _create_move_while_talking_option() -> void:
 	checkMoveWhileTalking.connect("toggled", Callable(self, "_on_move_while_talking_toggled"))
 	$VBox.add_child(checkMoveWhileTalking)
 
-func _create_show_shadows_option() -> void:
-	checkShowShadows = CheckBox.new()
-	checkShowShadows.name = "CheckShowShadows"
-	checkShowShadows.text = "Mostrar sombras"
-	checkShowShadows.button_pressed = Global.show_shadows
-	checkShowShadows.connect("toggled", Callable(self, "_on_show_shadows_toggled"))
-	$VBox.add_child(checkShowShadows)
-
 # Función para crear el botón de PING
 func _create_ping_button() -> void:
 	# Crear el botón
@@ -225,7 +210,6 @@ func _on_save_settings() -> void:
 	cfg.set_value("ui", "animated_dialog", checkInstantDialog.button_pressed)
 	cfg.set_value("ui", "show_npc_dialog_in_console", checkNpcDialogConsole.button_pressed)
 	cfg.set_value("ui", "move_while_talking", checkMoveWhileTalking.button_pressed)
-	cfg.set_value("ui", "show_shadows", checkShowShadows.button_pressed)
 	
 	# En web, usar localStorage para compatibilidad mejorada
 	if is_web:
@@ -248,8 +232,8 @@ func _load_from_local_storage(cfg: ConfigFile) -> void:
 	var sections = ["audio", "ui"]
 	for section in sections:
 		var keys = ["volume_db", "dialog_font_size", "console_font_size", "name_font_size", 
-					"use_custom_cursor", "show_player_names", "show_fps_counter", 
-					"animated_dialog", "show_npc_dialog_in_console", "move_while_talking", "show_shadows"]
+				"use_custom_cursor", "show_player_names", "show_fps_counter", 
+				"animated_dialog", "show_npc_dialog_in_console", "move_while_talking"]
 		for key in keys:
 			var storage_key = "ao_config_%s_%s" % [section, key]
 			var value = JavaScriptBridge.eval("localStorage.getItem('%s')" % storage_key)

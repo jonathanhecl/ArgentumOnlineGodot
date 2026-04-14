@@ -23,7 +23,6 @@ signal fps_visibility_changed(visible:bool)
 signal animated_dialog_changed(value:bool)
 signal npc_dialog_console_changed(value:bool)
 signal move_while_talking_changed(value:bool)
-signal shadows_visibility_changed(visible:bool)
 
 # Variable interna para show_player_names
 var _show_player_names:bool = true
@@ -39,9 +38,6 @@ var _showNpcDialogInConsole:bool = false
 
 # Variable interna para permitir moverse mientras se escribe en chat
 var _moveWhileTalking:bool = true
-
-# Variable interna para mostrar sombras de personajes/objetos
-var _show_shadows:bool = true
 
 var show_player_names:bool:
 	set(value):
@@ -78,13 +74,6 @@ var moveWhileTalking:bool:
 		emit_signal("move_while_talking_changed", _moveWhileTalking)
 	get:
 		return _moveWhileTalking
-
-var show_shadows:bool:
-	set(value):
-		_show_shadows = value
-		emit_signal("shadows_visibility_changed", _show_shadows)
-	get:
-		return _show_shadows
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -180,10 +169,6 @@ func _ready() -> void:
 		# Cargar configuración de movimiento mientras se habla
 		var saved_move_while_talking = cfg.get_value("ui", "move_while_talking", moveWhileTalking)
 		moveWhileTalking = bool(saved_move_while_talking)
-
-		# Cargar configuración de visibilidad de sombras
-		var saved_show_shadows = cfg.get_value("ui", "show_shadows", show_shadows)
-		show_shadows = bool(saved_show_shadows)
 
 func save_animated_dialog() -> void:
 	var cfg = ConfigFile.new()

@@ -6,11 +6,6 @@ const CORE_VIEW_SIZE := Vector2(541, 413)
 const CORE_RECT := Rect2(455, 170, 541, 413)
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
-const OBJECT_SHADOW_NODE_NAME := "ObjectShadow"
-const OBJECT_SHADOW_OFFSET := Vector2(7, 9)
-const OBJECT_SHADOW_SCALE := Vector2(1.0, 0.50)
-const OBJECT_SHADOW_SKEW := -0.7853982
-const OBJECT_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.35)
 
 var _view:Node2D
 
@@ -23,13 +18,7 @@ func _ready() -> void:
 	print("🏗️ MapContainer: Inicializando contenedor de mapas...")
 	_tiles.resize(100 * 100)
 	_tiles.fill(Enums.TileState.Blocked)
-	if not Global.shadows_visibility_changed.is_connected(_on_shadows_visibility_changed):
-		Global.shadows_visibility_changed.connect(_on_shadows_visibility_changed)
 	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")
-
-func _exit_tree() -> void:
-	if Global.shadows_visibility_changed.is_connected(_on_shadows_visibility_changed):
-		Global.shadows_visibility_changed.disconnect(_on_shadows_visibility_changed)
 
 func _process(_delta: float) -> void:
 	_update_entities_visibility()  
@@ -203,42 +192,8 @@ func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	sprite.region_enabled = true
 	sprite.region_rect = grhData.region;
 	sprite.offset = Vector2(0, -sprite.region_rect.size.y / 2);
-	_attach_object_shadow(sprite)
 	
 	return sprite
-
-func _attach_object_shadow(sprite: Sprite2D) -> void:
-	if not sprite:
-		return
-	
-	var shadow = Sprite2D.new()
-	shadow.name = OBJECT_SHADOW_NODE_NAME
-	shadow.texture = sprite.texture
-	shadow.region_enabled = sprite.region_enabled
-	shadow.region_rect = sprite.region_rect
-	shadow.centered = sprite.centered
-	shadow.offset = sprite.offset
-	shadow.position = OBJECT_SHADOW_OFFSET
-	shadow.scale = OBJECT_SHADOW_SCALE
-	shadow.skew = OBJECT_SHADOW_SKEW
-	shadow.modulate = OBJECT_SHADOW_COLOR
-	shadow.z_index = -100
-	shadow.visible = Global.show_shadows
-	
-	sprite.add_child(shadow)
-	sprite.move_child(shadow, 0)
-
-func _set_object_shadow_visibility(entity: Node, is_shadow_visible: bool) -> void:
-	if not entity:
-		return
-	var shadow = entity.get_node_or_null(OBJECT_SHADOW_NODE_NAME)
-	if shadow:
-		shadow.visible = is_shadow_visible
-
-func _on_shadows_visibility_changed(shadows_visible: bool) -> void:
-	for obj in _objectCollection:
-		if is_instance_valid(obj):
-			_set_object_shadow_visibility(obj, shadows_visible)
 
 func _update_entities_visibility() -> void:
 	var viewport := get_viewport()
