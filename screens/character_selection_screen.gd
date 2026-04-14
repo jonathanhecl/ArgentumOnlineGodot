@@ -5,6 +5,7 @@ const MAX_CHARACTERS = 10
 const MAP_TILE_SIZE := 32.0
 const MAP_TILES_PER_SIDE := 100.0
 const MAP_PREVIEW_PADDING := 1.08
+const MAP_PREVIEW_VISIBLE_TILES := 24.0
 
 # Señales
 signal character_selected(character_name: String)
@@ -39,6 +40,10 @@ var selected_index: int = -1
 var _preview_renderer: CharacterRenderer
 var _preview_map_node: Node2D
 var _preview_map_id: int = -1
+var _preview_focus_world_position: Vector2 = Vector2(
+	MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5,
+	MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5
+)
 
 # List Buttons
 var _list_buttons: Array[Button] = []
@@ -314,12 +319,17 @@ func _update_preview_info(char_data: Dictionary) -> void:
 	var class_id = char_data.get("class", 0)
 	var race_id = char_data.get("race", 0)
 	var map_id = str(char_data.get("map", 1))
+	var pos_x = int(char_data.get("x", 0))
+	var pos_y = int(char_data.get("y", 0))
 	
 	var class_player = Consts.ClassNames.get(class_id, "Desconocido")
 	var race_player = Consts.RaceNames.get(race_id, "Desconocido")
 	
 	char_details_label.text = "Nivel " + lvl + " " + race_player + " " + class_player
-	char_location_label.text = "Ubicación: Mapa " + map_id
+	if pos_x > 0 and pos_y > 0:
+		char_location_label.text = "Ubicación: Mapa %s (%d, %d)" % [map_id, pos_x, pos_y]
+	else:
+		char_location_label.text = "Ubicación: Mapa " + map_id
 	
 	char_name_label.visible = true
 	char_details_label.visible = true
@@ -327,7 +337,11 @@ func _update_preview_info(char_data: Dictionary) -> void:
 
 func _update_preview_map(char_data: Dictionary) -> void:
 	var map_id := int(char_data.get("map", 1))
+	var has_character_position := _has_character_preview_position(char_data)
+	_preview_focus_world_position = _get_preview_focus_world_position(char_data)
 	if map_id == _preview_map_id and _preview_map_node and is_instance_valid(_preview_map_node):
+		if not has_character_position:
+			_preview_focus_world_position = _get_map_walkable_focus_world_position(_preview_map_node)
 		_fit_map_preview_camera()
 		return
 	_preview_map_id = map_id
@@ -345,7 +359,77 @@ func _update_preview_map(char_data: Dictionary) -> void:
 		return
 	_preview_map_node = map_instance as Node2D
 	map_preview_root.add_child(_preview_map_node)
+	if not has_character_position:
+		_preview_focus_world_position = _get_map_walkable_focus_world_position(_preview_map_node)
 	_fit_map_preview_camera()
+
+func _has_character_preview_position(char_data: Dictionary) -> bool:
+	return int(char_data.get("x", 0)) > 0 and int(char_data.get("y", 0)) > 0
+
+func _get_preview_focus_world_position(char_data: Dictionary) -> Vector2:
+	var tile_x := int(char_data.get("x", 0))
+	var tile_y := int(char_data.get("y", 0))
+	if tile_x <= 0 or tile_y <= 0:
+		return Vector2(
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5,
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5
+		)
+
+	var clamped_x: int = int(clamp(tile_x, 1, int(MAP_TILES_PER_SIDE)))
+	var clamped_y: int = int(clamp(tile_y, 1, int(MAP_TILES_PER_SIDE)))
+
+	return Vector2(
+		(clamped_x - 0.5) * MAP_TILE_SIZE,
+		(clamped_y - 0.5) * MAP_TILE_SIZE
+	)
+
+func _get_map_walkable_focus_world_position(map_node: Node2D) -> Vector2:
+	if not map_node:
+		return Vector2(
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5,
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5
+		)
+
+	var tile_data = map_node.get_meta("data", null)
+	if tile_data == null or not (tile_data is PackedByteArray):
+		return Vector2(
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5,
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5
+		)
+
+	var tiles: PackedByteArray = tile_data
+	var walkable_count: int = 0
+	var sum_tile_x: float = 0.0
+	var sum_tile_y: float = 0.0
+
+	for tile_y in range(int(MAP_TILES_PER_SIDE)):
+		for tile_x in range(int(MAP_TILES_PER_SIDE)):
+			var idx: int = tile_x + tile_y * int(MAP_TILES_PER_SIDE)
+			if idx < 0 or idx >= tiles.size():
+				continue
+			var tile_state: int = tiles[idx]
+			if (tile_state & Enums.TileState.Blocked) != 0:
+				continue
+			walkable_count += 1
+			sum_tile_x += float(tile_x + 1)
+			sum_tile_y += float(tile_y + 1)
+
+	if walkable_count <= 0:
+		return Vector2(
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5,
+			MAP_TILE_SIZE * MAP_TILES_PER_SIDE * 0.5
+		)
+
+	var avg_tile_x: float = sum_tile_x / float(walkable_count)
+	var avg_tile_y: float = sum_tile_y / float(walkable_count)
+
+	var clamped_x: float = clamp(avg_tile_x, 1.0, MAP_TILES_PER_SIDE)
+	var clamped_y: float = clamp(avg_tile_y, 1.0, MAP_TILES_PER_SIDE)
+
+	return Vector2(
+		(clamped_x - 0.5) * MAP_TILE_SIZE,
+		(clamped_y - 0.5) * MAP_TILE_SIZE
+	)
 
 func _fit_map_preview_camera() -> void:
 	if not map_preview_camera or not map_preview_viewport:
@@ -354,8 +438,22 @@ func _fit_map_preview_camera() -> void:
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 	var map_world_size := Vector2(MAP_TILE_SIZE * MAP_TILES_PER_SIDE, MAP_TILE_SIZE * MAP_TILES_PER_SIDE)
-	var zoom_factor: float = max(map_world_size.x / viewport_size.x, map_world_size.y / viewport_size.y) * MAP_PREVIEW_PADDING
-	map_preview_camera.position = map_world_size * 0.5
+	var visible_world_height := MAP_TILE_SIZE * MAP_PREVIEW_VISIBLE_TILES
+	var zoom_factor: float = (visible_world_height / viewport_size.y) * MAP_PREVIEW_PADDING
+	var half_visible_world := viewport_size * zoom_factor * 0.5
+
+	var clamped_focus := _preview_focus_world_position
+	if half_visible_world.x < map_world_size.x * 0.5:
+		clamped_focus.x = clamp(clamped_focus.x, half_visible_world.x, map_world_size.x - half_visible_world.x)
+	else:
+		clamped_focus.x = map_world_size.x * 0.5
+
+	if half_visible_world.y < map_world_size.y * 0.5:
+		clamped_focus.y = clamp(clamped_focus.y, half_visible_world.y, map_world_size.y - half_visible_world.y)
+	else:
+		clamped_focus.y = map_world_size.y * 0.5
+
+	map_preview_camera.position = clamped_focus
 	map_preview_camera.zoom = Vector2(zoom_factor, zoom_factor)
 
 func _update_preview_renderer(char_data: Dictionary) -> void:

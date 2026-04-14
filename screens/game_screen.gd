@@ -36,6 +36,7 @@ const PORTAL_GRH_IDS: Array[int] = [
 ]
 const SPECIAL_PORTAL_MAP_ID: int = 168
 const PORTAL_DETECTION_RADIUS: int = 2  # Radio en tiles para detectar portales cercanos
+const _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION := "return_to_character_selection"
 
 var _pending_map_transition_effect: bool = false
 var _pending_map_id: int = -1
@@ -54,6 +55,8 @@ var _is_portal_transition_playing: bool = false
 var _portal_restore_request_id: int = 0
 var _portal_from_origin_pending: bool = false
 var _portal_origin_grh_id: int = -1
+var _window_close_dialog: ConfirmationDialog = null
+var _logout_to_character_selection_pending: bool = false
 
 # Seguimiento de objetos portal cercanos para detección
 var _nearby_portal_objects: Dictionary = {}  # {Vector2i: grh_id} - portales detectados cerca del jugador
@@ -78,9 +81,13 @@ func _ready() -> void:
 	
 	# Conectar señales del ProtocolHandler
 	_connect_protocol_signals()
+	if not ProtocolHandler.account_logged.is_connected(_on_account_logged):
+		ProtocolHandler.account_logged.connect(_on_account_logged)
 	
 	_gameInput.Init(_gameContext)
 	_gameInput.update_name_label(Global.username)
+	if not _gameInput.quit_button_pressed.is_connected(_on_hub_quit_button_pressed):
+		_gameInput.quit_button_pressed.connect(_on_hub_quit_button_pressed)
 	
 	# Cargar el cursor después de que los recursos estén listos
 	if FileAccess.file_exists("res://Assets/Cursors/crosshair.png"):
@@ -94,6 +101,73 @@ func _ready() -> void:
 	_setup_map_transition_timer()
 	_setup_map_transition_overlay()
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		get_tree().set_auto_accept_quit(false)
+		_show_window_close_dialog()
+
+func _show_window_close_dialog() -> void:
+	if _window_close_dialog == null:
+		_window_close_dialog = ConfirmationDialog.new()
+		_window_close_dialog.title = "Salir del juego"
+		_window_close_dialog.dialog_text = "¿Qué querés hacer?"
+		_window_close_dialog.ok_button_text = "Cerrar todo"
+		_window_close_dialog.cancel_button_text = "Cancelar"
+		_window_close_dialog.add_button("Volver a selección", true, _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION)
+		_window_close_dialog.confirmed.connect(_on_window_close_confirmed)
+		_window_close_dialog.custom_action.connect(_on_window_close_custom_action)
+		add_child(_window_close_dialog)
+
+	_window_close_dialog.popup_centered()
+
+func _on_hub_quit_button_pressed() -> void:
+	_show_window_close_dialog()
+
+func _on_window_close_confirmed() -> void:
+	ProtocolWriteToServer.WriteQuit()
+	_FlushData()
+	ClientInterface.DisconnectFromHost()
+	get_tree().quit()
+
+func _on_window_close_custom_action(action: StringName) -> void:
+	if String(action) == _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION:
+		_request_return_to_character_selection()
+
+func _request_return_to_character_selection() -> void:
+	if _logout_to_character_selection_pending:
+		return
+
+	_logout_to_character_selection_pending = true
+	ProtocolWriteToServer.WriteQuit()
+	_FlushData()
+
+func _on_account_logged(account_name: String, _account_hash: String, characters: Array) -> void:
+	if _window_close_dialog:
+		_window_close_dialog.hide()
+
+	_logout_to_character_selection_pending = false
+	_return_to_character_selection(account_name, characters)
+
+func _return_to_character_selection(account_name: String = Global.account_name, characters: Array = Global.account_characters) -> void:
+	print("[GameScreen] Volviendo a selección de personajes...")
+	
+	# Desconectar señales
+	if ClientInterface.disconnected.is_connected(_OnDisconnected):
+		ClientInterface.disconnected.disconnect(_OnDisconnected)
+	_disconnect_protocol_signals()
+	
+	# Limpiar el mundo del juego - eliminar todos los personajes
+	var map_container = _gameWorld.GetMapContainer()
+	if map_container:
+		# Eliminar todos los personajes
+		for character in map_container._characterCollection.duplicate():
+			map_container.DeleteCharacter(character.instanceId)
+	
+	# Volver a la pantalla de selección de personajes
+	var char_selection_screen = load("res://screens/character_selection_screen.tscn").instantiate()
+	char_selection_screen.set_account_data(account_name, characters)
+	ScreenController.SwitchScreen(char_selection_screen)
+
 func _exit_tree() -> void:
 	# Limpiar referencias globales
 	ProtocolHandler.game_world = null
@@ -102,6 +176,9 @@ func _exit_tree() -> void:
 	# Desconectar señales al salir para evitar llamadas a nodos destruidos
 	if ClientInterface.disconnected.is_connected(_OnDisconnected):
 		ClientInterface.disconnected.disconnect(_OnDisconnected)
+
+	if _gameInput and _gameInput.quit_button_pressed.is_connected(_on_hub_quit_button_pressed):
+		_gameInput.quit_button_pressed.disconnect(_on_hub_quit_button_pressed)
 	
 	_disconnect_protocol_signals()
 
@@ -112,6 +189,10 @@ func _exit_tree() -> void:
 	if _map_transition_timer:
 		_map_transition_timer.queue_free()
 		_map_transition_timer = null
+
+	if _window_close_dialog:
+		_window_close_dialog.queue_free()
+		_window_close_dialog = null
 
 # Función para escalar el cursor a un tamaño más pequeño
 func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
@@ -131,12 +212,18 @@ func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
 	return new_texture
 	 
 func _OnDisconnected() -> void:
+	_logout_to_character_selection_pending = false
 	print("[GameScreen] Desconectado del servidor, volviendo a login...")
 	Security.reset_redundance()
 	var screen = load("uid://cd452cndcck7v").instantiate() 
 	ScreenController.SwitchScreen(screen)
 
 func _process(_delta: float) -> void:
+	# Verificar ExitGame (Escape) - siempre funciona independientemente del estado
+	if Input.is_action_just_pressed("ExitGame"):
+		_request_return_to_character_selection()
+		return
+	
 	_CheckKeys()
 	_UpdateCameraPosition()
 	_FlushData()
@@ -234,6 +321,9 @@ func _UpdateCameraPosition() -> void:
 func _CheckKeys() -> void:
 	if _gameContext.traveling || _gameContext.mirandoForo ||\
 		_gameContext.trading  || _gameContext.pause:
+		return
+
+	if not Global.moveWhileTalking and _gameInput and _gameInput.is_console_input_active():
 		return
 	
 	for k in _input:
@@ -413,6 +503,7 @@ func _connect_protocol_signals() -> void:
 func _disconnect_protocol_signals() -> void:
 	# Desconectar todas las señales del ProtocolHandler
 	var signals_to_disconnect = [
+		"account_logged",
 		"character_created", "character_removed", "character_moved", "character_changed",
 		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created",
 		"update_tag_and_status", "chat_over_head", "remove_char_dialog", "remove_all_dialogs",

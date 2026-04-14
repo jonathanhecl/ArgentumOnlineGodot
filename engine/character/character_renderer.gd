@@ -16,8 +16,24 @@ var _head:int
 var _helmet:int
 var _weapon:int
 var _shield:int
+var _bodyShadowSprite: AnimatedSprite2D
+
+const SHADOW_OFFSET := Vector2(8, 10)
+const SHADOW_SCALE := Vector2(1.0, 0.52)
+const SHADOW_SKEW := -0.7853982
+const SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.38)
 
 var heading:int = Enums.Heading.South
+
+func _ready() -> void:
+	_setup_shadow_sprite()
+	if not Global.shadows_visibility_changed.is_connected(_on_shadows_visibility_changed):
+		Global.shadows_visibility_changed.connect(_on_shadows_visibility_changed)
+	_on_shadows_visibility_changed(Global.show_shadows)
+
+func _exit_tree() -> void:
+	if Global.shadows_visibility_changed.is_connected(_on_shadows_visibility_changed):
+		Global.shadows_visibility_changed.disconnect(_on_shadows_visibility_changed)
 
 var body:int:
 	get:
@@ -54,6 +70,7 @@ func Play() -> void:
 	var opposite_key = _get_opposite_key(key)
 	
 	_play_directional_animation(_bodyAnimatedSprite, "walk_", key, opposite_key)
+	_play_directional_animation(_bodyShadowSprite, "walk_", key, opposite_key)
 	_play_directional_animation(_shieldAnimatedSprite, "walk_", key, opposite_key)
 	_play_directional_animation(_weaponAnimatedSprite, "walk_", key, opposite_key)
 	_play_directional_animation(_headAnimatedSprite, "idle_", key, opposite_key)
@@ -64,12 +81,15 @@ func Stop() -> void:
 	var opposite_key = _get_opposite_key(key)
 	
 	_play_directional_animation(_bodyAnimatedSprite, "idle_", key, opposite_key)
+	_play_directional_animation(_bodyShadowSprite, "idle_", key, opposite_key)
 	_play_directional_animation(_shieldAnimatedSprite, "idle_", key, opposite_key)
 	_play_directional_animation(_weaponAnimatedSprite, "idle_", key, opposite_key)
 	_play_directional_animation(_headAnimatedSprite, "idle_", key, opposite_key)
 	_play_directional_animation(_helmetAnimatedSprite, "idle_", key, opposite_key)
 
 func _play_directional_animation(sprite: AnimatedSprite2D, prefix: String, key: String, opposite_key: String) -> void:
+	if not sprite:
+		return
 	if not sprite.sprite_frames:
 		return
 		
@@ -129,6 +149,8 @@ func _set_head(id:int) -> void:
 func _set_body(id:int) -> void:
 	_body = id
 	_bodyAnimatedSprite.sprite_frames = _LoadSpriteFrames("res://Resources/Character/Bodies/body_%d.tres" % id)
+	if _bodyShadowSprite:
+		_bodyShadowSprite.sprite_frames = _bodyAnimatedSprite.sprite_frames
 	
 	# Apply head offset for different body types (enanos, gomos, etc.)
 	if id > 0 and id < GameAssets.BodyAnimationList.size():
@@ -159,3 +181,24 @@ func _LoadSpriteFrames(path:String) -> SpriteFrames:
 		return ResourceLoader.load(path)
 	else:
 		return ResourceLoader.load(DefaultSpriteFramePath)
+
+func _setup_shadow_sprite() -> void:
+	if not _bodyAnimatedSprite:
+		return
+	
+	_bodyShadowSprite = AnimatedSprite2D.new()
+	_bodyShadowSprite.name = "BodyShadow"
+	_bodyShadowSprite.centered = _bodyAnimatedSprite.centered
+	_bodyShadowSprite.offset = _bodyAnimatedSprite.offset
+	_bodyShadowSprite.position = _bodyAnimatedSprite.position + SHADOW_OFFSET
+	_bodyShadowSprite.scale = SHADOW_SCALE
+	_bodyShadowSprite.skew = SHADOW_SKEW
+	_bodyShadowSprite.modulate = SHADOW_COLOR
+	_bodyShadowSprite.z_index = -100
+	_bodyShadowSprite.sprite_frames = _bodyAnimatedSprite.sprite_frames
+	add_child(_bodyShadowSprite)
+	move_child(_bodyShadowSprite, 0)
+
+func _on_shadows_visibility_changed(shadows_visible: bool) -> void:
+	if _bodyShadowSprite:
+		_bodyShadowSprite.visible = shadows_visible

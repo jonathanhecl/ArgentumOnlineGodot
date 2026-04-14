@@ -3,10 +3,12 @@ class_name LoginPanel
 
 signal submit 
 signal register
+signal quit_requested
 signal error(message:String)
 
 func _ready() -> void:
 	%Reg.pressed.connect(func(): register.emit())
+	%Exit.pressed.connect(_OnButtonExitPressed)
 	%ShowPasswordButton.toggled.connect(_on_show_password_toggled)
 	%ShowPasswordButton.toggle_mode = true
 	%ShowPasswordButton.button_pressed = false
@@ -85,6 +87,10 @@ func _OnButtonLoginPressed() -> void:
 		SavedCredentials.clear_credentials()
 	
 	submit.emit()
+
+
+func _OnButtonExitPressed() -> void:
+	quit_requested.emit()
 
 
 func _is_valid_email(email: String) -> bool:

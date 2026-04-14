@@ -12,6 +12,8 @@ var checkShowPlayerNames: CheckBox
 var checkShowFPS: CheckBox
 var checkInstantDialog: CheckBox
 var checkNpcDialogConsole: CheckBox
+var checkMoveWhileTalking: CheckBox
+var checkShowShadows: CheckBox
 # Botón de configuración de hotkeys
 var hotkeyConfigButton: Button
 # Botón de PING
@@ -51,6 +53,12 @@ func _ready() -> void:
 
 	# Crear checkbox para mostrar diálogo de NPC en consola
 	_create_npc_dialog_console_option()
+
+	# Crear checkbox para movimiento mientras se habla
+	_create_move_while_talking_option()
+
+	# Crear checkbox para visibilidad de sombras
+	_create_show_shadows_option()
 	
 	# Crear botón de PING
 	_create_ping_button()
@@ -88,6 +96,12 @@ func _on_instant_dialog_toggled(button_pressed: bool) -> void:
 
 func _on_npc_dialog_console_toggled(button_pressed: bool) -> void:
 	Global.showNpcDialogInConsole = button_pressed
+
+func _on_move_while_talking_toggled(button_pressed: bool) -> void:
+	Global.moveWhileTalking = button_pressed
+
+func _on_show_shadows_toggled(button_pressed: bool) -> void:
+	Global.show_shadows = button_pressed
 
 func _on_ping_button_pressed() -> void:
 	# Obtener el game_context desde game_screen (el padre directo)
@@ -147,6 +161,22 @@ func _create_npc_dialog_console_option() -> void:
 	checkNpcDialogConsole.connect("toggled", Callable(self, "_on_npc_dialog_console_toggled"))
 	$VBox.add_child(checkNpcDialogConsole)
 
+func _create_move_while_talking_option() -> void:
+	checkMoveWhileTalking = CheckBox.new()
+	checkMoveWhileTalking.name = "CheckMoveWhileTalking"
+	checkMoveWhileTalking.text = "Moverse al hablar"
+	checkMoveWhileTalking.button_pressed = Global.moveWhileTalking
+	checkMoveWhileTalking.connect("toggled", Callable(self, "_on_move_while_talking_toggled"))
+	$VBox.add_child(checkMoveWhileTalking)
+
+func _create_show_shadows_option() -> void:
+	checkShowShadows = CheckBox.new()
+	checkShowShadows.name = "CheckShowShadows"
+	checkShowShadows.text = "Mostrar sombras"
+	checkShowShadows.button_pressed = Global.show_shadows
+	checkShowShadows.connect("toggled", Callable(self, "_on_show_shadows_toggled"))
+	$VBox.add_child(checkShowShadows)
+
 # Función para crear el botón de PING
 func _create_ping_button() -> void:
 	# Crear el botón
@@ -177,8 +207,14 @@ func _on_hotkey_config_pressed() -> void:
 
 func _on_save_settings() -> void:
 	var cfg = ConfigFile.new()
+	var is_web = OS.has_feature("web")
+	var config_path = "user://options.cfg"
+	
 	# Cargar existente (si hay) y actualizar valores
-	cfg.load("user://options.cfg")
+	var err = cfg.load(config_path)
+	if err != OK and err != ERR_FILE_NOT_FOUND:
+		print("[Options] Advertencia: No se pudo cargar config existente: ", err)
+	
 	cfg.set_value("audio", "volume_db", linear_to_db(sliderVolume.value))
 	cfg.set_value("ui", "dialog_font_size", sliderFontSize.value)
 	cfg.set_value("ui", "console_font_size", sliderConsoleFontSize.value)
@@ -188,7 +224,43 @@ func _on_save_settings() -> void:
 	cfg.set_value("ui", "show_fps_counter", checkShowFPS.button_pressed)
 	cfg.set_value("ui", "animated_dialog", checkInstantDialog.button_pressed)
 	cfg.set_value("ui", "show_npc_dialog_in_console", checkNpcDialogConsole.button_pressed)
-	cfg.save("user://options.cfg")
+	cfg.set_value("ui", "move_while_talking", checkMoveWhileTalking.button_pressed)
+	cfg.set_value("ui", "show_shadows", checkShowShadows.button_pressed)
+	
+	# En web, usar localStorage para compatibilidad mejorada
+	if is_web:
+		_save_to_local_storage(cfg)
+	else:
+		err = cfg.save(config_path)
+		if err != OK:
+			print("[Options] Error guardando configuración: ", err)
+
+func _save_to_local_storage(cfg: ConfigFile) -> void:
+	# Guardar secciones en localStorage del navegador
+	for section in cfg.get_sections():
+		for key in cfg.get_section_keys(section):
+			var value = cfg.get_value(section, key)
+			var storage_key = "ao_config_%s_%s" % [section, key]
+			JavaScriptBridge.eval("localStorage.setItem('%s', '%s')" % [storage_key, str(value).replace("'", "\\'")])
+
+func _load_from_local_storage(cfg: ConfigFile) -> void:
+	# Intentar cargar desde localStorage
+	var sections = ["audio", "ui"]
+	for section in sections:
+		var keys = ["volume_db", "dialog_font_size", "console_font_size", "name_font_size", 
+					"use_custom_cursor", "show_player_names", "show_fps_counter", 
+					"animated_dialog", "show_npc_dialog_in_console", "move_while_talking", "show_shadows"]
+		for key in keys:
+			var storage_key = "ao_config_%s_%s" % [section, key]
+			var value = JavaScriptBridge.eval("localStorage.getItem('%s')" % storage_key)
+			if value != null and value != "":
+				# Convertir valores numéricos
+				if key.contains("size") or key == "volume_db":
+					cfg.set_value(section, key, float(value))
+				elif key.contains("cursor") or key.contains("show") or key.contains("animated"):
+					cfg.set_value(section, key, value == "true")
+				else:
+					cfg.set_value(section, key, value)
 
 func _setup_instant_dialog_option() -> void:
 	checkInstantDialog = $VBox/hbox_instant_dialog/CheckInstantDialog

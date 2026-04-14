@@ -60,6 +60,7 @@ func _ready() -> void:
 	
 	_loginPanel.error.connect(func(message):
 		Utils.ShowAlertDialog("Login", message, self))
+	_loginPanel.quit_requested.connect(_OnLoginPanelQuitRequested)
 
 func _exit_tree() -> void:
 	# Desconectar señales del ProtocolHandler al salir
@@ -129,6 +130,9 @@ func _OnLoginPanelSubmit() -> void:
 		
 func _OnLoginPanelRegister() -> void:
 	_ConnectToHost(State.RegisterAccount)
+
+func _OnLoginPanelQuitRequested() -> void:
+	get_tree().quit()
 		
 func _ConnectToHost(state: State) -> void:
 	#if ClientInterface.IsConnected():

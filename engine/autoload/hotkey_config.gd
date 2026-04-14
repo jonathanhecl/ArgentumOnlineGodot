@@ -31,6 +31,8 @@ class HotkeyAction:
 var hotkey_actions: Dictionary = {}
 var config_file_path: String = "user://hotkeys.cfg"
 
+var _is_web: bool = false
+
 # Categorías para organizar las teclas
 const CATEGORIES = {
 	"BASICOS": "Básicos",
@@ -40,6 +42,7 @@ const CATEGORIES = {
 }
 
 func _ready():
+	_is_web = OS.has_feature("web")
 	_initialize_default_hotkeys()
 	load_hotkey_config()
 
@@ -306,6 +309,10 @@ func get_current_preset() -> String:
 	return ""
 
 func save_presets_to_file():
+	if _is_web:
+		_save_presets_to_local_storage()
+		return
+	
 	var config = ConfigFile.new()
 	config.load(config_file_path)
 	
@@ -318,7 +325,16 @@ func save_presets_to_file():
 	
 	config.save(config_file_path)
 
+func _save_presets_to_local_storage() -> void:
+	var json_str = JSON.stringify(custom_presets)
+	JavaScriptBridge.eval("localStorage.setItem('ao_hotkey_presets', '%s')" % json_str.replace("'", "\\'"))
+	JavaScriptBridge.eval("localStorage.setItem('ao_hotkey_current_preset', '%s')" % current_preset_name.replace("'", "\\'"))
+
 func load_presets_from_file():
+	if _is_web:
+		_load_presets_from_local_storage()
+		return
+	
 	var config = ConfigFile.new()
 	if config.load(config_file_path) != OK:
 		return
@@ -329,8 +345,23 @@ func load_presets_from_file():
 	# Cargar preset actual
 	current_preset_name = config.get_value("presets", "current", "")
 
+func _load_presets_from_local_storage() -> void:
+	var presets_json = JavaScriptBridge.eval("localStorage.getItem('ao_hotkey_presets')")
+	if presets_json != null and presets_json != "":
+		var parsed = JSON.parse_string(presets_json)
+		if parsed != null:
+			custom_presets = parsed
+	
+	var current = JavaScriptBridge.eval("localStorage.getItem('ao_hotkey_current_preset')")
+	if current != null:
+		current_preset_name = current
+
 # Persistencia
 func save_hotkey_config():
+	if _is_web:
+		_save_hotkeys_to_local_storage()
+		return
+	
 	var config = ConfigFile.new()
 	
 	for action_name in hotkey_actions:
@@ -338,10 +369,42 @@ func save_hotkey_config():
 		config.set_value("hotkeys", action_name, hotkey.current_key)
 		config.set_value("hotkeys_locations", action_name, hotkey.current_location)
 	
-	config.save(config_file_path)
+	var err = config.save(config_file_path)
+	if err != OK:
+		print("[HotkeyConfig] Error guardando configuración: ", err)
+
+func _save_hotkeys_to_local_storage() -> void:
+	for action_name in hotkey_actions:
+		var hotkey = hotkey_actions[action_name]
+		var storage_key_key = "ao_hotkey_%s" % action_name
+		var storage_key_loc = "ao_hotkey_%s_loc" % action_name
+		JavaScriptBridge.eval("localStorage.setItem('%s', '%d')" % [storage_key_key, hotkey.current_key])
+		JavaScriptBridge.eval("localStorage.setItem('%s', '%d')" % [storage_key_loc, hotkey.current_location])
+	# Guardar timestamp
+	JavaScriptBridge.eval("localStorage.setItem('ao_hotkeys_saved', 'true')")
+
+func _load_hotkeys_from_local_storage(config: ConfigFile) -> void:
+	var has_data = JavaScriptBridge.eval("localStorage.getItem('ao_hotkeys_saved')") == "true"
+	if not has_data:
+		return
+	
+	for action_name in hotkey_actions:
+		var storage_key_key = "ao_hotkey_%s" % action_name
+		var storage_key_loc = "ao_hotkey_%s_loc" % action_name
+		var key_str = JavaScriptBridge.eval("localStorage.getItem('%s')" % storage_key_key)
+		var loc_str = JavaScriptBridge.eval("localStorage.getItem('%s')" % storage_key_loc)
+		if key_str != null and key_str != "":
+			config.set_value("hotkeys", action_name, int(key_str))
+		if loc_str != null and loc_str != "":
+			config.set_value("hotkeys_locations", action_name, int(loc_str))
 
 func load_hotkey_config():
 	var config = ConfigFile.new()
+	
+	if _is_web:
+		_load_hotkeys_from_local_storage(config)
+		_apply_loaded_config(config)
+		return
 	
 	if not FileAccess.file_exists(config_file_path):
 		# Si no existe, crear configuración por defecto
@@ -353,6 +416,9 @@ func load_hotkey_config():
 		print("[HotkeyConfig] Error cargando configuración: ", error)
 		return
 	
+	_apply_loaded_config(config)
+
+func _apply_loaded_config(config: ConfigFile) -> void:
 	# Cargar hotkeys individuales
 	for action_name in hotkey_actions:
 		var saved_key = config.get_value("hotkeys", action_name, null)

@@ -1,6 +1,8 @@
 extends CanvasLayer
 class_name HubController
 
+signal quit_button_pressed
+
 const REAL_GAME_VIEW_SIZE := Vector2(541, 413)
 
 # Función para restaurar el cursor al predeterminado
@@ -512,6 +514,11 @@ func _talk() -> void:
 	
 	_consoleInputLineEdit.show()
 	_consoleInputLineEdit.grab_focus()
+
+func is_console_input_active() -> bool:
+	if not _consoleInputLineEdit:
+		return false
+	return _consoleInputLineEdit.visible
 	
 
 func _take_screenshot() -> void:
@@ -571,7 +578,7 @@ func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 
 
 func _on_btn_quit_pressed() -> void:
-	get_tree().quit()
+	quit_button_pressed.emit()
  
 
 func _on_btn_minimize_pressed() -> void:
