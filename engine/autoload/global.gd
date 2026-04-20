@@ -23,6 +23,7 @@ signal fps_visibility_changed(visible:bool)
 signal animated_dialog_changed(value:bool)
 signal npc_dialog_console_changed(value:bool)
 signal move_while_talking_changed(value:bool)
+signal peripheral_fog_intensity_changed(value:float)
 
 # Variable interna para show_player_names
 var _show_player_names:bool = true
@@ -74,6 +75,16 @@ var moveWhileTalking:bool:
 		emit_signal("move_while_talking_changed", _moveWhileTalking)
 	get:
 		return _moveWhileTalking
+
+# Intensidad de la niebla periférica (0.0 = totalmente transparente, 1.0 = totalmente oscura)
+var _peripheralFogIntensity:float = 0.7
+
+var peripheralFogIntensity:float:
+	set(value):
+		_peripheralFogIntensity = clamp(value, 0.0, 1.0)
+		emit_signal("peripheral_fog_intensity_changed", _peripheralFogIntensity)
+	get:
+		return _peripheralFogIntensity
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -169,6 +180,10 @@ func _ready() -> void:
 		# Cargar configuración de movimiento mientras se habla
 		var saved_move_while_talking = cfg.get_value("ui", "move_while_talking", moveWhileTalking)
 		moveWhileTalking = bool(saved_move_while_talking)
+
+		# Cargar intensidad de niebla periférica
+		var saved_peripheral_fog = cfg.get_value("ui", "peripheral_fog_intensity", peripheralFogIntensity)
+		peripheralFogIntensity = float(saved_peripheral_fog)
 
 func save_animated_dialog() -> void:
 	var cfg = ConfigFile.new()

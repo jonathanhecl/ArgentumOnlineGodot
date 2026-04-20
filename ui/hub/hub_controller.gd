@@ -90,7 +90,9 @@ func _ready() -> void:
 	Global.connect("console_font_size_changed", Callable(self, "_on_console_font_size_changed"))
 	Global.connect("player_names_visibility_changed", Callable(self, "_on_player_names_visibility_changed"))
 	Global.connect("fps_visibility_changed", Callable(self, "_on_fps_visibility_changed"))
+	Global.connect("peripheral_fog_intensity_changed", Callable(self, "_on_peripheral_fog_intensity_changed"))
 	_apply_console_font_size(Global.consoleFontSize)
+	_apply_peripheral_fog_intensity(Global.peripheralFogIntensity)
 	
 	# Inicializar el sistema de macro de hechizos
 	_setup_spell_macro_system()
@@ -251,6 +253,18 @@ func _on_player_names_visibility_changed(_visible:bool) -> void:
 
 func _on_fps_visibility_changed(_visible:bool) -> void:
 	_apply_fps_visibility()
+
+func _on_peripheral_fog_intensity_changed(value:float) -> void:
+	_apply_peripheral_fog_intensity(value)
+
+func _apply_peripheral_fog_intensity(value:float) -> void:
+	var overlay := get_node_or_null("PeripheralFogOverlay") as CanvasItem
+	if overlay == null:
+		return
+	var mat := overlay.material as ShaderMaterial
+	if mat == null:
+		return
+	mat.set_shader_parameter("fog_intensity", clampf(value, 0.0, 1.0))
 
 func _apply_console_font_size(value:int) -> void:
 	_consoleRichTextLabel.set("theme_override_font_sizes/normal_font_size", value)

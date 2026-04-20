@@ -13,6 +13,7 @@ var checkShowFPS: CheckBox
 var checkInstantDialog: CheckBox
 var checkNpcDialogConsole: CheckBox
 var checkMoveWhileTalking: CheckBox
+var sliderFogIntensity: HSlider
 # Botón de configuración de hotkeys
 var hotkeyConfigButton: Button
 # Botón de PING
@@ -55,6 +56,9 @@ func _ready() -> void:
 
 	# Crear checkbox para movimiento mientras se habla
 	_create_move_while_talking_option()
+
+	# Crear slider de intensidad de niebla periférica
+	_create_fog_intensity_option()
 	
 	# Crear botón de PING
 	_create_ping_button()
@@ -162,6 +166,26 @@ func _create_move_while_talking_option() -> void:
 	checkMoveWhileTalking.connect("toggled", Callable(self, "_on_move_while_talking_toggled"))
 	$VBox.add_child(checkMoveWhileTalking)
 
+func _create_fog_intensity_option() -> void:
+	var hbox := HBoxContainer.new()
+	hbox.name = "hbox_fog_intensity"
+	var label := Label.new()
+	label.text = "Oscuridad niebla:"
+	hbox.add_child(label)
+	sliderFogIntensity = HSlider.new()
+	sliderFogIntensity.name = "SliderFogIntensity"
+	sliderFogIntensity.min_value = 0.0
+	sliderFogIntensity.max_value = 1.0
+	sliderFogIntensity.step = 0.05
+	sliderFogIntensity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sliderFogIntensity.value = Global.peripheralFogIntensity
+	sliderFogIntensity.connect("value_changed", Callable(self, "_on_fog_intensity_changed"))
+	hbox.add_child(sliderFogIntensity)
+	$VBox.add_child(hbox)
+
+func _on_fog_intensity_changed(value: float) -> void:
+	Global.peripheralFogIntensity = value
+
 # Función para crear el botón de PING
 func _create_ping_button() -> void:
 	# Crear el botón
@@ -210,6 +234,7 @@ func _on_save_settings() -> void:
 	cfg.set_value("ui", "animated_dialog", checkInstantDialog.button_pressed)
 	cfg.set_value("ui", "show_npc_dialog_in_console", checkNpcDialogConsole.button_pressed)
 	cfg.set_value("ui", "move_while_talking", checkMoveWhileTalking.button_pressed)
+	cfg.set_value("ui", "peripheral_fog_intensity", sliderFogIntensity.value)
 	
 	# En web, usar localStorage para compatibilidad mejorada
 	if is_web:
