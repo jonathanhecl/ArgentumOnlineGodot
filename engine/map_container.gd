@@ -6,8 +6,12 @@ const CORE_VIEW_SIZE := Vector2(541, 413)
 const CORE_RECT := Rect2(455, 170, 541, 413)
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
+const MAP_SIZE_PX := 100 * 32 # 3200 px (un mapa completo de 100x100 tiles de 32px)
+const NEIGHBOR_MODULATE := Color(0.88, 0.88, 0.92, 1.0) # Sutil atenuación para diferenciarlos
 
 var _view:Node2D
+var _current_map_id: int = 0
+var _neighbor_views: Dictionary = {} # direction (String) -> Node2D
 
 var _characterCollection:Array[Character]
 var _objectCollection:Array[Node2D]
@@ -27,6 +31,7 @@ func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
 	_DeleteEntities()
 	_door_open_state_by_tile.clear()
+	_ClearNeighbors()
 	
 	if _view:
 		print("🗺️ MapContainer: Liberando vista anterior del mapa")
@@ -52,7 +57,89 @@ func LoadMap(id:int) -> void:
 		
 	print("🗺️ MapContainer: Agregando mapa a MapView...")
 	%MapView.add_child(_view)
+	_current_map_id = id
+	_LoadNeighbors(id)
 	print("✅ MapContainer: Mapa ", id, " cargado exitosamente con ", _tiles.size(), " tiles")
+
+func RefreshNeighbors() -> void:
+	# Permite volver a intentar cargar vecinos (p.ej. tras descubrir una conexión nueva).
+	if _current_map_id <= 0:
+		return
+	_ClearNeighbors()
+	_LoadNeighbors(_current_map_id)
+
+const NEIGHBOR_Z_GROUND := -100  # Layer1/Layer2 del vecino: bien atrás (detrás del suelo activo)
+const NEIGHBOR_Z_OBJECTS := 1    # Layer3 del vecino (árboles): ENCIMA del suelo activo.
+                                 # Así los canopies que se extienden hacia el mapa activo se ven
+                                 # completos sobre el pasto. Respeta el comportamiento AO clásico
+                                 # (el árbol puede cubrir al pj cuando éste camina por detrás).
+
+func _apply_neighbor_z_recursive(node: Node) -> void:
+	# Aplica z_index absoluto según la capa:
+	# - Layer1 / Layer2 (suelo del vecino) van al fondo (NEIGHBOR_Z_GROUND).
+	# - Layer3 (árboles y objetos verticales) quedan encima del suelo del mapa activo
+	#   para que sus canopies no se corten abruptamente al cruzar el borde.
+	# Cualquier otro CanvasItem hereda z del padre (comportamiento por defecto).
+	for child in node.get_children():
+		if child is CanvasItem:
+			var ci: CanvasItem = child
+			match ci.name:
+				"Layer1", "Layer2":
+					ci.z_as_relative = false
+					ci.z_index = NEIGHBOR_Z_GROUND
+				"Layer3":
+					ci.z_as_relative = false
+					ci.z_index = NEIGHBOR_Z_OBJECTS
+		_apply_neighbor_z_recursive(child)
+
+func _ClearNeighbors() -> void:
+	for dir_key in _neighbor_views.keys():
+		var v = _neighbor_views[dir_key]
+		if is_instance_valid(v):
+			v.queue_free()
+	_neighbor_views.clear()
+
+func _LoadNeighbors(id: int) -> void:
+	if not is_instance_valid(MapNeighbors):
+		return
+	const TILE_PX := 32
+	for dir_key in MapNeighbors.ALL_DIRS:
+		var info: Dictionary = MapNeighbors.get_neighbor_info(id, dir_key)
+		if info.is_empty():
+			continue
+		var neighbor_id: int = int(info["id"])
+		if neighbor_id <= 0 or neighbor_id == id:
+			continue
+		var path := "res://Maps/Map%d.tscn" % neighbor_id
+		if not ResourceLoader.exists(path):
+			continue
+		var neighbor_view: Node = load(path).instantiate()
+		if neighbor_view == null:
+			continue
+		if not (neighbor_view is Node2D):
+			neighbor_view.queue_free()
+			continue
+		var view2d: Node2D = neighbor_view
+		view2d.name = "NeighborMap_%s" % dir_key
+		# dx/dy están en tiles (pueden ser negativos). Se multiplica por 32 para obtener pixels.
+		view2d.position = Vector2(int(info["dx"]) * TILE_PX, int(info["dy"]) * TILE_PX)
+		view2d.modulate = NEIGHBOR_MODULATE
+		# El vecino es puramente decorativo: sin física, sin input, sin _process.
+		view2d.process_mode = Node.PROCESS_MODE_DISABLED
+		# Prioridad de dibujo: los vecinos SIEMPRE van por debajo del mapa activo y de
+		# todas las entidades (pj, criaturas, ítems). Usamos z_index absoluto negativo
+		# y lo aplicamos recursivamente a los hijos (Layer1/2/3) para anular cualquier
+		# z local que pudieran haber heredado de la escena exportada.
+		view2d.z_as_relative = false
+		view2d.z_index = -100
+		_apply_neighbor_z_recursive(view2d)
+		%MapView.add_child(view2d)
+		# Además, reordenamos el árbol para que los vecinos queden al principio y el
+		# mapa activo quede como último hijo (se pinta por encima sin depender de z).
+		%MapView.move_child(view2d, 0)
+		_neighbor_views[dir_key] = view2d
+	if not _neighbor_views.is_empty():
+		print("🧭 MapContainer: vecinos cargados -> ", _neighbor_views.keys())
 
 func GetTile(x:int, y:int) -> int:
 	return _tiles[x + y * 100]

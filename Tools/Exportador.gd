@@ -2,6 +2,14 @@ extends Node
 
 @export var labelStatus: Label
 
+# Umbrales de inferencia de adyacencia entre mapas (modo ESTRICTO).
+const ADJACENCY_MATCH_RATIO: float = 0.95   # Porcentaje mínimo de tiles coincidentes en la franja de borde
+const ADJACENCY_MIN_UNIQUE_GRHS: int = 5    # Mínimo de GrhIds distintos en la franja (descarta bordes uniformes)
+const ADJACENCY_OUTPUT_PATH: String = "res://Assets/Init/map_neighbors.json"
+
+# Bordes recopilados durante _ExportMap: {map_id: {"N": PackedInt32Array, "S": ..., "E": ..., "W": ...}}
+var _map_borders: Dictionary = {}
+
 func _ensure_directory_exists(path: String) -> void:
 	var dir = DirAccess.open("res://")
 	var path_parts = path.trim_prefix("res://").split("/")
@@ -106,6 +114,7 @@ func _ExportMaps() -> void:
 	var files = Utils.GetFilesInDirectory("res://Assets/Maps/")
 	var total = files.size()
 	var current = 0
+	_map_borders.clear()
 	
 	for fileName in files:
 		current += 1
@@ -118,10 +127,14 @@ func _ExportMaps() -> void:
 		
 		_ExportMap(int(mapNumber))
 		
+	labelStatus.text = "Analizando adyacencias entre mapas..."
+	await get_tree().process_frame
+	_ExportMapAdjacency()
 	labelStatus.text = "¡Exportación de mapas completada!"
 					
 func _ExportMap(fileId:int) -> void:
 	var mapData = GameAssets.GetMap(fileId)
+	_CollectMapBorders(fileId, mapData.layer1)
 	var tileSet = TileSet.new()
 	
 	tileSet.tile_size = Vector2(32, 32) 
@@ -173,6 +186,181 @@ func _ExportMap(fileId:int) -> void:
 		_ensure_directory_exists(save_path.get_base_dir())
 		ResourceSaver.save(packedScene, save_path) 
 
+# --- Inferencia de adyacencia entre mapas ---
+
+func _CollectMapBorders(fileId: int, layer1: PackedInt32Array) -> void:
+	# Extrae las 4 franjas de borde (layer1 GrhIds) de un mapa de 100x100 para comparar
+	# con mapas vecinos. Son las columnas x=0 (oeste), x=99 (este) y filas y=0 (norte), y=99 (sur).
+	var north := PackedInt32Array()
+	var south := PackedInt32Array()
+	var east := PackedInt32Array()
+	var west := PackedInt32Array()
+	north.resize(100)
+	south.resize(100)
+	east.resize(100)
+	west.resize(100)
+	for i in 100:
+		north[i] = layer1[i + 0 * 100]        # y=0
+		south[i] = layer1[i + 99 * 100]       # y=99
+		west[i]  = layer1[0 + i * 100]        # x=0
+		east[i]  = layer1[99 + i * 100]       # x=99
+	_map_borders[fileId] = {"N": north, "S": south, "E": east, "W": west}
+
+func _BorderIsInformative(strip: PackedInt32Array) -> bool:
+	# Requiere suficiente variedad de GrhIds para no dar positivos espurios en mapas todos-pasto.
+	var seen: Dictionary = {}
+	for g in strip:
+		if g != 0:
+			seen[g] = true
+			if seen.size() >= ADJACENCY_MIN_UNIQUE_GRHS:
+				return true
+	return false
+
+func _BorderMatchRatio(a: PackedInt32Array, b: PackedInt32Array) -> float:
+	if a.size() != b.size() or a.is_empty():
+		return 0.0
+	var hits := 0
+	for i in a.size():
+		if a[i] == b[i]:
+			hits += 1
+	return float(hits) / float(a.size())
+
+# Dirección del mapa "from" → dirección del mapa "to" que deberían coincidir.
+# f.E ↔ t.W  /  f.W ↔ t.E  /  f.N ↔ t.S  /  f.S ↔ t.N
+const _BORDER_PAIRS := [
+	["E", "W"],
+	["N", "S"],
+]
+
+func _ExportMapAdjacency() -> void:
+	var map_ids: Array = _map_borders.keys()
+	map_ids.sort()
+	print("🧭 Exportador: analizando adyacencias entre %d mapas..." % map_ids.size())
+
+	# Para cada mapa y dirección, recolectamos candidatos que cumplan el umbral.
+	# candidates[map_id][direction] = Array[{"id": int, "ratio": float}]
+	var candidates: Dictionary = {}
+	for id in map_ids:
+		candidates[id] = {"N": [], "S": [], "E": [], "W": []}
+
+	for i in map_ids.size():
+		var a_id: int = map_ids[i]
+		var a_borders: Dictionary = _map_borders[a_id]
+		for j in range(i + 1, map_ids.size()):
+			var b_id: int = map_ids[j]
+			var b_borders: Dictionary = _map_borders[b_id]
+			for pair in _BORDER_PAIRS:
+				var dir_a: String = pair[0]
+				var dir_b: String = pair[1]
+				var a_strip: PackedInt32Array = a_borders[dir_a]
+				var b_strip: PackedInt32Array = b_borders[dir_b]
+				if not _BorderIsInformative(a_strip) or not _BorderIsInformative(b_strip):
+					continue
+				var ratio := _BorderMatchRatio(a_strip, b_strip)
+				if ratio < ADJACENCY_MATCH_RATIO:
+					continue
+				candidates[a_id][dir_a].append({"id": b_id, "ratio": ratio})
+				candidates[b_id][dir_b].append({"id": a_id, "ratio": ratio})
+
+	# Resolver: sólo aceptamos cardinales sin ambigüedad (un único candidato por dirección).
+	var cardinals: Dictionary = {}  # {map_id: {"N":id, "S":id, "E":id, "W":id}}
+	var ambiguous_count := 0
+	for id in map_ids:
+		var dirs: Dictionary = {}
+		for d in ["N", "S", "E", "W"]:
+			var list: Array = candidates[id][d]
+			if list.size() == 1:
+				dirs[d] = int(list[0]["id"])
+			elif list.size() > 1:
+				ambiguous_count += 1
+				print("  ⚠️ Mapa %d dirección %s ambigua (%d candidatos): %s" % [id, d, list.size(), str(list)])
+		if not dirs.is_empty():
+			cardinals[id] = dirs
+
+	# Derivación transitiva de diagonales: A.NE = N.E si coincide con E.N (o uno solo conocido).
+	var connections: Dictionary = cardinals.duplicate(true)
+	var diag_count := 0
+	for id in connections.keys():
+		var dirs: Dictionary = connections[id]
+		var n: int = int(dirs.get("N", 0))
+		var s: int = int(dirs.get("S", 0))
+		var e: int = int(dirs.get("E", 0))
+		var w: int = int(dirs.get("W", 0))
+		var diag_pairs := {
+			"NE": [_dir_of(cardinals, n, "E"), _dir_of(cardinals, e, "N")],
+			"NW": [_dir_of(cardinals, n, "W"), _dir_of(cardinals, w, "N")],
+			"SE": [_dir_of(cardinals, s, "E"), _dir_of(cardinals, e, "S")],
+			"SW": [_dir_of(cardinals, s, "W"), _dir_of(cardinals, w, "S")],
+		}
+		for diag in diag_pairs.keys():
+			var a: int = diag_pairs[diag][0]
+			var b: int = diag_pairs[diag][1]
+			var derived := _pick_agreement_diag(a, b)
+			if derived > 0 and derived != id:
+				dirs[diag] = derived
+				diag_count += 1
+		connections[id] = dirs
+
+	_WriteAdjacencyJson(connections)
+
+	var cardinal_count := 0
+	for id in cardinals.keys():
+		cardinal_count += (cardinals[id] as Dictionary).size()
+	print("🧭 Exportador: adyacencia generada — %d mapas, %d cardinales, %d diagonales, %d ambigüedades descartadas." % [
+		connections.size(), cardinal_count, diag_count, ambiguous_count
+	])
+
+func _dir_of(cardinals: Dictionary, map_id: int, direction: String) -> int:
+	if map_id <= 0 or not cardinals.has(map_id):
+		return 0
+	var dirs: Dictionary = cardinals[map_id]
+	return int(dirs.get(direction, 0))
+
+func _pick_agreement_diag(a: int, b: int) -> int:
+	if a > 0 and b > 0:
+		return a if a == b else 0
+	if a > 0:
+		return a
+	if b > 0:
+		return b
+	return 0
+
+func _WriteAdjacencyJson(connections: Dictionary) -> void:
+	# Defaults por dirección (en tiles). El runtime luego los corrige con el offset real
+	# del teleport al cruzar el borde (p.ej. x_exit=89 → x_enter=13 da dx=76 en vez de 100).
+	var default_offsets := {
+		"N":  [0, -100],
+		"S":  [0, 100],
+		"E":  [100, 0],
+		"W":  [-100, 0],
+		"NE": [100, -100],
+		"NW": [-100, -100],
+		"SE": [100, 100],
+		"SW": [-100, 100],
+	}
+	var sorted_ids: Array = connections.keys()
+	sorted_ids.sort()
+	var out: Dictionary = {}
+	for id in sorted_ids:
+		var dirs: Dictionary = connections[id]
+		var formatted: Dictionary = {}
+		for d in dirs.keys():
+			var neighbor_id := int(dirs[d])
+			if neighbor_id <= 0:
+				continue
+			var defaults: Array = default_offsets.get(d, [0, 0])
+			formatted[d] = {"id": neighbor_id, "dx": int(defaults[0]), "dy": int(defaults[1])}
+		if not formatted.is_empty():
+			out[str(id)] = formatted
+	_ensure_directory_exists(ADJACENCY_OUTPUT_PATH.get_base_dir())
+	var file := FileAccess.open(ADJACENCY_OUTPUT_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("Exportador: no se pudo escribir %s" % ADJACENCY_OUTPUT_PATH)
+		return
+	file.store_string(JSON.stringify(out, "  "))
+	print("🧭 Exportador: adyacencia escrita en %s" % ADJACENCY_OUTPUT_PATH)
+
+# --- Fin inferencia de adyacencia ---
 
 func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
 	if grhId <= 0 or grhId >= GameAssets.GrhDataList.size():

@@ -686,6 +686,7 @@ func _check_and_play_map_transition(x: int, y: int) -> void:
 		var reason = transition_info["reason"]
 		
 		_report_map_transition(transition_type, reason, x, y)
+		_register_border_adjacency(transition_type, x, y)
 		
 		# Asegurarse que el personaje existe antes de transicionar borde
 		var character = _gameWorld.GetCharacter(_mainCharacterInstanceId)
@@ -863,6 +864,44 @@ func _get_map_transition_info(x: int, y: int) -> Dictionary:
 	# Si las posiciones no corresponden a un paso de mapa contiguo
 	info["reason"] = "Teleport/Cueva detectado. Salto de prev(%d,%d) a nueva(%d,%d) no cumple criterio contiguo (Threshold: %d)" % [prev_x, prev_y, x, y, _MAP_BORDER_THRESHOLD_TILES]
 	return info
+
+func _register_border_adjacency(transition_type: String, new_x: int, new_y: int) -> void:
+	# Descubre adyacencias al cruzar un borde caminando y las persiste para siguientes viajes.
+	# Además captura el offset real del salto: el servidor suele teletransportar con asimetrías
+	# (p.ej. salís en x=89 y entrás en x=13). Guardamos dx/dy en tiles para que el vecino se
+	# posicione alineado con el punto exacto donde saliste.
+	var prev_id := _pre_transition_map_id
+	var new_id := _pending_map_id
+	if prev_id <= 0 or new_id <= 0 or prev_id == new_id:
+		return
+	# transition_type está definido respecto del borde por el que entra al NUEVO mapa.
+	# - BORDER_LEFT: cruzó al este -> prev.E = new, new.W = prev
+	# - BORDER_RIGHT: cruzó al oeste -> prev.W = new, new.E = prev
+	# - BORDER_TOP: cruzó al sur -> prev.S = new, new.N = prev
+	# - BORDER_BOTTOM: cruzó al norte -> prev.N = new, new.S = prev
+	var direction := ""
+	match transition_type:
+		"BORDER_LEFT": direction = MapNeighbors.E
+		"BORDER_RIGHT": direction = MapNeighbors.W
+		"BORDER_TOP": direction = MapNeighbors.S
+		"BORDER_BOTTOM": direction = MapNeighbors.N
+		_: return
+	# Offset en tiles: posición de B.origen respecto de A.origen para que el pj quede
+	# en la misma coordenada mundial antes y después del cruce.
+	# (x_exit, y_exit) en A = (new_x - dx, new_y - dy) en B  =>  dx = x_exit - new_x, dy = y_exit - new_y
+	var dx := 0
+	var dy := 0
+	if _pre_transition_map_x > 0 and _pre_transition_map_y > 0:
+		dx = _pre_transition_map_x - new_x
+		dy = _pre_transition_map_y - new_y
+		MapNeighbors.register(prev_id, direction, new_id, dx, dy)
+	else:
+		# Sin posición previa confiable: usar defaults del directorio de direcciones.
+		MapNeighbors.register(prev_id, direction, new_id, 0, 0, true)
+	# Refrescar vecinos del mapa actual para que el recién descubierto aparezca de inmediato.
+	var map_container: MapContainer = _gameWorld.GetMapContainer() if _gameWorld else null
+	if map_container:
+		map_container.RefreshNeighbors()
 
 func _report_map_transition(transition_type: String, reason: String, x: int, y: int) -> void:
 	var message = "[MAP TRANSITION] type=%s map=%d (%s) pos=(%d,%d)\n-> %s" % [
