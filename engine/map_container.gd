@@ -13,6 +13,11 @@ var _view:Node2D
 var _current_map_id: int = 0
 var _neighbor_views: Dictionary = {} # direction (String) -> Node2D
 
+# Cola de vecinos pendientes de instanciar escalonadamente (se procesan de a uno por frame
+# para que el cambio de mapa no bloquee el render con múltiples cargas simultáneas).
+var _pending_neighbor_tasks: Array = [] # Array[Dictionary{dir, id, path, info}]
+var _neighbor_load_scheduled: bool = false
+
 var _characterCollection:Array[Character]
 var _objectCollection:Array[Node2D]
 var _tiles:PackedByteArray
@@ -31,35 +36,125 @@ func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
 	_DeleteEntities()
 	_door_open_state_by_tile.clear()
-	_ClearNeighbors()
-	
-	if _view:
-		print("🗺️ MapContainer: Liberando vista anterior del mapa")
-		_view.queue_free()
-	
-	var map_path = "res://Maps/Map%d.tscn" % id
-	print("🗺️ MapContainer: Buscando mapa en ruta: ", map_path)
-	if not ResourceLoader.exists(map_path):
-		push_error("MapContainer: Map file not found: %s" % map_path)
-		return
-		
-	print("🗺️ MapContainer: Cargando escena del mapa...")
-	_view = load(map_path).instantiate()
-	if not _view:
-		push_error("MapContainer: No se pudo instanciar el mapa: %s" % map_path)
-		return
-		
-	print("🗺️ MapContainer: Obteniendo datos del mapa...")
-	_tiles = _view.get_meta("data")
-	if _tiles == null:
-		push_error("MapContainer: El mapa no tiene metadatos 'data'")
-		return
-		
-	print("🗺️ MapContainer: Agregando mapa a MapView...")
-	%MapView.add_child(_view)
-	_current_map_id = id
+	_pending_neighbor_tasks.clear()
+
+	var previous_view := _view
+	var previous_id := _current_map_id
+
+	# Fast path: si el mapa destino ya está cargado como vecino, lo promovemos a activo
+	# sin tocar disco. Esto elimina el "tirón" de cargar el .tscn (50KB+) al cruzar un borde.
+	var promoted: Node2D = _PromoteNeighborToActive(id)
+	if promoted != null:
+		_view = promoted
+		_tiles = _view.get_meta("data")
+		_current_map_id = id
+		print("⚡ MapContainer: Mapa ", id, " promovido desde vecino (carga instantánea)")
+	else:
+		var map_path = "res://Maps/Map%d.tscn" % id
+		if not ResourceLoader.exists(map_path):
+			push_error("MapContainer: Map file not found: %s" % map_path)
+			return
+		var new_view: Node = load(map_path).instantiate()
+		if new_view == null or not (new_view is Node2D):
+			push_error("MapContainer: No se pudo instanciar el mapa: %s" % map_path)
+			if new_view: new_view.queue_free()
+			return
+		_view = new_view
+		_tiles = _view.get_meta("data")
+		if _tiles == null:
+			push_error("MapContainer: El mapa no tiene metadatos 'data'")
+			_view.queue_free()
+			return
+		_view.set_meta("map_id", id)
+		%MapView.add_child(_view)
+		_current_map_id = id
+
+	# El mapa que dejamos: si es vecino del nuevo, lo reutilizamos como tal (evita recargar).
+	# Si no, lo liberamos. Los otros vecinos viejos se reciclan del mismo modo.
+	_RecycleOldViews(previous_view, previous_id, id)
+
+	# Cargar los vecinos restantes escalonadamente (uno por frame) para no bloquear.
 	_LoadNeighbors(id)
-	print("✅ MapContainer: Mapa ", id, " cargado exitosamente con ", _tiles.size(), " tiles")
+	print("✅ MapContainer: Mapa ", id, " activo con ", _tiles.size(), " tiles")
+
+# Busca entre los vecinos actuales uno cuyo id coincida con new_id; si existe lo desconecta
+# de _neighbor_views y lo "desdecora" (posición, modulate, z, process_mode) para usarlo
+# como mapa activo. Retorna null si no hay match.
+func _PromoteNeighborToActive(new_id: int) -> Node2D:
+	var matched_dir := ""
+	for dir_key in _neighbor_views.keys():
+		var nv = _neighbor_views[dir_key]
+		if is_instance_valid(nv) and nv.has_meta("map_id") and int(nv.get_meta("map_id")) == new_id:
+			matched_dir = dir_key
+			break
+	if matched_dir == "":
+		return null
+	var view: Node2D = _neighbor_views[matched_dir]
+	_neighbor_views.erase(matched_dir)
+	view.name = "MapView"
+	view.position = Vector2.ZERO
+	view.modulate = Color.WHITE
+	view.process_mode = Node.PROCESS_MODE_INHERIT
+	view.z_as_relative = true
+	view.z_index = 0
+	_ResetLayerZRecursive(view)
+	return view
+
+# Tras promover un vecino a activo, los restantes vecinos viejos + el mapa viejo pueden
+# seguir siendo vecinos del NUEVO mapa. Se reciclan (se reubican con nuevo offset/dir) o
+# se liberan si ya no aplican.
+func _RecycleOldViews(previous_view: Node2D, previous_id: int, new_id: int) -> void:
+	# Mapa de id -> Node2D con los vecinos viejos que aún existen.
+	var old_pool: Dictionary = {}
+	if is_instance_valid(previous_view) and previous_view != _view and previous_id > 0:
+		previous_view.set_meta("map_id", previous_id)
+		old_pool[previous_id] = previous_view
+	for dir_key in _neighbor_views.keys():
+		var nv = _neighbor_views[dir_key]
+		if is_instance_valid(nv) and nv.has_meta("map_id"):
+			old_pool[int(nv.get_meta("map_id"))] = nv
+	_neighbor_views.clear()
+
+	# Para cada dirección del nuevo mapa, si su vecino ya está en el pool, reasignarlo.
+	const TILE_PX := 32
+	for dir_key in MapNeighbors.ALL_DIRS:
+		var info: Dictionary = MapNeighbors.get_neighbor_info(new_id, dir_key)
+		if info.is_empty():
+			continue
+		var nid: int = int(info["id"])
+		if not old_pool.has(nid):
+			continue
+		var view: Node2D = old_pool[nid]
+		old_pool.erase(nid)
+		view.name = "NeighborMap_%s" % dir_key
+		view.position = Vector2(int(info["dx"]) * TILE_PX, int(info["dy"]) * TILE_PX)
+		view.modulate = NEIGHBOR_MODULATE
+		view.process_mode = Node.PROCESS_MODE_DISABLED
+		view.z_as_relative = false
+		view.z_index = -100
+		_apply_neighbor_z_recursive(view)
+		if view.get_parent() != %MapView:
+			if view.get_parent():
+				view.get_parent().remove_child(view)
+			%MapView.add_child(view)
+		%MapView.move_child(view, 0)
+		_neighbor_views[dir_key] = view
+
+	# Los que no se reutilizaron se liberan.
+	for leftover_id in old_pool.keys():
+		var leftover = old_pool[leftover_id]
+		if is_instance_valid(leftover):
+			leftover.queue_free()
+
+# Restaura los z_index locales de las Layer1/2/3 (en caso de haber sido decoradas como vecino).
+func _ResetLayerZRecursive(node: Node) -> void:
+	for child in node.get_children():
+		if child is CanvasItem:
+			var ci: CanvasItem = child
+			if ci.name in ["Layer1", "Layer2", "Layer3"]:
+				ci.z_as_relative = true
+				ci.z_index = 0
+		_ResetLayerZRecursive(child)
 
 func RefreshNeighbors() -> void:
 	# Permite volver a intentar cargar vecinos (p.ej. tras descubrir una conexión nueva).
@@ -93,6 +188,7 @@ func _apply_neighbor_z_recursive(node: Node) -> void:
 		_apply_neighbor_z_recursive(child)
 
 func _ClearNeighbors() -> void:
+	_pending_neighbor_tasks.clear()
 	for dir_key in _neighbor_views.keys():
 		var v = _neighbor_views[dir_key]
 		if is_instance_valid(v):
@@ -102,8 +198,11 @@ func _ClearNeighbors() -> void:
 func _LoadNeighbors(id: int) -> void:
 	if not is_instance_valid(MapNeighbors):
 		return
-	const TILE_PX := 32
+	# Recolectamos los vecinos que AÚN FALTA cargar (los ya reciclados en _RecycleOldViews
+	# están en _neighbor_views y se saltan) y los encolamos para instanciar de a uno por frame.
 	for dir_key in MapNeighbors.ALL_DIRS:
+		if _neighbor_views.has(dir_key):
+			continue # ya fue reutilizado desde el pool de vecinos viejos
 		var info: Dictionary = MapNeighbors.get_neighbor_info(id, dir_key)
 		if info.is_empty():
 			continue
@@ -113,31 +212,58 @@ func _LoadNeighbors(id: int) -> void:
 		var path := "res://Maps/Map%d.tscn" % neighbor_id
 		if not ResourceLoader.exists(path):
 			continue
-		var neighbor_view: Node = load(path).instantiate()
-		if neighbor_view == null:
-			continue
-		if not (neighbor_view is Node2D):
-			neighbor_view.queue_free()
-			continue
-		var view2d: Node2D = neighbor_view
-		view2d.name = "NeighborMap_%s" % dir_key
-		# dx/dy están en tiles (pueden ser negativos). Se multiplica por 32 para obtener pixels.
-		view2d.position = Vector2(int(info["dx"]) * TILE_PX, int(info["dy"]) * TILE_PX)
-		view2d.modulate = NEIGHBOR_MODULATE
-		# El vecino es puramente decorativo: sin física, sin input, sin _process.
-		view2d.process_mode = Node.PROCESS_MODE_DISABLED
-		# Prioridad de dibujo: los vecinos SIEMPRE van por debajo del mapa activo y de
-		# todas las entidades (pj, criaturas, ítems). Usamos z_index absoluto negativo
-		# y lo aplicamos recursivamente a los hijos (Layer1/2/3) para anular cualquier
-		# z local que pudieran haber heredado de la escena exportada.
-		view2d.z_as_relative = false
-		view2d.z_index = -100
-		_apply_neighbor_z_recursive(view2d)
-		%MapView.add_child(view2d)
-		# Además, reordenamos el árbol para que los vecinos queden al principio y el
-		# mapa activo quede como último hijo (se pinta por encima sin depender de z).
-		%MapView.move_child(view2d, 0)
-		_neighbor_views[dir_key] = view2d
+		_pending_neighbor_tasks.append({
+			"dir": dir_key,
+			"id": neighbor_id,
+			"path": path,
+			"info": info,
+			"map_id": id,
+		})
+	if not _pending_neighbor_tasks.is_empty() and not _neighbor_load_scheduled:
+		_neighbor_load_scheduled = true
+		call_deferred("_ProcessNextNeighborLoad")
+
+func _ProcessNextNeighborLoad() -> void:
+	_neighbor_load_scheduled = false
+	if _pending_neighbor_tasks.is_empty():
+		return
+	var task: Dictionary = _pending_neighbor_tasks.pop_front()
+	# Si durante la espera ya cambiamos de mapa, descartamos tareas viejas.
+	if int(task["map_id"]) != _current_map_id:
+		# Sigue procesando el resto (que también podrían ser viejos — se descartan).
+		if not _pending_neighbor_tasks.is_empty():
+			_neighbor_load_scheduled = true
+			call_deferred("_ProcessNextNeighborLoad")
+		return
+	_InstantiateNeighbor(task)
+	# Agendar siguiente para el PRÓXIMO frame (no dentro de éste) para que el trabajo
+	# se distribuya entre frames y no bloquee la pantalla.
+	if not _pending_neighbor_tasks.is_empty():
+		_neighbor_load_scheduled = true
+		get_tree().process_frame.connect(_ProcessNextNeighborLoad, CONNECT_ONE_SHOT)
+
+func _InstantiateNeighbor(task: Dictionary) -> void:
+	const TILE_PX := 32
+	var dir_key: String = task["dir"]
+	var info: Dictionary = task["info"]
+	var neighbor_view: Node = load(task["path"]).instantiate()
+	if neighbor_view == null:
+		return
+	if not (neighbor_view is Node2D):
+		neighbor_view.queue_free()
+		return
+	var view2d: Node2D = neighbor_view
+	view2d.name = "NeighborMap_%s" % dir_key
+	view2d.set_meta("map_id", int(task["id"]))
+	view2d.position = Vector2(int(info["dx"]) * TILE_PX, int(info["dy"]) * TILE_PX)
+	view2d.modulate = NEIGHBOR_MODULATE
+	view2d.process_mode = Node.PROCESS_MODE_DISABLED
+	view2d.z_as_relative = false
+	view2d.z_index = -100
+	_apply_neighbor_z_recursive(view2d)
+	%MapView.add_child(view2d)
+	%MapView.move_child(view2d, 0)
+	_neighbor_views[dir_key] = view2d
 	if not _neighbor_views.is_empty():
 		print("🧭 MapContainer: vecinos cargados -> ", _neighbor_views.keys())
 

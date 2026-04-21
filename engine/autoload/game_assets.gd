@@ -124,6 +124,51 @@ func GetMap(fileId:int) -> MapData:
 					mapData.flags[index] |= Enums.TileState.Water 
 	return mapData
 
+# Lee el archivo .inf del servidor VB6 y devuelve la lista de TileExit (teleports)
+# definidos en el mapa. Cada entry es {x, y, dest_map, dest_x, dest_y} con
+# coordenadas 1-100 (igual convención que el servidor).
+# Retorna [] si el mapa no tiene .inf (p.ej. interiores sin cruces).
+# Formato .inf (VB6 clsByteBuffer):
+#   Header: 8 bytes (Double) + 2 bytes (Integer)
+#   Por tile (Y outer, X inner, 1..100):
+#     1 byte flags
+#     if flags & 0x1: 3 × Integer (int16) -> TileExit.Map/X/Y
+#     if flags & 0x2: 1 × Integer        -> NpcIndex
+#     if flags & 0x4: 2 × Integer        -> ObjIndex, Amount
+func GetMapInf(fileId: int) -> Array:
+	var path := "res://Assets/Maps/mapa%d.inf" % fileId
+	if not FileAccess.file_exists(path):
+		return []
+	var bytes := FileAccess.get_file_as_bytes(path)
+	if bytes.size() < 10:
+		return []
+	var stream := StreamPeerBuffer.new()
+	stream.data_array = bytes
+	stream.seek(8 + 2) # header
+	var exits: Array = []
+	for y in range(1, 101):
+		for x in range(1, 101):
+			if stream.get_position() >= bytes.size():
+				return exits
+			var flags := stream.get_u8()
+			if flags & 0x1:
+				var dest_map := stream.get_16()
+				var dest_x := stream.get_16()
+				var dest_y := stream.get_16()
+				if dest_map > 0:
+					exits.append({
+						"x": x, "y": y,
+						"dest_map": int(dest_map),
+						"dest_x": int(dest_x),
+						"dest_y": int(dest_y),
+					})
+			if flags & 0x2:
+				stream.get_16() # NpcIndex
+			if flags & 0x4:
+				stream.get_16() # ObjIndex
+				stream.get_16() # Amount
+	return exits
+
 func _LoadColours() -> void:
 	var initReader = ConfigFile.new()
 	initReader.load("res://Assets/Init/colores.dat")
