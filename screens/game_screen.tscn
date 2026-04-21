@@ -41,6 +41,7 @@ shader_parameter/world_scale = 0.003
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_peripheral_fog"]
 shader = ExtResource("18_fog_shader")
+shader_parameter/fog_intensity = 0.7
 
 [sub_resource type="FontVariation" id="FontVariation_ltsmt"]
 base_font = ExtResource("7_rqp22")
@@ -161,10 +162,10 @@ scroll_following = true
 
 [node name="ConsoleInput" type="LineEdit" parent="HubController" unique_id=841654397]
 visible = false
-offset_left = 28.0
-offset_top = 126.0
-offset_right = 1446.0
-offset_bottom = 154.0
+offset_left = 22.0
+offset_top = 199.0
+offset_right = 1469.0
+offset_bottom = 227.0
 theme_override_fonts/font = SubResource("FontVariation_gwwhr")
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")

@@ -38,11 +38,7 @@ func _ready() -> void:
 	Global.connect("animated_dialog_changed", Callable(self, "_on_animated_dialog_changed"))
 	# Guardar la posición original después de un pequeño delay para que se apliquen todas las correcciones
 	call_deferred("_initialize_original_position")
-	# Prioridad de dibujo: los personajes (pj, NPCs, criaturas) siempre se pintan
-	# sobre los objetos Layer3 del mapa activo (árboles, paredes, carteles de ciudad).
-	# Sin esto, la y-sort puede hacer que un sprite alto cuyo anchor está al sur del
-	# personaje lo tape de la cintura para arriba (bug clásico de AO).
-	z_index = 1
+
 	if _isPlayer:
 		_apply_outline_effect()
 	
