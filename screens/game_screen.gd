@@ -648,6 +648,10 @@ func _on_map_changed(map_id: int, name_map: String, zone: String) -> void:
 	_pending_map_name = name_map
 	_pending_map_zone = zone
 	
+	# Cerrar overlay ANTES de cargar el mapa para ocultar el viewport vacío/negro durante la carga
+	if _pre_transition_map_id > 0:
+		_close_map_transition_overlay()
+	
 	if _map_transition_timer:
 		_map_transition_timer.start(1.5)
 		
@@ -818,6 +822,50 @@ func _setup_map_transition_overlay() -> void:
 	else:
 		add_child(_map_transition_overlay)
 
+func _close_map_transition_overlay() -> void:
+	if not _map_transition_overlay:
+		return
+	if _map_transition_tween and _map_transition_tween.is_valid():
+		_map_transition_tween.kill()
+	
+	var iris_material = ShaderMaterial.new()
+	iris_material.shader = load("res://shaders/iris_transition.gdshader")
+	iris_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
+	iris_material.set_shader_parameter("progress", 1.0)
+	_map_transition_overlay.material = iris_material
+
+func _open_map_transition_overlay(duration: float = 0.3) -> void:
+	if not _map_transition_overlay:
+		return
+	if _map_transition_tween and _map_transition_tween.is_valid():
+		_map_transition_tween.kill()
+	
+	var material = _map_transition_overlay.material
+	if not material is ShaderMaterial:
+		var new_iris_material = ShaderMaterial.new()
+		new_iris_material.shader = load("res://shaders/iris_transition.gdshader")
+		new_iris_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
+		new_iris_material.set_shader_parameter("progress", 1.0)
+		_map_transition_overlay.material = new_iris_material
+		material = new_iris_material
+	
+	var iris_material: ShaderMaterial = material
+	var current_progress = iris_material.get_shader_parameter("progress")
+	if current_progress == null:
+		current_progress = 1.0
+	
+	if duration <= 0.0:
+		iris_material.set_shader_parameter("progress", 0.0)
+		return
+	
+	_map_transition_tween = create_tween()
+	_map_transition_tween.tween_method(
+		func(val): if is_instance_valid(iris_material): iris_material.set_shader_parameter("progress", val),
+		float(current_progress),
+		0.0,
+		duration
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
 func _is_interior_map_transition_position(x: int, y: int) -> bool:
 	var interior_min = _MAP_BORDER_THRESHOLD_TILES + 1
 	var interior_max = _MAP_TILE_SIZE - _MAP_BORDER_THRESHOLD_TILES
@@ -919,6 +967,9 @@ func _report_map_transition(transition_type: String, reason: String, x: int, y: 
 		_gameInput.ShowConsoleMessage(message, GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
 
 func _play_border_map_transition(character: Character, transition_type: String, x: int, y: int) -> void:
+	# Abrir overlay inmediatamente si estaba cerrado (bordes no usan fade negro)
+	_open_map_transition_overlay(0.0)
+	
 	# Nos aseguramos de forzar stop y reset de estados
 	character.StopMoving()
 	
@@ -976,19 +1027,17 @@ func _play_non_border_map_transition_effect(_reason: String = "") -> void:
 	iris_material.set_shader_parameter("color", Color(0, 0, 0, 1.0))
 	_map_transition_overlay.material = iris_material
 
-	# Arranca cerrado (pantalla negra) para ocultar el destello/creación de red
+	# El overlay ya está cerrado desde _on_map_changed; abrir suavemente para revelar el mapa cargado
 	iris_material.set_shader_parameter("progress", 1.0)
 	
 	_map_transition_tween = create_tween()
-	# Mantiene cerrado un instante muy corto
-	_map_transition_tween.tween_interval(0.15)
 	
 	# Abre el iris rápidamente hacia los bordes
 	_map_transition_tween.tween_method(
 		func(val): if is_instance_valid(iris_material): iris_material.set_shader_parameter("progress", val),
-		1.0, 
-		0.0, 
-		0.45
+		1.0,
+		0.0,
+		0.35
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _detect_portal_transition() -> bool:
@@ -1054,7 +1103,7 @@ func _play_portal_transition_effect() -> void:
 	# Configurar el shader de portal
 	var portal_material = ShaderMaterial.new()
 	portal_material.shader = load("res://shaders/portal_transition.gdshader")
-	portal_material.set_shader_parameter("progress", 0.5)
+	portal_material.set_shader_parameter("progress", 0.0)
 	portal_material.set_shader_parameter("portal_color", Color(0.70, 0.34, 0.98, 1.0))
 	portal_material.set_shader_parameter("swirl_speed", 2.0)
 	_map_transition_overlay.material = portal_material
@@ -1064,19 +1113,18 @@ func _play_portal_transition_effect() -> void:
 	# Progresión continua y cinematográfica: energía -> remolino -> disolución fluida
 	_map_transition_tween.tween_method(
 		func(val): if is_instance_valid(portal_material): portal_material.set_shader_parameter("progress", val),
-		0.5,
+		0.0,
 		1.0,
-		0.62
+		0.8
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
-	# Al finalizar, restaurar el shader original (iris) para futuras transiciones
+	# Al finalizar, abrir overlay y restaurar el shader original (iris) para futuras transiciones
 	_map_transition_tween.finished.connect(func():
 		if request_id != _portal_restore_request_id:
 			return
 
 		print("[PORTAL] Transición de portal completada")
 		_is_portal_transition_playing = false
-		# Restaurar material original después de un momento
 		get_tree().create_timer(0.25).timeout.connect(func():
 			if request_id != _portal_restore_request_id:
 				return

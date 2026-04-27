@@ -7,7 +7,7 @@ const CORE_RECT := Rect2(455, 170, 541, 413)
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
 const MAP_SIZE_PX := 100 * 32 # 3200 px (un mapa completo de 100x100 tiles de 32px)
-const NEIGHBOR_MODULATE := Color(0.88, 0.88, 0.92, 1.0) # Sutil atenuación para diferenciarlos
+const NEIGHBOR_MODULATE := Color.WHITE # Sutil atenuación para diferenciarlos
 
 var _view:Node2D
 var _current_map_id: int = 0
