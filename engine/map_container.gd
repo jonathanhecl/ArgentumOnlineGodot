@@ -175,18 +175,17 @@ func _apply_neighbor_z_recursive(node: Node) -> void:
 	# - Layer3 (árboles y objetos verticales) quedan encima del suelo del mapa activo
 	#   para que sus canopies no se corten abruptamente al cruzar el borde.
 	# Cualquier otro CanvasItem hereda z del padre (comportamiento por defecto).
+
 	for child in node.get_children():
 		if child is CanvasItem:
 			var ci: CanvasItem = child
-			match ci.name:
-				"Layer1", "Layer2":
-					ci.z_as_relative = false
-					ci.z_index = NEIGHBOR_Z_GROUND
-				"Layer3":
-					ci.z_as_relative = false
-					ci.z_index = NEIGHBOR_Z_OBJECTS
+			if ci.name in ["Layer1", "Layer2"]:
+				ci.z_as_relative = false
+				ci.z_index = NEIGHBOR_Z_GROUND
+			elif ci.name == "Layer3":
+				ci.z_as_relative = false
+				ci.z_index = NEIGHBOR_Z_OBJECTS
 		_apply_neighbor_z_recursive(child)
-
 func _ClearNeighbors() -> void:
 	_pending_neighbor_tasks.clear()
 	for dir_key in _neighbor_views.keys():
