@@ -165,9 +165,9 @@ func RefreshNeighbors() -> void:
 
 const NEIGHBOR_Z_GROUND := -100  # Layer1/Layer2 del vecino: bien atrás (detrás del suelo activo)
 const NEIGHBOR_Z_OBJECTS := 1    # Layer3 del vecino (árboles): ENCIMA del suelo activo.
-                                 # Así los canopies que se extienden hacia el mapa activo se ven
-                                 # completos sobre el pasto. Respeta el comportamiento AO clásico
-                                 # (el árbol puede cubrir al pj cuando éste camina por detrás).
+								 # Así los canopies que se extienden hacia el mapa activo se ven
+								 # completos sobre el pasto. Respeta el comportamiento AO clásico
+								 # (el árbol puede cubrir al pj cuando éste camina por detrás).
 
 func _apply_neighbor_z_recursive(node: Node) -> void:
 	# Aplica z_index absoluto según la capa:
