@@ -92,6 +92,7 @@ func _PromoteNeighborToActive(new_id: int) -> Node2D:
 		return null
 	var view: Node2D = _neighbor_views[matched_dir]
 	_neighbor_views.erase(matched_dir)
+	_ClearRuntimeNodes(view)
 	view.name = "MapView"
 	view.position = Vector2.ZERO
 	view.modulate = Color.WHITE
@@ -127,13 +128,14 @@ func _RecycleOldViews(previous_view: Node2D, previous_id: int, new_id: int) -> v
 			continue
 		var view: Node2D = old_pool[nid]
 		old_pool.erase(nid)
+		_ClearRuntimeNodes(view)
 		view.name = "NeighborMap_%s" % dir_key
 		view.position = Vector2(int(info["dx"]) * TILE_PX, int(info["dy"]) * TILE_PX)
 		view.modulate = NEIGHBOR_MODULATE
 		view.process_mode = Node.PROCESS_MODE_DISABLED
 		view.z_as_relative = false
-		view.z_index = -100
-		_apply_neighbor_z_recursive(view)
+		view.z_index = _get_neighbor_ground_z(info)
+		_apply_neighbor_z_recursive(view, info)
 		if view.get_parent() != %MapView:
 			if view.get_parent():
 				view.get_parent().remove_child(view)
@@ -165,13 +167,30 @@ func RefreshNeighbors() -> void:
 	_RecycleOldViews(null, 0, _current_map_id)
 	_LoadNeighbors(_current_map_id, false)
 
-const NEIGHBOR_Z_GROUND := -100  # Layer1/Layer2 del vecino: bien atrás (detrás del suelo activo)
-const NEIGHBOR_Z_OBJECTS := -90    # Layer3 del vecino (árboles): debajo del mapa activo.
-								 # Así los canopies que se extienden hacia el mapa activo se ven
-								 # completos sobre el pasto. Respeta el comportamiento AO clásico
-								 # (el árbol puede cubrir al pj cuando éste camina por detrás).
+const NEIGHBOR_Z_TOP_GROUND := -300
+const NEIGHBOR_Z_TOP_OBJECTS := -290
+const NEIGHBOR_Z_MIDDLE_GROUND := -100
+const NEIGHBOR_Z_MIDDLE_OBJECTS := -90
+const NEIGHBOR_Z_BOTTOM_GROUND := -80
+const NEIGHBOR_Z_BOTTOM_OBJECTS := 10
 
-func _apply_neighbor_z_recursive(node: Node) -> void:
+func _get_neighbor_ground_z(info: Dictionary) -> int:
+	var dy := int(info.get("dy", 0))
+	if dy < 0:
+		return NEIGHBOR_Z_TOP_GROUND
+	if dy > 0:
+		return NEIGHBOR_Z_BOTTOM_GROUND
+	return NEIGHBOR_Z_MIDDLE_GROUND
+
+func _get_neighbor_objects_z(info: Dictionary) -> int:
+	var dy := int(info.get("dy", 0))
+	if dy < 0:
+		return NEIGHBOR_Z_TOP_OBJECTS
+	if dy > 0:
+		return NEIGHBOR_Z_BOTTOM_OBJECTS
+	return NEIGHBOR_Z_MIDDLE_OBJECTS
+
+func _apply_neighbor_z_recursive(node: Node, info: Dictionary) -> void:
 	# Aplica z_index absoluto según la capa:
 	# - Layer1 / Layer2 (suelo del vecino) van al fondo (NEIGHBOR_Z_GROUND).
 	# - Layer3 (árboles y objetos verticales) quedan encima del suelo del mapa activo
@@ -183,11 +202,11 @@ func _apply_neighbor_z_recursive(node: Node) -> void:
 			var ci: CanvasItem = child
 			if ci.name in ["Layer1", "Layer2"]:
 				ci.z_as_relative = false
-				ci.z_index = NEIGHBOR_Z_GROUND
+				ci.z_index = _get_neighbor_ground_z(info)
 			elif ci.name == "Layer3":
 				ci.z_as_relative = false
-				ci.z_index = NEIGHBOR_Z_OBJECTS
-		_apply_neighbor_z_recursive(child)
+				ci.z_index = _get_neighbor_objects_z(info)
+		_apply_neighbor_z_recursive(child, info)
 func _ClearNeighbors() -> void:
 	_pending_neighbor_tasks.clear()
 	for dir_key in _neighbor_views.keys():
@@ -266,8 +285,8 @@ func _InstantiateNeighbor(task: Dictionary) -> void:
 	view2d.modulate = NEIGHBOR_MODULATE
 	view2d.process_mode = Node.PROCESS_MODE_DISABLED
 	view2d.z_as_relative = false
-	view2d.z_index = -100
-	_apply_neighbor_z_recursive(view2d)
+	view2d.z_index = _get_neighbor_ground_z(info)
+	_apply_neighbor_z_recursive(view2d, info)
 	%MapView.add_child(view2d)
 	%MapView.move_child(view2d, 0)
 	_neighbor_views[dir_key] = view2d
@@ -290,6 +309,7 @@ func UnblockTile (x:int, y:int) -> void:
 
 func AddCharacter(character:Character) -> void:
 	_characterCollection.append(character)
+	character.set_meta("is_runtime_entity", true)
 	var layer = _GetLayer("Layer3")
 	if layer:
 		layer.add_child(character)
@@ -304,7 +324,7 @@ func DeleteCharacter(instanceId:int) -> void:
 	var character = GetCharacter(instanceId)
 	if character:
 		_characterCollection.erase(character)
-		character.queue_free()
+		_FreeRuntimeNode(character)
 			
 func GetCharacter(instanceId:int) -> Character:
 	for node in _characterCollection:
@@ -336,6 +356,7 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 		sprite.set_meta(GridPositionKey, Vector2i(x, y))
 		sprite.set_meta("grh_id", grhId)
 		sprite.set_meta("is_server_object", true)
+		sprite.set_meta("is_runtime_entity", true)
 		_objectCollection.append(sprite)
 		
 		var layer_name = "Layer2" if sprite.region_rect.size == Vector2(32, 32) else "Layer3"
@@ -347,6 +368,7 @@ func AddObject(grhId:int, x:int, y:int) -> void:
 			push_error("MapContainer: Cannot add object, %s not available" % layer_name)
 
 func AddDamageText(damage_text: Node2D) -> void:
+	damage_text.set_meta("is_runtime_entity", true)
 	var layer = _GetLayer("Layer3")
 	if layer:
 		layer.add_child(damage_text)
@@ -364,7 +386,7 @@ func DeleteObject(x:int, y:int) -> void:
 	
 	if node:
 		_objectCollection.erase(node)
-		node.queue_free()
+		_FreeRuntimeNode(node)
 
 # DEBUG: Obtener información de objetos en una posición
 func GetObjectsAt(x:int, y:int) -> Array[Dictionary]:
@@ -402,8 +424,31 @@ func GetCharacterDebugInfo(x:int, y:int) -> Dictionary:
 	return {}
 	
 func _DeleteEntities() -> void:
+	for character in _characterCollection:
+		_FreeRuntimeNode(character)
+	for object in _objectCollection:
+		_FreeRuntimeNode(object)
+	if is_instance_valid(_view):
+		_ClearRuntimeNodes(_view)
+	for neighbor in _neighbor_views.values():
+		if is_instance_valid(neighbor):
+			_ClearRuntimeNodes(neighbor)
 	_characterCollection.clear()
 	_objectCollection.clear()
+
+func _ClearRuntimeNodes(node: Node) -> void:
+	for child in node.get_children():
+		if child is Character or bool(child.get_meta("is_runtime_entity", false)) or bool(child.get_meta("is_server_object", false)):
+			_FreeRuntimeNode(child)
+		else:
+			_ClearRuntimeNodes(child)
+
+func _FreeRuntimeNode(node: Node) -> void:
+	if not is_instance_valid(node):
+		return
+	if node.get_parent():
+		node.get_parent().remove_child(node)
+	node.queue_free()
 
 func _CreateSprite(grhData:GrhData, x:int, y:int) -> Sprite2D:
 	var sprite = Sprite2D.new()
