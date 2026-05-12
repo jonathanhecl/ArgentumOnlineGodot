@@ -145,7 +145,13 @@ func _derive_diagonals_for(map_id: int) -> bool:
 				resolved = {} # ambigüedad: ids distintos por caminos distintos
 				break
 		if not resolved.is_empty() and int(resolved["id"]) != map_id:
-			changed = _set_if_new(map_id, diag, int(resolved["id"]), int(resolved["dx"]), int(resolved["dy"])) or changed
+			var target_id := int(resolved["id"])
+			var dx := int(resolved["dx"])
+			var dy := int(resolved["dy"])
+			changed = _set_if_missing(map_id, diag, target_id, dx, dy) or changed
+			var opposite_dir := _opposite(diag)
+			if opposite_dir != "":
+				changed = _set_if_missing(target_id, opposite_dir, map_id, -dx, -dy) or changed
 	return changed
 
 func _set_if_new(map_id: int, direction: String, target: int, dx: int, dy: int) -> bool:
@@ -161,6 +167,14 @@ func _set_if_new(map_id: int, direction: String, target: int, dx: int, dy: int) 
 	_connections[map_id] = dict
 	return true
 
+func _set_if_missing(map_id: int, direction: String, target: int, dx: int, dy: int) -> bool:
+	var dict: Dictionary = _connections.get(map_id, {})
+	if dict.has(direction):
+		return false
+	dict[direction] = {"id": target, "dx": dx, "dy": dy}
+	_connections[map_id] = dict
+	return true
+
 func _load() -> void:
 	_connections.clear()
 	# Base: seed generado por el Exportador (res://Assets/Init/map_neighbors.json).
@@ -173,9 +187,12 @@ func _load() -> void:
 	])
 
 func _derive_all_diagonals() -> void:
-	var map_ids := _connections.keys()
-	for map_id in map_ids:
-		_derive_diagonals_for(int(map_id))
+	var changed := true
+	while changed:
+		changed = false
+		var map_ids := _connections.keys()
+		for map_id in map_ids:
+			changed = _derive_diagonals_for(int(map_id)) or changed
 
 func _merge_from_file(path: String) -> int:
 	if not FileAccess.file_exists(path):
@@ -217,6 +234,12 @@ func _merge_from_file(path: String) -> int:
 		if not existing.is_empty():
 			_connections[map_id] = existing
 			count += 1
+			for d in existing.keys():
+				var entry: Dictionary = existing[d]
+				var target_id := int(entry.get("id", 0))
+				var opposite_dir := _opposite(str(d))
+				if target_id > 0 and opposite_dir != "":
+					_set_if_missing(target_id, opposite_dir, map_id, -int(entry.get("dx", 0)), -int(entry.get("dy", 0)))
 	return count
 
 func _save() -> void:
