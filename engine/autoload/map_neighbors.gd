@@ -167,9 +167,15 @@ func _load() -> void:
 	var seed_count := _merge_from_file(SEED_PATH)
 	# Encima: descubrimientos runtime persistidos (user://map_neighbors.json).
 	var user_count := _merge_from_file(SAVE_PATH)
+	_derive_all_diagonals()
 	print("🧭 MapNeighbors: %d mapas con conexiones (seed: %d, user: %d)" % [
 		_connections.size(), seed_count, user_count
 	])
+
+func _derive_all_diagonals() -> void:
+	var map_ids := _connections.keys()
+	for map_id in map_ids:
+		_derive_diagonals_for(int(map_id))
 
 func _merge_from_file(path: String) -> int:
 	if not FileAccess.file_exists(path):

@@ -40,6 +40,7 @@ func LoadMap(id:int) -> void:
 
 	var previous_view := _view
 	var previous_id := _current_map_id
+	var initial_load := previous_id <= 0 or not is_instance_valid(previous_view)
 
 	# Fast path: si el mapa destino ya está cargado como vecino, lo promovemos a activo
 	# sin tocar disco. Esto elimina el "tirón" de cargar el .tscn (50KB+) al cruzar un borde.
@@ -74,7 +75,7 @@ func LoadMap(id:int) -> void:
 	_RecycleOldViews(previous_view, previous_id, id)
 
 	# Cargar los vecinos restantes escalonadamente (uno por frame) para no bloquear.
-	_LoadNeighbors(id)
+	_LoadNeighbors(id, initial_load)
 	print("✅ MapContainer: Mapa ", id, " activo con ", _tiles.size(), " tiles")
 
 # Busca entre los vecinos actuales uno cuyo id coincida con new_id; si existe lo desconecta
@@ -160,8 +161,9 @@ func RefreshNeighbors() -> void:
 	# Permite volver a intentar cargar vecinos (p.ej. tras descubrir una conexión nueva).
 	if _current_map_id <= 0:
 		return
-	_ClearNeighbors()
-	_LoadNeighbors(_current_map_id)
+	_pending_neighbor_tasks.clear()
+	_RecycleOldViews(null, 0, _current_map_id)
+	_LoadNeighbors(_current_map_id, false)
 
 const NEIGHBOR_Z_GROUND := -100  # Layer1/Layer2 del vecino: bien atrás (detrás del suelo activo)
 const NEIGHBOR_Z_OBJECTS := 1    # Layer3 del vecino (árboles): ENCIMA del suelo activo.
@@ -194,7 +196,7 @@ func _ClearNeighbors() -> void:
 			v.queue_free()
 	_neighbor_views.clear()
 
-func _LoadNeighbors(id: int) -> void:
+func _LoadNeighbors(id: int, immediate: bool = false) -> void:
 	if not is_instance_valid(MapNeighbors):
 		return
 	# Recolectamos los vecinos que AÚN FALTA cargar (los ya reciclados en _RecycleOldViews
@@ -218,6 +220,12 @@ func _LoadNeighbors(id: int) -> void:
 			"info": info,
 			"map_id": id,
 		})
+	if immediate:
+		while not _pending_neighbor_tasks.is_empty():
+			var task: Dictionary = _pending_neighbor_tasks.pop_front()
+			if int(task["map_id"]) == _current_map_id:
+				_InstantiateNeighbor(task)
+		return
 	if not _pending_neighbor_tasks.is_empty() and not _neighbor_load_scheduled:
 		_neighbor_load_scheduled = true
 		call_deferred("_ProcessNextNeighborLoad")
