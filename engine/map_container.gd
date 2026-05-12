@@ -166,7 +166,7 @@ func RefreshNeighbors() -> void:
 	_LoadNeighbors(_current_map_id, false)
 
 const NEIGHBOR_Z_GROUND := -100  # Layer1/Layer2 del vecino: bien atrás (detrás del suelo activo)
-const NEIGHBOR_Z_OBJECTS := 1    # Layer3 del vecino (árboles): ENCIMA del suelo activo.
+const NEIGHBOR_Z_OBJECTS := -90    # Layer3 del vecino (árboles): debajo del mapa activo.
 								 # Así los canopies que se extienden hacia el mapa activo se ven
 								 # completos sobre el pasto. Respeta el comportamiento AO clásico
 								 # (el árbol puede cubrir al pj cuando éste camina por detrás).
@@ -445,6 +445,9 @@ func _apply_initial_visibility(entity: CanvasItem) -> void:
 	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
 	var is_in_core := CORE_RECT.has_point(screen_pos)
 	entity.set_meta("_in_core", is_in_core)
+	if entity is Character and entity.IsPlayer():
+		entity.modulate.a = 1.0
+		return
 	entity.modulate.a = 1.0 if is_in_core else 0.0
 
 func _apply_initial_object_visibility(entity: CanvasItem) -> void:
@@ -473,7 +476,14 @@ func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_siz
 	var is_in_core := CORE_RECT.has_point(screen_pos)
 	if not entity.has_meta("_in_core"):
 		entity.set_meta("_in_core", is_in_core)
+		if entity is Character and entity.IsPlayer():
+			entity.modulate.a = 1.0
+			return
 		entity.modulate.a = 1.0 if is_in_core else 0.0
+		return
+	if entity is Character and entity.IsPlayer():
+		entity.set_meta("_in_core", is_in_core)
+		entity.modulate.a = 1.0
 		return
 	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
 	if is_in_core == was_in_core:

@@ -44,7 +44,9 @@ func _ready() -> void:
 	
 	# Configurar el timer de tipografía
 	if _dialogTypeTimer:
-		_dialogTypeTimer.timeout.connect(_OnDialogTypeTimerTimeout)
+		var dialog_type_timeout := Callable(self, "_OnDialogTypeTimerTimeout")
+		if not _dialogTypeTimer.timeout.is_connected(dialog_type_timeout):
+			_dialogTypeTimer.timeout.connect(dialog_type_timeout)
 
 func _physics_process(delta: float) -> void:
 	_ProcessAnimation()
@@ -92,6 +94,13 @@ func MoveTo(heading:int) -> void:
 	var offset = Utils.HeadingToVector(heading)
 	isMoving = true
 	_targetPosition = position + (offset * Consts.TileSize)
+
+func MoveToPosition(target_position: Vector2) -> void:
+	if isMoving:
+		position = _targetPosition
+		isMoving = false
+	isMoving = true
+	_targetPosition = target_position
 	
 func StopMoving() -> void:
 	if isMoving:

@@ -474,7 +474,6 @@ func _connect_protocol_signals() -> void:
 	ProtocolHandler.commerce_end.connect(_on_commerce_end)
 	ProtocolHandler.bank_init.connect(_on_bank_init)
 	ProtocolHandler.bank_end.connect(_on_bank_end)
-	ProtocolHandler.bank_gold_updated.connect(_on_bank_gold_updated)
 	
 	# Status toggles
 	ProtocolHandler.stop_working.connect(_on_stop_working)
@@ -979,17 +978,15 @@ func _play_border_map_transition(character: Character, transition_type: String, 
 
 	var target_position = Vector2((x - 1) * 32, (y - 1) * 32) + Vector2(16, 32)
 	var heading_vector = Vector2(Utils.HeadingToVector(heading))
-	character.position = target_position - (heading_vector * Consts.TileSize)
+	var transition_distance := float(Consts.TileSize)
+	if transition_type == "BORDER_TOP" or transition_type == "BORDER_BOTTOM":
+		transition_distance *= 0.5
+	character.position = target_position - (heading_vector * transition_distance)
 	character.gridPosition = Vector2i(x, y)
 	character.renderer.heading = heading
-	
-	# Ocultamos capa por 1 frame para evitar parpadeos y luego lo deslizamos
-	character.visible = false
-	get_tree().create_timer(0.05).timeout.connect(func():
-		if is_instance_valid(character):
-			character.visible = true
-	)
-	character.MoveTo(heading)
+	character.visible = true
+	character.modulate.a = 1.0
+	character.MoveToPosition(target_position)
 
 func _get_border_transition_heading(transition_type: String) -> int:
 	match transition_type:
