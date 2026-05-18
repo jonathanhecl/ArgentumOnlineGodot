@@ -97,6 +97,7 @@ func _ready() -> void:
 	
 	if _rainOverlay:
 		_rainOverlay.visible = _is_raining
+		_rainOverlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	_setup_map_transition_timer()
 	_setup_map_transition_overlay()
@@ -1141,6 +1142,7 @@ func _fade_in_rain() -> void:
 	if not _rainOverlay:
 		return
 	
+	_rainOverlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_rainOverlay.visible = true
 	
 	# Cancelar cualquier fade anterior
