@@ -791,7 +791,7 @@ func _create_item_stack(p: ChangeInventorySlot) -> ItemStack:
 	item.salePrice = p.salePrice
 	
 	if p.grhId > 0:
-		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)
+		item.icon = GameAssets.GetItemIcon(p.grhId)
 	
 	return ItemStack.new(p.amount, p.equipped, item)
 
@@ -807,7 +807,7 @@ func _create_bank_item_stack(p: ChangeBankSlot) -> ItemStack:
 	item.salePrice = p.valor
 	
 	if p.grhId > 0:
-		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)
+		item.icon = GameAssets.GetItemIcon(p.grhId)
 	
 	return ItemStack.new(p.amount, false, item)
 
@@ -823,7 +823,7 @@ func _create_npc_item_stack(p: ChangeNPCInventorySlot) -> ItemStack:
 	item.salePrice = p.salePrice
 	
 	if p.grhId > 0:
-		item.icon = GameAssets.GetTexture(GameAssets.GrhDataList[p.grhId].fileId)
+		item.icon = GameAssets.GetItemIcon(p.grhId)
 	
 	return ItemStack.new(p.amount, false, item)
 

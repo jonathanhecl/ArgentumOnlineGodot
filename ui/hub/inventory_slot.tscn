@@ -15,8 +15,9 @@ base_font = ExtResource("3_g7v3p")
 
 [node name="InventorySlot" type="PanelContainer"]
 custom_minimum_size = Vector2(34, 34)
-offset_right = 34.0
-offset_bottom = 34.0
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_5bo18")
 script = ExtResource("1_4r0iv")
 mouse_default_cursor_shape = 2
@@ -28,6 +29,7 @@ texture_filter = 1
 layout_mode = 2
 mouse_filter = 2
 expand_mode = 1
+stretch_mode = 5
 
 [node name="Quantity" type="Label" parent="."]
 unique_name_in_owner = true

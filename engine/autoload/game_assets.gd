@@ -4,6 +4,8 @@ extends Node
 const MAGIC_VERSION = 10
 
 var _textureList = {}
+var _itemIconList = {}
+
 
 var GrhDataList = []
 var ColoresPJ = []
@@ -55,6 +57,53 @@ func GetTexture(fileId:int) -> Texture2D:
 	_textureList.set(fileId, texture)
 
 	return texture
+	
+func GetItemIcon(grhId: int) -> Texture2D:
+	if grhId <= 0:
+		return null
+		
+	if _itemIconList.has(grhId):
+		return _itemIconList.get(grhId)
+		
+	if grhId >= GrhDataList.size() or GrhDataList[grhId] == null:
+		return null
+		
+	var grh = GrhDataList[grhId]
+	var frame_grh_id = grh.frames[1] if grh.frameCount > 1 else grhId
+	if frame_grh_id >= GrhDataList.size() or GrhDataList[frame_grh_id] == null:
+		return null
+		
+	var frame_grh = GrhDataList[frame_grh_id]
+	var base_texture = GetTexture(frame_grh.fileId)
+	if not base_texture:
+		return null
+		
+	var rect = frame_grh.region
+	var final_texture: Texture2D = null
+	
+	var img = base_texture.get_image()
+	if img:
+		var item_img = img
+		if rect.size != Vector2.ZERO:
+			item_img = img.get_region(Rect2i(rect))
+		
+		var used_rect = item_img.get_used_rect()
+		if used_rect.size != Vector2i.ZERO:
+			# Crear una sub-región de la textura base, recortando la transparencia
+			var final_rect = Rect2(rect.position + Vector2(used_rect.position), Vector2(used_rect.size))
+			var atlas = AtlasTexture.new()
+			atlas.atlas = base_texture
+			atlas.region = final_rect
+			final_texture = atlas
+			
+	if not final_texture:
+		var atlas = AtlasTexture.new()
+		atlas.atlas = base_texture
+		atlas.region = rect
+		final_texture = atlas
+		
+	_itemIconList[grhId] = final_texture
+	return final_texture
 	
 func GetNickColor(id:int) -> Color:
 	return ColoresPJ[id]
