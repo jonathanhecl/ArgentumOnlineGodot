@@ -60,13 +60,13 @@ autowrap_mode = 3
 clip_text = true
 
 [node name="PlayerInventory" parent="." instance=ExtResource("2_cer8s")]
-custom_minimum_size = Vector2(160, 256)
+custom_minimum_size = Vector2(166, 256)
 layout_mode = 0
-offset_left = 262.0
+offset_left = 259.0
 offset_top = 133.0
-offset_right = 422.0
+offset_right = 425.0
 offset_bottom = 389.0
-columns = 5
+columns = 4
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 custom_minimum_size = Vector2(160, 256)
@@ -78,7 +78,7 @@ offset_bottom = 389.0
 
 [node name="MerchantInventory" parent="ScrollContainer" instance=ExtResource("2_cer8s")]
 layout_mode = 2
-columns = 5
+columns = 4
 
 [node name="Quantity" type="SpinBox" parent="."]
 layout_mode = 1
