@@ -20,6 +20,10 @@ func get_selected_slot() -> int:
 
 func set_slot_text(slot:int, text:String) -> void:
 	_item_list.set_item_text(slot, text)
+	if text != "" and text != "(Nada)" and text != "(None)":
+		_item_list.set_item_icon(slot, _get_placeholder_icon())
+	else:
+		_item_list.set_item_icon(slot, null)
 
 
 func _on_spell_selected(index: int) -> void:
@@ -82,5 +86,29 @@ func update_spell_slot(slot: int, spell_id: int) -> void:
 	# Actualizar el item en la lista
 	if slot > 0 and slot <= _item_list.item_count:
 		_item_list.set_item_text(slot - 1, spell_name)
+		if spell_id > 0:
+			_item_list.set_item_icon(slot - 1, _get_placeholder_icon())
+		else:
+			_item_list.set_item_icon(slot - 1, null)
 	
 	print("Panel de hechizos: actualizado slot ", slot, " con ", spell_name) 
+
+
+var _placeholder_icon: Texture2D = null
+
+func _get_placeholder_icon() -> Texture2D:
+	if _placeholder_icon == null:
+		# En Argentum Online, Gfx 15 es un pergamino de hechizos.
+		# Intentamos cargarlo; si no existe, usamos un gradiente de color súper premium (púrpura a azul mágico).
+		var tex = load("res://Assets/Gfx/15.png")
+		if tex:
+			_placeholder_icon = tex
+		else:
+			var gradient = Gradient.new()
+			gradient.colors = PackedColorArray([Color("6a1b9a"), Color("283593")]) # Violeta mágico
+			var grad_tex = GradientTexture2D.new()
+			grad_tex.gradient = gradient
+			grad_tex.width = 24
+			grad_tex.height = 24
+			_placeholder_icon = grad_tex
+	return _placeholder_icon

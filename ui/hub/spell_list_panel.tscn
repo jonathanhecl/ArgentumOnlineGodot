@@ -20,8 +20,11 @@ offset_top = 133.0
 offset_right = 360.0
 offset_bottom = 367.0
 focus_mode = 0
+theme_override_constants/v_separation = 8
+theme_override_constants/h_separation = 8
 theme_override_fonts/font = SubResource("FontVariation_ce3ml")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
+fixed_icon_size = Vector2i(24, 24)
 
 [node name="BtnCast" type="TextureButton" parent="." unique_id=793497117]
 layout_mode = 0
