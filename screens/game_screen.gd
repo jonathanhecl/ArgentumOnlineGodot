@@ -604,8 +604,8 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 		var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
 		var time_diff = Time.get_ticks_msec() - ProtocolHandler.last_magic_cast_time
 		
-		# Si hay un lanzador válido, es diferente del objetivo, y ocurrió hace poco (menos de 1500ms)
-		if caster and caster != character and time_diff < 1500:
+		# Si hay un lanzador válido, es diferente del objetivo, no es auto-hechizo, y ocurrió hace poco (menos de 1500ms)
+		if caster and caster != character and char_index != ProtocolHandler.last_magic_caster_id and time_diff < 1500:
 			var projectile = SpellProjectile.new()
 			var layer3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
 			if layer3:
@@ -614,16 +614,36 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 				_gameWorld.GetMapContainer().add_child(projectile)
 				
 			var target_ref = weakref(character)
+			var last_target_pos = character.global_position
+			
 			var on_arrival = func():
 				var t = target_ref.get_ref()
 				if is_instance_valid(t) and t.is_inside_tree():
 					t.effect.play_effect(fx, loops)
+				else:
+					# Si el objetivo murió o desapareció a mitad de camino, reproducir el impacto en su última posición
+					var l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+					if l3:
+						var standalone_fx = CharacterEffect.new()
+						standalone_fx.global_position = last_target_pos
+						l3.add_child(standalone_fx)
+						
+						# Auto-liberar al terminar el bucle
+						if loops != Consts.InfiniteLoops:
+							var remaining_loops = loops
+							standalone_fx.animation_finished.connect(func():
+								remaining_loops -= 1
+								if remaining_loops <= 0:
+									standalone_fx.queue_free()
+							)
+						standalone_fx.play_effect(fx, loops)
+						print("[PROYECTIL IMPACTO] Objetivo eliminado. Reproduciendo FX %d autónomo en %v" % [fx, last_target_pos])
 					
 			projectile.launch(fx, caster.global_position, character, on_arrival)
 			print("[PROYECTIL] Lanzado desde PJ %d hacia PJ %d con FX %d (diferencia tiempo: %dms)" % [ProtocolHandler.last_magic_caster_id, char_index, fx, time_diff])
 		else:
 			character.effect.play_effect(fx, loops)
-			print("[PROYECTIL OMITIDO] FX %d directo en PJ %d. Caster: %s, dif tiempo: %dms" % [fx, char_index, str(caster), time_diff])
+			print("[PROYECTIL OMITIDO] FX %d directo en PJ %d (auto-hechizo o no sincronizado). Caster: %s, dif tiempo: %dms" % [fx, char_index, str(caster), time_diff])
 
 func _on_update_tag_status(char_index: int, tag: String, nick_color: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
