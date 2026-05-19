@@ -128,6 +128,10 @@ const _HEADING_CHANGE_PACKET = preload("res://network/commands/HeadingChange.gd"
 var game_context: GameContext = GameContext.new()
 var main_character_id: int = -1
 
+# Global spell caster tracking for projectile travels
+var last_magic_caster_id: int = -1
+var last_magic_cast_time: int = 0
+
 # Referencia al GameWorld (se setea desde game_screen)
 var game_world: GameWorld = null
 

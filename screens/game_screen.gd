@@ -1,6 +1,8 @@
 extends Node
 class_name GameScreen
 
+const SpellProjectile = preload("res://engine/character/spell_projectile.gd")
+
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
@@ -63,6 +65,8 @@ var _nearby_portal_objects: Dictionary = {}  # {Vector2i: grh_id} - portales det
 
 # DEBUG: Modo debug para mostrar información de objetos al hacer clic
 var _debug_click_mode: bool = true  # Activado por defecto para ayudar a identificar portales
+
+
 
 # Acceso al contexto global
 var _gameContext: GameContext:
@@ -597,7 +601,29 @@ func _on_set_invisible(char_index: int, invisible: bool) -> void:
 func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
 	if character:
-		character.effect.play_effect(fx, loops)
+		var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
+		var time_diff = Time.get_ticks_msec() - ProtocolHandler.last_magic_cast_time
+		
+		# Si hay un lanzador válido, es diferente del objetivo, y ocurrió hace poco (menos de 1500ms)
+		if caster and caster != character and time_diff < 1500:
+			var projectile = SpellProjectile.new()
+			var layer3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+			if layer3:
+				layer3.add_child(projectile)
+			else:
+				_gameWorld.GetMapContainer().add_child(projectile)
+				
+			var target_ref = weakref(character)
+			var on_arrival = func():
+				var t = target_ref.get_ref()
+				if is_instance_valid(t) and t.is_inside_tree():
+					t.effect.play_effect(fx, loops)
+					
+			projectile.launch(fx, caster.global_position, character, on_arrival)
+			print("[PROYECTIL] Lanzado desde PJ %d hacia PJ %d con FX %d (diferencia tiempo: %dms)" % [ProtocolHandler.last_magic_caster_id, char_index, fx, time_diff])
+		else:
+			character.effect.play_effect(fx, loops)
+			print("[PROYECTIL OMITIDO] FX %d directo en PJ %d. Caster: %s, dif tiempo: %dms" % [fx, char_index, str(caster), time_diff])
 
 func _on_update_tag_status(char_index: int, tag: String, nick_color: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
@@ -609,6 +635,23 @@ func _on_chat_over_head(char_index: int, message: String, color: Color) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
 	if character:
 		character.Say(message, color)
+		
+		# Registrar si es un cántico de hechizo mágico
+		var stripped = message.strip_edges()
+		var upper = stripped.to_upper()
+		var is_magic = stripped.begins_with("¡") or stripped.ends_with("!")
+		if not is_magic:
+			# Comprobar palabras mágicas comunes de AO
+			for word in ["VAS", "ORT", "GRAV", "CORP", "POR", "WIS", "EX", "IN", "FLAM", "YLEM", "AN", "MANI"]:
+				if word in upper:
+					is_magic = true
+					break
+		
+		if is_magic:
+			ProtocolHandler.last_magic_caster_id = char_index
+			ProtocolHandler.last_magic_cast_time = Time.get_ticks_msec()
+			print("[HECHIZO] Cántico detectado: '%s' de PJ %d" % [message, char_index])
+			
 		if Global.showNpcDialogInConsole and _gameInput and char_index != _mainCharacterInstanceId:
 			var speaker_name = character.GetCharacterName().strip_edges()
 			if speaker_name.is_empty():

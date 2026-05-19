@@ -302,6 +302,8 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 					ShowConsoleMessage("No puedes lanzar hechizos tan rápido.", \
 					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
 					return
+				ProtocolHandler.last_magic_caster_id = ProtocolHandler.main_character_id
+				ProtocolHandler.last_magic_cast_time = Time.get_ticks_msec()
 			
 			ProtocolWriteToServer.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
 			# Restaurar el cursor al predeterminado después de hacer click
