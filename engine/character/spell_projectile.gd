@@ -77,6 +77,56 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	
 	queue_redraw() # Force Godot to redraw our custom _draw callback with the new color!
 	
+	# Initialize CPUParticles2D for 100% compatibility with GL Compatibility renderer
+	_particles = CPUParticles2D.new()
+	_particles.amount = 100
+	_particles.lifetime = 0.55
+	_particles.local_coords = false
+	
+	# Create a soft, radial white glowing smoke puff texture dynamically!
+	var glow_grad = Gradient.new()
+	glow_grad.set_color(0, Color(1, 1, 1, 1.0)) # Solid white center
+	glow_grad.set_color(1, Color(1, 1, 1, 0.0)) # Fades to transparent at the edge
+	
+	var glow_tex = GradientTexture2D.new()
+	glow_tex.gradient = glow_grad
+	glow_tex.fill = GradientTexture2D.FILL_RADIAL
+	glow_tex.fill_from = Vector2(0.5, 0.5)
+	glow_tex.fill_to = Vector2(0.5, 0.0)
+	glow_tex.width = 16
+	glow_tex.height = 16
+	_particles.texture = glow_tex
+	
+	# Configure physical dispersion: slow upward evaporation regardless of shot angle
+	_particles.direction = Vector2.ZERO
+	_particles.spread = 180.0
+	_particles.gravity = Vector2(0, -40.0)   # Slow upward drift (despacito)
+	_particles.initial_velocity_min = 1.5
+	_particles.initial_velocity_max = 4.5    # Soft initial burst to keep the trail thin and tight
+	
+	# Color: Pure white smoke trail
+	_particles.color = Color.WHITE
+	
+	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 75% -> 0% to look like soft smoke)
+	var ramp_gradient = Gradient.new()
+	ramp_gradient.set_color(0, Color(1, 1, 1, 0.70)) # Birth: soft white smoke
+	ramp_gradient.set_color(1, Color(1, 1, 1, 0.0))  # Death: Fully transparent
+	_particles.color_ramp = ramp_gradient
+	
+	# Scale Curve: Shrink particle to a pinpoint over its lifetime
+	var curve = Curve.new()
+	curve.add_point(Vector2(0.0, 1.0)) # Starts at full scale
+	curve.add_point(Vector2(1.0, 0.0)) # Ends at size 0
+	_particles.scale_amount_curve = curve
+	
+	# Base Scale: Thinner for an elegant and refined magical smoke trail
+	_particles.scale_amount_min = 0.45
+	_particles.scale_amount_max = 0.85
+	
+	add_child(_particles)
+	_particles.position = Vector2.ZERO
+	_particles.emitting = true
+	
 	# Determine vertical offset from FX metadata
 	var height = first_frame_tex.get_height()
 	var offset_y = sprite_frames.get_meta("offset_y") if sprite_frames.has_meta("offset_y") else 0
@@ -95,6 +145,12 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	z_as_relative = true
 	
 	_is_launched = true
+
+# Track particles reference
+var _particles: CPUParticles2D = null
+
+func get_target_ref() -> WeakRef:
+	return _target_ref
 
 func _process(delta: float) -> void:
 	if not _is_launched:
@@ -118,6 +174,17 @@ func _process(delta: float) -> void:
 	# Reached target
 	if t >= 1.0:
 		_on_arrival.call()
+		
+		# Detach particles trail before freeing projectile so it fades out completely in-place
+		if _particles and is_instance_valid(_particles):
+			_particles.emitting = false
+			var parent = get_parent()
+			if parent:
+				_particles.reparent(parent)
+				var lifetime = _particles.lifetime
+				var timer = get_tree().create_timer(lifetime + 0.2)
+				timer.timeout.connect(_particles.queue_free)
+				
 		queue_free()
 
 # Computes the average color of all non-transparent pixels in the given texture

@@ -264,3 +264,41 @@ func _on_animated_dialog_changed(animated: bool) -> void:
 		_dialogLabel.text = _currentDialogText
 		_dialogShadowLabel.text = _currentDialogText
 		_dialogClearTimer.start()
+
+func play_death_animation() -> void:
+	# Detener procesamiento y movimiento para que quede estático al morir
+	StopMoving()
+	set_process(false)
+	set_physics_process(false)
+	
+	# Ocultar etiquetas de texto de inmediato
+	if _nameLabel: _nameLabel.visible = false
+	if _dialogLabel: _dialogLabel.visible = false
+	if _dialogShadowLabel: _dialogShadowLabel.visible = false
+	
+	var base_x = _originalRendererPosition.x if _originalRendererPosition != null else renderer.position.x
+	
+	# 1. Efecto de Temblor (Shake) rápido horizontal
+	var shake_tween = create_tween()
+	var shake_duration = 0.25
+	var shake_speed = 0.04
+	var shake_amount = 4.0
+	for i in range(int(shake_duration / (shake_speed * 2.0))):
+		shake_tween.tween_property(renderer, "position:x", base_x + shake_amount, shake_speed)
+		shake_tween.tween_property(renderer, "position:x", base_x - shake_amount, shake_speed)
+	shake_tween.tween_property(renderer, "position:x", base_x, shake_speed)
+	
+	# 2. Efecto de Aplastado Vertical y Desvanecimiento
+	var main_tween = create_tween()
+	
+	# Esperar a que el temblor casi termine
+	main_tween.tween_interval(0.22)
+	
+	# Aplastar verticalmente a una línea fina y estirar horizontalmente mientras se desvanece
+	var shrink_tween = main_tween.parallel()
+	shrink_tween.tween_property(renderer, "scale:y", 0.01, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	shrink_tween.tween_property(renderer, "scale:x", 1.35, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	shrink_tween.tween_property(renderer, "modulate:a", 0.0, 0.38)
+	
+	# Liberar el nodo del personaje al finalizar
+	main_tween.tween_callback(queue_free)

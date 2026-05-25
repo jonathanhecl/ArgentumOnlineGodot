@@ -324,7 +324,48 @@ func DeleteCharacter(instanceId:int) -> void:
 	var character = GetCharacter(instanceId)
 	if character:
 		_characterCollection.erase(character)
-		_FreeRuntimeNode(character)
+		
+		# Check if there is an active spell projectile currently flying towards this character
+		var has_incoming_projectile = false
+		
+		var layer3 = _GetLayer("Layer3")
+		if layer3:
+			for child in layer3.get_children():
+				if child is SpellProjectile:
+					var target_ref = child.get_target_ref()
+					if target_ref and target_ref.get_ref() == character:
+						has_incoming_projectile = true
+						break
+						
+		if not has_incoming_projectile:
+			for child in get_children():
+				if child is SpellProjectile:
+					var target_ref = child.get_target_ref()
+					if target_ref and target_ref.get_ref() == character:
+						has_incoming_projectile = true
+						break
+						
+		if has_incoming_projectile:
+			# Defer removal until the projectile impacts
+			character.set_meta("pending_death_removal", true)
+			
+			# Disable processing and stop movement so it stays still
+			character.StopMoving()
+			character.set_process(false)
+			character.set_physics_process(false)
+			
+			# Hide names and speech labels
+			if character._nameLabel:
+				character._nameLabel.visible = false
+			if character._dialogLabel:
+				character._dialogLabel.visible = false
+			if character._dialogShadowLabel:
+				character._dialogShadowLabel.visible = false
+				
+			# Modulate slightly to look faded/dying
+			character.modulate.a = 0.75
+		else:
+			character.play_death_animation()
 			
 func GetCharacter(instanceId:int) -> Character:
 	for node in _characterCollection:

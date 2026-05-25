@@ -620,8 +620,36 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 				var t = target_ref.get_ref()
 				if is_instance_valid(t) and t.is_inside_tree():
 					t.effect.play_effect(fx, loops)
+					
+					# Si el personaje fue postergado para remoción (murió mientras viajaba el hechizo),
+					# verifiquemos si este es el último proyectil entrante.
+					if t.has_meta("pending_death_removal"):
+						var other_projectiles = false
+						
+						# Buscar proyectiles en Layer3
+						var map_l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+						if map_l3:
+							for child in map_l3.get_children():
+								if child is SpellProjectile and child != projectile:
+									var tr = child.get_target_ref()
+									if tr and tr.get_ref() == t:
+										other_projectiles = true
+										break
+										
+						# Buscar proyectiles en MapContainer directamente
+						if not other_projectiles:
+							for child in _gameWorld.GetMapContainer().get_children():
+								if child is SpellProjectile and child != projectile:
+									var tr = child.get_target_ref()
+									if tr and tr.get_ref() == t:
+										other_projectiles = true
+										break
+										
+						if not other_projectiles:
+							# ¡Es el último proyectil! Ejecutar la animación arcade de muerte
+							t.play_death_animation()
 				else:
-					# Si el objetivo murió o desapareció a mitad de camino, reproducir el impacto en su última posición
+					# Si el objetivo murió o desapareció a mitad de camino (y ya se eliminó), reproducir el impacto en su última posición
 					var l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
 					if l3:
 						var standalone_fx = CharacterEffect.new()
