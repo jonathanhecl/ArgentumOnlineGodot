@@ -69,18 +69,16 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	# Compute average color of the spell texture dynamically for the flying magic orb!
 	var raw_color = _get_average_color(first_frame_tex)
 	
-	# Increase the brightness by exactly 20% to make it highly vibrant
-	raw_color.r = clampf(raw_color.r * 1.20, 0.0, 1.0)
-	raw_color.g = clampf(raw_color.g * 1.20, 0.0, 1.0)
-	raw_color.b = clampf(raw_color.b * 1.20, 0.0, 1.0)
+	# Aclarar el color promedio por exactamente un 25% tendiendo hacia blanco (pastel brillante mágico)
+	raw_color = raw_color.lerp(Color.WHITE, 0.25)
 	_projectile_color = raw_color
 	
 	queue_redraw() # Force Godot to redraw our custom _draw callback with the new color!
 	
 	# Initialize CPUParticles2D for 100% compatibility with GL Compatibility renderer
 	_particles = CPUParticles2D.new()
-	_particles.amount = 100
-	_particles.lifetime = 0.55
+	_particles.amount = 180
+	_particles.lifetime = 0.85
 	_particles.local_coords = false
 	
 	# Create a soft, radial white glowing smoke puff texture dynamically!
@@ -100,28 +98,42 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	# Configure physical dispersion: slow upward evaporation regardless of shot angle
 	_particles.direction = Vector2.ZERO
 	_particles.spread = 180.0
-	_particles.gravity = Vector2(0, -40.0)   # Slow upward drift (despacito)
-	_particles.initial_velocity_min = 1.5
-	_particles.initial_velocity_max = 4.5    # Soft initial burst to keep the trail thin and tight
+	_particles.gravity = Vector2(0, -45.0)   # Slow upward drift (despacito)
+	_particles.initial_velocity_min = 4.0
+	_particles.initial_velocity_max = 14.0   # Soft initial burst to let smoke separate from the line
 	
-	# Color: Pure white smoke trail
-	_particles.color = Color.WHITE
+	# Damping: Slows down expansion as the smoke ages (essential for real smoke feel!)
+	_particles.damping_min = 2.0
+	_particles.damping_max = 4.0
 	
-	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 75% -> 0% to look like soft smoke)
+	# Rotación angular (giro) para mayor realismo de nubes de humo
+	_particles.angle_min = 0.0
+	_particles.angle_max = 360.0             # Cada partícula nace con rotación aleatoria
+	_particles.angular_velocity_min = -50.0
+	_particles.angular_velocity_max = 50.0   # Las partículas giran lentamente al viajar
+	
+	# Color: Tint particles with the brightened average color of the spell!
+	_particles.color = _projectile_color
+	
+	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 85% -> 0% to look like dense, rich smoke)
 	var ramp_gradient = Gradient.new()
-	ramp_gradient.set_color(0, Color(1, 1, 1, 0.70)) # Birth: soft white smoke
+	ramp_gradient.set_color(0, Color(1, 1, 1, 0.85)) # Birth: dense rich smoke
 	ramp_gradient.set_color(1, Color(1, 1, 1, 0.0))  # Death: Fully transparent
 	_particles.color_ramp = ramp_gradient
 	
-	# Scale Curve: Shrink particle to a pinpoint over its lifetime
+	# Scale Curve: Realistic billowing smoke curve (Starts compact, expands/billows, then dissolves)
 	var curve = Curve.new()
-	curve.add_point(Vector2(0.0, 1.0)) # Starts at full scale
-	curve.add_point(Vector2(1.0, 0.0)) # Ends at size 0
+	curve.add_point(Vector2(0.0, 0.35)) # Starts tight
+	curve.add_point(Vector2(0.22, 1.0))  # Billows/Expands to maximum volume quickly
+	curve.add_point(Vector2(1.0, 0.0))   # Dissolves into thin air
 	_particles.scale_amount_curve = curve
 	
-	# Base Scale: Thinner for an elegant and refined magical smoke trail
-	_particles.scale_amount_min = 0.45
-	_particles.scale_amount_max = 0.85
+	# Proportional Thickness: Scale base thickness dynamically based on spell sprite dimensions
+	var tex_w = _spell_texture.get_width() if _spell_texture else 32.0
+	var tex_h = _spell_texture.get_height() if _spell_texture else 32.0
+	var base_scale = clampf(maxf(float(tex_w), float(tex_h)) / 40.0, 0.4, 1.8)
+	_particles.scale_amount_min = base_scale * 0.9
+	_particles.scale_amount_max = base_scale * 1.5
 	
 	add_child(_particles)
 	_particles.position = Vector2.ZERO

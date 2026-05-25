@@ -83,7 +83,7 @@ signal bank_end()
 
 signal blind_toggle(is_blind: bool)
 signal dumb_toggle(is_dumb: bool)
-signal paralize_toggle()
+signal paralize_toggle(time_remaining: int)
 signal rest_toggle()
 signal meditate_toggle()
 signal navigate_toggle()
@@ -566,8 +566,9 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			dumb_toggle.emit(false)
 		
 		Enums.ServerPacketID.ParalizeOK:
+			var p = ParalizeOK.new(stream)
 			game_context.userParalizado = not game_context.userParalizado
-			paralize_toggle.emit()
+			paralize_toggle.emit(p.timeRemaining)
 		
 		Enums.ServerPacketID.RestOK:
 			game_context.userDescansar = not game_context.userDescansar
@@ -701,6 +702,13 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.DeletedChar:
 			var _p = DeletedChar.new(stream)
 			# TODO: Implement handling logic for DeletedChar
+
+		Enums.ServerPacketID.ShowForumForm:
+			var _p = ShowForumForm.new(stream)
+			console_message.emit("El sistema de foros no está habilitado.", GameAssets.FontDataList[Enums.FontTypeNames.FontType_Info])
+
+		Enums.ServerPacketID.AddForumMsg:
+			var _p = AddForumMsg.new(stream)
 
 		Enums.ServerPacketID.EquitandoToggle:
 			var _p = EquitandoToggle.new(stream)
