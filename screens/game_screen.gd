@@ -3,6 +3,10 @@ class_name GameScreen
 
 const SpellProjectile = preload("res://engine/character/spell_projectile.gd")
 
+# Cooldown por objetivo: impide que se lance más de un proyectil al mismo target en 2 segundos
+# Key: char_index (int), Value: timestamp msec (int)
+var _projectile_cooldowns: Dictionary = {}
+
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
@@ -600,78 +604,86 @@ func _on_set_invisible(char_index: int, invisible: bool) -> void:
 
 func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)
-	if character:
-		var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
-		var time_diff = Time.get_ticks_msec() - ProtocolHandler.last_magic_cast_time
+	if not character:
+		return
+	
+	var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
+	var time_diff = Time.get_ticks_msec() - ProtocolHandler.last_magic_cast_time
+	var now = Time.get_ticks_msec()
+	
+	# ¿Califica para lanzar un proyectil? Lanzador válido, diferente al objetivo, reciente
+	var can_launch = caster and caster != character and char_index != ProtocolHandler.last_magic_caster_id and time_diff < 1500
+	
+	# COOLDOWN ABSOLUTO: si ya lanzamos un proyectil a este target hace menos de 2 segundos, NO lanzar otro
+	if can_launch and _projectile_cooldowns.has(char_index):
+		var last_launch = _projectile_cooldowns[char_index] as int
+		if (now - last_launch) < 2000:
+			can_launch = false
+			print("[COOLDOWN] FX %d bloqueado por cooldown de proyectil hacia PJ %d (%dms restantes)" % [fx, char_index, 2000 - (now - last_launch)])
+	
+	if can_launch:
+		# Registrar el cooldown ANTES de cualquier otra cosa
+		_projectile_cooldowns[char_index] = now
 		
-		# Si hay un lanzador válido, es diferente del objetivo, no es auto-hechizo, y ocurrió hace poco (menos de 1500ms)
-		if caster and caster != character and char_index != ProtocolHandler.last_magic_caster_id and time_diff < 1500:
-			var projectile = SpellProjectile.new()
-			var layer3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
-			if layer3:
-				layer3.add_child(projectile)
-			else:
-				_gameWorld.GetMapContainer().add_child(projectile)
-				
-			var target_ref = weakref(character)
-			var last_target_pos = character.global_position
-			
-			var on_arrival = func():
-				var t = target_ref.get_ref()
-				if is_instance_valid(t) and t.is_inside_tree():
-					t.effect.play_effect(fx, loops)
-					
-					# Si el personaje fue postergado para remoción (murió mientras viajaba el hechizo),
-					# verifiquemos si este es el último proyectil entrante.
-					if t.has_meta("pending_death_removal"):
-						var other_projectiles = false
-						
-						# Buscar proyectiles en Layer3
-						var map_l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
-						if map_l3:
-							for child in map_l3.get_children():
-								if child is SpellProjectile and child != projectile:
-									var tr = child.get_target_ref()
-									if tr and tr.get_ref() == t:
-										other_projectiles = true
-										break
-										
-						# Buscar proyectiles en MapContainer directamente
-						if not other_projectiles:
-							for child in _gameWorld.GetMapContainer().get_children():
-								if child is SpellProjectile and child != projectile:
-									var tr = child.get_target_ref()
-									if tr and tr.get_ref() == t:
-										other_projectiles = true
-										break
-										
-						if not other_projectiles:
-							# ¡Es el último proyectil! Ejecutar la animación arcade de muerte
-							t.play_death_animation()
-				else:
-					# Si el objetivo murió o desapareció a mitad de camino (y ya se eliminó), reproducir el impacto en su última posición
-					var l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
-					if l3:
-						var standalone_fx = CharacterEffect.new()
-						standalone_fx.global_position = last_target_pos
-						l3.add_child(standalone_fx)
-						
-						# Auto-liberar al terminar el bucle
-						if loops != Consts.InfiniteLoops:
-							var remaining_loops = loops
-							standalone_fx.animation_finished.connect(func():
-								remaining_loops -= 1
-								if remaining_loops <= 0:
-									standalone_fx.queue_free()
-							)
-						standalone_fx.play_effect(fx, loops)
-						print("[PROYECTIL IMPACTO] Objetivo eliminado. Reproduciendo FX %d autónomo en %v" % [fx, last_target_pos])
-					
-			projectile.launch(fx, caster.global_position, character, on_arrival)
-			print("[PROYECTIL] Lanzado desde PJ %d hacia PJ %d con FX %d (diferencia tiempo: %dms)" % [ProtocolHandler.last_magic_caster_id, char_index, fx, time_diff])
+		# Consumir el token para que no se re-use
+		var original_caster_id = ProtocolHandler.last_magic_caster_id
+		ProtocolHandler.last_magic_caster_id = -1
+		
+		var projectile = SpellProjectile.new()
+		var layer3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+		if layer3:
+			layer3.add_child(projectile)
 		else:
-			character.effect.play_effect(fx, loops)
-			print("[PROYECTIL OMITIDO] FX %d directo en PJ %d (auto-hechizo o no sincronizado). Caster: %s, dif tiempo: %dms" % [fx, char_index, str(caster), time_diff])
+			_gameWorld.GetMapContainer().add_child(projectile)
+		
+		var target_ref = weakref(character)
+		var last_target_pos = character.global_position
+		
+		var on_arrival = func():
+			var t = target_ref.get_ref()
+			if is_instance_valid(t) and t.is_inside_tree():
+				t.effect.play_effect(fx, loops)
+				
+				# Si el personaje fue postergado para remoción (murió mientras viajaba el hechizo)
+				if t.has_meta("pending_death_removal"):
+					var other_projectiles = false
+					var map_l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+					if map_l3:
+						for child in map_l3.get_children():
+							if child is SpellProjectile and child != projectile and child.is_flying():
+								var tr = child.get_target_ref()
+								if tr and tr.get_ref() == t:
+									other_projectiles = true
+									break
+					if not other_projectiles:
+						for child in _gameWorld.GetMapContainer().get_children():
+							if child is SpellProjectile and child != projectile and child.is_flying():
+								var tr = child.get_target_ref()
+								if tr and tr.get_ref() == t:
+									other_projectiles = true
+									break
+					if not other_projectiles:
+						t.play_death_animation()
+			else:
+				var l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+				if l3:
+					var standalone_fx = CharacterEffect.new()
+					standalone_fx.global_position = last_target_pos
+					l3.add_child(standalone_fx)
+					if loops != Consts.InfiniteLoops:
+						var remaining_loops = loops
+						standalone_fx.animation_finished.connect(func():
+							remaining_loops -= 1
+							if remaining_loops <= 0:
+								standalone_fx.queue_free()
+						)
+					standalone_fx.play_effect(fx, loops)
+		
+		projectile.launch(fx, caster, character, on_arrival)
+		print("[PROYECTIL] Lanzado desde PJ %d hacia PJ %d con FX %d" % [original_caster_id, char_index, fx])
+	else:
+		# No califica para proyectil: reproducir efecto directo en el personaje
+		character.effect.play_effect(fx, loops)
 
 func _on_update_tag_status(char_index: int, tag: String, nick_color: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)

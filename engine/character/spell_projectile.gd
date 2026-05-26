@@ -3,12 +3,14 @@ class_name SpellProjectile
 
 # Tracking variables for homing movement
 var _target_ref: WeakRef
+var _caster_ref: WeakRef
 var _on_arrival: Callable
 var _start_pos: Vector2
 var _fx_vertical_offset: Vector2
-var _duration: float = 0.45 # Snappy, fast and highly satisfying speed (0.45 seconds)
+var _duration: float = 0.25 # Snappy, fast and highly satisfying speed (0.25 seconds)
 var _elapsed_time: float = 0.0
 var _is_launched: bool = false
+var _projectile_hidden: bool = false
 
 # The color of the magic projectile (computed dynamically based on spell FX texture)
 var _projectile_color: Color = Color.WHITE
@@ -21,6 +23,8 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _draw() -> void:
+	if _projectile_hidden:
+		return
 	# Draw a glowing magic orb matching the spell's custom average color (+20% brightness)
 	# Scaled down 30% as requested (0.7x scale) for a beautiful, compact look
 	var glow_color = _projectile_color
@@ -38,7 +42,7 @@ func _draw() -> void:
 		var dest_rect = Rect2(-target_size / 2.0, target_size)
 		draw_texture_rect(_spell_texture, dest_rect, false)
 
-func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -> void:
+func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	var fx_path = "res://Resources/Fxs/fx_%d.tres" % fx_id
 	if not ResourceLoader.exists(fx_path):
 		on_arrival.call()
@@ -77,8 +81,8 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	
 	# Initialize CPUParticles2D for 100% compatibility with GL Compatibility renderer
 	_particles = CPUParticles2D.new()
-	_particles.amount = 180
-	_particles.lifetime = 0.85
+	_particles.amount = 220
+	_particles.lifetime = 2.2
 	_particles.local_coords = false
 	
 	# Create a soft, radial white glowing smoke puff texture dynamically!
@@ -98,13 +102,13 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	# Configure physical dispersion: slow upward evaporation regardless of shot angle
 	_particles.direction = Vector2.ZERO
 	_particles.spread = 180.0
-	_particles.gravity = Vector2(0, -45.0)   # Slow upward drift (despacito)
-	_particles.initial_velocity_min = 4.0
-	_particles.initial_velocity_max = 14.0   # Soft initial burst to let smoke separate from the line
+	_particles.gravity = Vector2(0, -14.0)   # Ultra-slow upward drift to linger near ground
+	_particles.initial_velocity_min = 2.5
+	_particles.initial_velocity_max = 8.5    # Soft initial burst to keep the trail dense and tight
 	
 	# Damping: Slows down expansion as the smoke ages (essential for real smoke feel!)
-	_particles.damping_min = 2.0
-	_particles.damping_max = 4.0
+	_particles.damping_min = 1.0
+	_particles.damping_max = 2.5
 	
 	# Rotación angular (giro) para mayor realismo de nubes de humo
 	_particles.angle_min = 0.0
@@ -115,10 +119,11 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	# Color: Tint particles with the brightened average color of the spell!
 	_particles.color = _projectile_color
 	
-	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 85% -> 0% to look like dense, rich smoke)
+	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 85% -> 60% -> 0% to linger and fade slowly)
 	var ramp_gradient = Gradient.new()
 	ramp_gradient.set_color(0, Color(1, 1, 1, 0.85)) # Birth: dense rich smoke
-	ramp_gradient.set_color(1, Color(1, 1, 1, 0.0))  # Death: Fully transparent
+	ramp_gradient.add_point(0.45, Color(1, 1, 1, 0.60)) # Lingers on ground for 45% of life
+	ramp_gradient.set_color(1, Color(1, 1, 1, 0.0))  # Slowly fades to transparent in the second half
 	_particles.color_ramp = ramp_gradient
 	
 	# Scale Curve: Realistic billowing smoke curve (Starts compact, expands/billows, then dissolves)
@@ -128,25 +133,24 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 	curve.add_point(Vector2(1.0, 0.0))   # Dissolves into thin air
 	_particles.scale_amount_curve = curve
 	
-	# Proportional Thickness: Scale base thickness dynamically based on spell sprite dimensions
+	# Proportional Thickness: Scale base thickness dynamically based on spell sprite dimensions (shrunk 30% for a highly refined trail)
 	var tex_w = _spell_texture.get_width() if _spell_texture else 32.0
 	var tex_h = _spell_texture.get_height() if _spell_texture else 32.0
-	var base_scale = clampf(maxf(float(tex_w), float(tex_h)) / 40.0, 0.4, 1.8)
+	var base_scale = clampf(maxf(float(tex_w), float(tex_h)) / 40.0, 0.4, 1.8) * 0.7
 	_particles.scale_amount_min = base_scale * 0.9
-	_particles.scale_amount_max = base_scale * 1.5
+	_particles.scale_amount_max = base_scale * 1.55
+	
+	# Determine vertical offset: always set to character mid-height (Y = -32) so it never flies from the ground
+	_fx_vertical_offset = Vector2(0, -32.0)
+	
+	# Initial positions: set global position BEFORE starting emission so global particles are spawned at the chest, not (0,0)
+	_caster_ref = weakref(caster_char)
+	_start_pos = caster_char.global_position + _fx_vertical_offset
+	global_position = _start_pos
 	
 	add_child(_particles)
 	_particles.position = Vector2.ZERO
 	_particles.emitting = true
-	
-	# Determine vertical offset from FX metadata
-	var height = first_frame_tex.get_height()
-	var offset_y = sprite_frames.get_meta("offset_y") if sprite_frames.has_meta("offset_y") else 0
-	_fx_vertical_offset = Vector2(0, -height / 2.0 + offset_y)
-	
-	# Initial positions
-	_start_pos = start_pos + _fx_vertical_offset
-	global_position = _start_pos
 	
 	_target_ref = weakref(target_char)
 	_on_arrival = on_arrival
@@ -160,12 +164,23 @@ func launch(fx_id: int, start_pos: Vector2, target_char, on_arrival: Callable) -
 
 # Track particles reference
 var _particles: CPUParticles2D = null
+var _is_first_frame: bool = true
+
+func is_flying() -> bool:
+	return _is_launched
+
+func get_caster_ref() -> WeakRef:
+	return _caster_ref
 
 func get_target_ref() -> WeakRef:
 	return _target_ref
 
 func _process(delta: float) -> void:
 	if not _is_launched:
+		return
+		
+	if _is_first_frame:
+		_is_first_frame = false
 		return
 		
 	_elapsed_time += delta
@@ -187,17 +202,19 @@ func _process(delta: float) -> void:
 	if t >= 1.0:
 		_on_arrival.call()
 		
-		# Detach particles trail before freeing projectile so it fades out completely in-place
+		# Stop processing and hide visual core immediately
+		_is_launched = false
+		_projectile_hidden = true
+		queue_redraw()
+		
+		# Stop emitting new particles, but keep the node and simulation alive so active particles linger
 		if _particles and is_instance_valid(_particles):
 			_particles.emitting = false
-			var parent = get_parent()
-			if parent:
-				_particles.reparent(parent)
-				var lifetime = _particles.lifetime
-				var timer = get_tree().create_timer(lifetime + 0.2)
-				timer.timeout.connect(_particles.queue_free)
-				
-		queue_free()
+			var lifetime = _particles.lifetime
+			var timer = get_tree().create_timer(lifetime + 0.2)
+			timer.timeout.connect(queue_free)
+		else:
+			queue_free()
 
 # Computes the average color of all non-transparent pixels in the given texture
 func _get_average_color(tex: Texture2D) -> Color:

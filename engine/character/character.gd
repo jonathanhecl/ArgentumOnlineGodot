@@ -278,27 +278,25 @@ func play_death_animation() -> void:
 	
 	var base_x = _originalRendererPosition.x if _originalRendererPosition != null else renderer.position.x
 	
-	# 1. Efecto de Temblor (Shake) rápido horizontal
+	# 1. Efecto de Temblor (Shake) rápido horizontal (se ejecuta en paralelo al aplastamiento)
 	var shake_tween = create_tween()
-	var shake_duration = 0.25
+	var shake_duration = 0.42
 	var shake_speed = 0.04
-	var shake_amount = 4.0
+	var shake_amount = 5.0
 	for i in range(int(shake_duration / (shake_speed * 2.0))):
 		shake_tween.tween_property(renderer, "position:x", base_x + shake_amount, shake_speed)
 		shake_tween.tween_property(renderer, "position:x", base_x - shake_amount, shake_speed)
 	shake_tween.tween_property(renderer, "position:x", base_x, shake_speed)
 	
-	# 2. Efecto de Aplastado Vertical y Desvanecimiento
-	var main_tween = create_tween()
-	
-	# Esperar a que el temblor casi termine
-	main_tween.tween_interval(0.22)
+	# 2. Efecto de Aplastado Vertical y Desvanecimiento simultáneo
+	var main_tween = create_tween().set_parallel(true)
 	
 	# Aplastar verticalmente a una línea fina y estirar horizontalmente mientras se desvanece
-	var shrink_tween = main_tween.parallel()
-	shrink_tween.tween_property(renderer, "scale:y", 0.01, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	shrink_tween.tween_property(renderer, "scale:x", 1.35, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	shrink_tween.tween_property(renderer, "modulate:a", 0.0, 0.38)
+	main_tween.tween_property(renderer, "scale:y", 0.01, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	main_tween.tween_property(renderer, "scale:x", 1.35, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	main_tween.tween_property(renderer, "modulate:a", 0.0, 0.42)
 	
-	# Liberar el nodo del personaje al finalizar
-	main_tween.tween_callback(queue_free)
+	# 3. Liberar el nodo del personaje de manera secuencial justo al terminar la animación principal
+	var cleanup_tween = create_tween()
+	cleanup_tween.tween_interval(0.43)
+	cleanup_tween.tween_callback(queue_free)

@@ -738,6 +738,79 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			var _p = PlayIsInChatMode.new(stream)
 			# TODO: Implement handling logic for PlayIsInChatMode
 
+		Enums.ServerPacketID.Disconnect:
+			var _p = Disconnect.new(stream)
+			print("🔌 ProtocolHandler: Desconectado por orden del servidor")
+			ClientInterface.DisconnectFromHost()
+
+		Enums.ServerPacketID.InitCarpenting:
+			var _p = InitCarpenting.new(stream)
+			# TODO: Implement handling logic for InitCarpenting
+
+		Enums.ServerPacketID.DiceRoll:
+			var _p = DiceRoll.new(stream)
+			# TODO: Implement handling logic for DiceRoll
+
+		Enums.ServerPacketID.CharacterInfo:
+			var _p = CharacterInfo.new(stream)
+			# TODO: Implement handling logic for CharacterInfo
+
+		Enums.ServerPacketID.ShowUserRequest:
+			var _p = ShowUserRequest.new(stream)
+			# TODO: Implement handling logic for ShowUserRequest
+
+		Enums.ServerPacketID.SpawnList:
+			var _p = SpawnList.new(stream)
+			# TODO: Implement handling logic for SpawnList
+
+		Enums.ServerPacketID.ShowSOSForm:
+			var _p = ShowSOSForm.new(stream)
+			# TODO: Implement handling logic for ShowSOSForm
+
+		Enums.ServerPacketID.ShowMOTDEditionForm:
+			var _p = ShowMOTDEditionForm.new(stream)
+			# TODO: Implement handling logic for ShowMOTDEditionForm
+
+		Enums.ServerPacketID.ShowGMPanelForm:
+			var _p = ShowGMPanelForm.new(stream)
+			# TODO: Implement handling logic for ShowGMPanelForm
+
+		Enums.ServerPacketID.UserNameList:
+			var _p = UserNameList.new(stream)
+			# TODO: Implement handling logic for UserNameList
+
+		Enums.ServerPacketID.ShowDenounces:
+			var _p = ShowDenounces.new(stream)
+			# TODO: Implement handling logic for ShowDenounces
+
+		Enums.ServerPacketID.RecordList:
+			var _p = RecordList.new(stream)
+			# TODO: Implement handling logic for RecordList
+
+		Enums.ServerPacketID.RecordDetails:
+			var _p = RecordDetails.new(stream)
+			# TODO: Implement handling logic for RecordDetails
+
+		Enums.ServerPacketID.ShowPartyForm:
+			var _p = ShowPartyForm.new(stream)
+			# TODO: Implement handling logic for ShowPartyForm
+
+		Enums.ServerPacketID.AddSlots:
+			var _p = AddSlots.new(stream)
+			# TODO: Implement handling logic for AddSlots
+
+		Enums.ServerPacketID.PalabrasMagicas:
+			var _p = PalabrasMagicas.new(stream)
+			# TODO: Implement handling logic for PalabrasMagicas
+
+		Enums.ServerPacketID.PlayAttackAnim:
+			var _p = PlayAttackAnim.new(stream)
+			# TODO: Implement handling logic for PlayAttackAnim
+
+		Enums.ServerPacketID.FXtoMap:
+			var _p = FXtoMap.new(stream)
+			# TODO: Implement handling logic for FXtoMap
+
 		_:
 			print("[ProtocolHandler] Paquete no manejado: ", packet_name, " (ID: ", packet_id, ")")
 

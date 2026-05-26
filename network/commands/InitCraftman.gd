@@ -1,28 +1,42 @@
 extends RefCounted
 class_name InitCraftman
 
-var arg1:int # LONG
-var arg2:int # INT
-var arg3:String # ASCII
-var arg4:int # LONG
-var arg5:int # INT
-var arg6:int # BYTE
-var arg7:String # ASCII
-var arg8:int # LONG
-var arg9:int # INT
-var arg10:int # INT
+class CrafteoItem:
+	var name: String
+	var grh_index: int
+	var obj_index: int
+	var amount: int
 
-func _init(reader:StreamPeerBuffer = null) -> void:
+class Entry:
+	var name: String
+	var grh_index: int
+	var obj_index: int
+	var items_crafteo: Array[CrafteoItem] = []
+
+var craft_cost: int
+var entries: Array[Entry] = []
+
+func _init(reader: StreamPeerBuffer = null) -> void:
 	if reader: deserialize(reader)
 
-func deserialize(reader:StreamPeerBuffer) -> void:
-	arg1 = reader.get_32()
-	arg2 = reader.get_16()
-	arg3 = Utils.GetUnicodeString(reader)
-	arg4 = reader.get_32()
-	arg5 = reader.get_16()
-	arg6 = reader.get_u8()
-	arg7 = Utils.GetUnicodeString(reader)
-	arg8 = reader.get_32()
-	arg9 = reader.get_16()
-	arg10 = reader.get_16()
+func deserialize(reader: StreamPeerBuffer) -> void:
+	craft_cost = reader.get_32()
+	var count_objs = reader.get_16()
+	entries.clear()
+	
+	for i in range(count_objs):
+		var entry = Entry.new()
+		entry.name = Utils.GetUnicodeString(reader)
+		entry.grh_index = reader.get_32()
+		entry.obj_index = reader.get_16()
+		
+		var count_crafteo = reader.get_u8()
+		for j in range(count_crafteo):
+			var craft_item = CrafteoItem.new()
+			craft_item.name = Utils.GetUnicodeString(reader)
+			craft_item.grh_index = reader.get_32()
+			craft_item.obj_index = reader.get_16()
+			craft_item.amount = reader.get_16()
+			entry.items_crafteo.append(craft_item)
+			
+		entries.append(entry)
