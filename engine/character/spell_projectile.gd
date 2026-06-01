@@ -79,17 +79,37 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	
 	queue_redraw() # Force Godot to redraw our custom _draw callback with the new color!
 	
-	# Initialize CPUParticles2D for 100% compatibility with GL Compatibility renderer
-	_particles = CPUParticles2D.new()
+	# Initialize GPUParticles2D with our forged spell_trail shader!
+	_particles = GPUParticles2D.new()
 	_particles.amount = 220
-	_particles.lifetime = 2.2
-	_particles.local_coords = false
+	_particles.lifetime = 1.3 # Vive lo suficiente para cubrir el vuelo (~0.25s) + perdurar ~1s tras el impacto
+	_particles.local_coords = false # Coordenadas globales: las particulas quedan en el camino recorrido
 	
-	# Create a soft, radial white glowing smoke puff texture dynamically!
+	# Load the particle process shader (movement + azul->rojo color)
+	var shader = load("res://shaders/spell_trail.gdshader")
+	var mat = ShaderMaterial.new()
+	mat.shader = shader
+	_particles.process_material = mat
+	
+	# Distortion render shader: corrompe/refracta la imagen del fondo detras de la estela
+	var distort_shader = load("res://shaders/spell_trail_distortion.gdshader")
+	var distort_mat = ShaderMaterial.new()
+	distort_mat.shader = distort_shader
+	# Direccion del vuelo en screen-space (caster -> target) para la flecha de distorsion
+	var flight_vec = target_char.global_position - caster_char.global_position
+	var flight_dir = Vector2.RIGHT
+	if flight_vec.length_squared() > 0.0001:
+		flight_dir = flight_vec.normalized()
+	distort_mat.set_shader_parameter("flight_dir", flight_dir)
+	# Aumentado para que la flecha de distorsion sea visible
+	distort_mat.set_shader_parameter("distortion_strength", 0.09)
+	distort_mat.set_shader_parameter("tint_amount", 0.55)
+	_particles.material = distort_mat
+	
+	# Create a soft, radial white glowing smoke puff texture
 	var glow_grad = Gradient.new()
-	glow_grad.set_color(0, Color(1, 1, 1, 1.0)) # Solid white center
-	glow_grad.set_color(1, Color(1, 1, 1, 0.0)) # Fades to transparent at the edge
-	
+	glow_grad.set_color(0, Color(1, 1, 1, 1.0))
+	glow_grad.set_color(1, Color(1, 1, 1, 0.0))
 	var glow_tex = GradientTexture2D.new()
 	glow_tex.gradient = glow_grad
 	glow_tex.fill = GradientTexture2D.FILL_RADIAL
@@ -99,46 +119,18 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	glow_tex.height = 16
 	_particles.texture = glow_tex
 	
-	# Configure physical dispersion: slow upward evaporation regardless of shot angle
-	_particles.direction = Vector2.ZERO
-	_particles.spread = 180.0
-	_particles.gravity = Vector2(0, -14.0)   # Ultra-slow upward drift to linger near ground
-	_particles.initial_velocity_min = 2.5
-	_particles.initial_velocity_max = 8.5    # Soft initial burst to keep the trail dense and tight
+	# Dynamic color from the spell's essence: start with the spell color, end in crimson fire
+	var spell_start = _projectile_color.lightened(0.15)
+	var spell_end = Color(1.0, 0.05, 0.05) # Crimson fire vapor
+	mat.set_shader_parameter("start_color", spell_start)
+	mat.set_shader_parameter("end_color", spell_end)
+	mat.set_shader_parameter("color_intensity", 2.5)
 	
-	# Damping: Slows down expansion as the smoke ages (essential for real smoke feel!)
-	_particles.damping_min = 1.0
-	_particles.damping_max = 2.5
-	
-	# Rotación angular (giro) para mayor realismo de nubes de humo
-	_particles.angle_min = 0.0
-	_particles.angle_max = 360.0             # Cada partícula nace con rotación aleatoria
-	_particles.angular_velocity_min = -50.0
-	_particles.angular_velocity_max = 50.0   # Las partículas giran lentamente al viajar
-	
-	# Color: Tint particles with the brightened average color of the spell!
-	_particles.color = _projectile_color
-	
-	# Color Ramp: Smoothly fade out over lifetime (Opacity goes 85% -> 60% -> 0% to linger and fade slowly)
-	var ramp_gradient = Gradient.new()
-	ramp_gradient.set_color(0, Color(1, 1, 1, 0.85)) # Birth: dense rich smoke
-	ramp_gradient.add_point(0.45, Color(1, 1, 1, 0.60)) # Lingers on ground for 45% of life
-	ramp_gradient.set_color(1, Color(1, 1, 1, 0.0))  # Slowly fades to transparent in the second half
-	_particles.color_ramp = ramp_gradient
-	
-	# Scale Curve: Realistic billowing smoke curve (Starts compact, expands/billows, then dissolves)
-	var curve = Curve.new()
-	curve.add_point(Vector2(0.0, 0.35)) # Starts tight
-	curve.add_point(Vector2(0.22, 1.0))  # Billows/Expands to maximum volume quickly
-	curve.add_point(Vector2(1.0, 0.0))   # Dissolves into thin air
-	_particles.scale_amount_curve = curve
-	
-	# Proportional Thickness: Scale base thickness dynamically based on spell sprite dimensions (shrunk 30% for a highly refined trail)
+	# Proportional thickness from spell sprite dimensions
 	var tex_w = _spell_texture.get_width() if _spell_texture else 32.0
 	var tex_h = _spell_texture.get_height() if _spell_texture else 32.0
 	var base_scale = clampf(maxf(float(tex_w), float(tex_h)) / 40.0, 0.4, 1.8) * 0.7
-	_particles.scale_amount_min = base_scale * 0.9
-	_particles.scale_amount_max = base_scale * 1.55
+	mat.set_shader_parameter("initial_scale", base_scale * 1.2)
 	
 	# Determine vertical offset: always set to character mid-height (Y = -32) so it never flies from the ground
 	_fx_vertical_offset = Vector2(0, -32.0)
@@ -148,9 +140,32 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	_start_pos = caster_char.global_position + _fx_vertical_offset
 	global_position = _start_pos
 	
+	# BackBufferCopy: captura la pantalla detras para que el shader de distorsion la pueda leer (requerido en GL Compatibility).
+	# Se agrega ANTES que las particulas para que se dibuje primero en el orden del canvas.
+	var bbc = BackBufferCopy.new()
+	bbc.copy_mode = BackBufferCopy.COPY_MODE_VIEWPORT
+	add_child(bbc)
+	
 	add_child(_particles)
 	_particles.position = Vector2.ZERO
 	_particles.emitting = true
+	
+	# Wave distortion: surco que avanza con el proyectil (como caña en el agua)
+	# El Sprite2D se ancla en el lanzador y se estira hasta la posicion actual del proyectil
+	_wave = Sprite2D.new()
+	_wave.centered = false # El origen esta en el extremo izquierdo (inicio del surco)
+	var wave_shader = load("res://shaders/spell_wave_distortion.gdshader")
+	_wave_mat = ShaderMaterial.new()
+	_wave_mat.shader = wave_shader
+	_wave_mat.set_shader_parameter("amplitude", 0.007)
+	_wave_mat.set_shader_parameter("frequency", 5.0)
+	_wave_mat.set_shader_parameter("speed", 5.0)
+	_wave_mat.set_shader_parameter("time_offset", randf() * 10.0)
+	_wave_mat.set_shader_parameter("flight_angle", 0.0)
+	_wave.material = _wave_mat
+	_wave.z_index = 1
+	_wave.visible = false # Se hace visible en el primer _process
+	add_child(_wave)
 	
 	_target_ref = weakref(target_char)
 	_on_arrival = on_arrival
@@ -163,7 +178,10 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	_is_launched = true
 
 # Track particles reference
-var _particles: CPUParticles2D = null
+var _particles: GPUParticles2D = null
+var _wave: Sprite2D = null
+var _wave_mat: ShaderMaterial = null
+var _wave_tex: GradientTexture2D = null
 var _is_first_frame: bool = true
 
 func is_flying() -> bool:
@@ -198,6 +216,30 @@ func _process(delta: float) -> void:
 	# Smoothly interpolate position dynamically in real-time
 	global_position = _start_pos.lerp(current_end_pos, t)
 	
+	# Actualizar el surco: anclar en el lanzador, estirar hasta la posicion actual
+	if _wave and is_instance_valid(_wave) and _wave_mat:
+		var flight_vec = global_position - _start_pos
+		var length_px = flight_vec.length()
+		if length_px > 2.0:
+			var angle = flight_vec.angle()
+			# Textura 1px de alto, length_px de ancho -> el shader la estira al surco completo
+			if not _wave_tex or abs(_wave_tex.width - int(length_px)) > 4:
+				_wave_tex = GradientTexture2D.new()
+				var wg = Gradient.new()
+				wg.set_color(0, Color(1, 1, 1, 1))
+				wg.set_color(1, Color(1, 1, 1, 1))
+				_wave_tex.gradient = wg
+				_wave_tex.width = int(length_px)
+				_wave_tex.height = 24 # Ancho del surco en pixeles
+				_wave.texture = _wave_tex
+			_wave.global_position = _start_pos
+			_wave.rotation = angle
+			_wave.offset = Vector2(0, -12) # Centrar verticalmente el surco
+			_wave_mat.set_shader_parameter("flight_angle", angle)
+			_wave.visible = true
+		else:
+			_wave.visible = false
+	
 	# Reached target
 	if t >= 1.0:
 		_on_arrival.call()
@@ -208,13 +250,15 @@ func _process(delta: float) -> void:
 		queue_redraw()
 		
 		# Stop emitting new particles, but keep the node and simulation alive so active particles linger
+		# Disipar el surco de distorsion suavemente durante 2 segundos
+		if _wave and is_instance_valid(_wave) and _wave_mat:
+			var tween = create_tween()
+			tween.tween_method(func(v): _wave_mat.set_shader_parameter("dissipation", v), 0.0, 1.0, 2.0)
 		if _particles and is_instance_valid(_particles):
 			_particles.emitting = false
-			var lifetime = _particles.lifetime
-			var timer = get_tree().create_timer(lifetime + 0.2)
-			timer.timeout.connect(queue_free)
-		else:
-			queue_free()
+		# El nodo persiste 2 segundos para que el surco se disipe visiblemente
+		var timer = get_tree().create_timer(2.0)
+		timer.timeout.connect(queue_free)
 
 # Computes the average color of all non-transparent pixels in the given texture
 func _get_average_color(tex: Texture2D) -> Color:
