@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b8q7jv01joc1r"]
+[gd_scene load_steps=8 format=3 uid="uid://b8q7jv01joc1r"]
 
 [ext_resource type="Script" uid="uid://cb7m24v0m7k3p" path="res://ui/hub/inventory_slot.gd" id="1_4r0iv"]
 [ext_resource type="FontFile" uid="uid://5ro5xyl8eije" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Medium.ttf" id="2_e07lh"]
@@ -12,6 +12,17 @@ base_font = ExtResource("2_e07lh")
 
 [sub_resource type="FontVariation" id="FontVariation_5prmt"]
 base_font = ExtResource("3_g7v3p")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qty_bg"]
+bg_color = Color(0, 0, 0, 0.65)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 3.0
+content_margin_right = 3.0
+content_margin_top = 1.0
+content_margin_bottom = 1.0
 
 [node name="InventorySlot" type="PanelContainer"]
 custom_minimum_size = Vector2(34, 34)
@@ -37,7 +48,11 @@ layout_mode = 2
 size_flags_vertical = 1
 mouse_filter = 2
 theme_override_fonts/font = SubResource("FontVariation_g7v3p")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_qty_bg")
 horizontal_alignment = 1
 vertical_alignment = 2
 clip_text = true

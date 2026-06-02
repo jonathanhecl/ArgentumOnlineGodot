@@ -3,10 +3,6 @@ class_name GameScreen
 
 const SpellProjectile = preload("res://engine/character/spell_projectile.gd")
 
-# Cooldown por objetivo: impide que se lance más de un proyectil al mismo target en 2 segundos
-# Key: char_index (int), Value: timestamp msec (int)
-var _projectile_cooldowns: Dictionary = {}
-
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
 var _scaled_crosshair_cursor = null
@@ -609,23 +605,12 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 	
 	var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
 	var time_diff = Time.get_ticks_msec() - ProtocolHandler.last_magic_cast_time
-	var now = Time.get_ticks_msec()
 	
 	# ¿Califica para lanzar un proyectil? Lanzador válido, diferente al objetivo, reciente
 	var can_launch = caster and caster != character and char_index != ProtocolHandler.last_magic_caster_id and time_diff < 1500
 	
-	# COOLDOWN ABSOLUTO: si ya lanzamos un proyectil a este target hace menos de 2 segundos, NO lanzar otro
-	if can_launch and _projectile_cooldowns.has(char_index):
-		var last_launch = _projectile_cooldowns[char_index] as int
-		if (now - last_launch) < 2000:
-			can_launch = false
-			print("[COOLDOWN] FX %d bloqueado por cooldown de proyectil hacia PJ %d (%dms restantes)" % [fx, char_index, 2000 - (now - last_launch)])
-	
 	if can_launch:
-		# Registrar el cooldown ANTES de cualquier otra cosa
-		_projectile_cooldowns[char_index] = now
-		
-		# Consumir el token para que no se re-use
+		# Consumir el token para que no se re-use (evita proyectiles duplicados del mismo casteo)
 		var original_caster_id = ProtocolHandler.last_magic_caster_id
 		ProtocolHandler.last_magic_caster_id = -1
 		

@@ -8,6 +8,8 @@ var _on_arrival: Callable
 var _start_pos: Vector2
 var _fx_vertical_offset: Vector2
 var _duration: float = 0.25 # Snappy, fast and highly satisfying speed (0.25 seconds)
+# Paso maximo de avance por frame (~1/30s). Evita que un hitch teletransporte el orbe.
+const MAX_PROCESS_STEP: float = 1.0 / 30.0
 var _elapsed_time: float = 0.0
 var _is_launched: bool = false
 var _projectile_hidden: bool = false
@@ -201,7 +203,11 @@ func _process(delta: float) -> void:
 		_is_first_frame = false
 		return
 		
-	_elapsed_time += delta
+	# Acotar el delta por frame: un pico de carga (compilacion de shaders, carga de
+	# recursos, GC, cambio de mapa) puede generar un delta enorme que, con una duracion
+	# tan corta, teletransportaria el orbe al objetivo sin verse avanzar. Limitarlo
+	# garantiza siempre frames de vuelo visibles.
+	_elapsed_time += minf(delta, MAX_PROCESS_STEP)
 	var t = clampf(_elapsed_time / _duration, 0.0, 1.0)
 	
 	# Get target's current position dynamically (homing behavior)
