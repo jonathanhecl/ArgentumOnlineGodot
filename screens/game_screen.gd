@@ -433,6 +433,7 @@ func _connect_protocol_signals() -> void:
 	ProtocolHandler.user_char_index_received.connect(_on_user_char_index)
 	ProtocolHandler.set_invisible.connect(_on_set_invisible)
 	ProtocolHandler.fx_created.connect(_on_fx_created)
+	ProtocolHandler.paralize_toggle.connect(_on_paralize_toggle)
 	ProtocolHandler.update_tag_and_status.connect(_on_update_tag_status)
 	ProtocolHandler.chat_over_head.connect(_on_chat_over_head)
 	ProtocolHandler.remove_char_dialog.connect(_on_remove_char_dialog)
@@ -509,7 +510,7 @@ func _disconnect_protocol_signals() -> void:
 	var signals_to_disconnect = [
 		"account_logged",
 		"character_created", "character_removed", "character_moved", "character_changed",
-		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created",
+		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created", "paralize_toggle",
 		"update_tag_and_status", "chat_over_head", "remove_char_dialog", "remove_all_dialogs",
 		"map_changed", "pos_updated", "force_char_move", "object_created", "object_deleted",
 		"block_position_changed", "inventory_slot_changed", "spell_slot_changed",
@@ -599,8 +600,10 @@ func _on_set_invisible(char_index: int, invisible: bool) -> void:
 		character.SetCharacterInvisible(not invisible)
 
 func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
+	print("[FX] CreateFX recibido: charIndex=%d fx=%d loops=%d" % [char_index, fx, loops])
 	var character = _gameWorld.GetCharacter(char_index)
 	if not character:
+		print("[FX] Personaje no encontrado para charIndex=%d" % char_index)
 		return
 	
 	var caster = _gameWorld.GetCharacter(ProtocolHandler.last_magic_caster_id) if ProtocolHandler.last_magic_caster_id != -1 else null
@@ -668,7 +671,19 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 		print("[PROYECTIL] Lanzado desde PJ %d hacia PJ %d con FX %d" % [original_caster_id, char_index, fx])
 	else:
 		# No califica para proyectil: reproducir efecto directo en el personaje
+		print("[FX] Reproduciendo efecto directo en PJ %d: fx=%d loops=%d" % [char_index, fx, loops])
 		character.effect.play_effect(fx, loops)
+
+func _on_paralize_toggle(time_remaining: int) -> void:
+	print("[PARALISIS] ParalizeOK recibido. timeRemaining=%d, userParalizado=%s" % [time_remaining, _gameContext.userParalizado])
+	var character = _gameWorld.GetCharacter(ProtocolHandler.main_character_id)
+	if character:
+		if _gameContext.userParalizado:
+			print("[PARALISIS] Activando FX de parálisis en personaje %d" % ProtocolHandler.main_character_id)
+			# El FX de parálisis se determinará según lo que llegue por CreateFX o se hardcodeará
+		else:
+			print("[PARALISIS] Desactivando FX de parálisis en personaje %d" % ProtocolHandler.main_character_id)
+			character.effect.stop_effect()
 
 func _on_update_tag_status(char_index: int, tag: String, nick_color: int) -> void:
 	var character = _gameWorld.GetCharacter(char_index)

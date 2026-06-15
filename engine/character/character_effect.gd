@@ -11,22 +11,27 @@ func _ready() -> void:
 func play_effect(id:int, loops:int) -> void:
 	effect_id = id
 	effect_loops = loops
+	print("[CharacterEffect] play_effect llamado: id=%d loops=%d" % [id, loops])
 	
 	if effect_id > 0:
 		var fx_path = "res://Resources/Fxs/fx_%d.tres" % id
+		print("[CharacterEffect] Buscando recurso: %s" % fx_path)
 		if not ResourceLoader.exists(fx_path):
 			push_warning("CharacterEffect: FX not found: %s" % fx_path)
+			print("[CharacterEffect] FX no encontrado: %s" % fx_path)
 			stop_effect()
 			return
 			
 		sprite_frames = load(fx_path)
 		if not sprite_frames or sprite_frames.get_frame_count("default") == 0:
 			push_warning("CharacterEffect: Invalid FX resource: %s" % fx_path)
+			print("[CharacterEffect] FX inválido: %s" % fx_path)
 			stop_effect()
 			return
 		
 		visible = true
 		play("default")
+		print("[CharacterEffect] FX reproducido: %s, frames=%d" % [fx_path, sprite_frames.get_frame_count("default")])
 		
 		var texture = sprite_frames.get_frame_texture("default", 0)
 		if texture:
