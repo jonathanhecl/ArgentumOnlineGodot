@@ -2,7 +2,7 @@ extends Node2D
 class_name MapContainer
 
 const GridPositionKey = "GridPosition"
-const CORE_VIEW_SIZE := Vector2(541, 413)
+const CORE_VIEW_SIZE := Vector2(637, 509)
 func _get_core_rect(viewport_size: Vector2) -> Rect2:
 	var pos = (viewport_size - CORE_VIEW_SIZE) * 0.5
 	return Rect2(pos, CORE_VIEW_SIZE)
