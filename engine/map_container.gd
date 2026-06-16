@@ -24,15 +24,54 @@ var _characterCollection:Array[Character]
 var _objectCollection:Array[Node2D]
 var _tiles:PackedByteArray
 var _door_open_state_by_tile: Dictionary = {}
+var _debug_outline: Line2D
 
 func _ready() -> void:
 	print("🏗️ MapContainer: Inicializando contenedor de mapas...")
 	_tiles.resize(100 * 100)
 	_tiles.fill(Enums.TileState.Blocked)
 	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")
+	_debug_outline = Line2D.new()
+	_debug_outline.width = 3.0
+	_debug_outline.default_color = Color.RED
+	_debug_outline.closed = true
+	_debug_outline.visible = false
+	_debug_outline.z_index = 9999
+	add_child(_debug_outline)
+	move_child(_debug_outline, -1)
 
 func _process(_delta: float) -> void:
 	_update_entities_visibility()
+	if _debug_outline:
+		if Global.debug_show_all_entities:
+			_update_debug_outline()
+			_debug_outline.visible = true
+		else:
+			_debug_outline.visible = false
+
+func _update_debug_outline() -> void:
+	var viewport := get_viewport()
+	if not viewport:
+		return
+	var camera := viewport.get_camera_2d()
+	if not camera:
+		return
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size == Vector2.ZERO:
+		return
+	var core_rect := _get_core_rect(viewport_size)
+	var corners_screen = [
+		Vector2(core_rect.position.x, core_rect.position.y),
+		Vector2(core_rect.position.x + core_rect.size.x, core_rect.position.y),
+		Vector2(core_rect.position.x + core_rect.size.x, core_rect.position.y + core_rect.size.y),
+		Vector2(core_rect.position.x, core_rect.position.y + core_rect.size.y),
+	]
+	var points: PackedVector2Array = PackedVector2Array()
+	for screen_pos in corners_screen:
+		var world_pos = (screen_pos - viewport_size * 0.5) * camera.zoom + camera.global_position
+		var local_pos = world_pos - global_position
+		points.append(local_pos)
+	_debug_outline.points = points
 
 func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
