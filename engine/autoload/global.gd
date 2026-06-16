@@ -14,6 +14,9 @@ var account_characters: Array[Dictionary] = []
 # Control de logging para paquetes salientes al servidor
 var log_outgoing_packets:bool = true
 
+# DEBUG: Mostrar todas las entidades cargadas incluso fuera del CORE_RECT (war fog)
+var debug_show_all_entities:bool = true
+
 signal dialog_font_size_changed(value:int)
 signal console_font_size_changed(value:int)
 signal name_font_size_changed(value:int)

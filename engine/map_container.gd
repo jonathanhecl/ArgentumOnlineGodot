@@ -3,7 +3,9 @@ class_name MapContainer
 
 const GridPositionKey = "GridPosition"
 const CORE_VIEW_SIZE := Vector2(541, 413)
-const CORE_RECT := Rect2(455, 170, 541, 413)
+func _get_core_rect(viewport_size: Vector2) -> Rect2:
+	var pos = (viewport_size - CORE_VIEW_SIZE) * 0.5
+	return Rect2(pos, CORE_VIEW_SIZE)
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
 const MAP_SIZE_PX := 100 * 32 # 3200 px (un mapa completo de 100x100 tiles de 32px)
@@ -30,8 +32,8 @@ func _ready() -> void:
 	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")
 
 func _process(_delta: float) -> void:
-	_update_entities_visibility()  
-	
+	_update_entities_visibility()
+
 func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
 	_DeleteEntities()
@@ -529,10 +531,14 @@ func _apply_initial_visibility(entity: CanvasItem) -> void:
 	if viewport_size == Vector2.ZERO:
 		return
 	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
-	var is_in_core := CORE_RECT.has_point(screen_pos)
+	var core_rect := _get_core_rect(viewport_size)
+	var is_in_core := core_rect.has_point(screen_pos)
 	entity.set_meta("_in_core", is_in_core)
 	if entity is Character and entity.IsPlayer():
-		entity.modulate.a = 1.0
+		entity.modulate = Color.WHITE
+		return
+	if Global.debug_show_all_entities:
+		entity.modulate = Color.WHITE if is_in_core else Color.RED
 		return
 	entity.modulate.a = 1.0 if is_in_core else 0.0
 
@@ -547,19 +553,32 @@ func _apply_initial_object_visibility(entity: CanvasItem) -> void:
 	if viewport_size == Vector2.ZERO:
 		return
 	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
-	var is_in_core := CORE_RECT.has_point(screen_pos)
+	var core_rect := _get_core_rect(viewport_size)
+	var is_in_core := core_rect.has_point(screen_pos)
 	entity.set_meta("_in_core", is_in_core)
 	if is_in_core:
-		entity.modulate.a = 1.0
+		entity.modulate = Color.WHITE
 		return
 	if _is_door_server_object(entity):
-		entity.modulate.a = 1.0
+		entity.modulate = Color.WHITE
+		return
+	if Global.debug_show_all_entities:
+		entity.modulate = Color.RED
 		return
 	entity.modulate.a = 0.0
 
 func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
 	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
-	var is_in_core := CORE_RECT.has_point(screen_pos)
+	var core_rect := _get_core_rect(viewport_size)
+	var is_in_core := core_rect.has_point(screen_pos)
+	if Global.debug_show_all_entities:
+		if entity is Character and entity.IsPlayer():
+			entity.set_meta("_in_core", is_in_core)
+			entity.modulate = Color.WHITE
+			return
+		entity.set_meta("_in_core", is_in_core)
+		entity.modulate = Color.WHITE if is_in_core else Color.RED
+		return
 	if not entity.has_meta("_in_core"):
 		entity.set_meta("_in_core", is_in_core)
 		if entity is Character and entity.IsPlayer():
@@ -578,22 +597,28 @@ func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_siz
 	_fade_entity(entity, 1.0 if is_in_core else 0.0)
 
 func _check_object_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
+	var core_rect := _get_core_rect(viewport_size)
 	if not entity.has_meta("_in_core"):
 		_apply_initial_object_visibility(entity)
 		return
 	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
-	var is_in_core := CORE_RECT.has_point(screen_pos)
+	var is_in_core := core_rect.has_point(screen_pos)
 	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
 	if is_in_core == was_in_core:
 		if not is_in_core and _is_door_server_object(entity):
-			entity.modulate.a = 1.0
+			entity.modulate = Color.WHITE
 		return
 	entity.set_meta("_in_core", is_in_core)
 	if is_in_core:
 		_fade_entity(entity, 1.0)
+		entity.modulate = Color.WHITE
 		return
 	if _is_door_server_object(entity):
 		_fade_entity(entity, 1.0)
+		entity.modulate = Color.WHITE
+		return
+	if Global.debug_show_all_entities:
+		entity.modulate = Color.RED
 		return
 	_fade_entity(entity, 0.0)
 
@@ -625,6 +650,21 @@ func _is_door_server_object(entity: CanvasItem) -> bool:
 func _is_door_open(entity: CanvasItem) -> bool:
 	var tile: Vector2i = entity.get_meta(GridPositionKey, Vector2i(-1, -1))
 	return _door_open_state_by_tile.get(tile, false)
+
+func IsTileInCore(tile_x: int, tile_y: int) -> bool:
+	var viewport := get_viewport()
+	if not viewport:
+		return false
+	var camera := viewport.get_camera_2d()
+	if not camera:
+		return false
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size == Vector2.ZERO:
+		return false
+	var world_pos := Vector2((tile_x - 1) * 32 + 16, (tile_y - 1) * 32 + 32)
+	var screen_pos := _world_to_screen(world_pos, camera, viewport_size)
+	var core_rect := _get_core_rect(viewport_size)
+	return core_rect.has_point(screen_pos)
 
 func _world_to_screen(world_pos: Vector2, camera: Camera2D, viewport_size: Vector2) -> Vector2:
 	return (world_pos - camera.global_position) / camera.zoom + (viewport_size * 0.5)

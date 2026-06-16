@@ -282,12 +282,22 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 		return
 	  
 	if event.pressed && event.button_index == MOUSE_BUTTON_LEFT:
+		var is_in_core := false
+		var map_container = get_node_or_null("MainViewportContainer/Viewport/GameWorld/MapContainer") as MapContainer
+		if map_container:
+			is_in_core = map_container.IsTileInCore(mouse_tile_position.x, mouse_tile_position.y)
+		var fov_label = "IN FOV" if is_in_core else "OUTSIDE FOV"
+		
 		if event.double_click:
 			ProtocolWriteToServer.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
+			if Global.debug_show_all_entities:
+				ShowConsoleMessage("[DEBUG] DoubleClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
 			return
 		
 		if _gameContext.usingSkill == 0:
 			ProtocolWriteToServer.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
+			if Global.debug_show_all_entities:
+				ShowConsoleMessage("[DEBUG] LeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
 		else:
 			if _gameContext.usingSkill == Enums.Skill.Proyectiles:
 				if !_gameContext.tick_intervals.request_attack_with_bow():
@@ -306,6 +316,9 @@ func _HandleMouseInput(event:InputEventMouseButton) -> void:
 				ProtocolHandler.last_magic_cast_time = Time.get_ticks_msec()
 			
 			ProtocolWriteToServer.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
+			if Global.debug_show_all_entities:
+				var skill_name = Enums.Skill.keys()[_gameContext.usingSkill] if _gameContext.usingSkill >= 0 and _gameContext.usingSkill < Enums.Skill.size() else str(_gameContext.usingSkill)
+				ShowConsoleMessage("[DEBUG] WorkLeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") Skill: " + skill_name + " " + fov_label, FontData.new(Color.CYAN, true))
 			# Restaurar el cursor al predeterminado después de hacer click
 			_restore_default_cursor()
 			print("Cursor restaurado después de hacer click en objetivo")
