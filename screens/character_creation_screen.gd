@@ -14,6 +14,15 @@ extends Node
 # Preview del personaje
 @export var _previewCharacter: Node2D
 
+# Fondo de mapa mostrado detrás del personaje según el pueblo de origen
+@export var _mapView: Node2D
+
+# Mapeo de pueblo de origen (Home ID) al mapa de fondo.
+# TODO: completar con los mapas reales de cada pueblo de origen del servidor.
+const HOME_MAP_IDS := {
+	1: 1,  # Ullathorpe provisional
+}
+
 # Selector de cabezas
 @export var _headIndexLabel: Label
 
@@ -155,6 +164,7 @@ func _InitializeUI() -> void:
 	_classOptionButton.item_selected.connect(_OnClassSelected)
 	_raceOptionButton.item_selected.connect(_OnRaceSelected)
 	_genderOptionButton.item_selected.connect(_OnGenderSelected)
+	_homeOptionButton.item_selected.connect(_OnHomeSelected)
 	
 	# Seleccionar valores iniciales
 	_classOptionButton.select(0)
@@ -165,6 +175,7 @@ func _InitializeUI() -> void:
 	_OnClassSelected(0)
 	_OnRaceSelected(0)
 	_OnGenderSelected(0)
+	_UpdateBackgroundMap()
 
 func _InitializeCharacterPreview() -> void:
 	_UpdateBodyAndHead()
@@ -241,6 +252,9 @@ func _OnRaceSelected(index: int) -> void:
 func _OnGenderSelected(index: int) -> void:
 	_currentGender = index
 	_UpdateBodyAndHead()
+
+func _OnHomeSelected(_index: int) -> void:
+	_UpdateBackgroundMap()
 
 func _UpdateClassInfo() -> void:
 	if _classDescriptionLabel:
@@ -434,3 +448,29 @@ func _OnBack() -> void:
 
 func _Exit() -> void:
 	_OnBack()
+
+func _UpdateBackgroundMap() -> void:
+	if not _mapView:
+		return
+	var home_id := _homeOptionButton.get_selected_id()
+	var map_id: int = HOME_MAP_IDS.get(home_id, 1)
+	var map_path := "res://Maps/Map%d.tscn" % map_id
+	if not ResourceLoader.exists(map_path):
+		print("[CharacterCreation] Mapa de fondo no encontrado para hogar ", home_id, ": ", map_path)
+		return
+
+	var packed := load(map_path) as PackedScene
+	if not packed:
+		return
+
+	var map_instance := packed.instantiate()
+	if not (map_instance is Node2D):
+		map_instance.queue_free()
+		return
+
+	var old_map := _mapView
+	_mapView = map_instance as Node2D
+	_mapView.name = "MapView"
+	add_child(_mapView)
+	move_child(_mapView, 0)
+	old_map.queue_free()

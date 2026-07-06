@@ -37,18 +37,18 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preview"]
-bg_color = Color(0.02, 0.02, 0.02, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.5, 0.4, 0.2, 1)
+bg_color = Color(0.02, 0.02, 0.02, 0.0)
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+border_color = Color(0.5, 0.4, 0.2, 0)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="CharacterCreationScreen" type="Node" node_paths=PackedStringArray("_characterNameEdit", "_classOptionButton", "_raceOptionButton", "_genderOptionButton", "_homeOptionButton", "_previewCharacter", "_headIndexLabel", "_attributeLabels", "_classDescriptionLabel", "_classSpecialtyLabel", "_animationTimer")]
+[node name="CharacterCreationScreen" type="Node" node_paths=PackedStringArray("_characterNameEdit", "_classOptionButton", "_raceOptionButton", "_genderOptionButton", "_homeOptionButton", "_previewCharacter", "_headIndexLabel", "_attributeLabels", "_classDescriptionLabel", "_classSpecialtyLabel", "_animationTimer", "_mapView")]
 script = ExtResource("1_tkq11")
 _characterNameEdit = NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/NameEdit")
 _classOptionButton = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassOption")
@@ -61,6 +61,7 @@ _attributeLabels = [NodePath("UI/MainContainer/LeftPanel/LeftMargin/LeftVBox/Att
 _classDescriptionLabel = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassDescription")
 _classSpecialtyLabel = NodePath("UI/MainContainer/RightPanel/RightMargin/RightVBox/ClassSpecialty")
 _animationTimer = NodePath("AnimationTimer")
+_mapView = NodePath("MapView")
 
 [node name="MapView" parent="." instance=ExtResource("2_hwus4")]
 
@@ -77,7 +78,7 @@ autostart = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.4)
+color = Color(0, 0, 0, 0.15)
 
 [node name="Title" type="Label" parent="UI"]
 anchors_preset = 5
@@ -95,11 +96,11 @@ horizontal_alignment = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 50.0
-offset_right = -20.0
-offset_bottom = -60.0
-theme_override_constants/separation = 15
+offset_left = 30.0
+offset_top = 55.0
+offset_right = -30.0
+offset_bottom = -65.0
+theme_override_constants/separation = 25
 
 [node name="LeftPanel" type="PanelContainer" parent="UI/MainContainer"]
 custom_minimum_size = Vector2(220, 0)
@@ -109,14 +110,14 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="LeftMargin" type="MarginContainer" parent="UI/MainContainer/LeftPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
 
 [node name="LeftVBox" type="VBoxContainer" parent="UI/MainContainer/LeftPanel/LeftMargin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="AccountTitle" type="Label" parent="UI/MainContainer/LeftPanel/LeftMargin/LeftVBox"]
 layout_mode = 2
@@ -175,7 +176,9 @@ text = "🎲 TIRAR DADOS"
 [node name="CenterPanel" type="VBoxContainer" parent="UI/MainContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
 
 [node name="PreviewTitle" type="Label" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
@@ -184,7 +187,7 @@ text = "👤 TU AVATAR"
 horizontal_alignment = 1
 
 [node name="PreviewContainer" type="PanelContainer" parent="UI/MainContainer/CenterPanel"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(450, 450)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_preview")
@@ -197,20 +200,20 @@ stretch = true
 transparent_bg = true
 handle_input_locally = false
 canvas_item_default_texture_filter = 0
-size = Vector2i(300, 300)
+size = Vector2i(500, 500)
 render_target_update_mode = 4
 
 [node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
-position = Vector2(150, 200)
-scale = Vector2(4, 4)
+position = Vector2(250, 470)
+scale = Vector2(8, 8)
 
 [node name="HeadSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="HeadPrevBtn" type="Button" parent="UI/MainContainer/CenterPanel/HeadSelector"]
-custom_minimum_size = Vector2(40, 28)
+custom_minimum_size = Vector2(50, 34)
 layout_mode = 2
 text = "◀"
 
@@ -220,24 +223,24 @@ label_settings = SubResource("LabelSettings_normal")
 text = "Rostro"
 
 [node name="HeadIndexLabel" type="Label" parent="UI/MainContainer/CenterPanel/HeadSelector"]
-custom_minimum_size = Vector2(50, 0)
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 label_settings = SubResource("LabelSettings_normal")
 text = "1 / 40"
 horizontal_alignment = 1
 
 [node name="HeadNextBtn" type="Button" parent="UI/MainContainer/CenterPanel/HeadSelector"]
-custom_minimum_size = Vector2(40, 28)
+custom_minimum_size = Vector2(50, 34)
 layout_mode = 2
 text = "▶"
 
 [node name="DirectionSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="DirLeftBtn" type="Button" parent="UI/MainContainer/CenterPanel/DirectionSelector"]
-custom_minimum_size = Vector2(40, 28)
+custom_minimum_size = Vector2(50, 34)
 layout_mode = 2
 text = "↺"
 
@@ -247,7 +250,7 @@ label_settings = SubResource("LabelSettings_normal")
 text = "Girar"
 
 [node name="DirRightBtn" type="Button" parent="UI/MainContainer/CenterPanel/DirectionSelector"]
-custom_minimum_size = Vector2(40, 28)
+custom_minimum_size = Vector2(50, 34)
 layout_mode = 2
 text = "↻"
 
@@ -259,14 +262,14 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="RightMargin" type="MarginContainer" parent="UI/MainContainer/RightPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
 
 [node name="RightVBox" type="VBoxContainer" parent="UI/MainContainer/RightPanel/RightMargin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="OptionsTitle" type="Label" parent="UI/MainContainer/RightPanel/RightMargin/RightVBox"]
 layout_mode = 2
@@ -340,7 +343,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -180.0
-offset_top = -50.0
+offset_top = -55.0
 offset_right = 180.0
 offset_bottom = -10.0
 grow_horizontal = 2

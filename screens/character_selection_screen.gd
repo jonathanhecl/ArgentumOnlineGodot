@@ -66,7 +66,12 @@ func _ready() -> void:
 	_clear_character_info()
 	
 	await get_tree().process_frame
-	
+
+	# Asegurar que el viewport del mapa preview tenga tamaño válido y la cámara
+	# esté ajustada antes de cargar el primer personaje (especialmente al volver
+	# de otras pantallas donde el layout puede tardar en estabilizarse).
+	_sync_map_preview_viewport_size()
+
 	if characters.size() > 0:
 		_update_character_list()
 		# Seleccionar el primero por defecto
@@ -99,6 +104,7 @@ void fragment() {
 
 func _on_map_preview_resized() -> void:
 	_sync_map_preview_viewport_size()
+	_fit_map_preview_camera()
 
 func _sync_map_preview_viewport_size() -> void:
 	if not map_preview_container or not map_preview_viewport:
@@ -107,7 +113,6 @@ func _sync_map_preview_viewport_size() -> void:
 	if viewport_container_size.x <= 0.0 or viewport_container_size.y <= 0.0:
 		return
 	map_preview_viewport.size = Vector2i(viewport_container_size)
-	_fit_map_preview_camera()
 
 func set_account_data(acc_name: String, char_list: Array[Dictionary]) -> void:
 	account_name = acc_name
@@ -361,6 +366,10 @@ func _update_preview_map(char_data: Dictionary) -> void:
 	map_preview_root.add_child(_preview_map_node)
 	if not has_character_position:
 		_preview_focus_world_position = _get_map_walkable_focus_world_position(_preview_map_node)
+
+	# Asegurar que el viewport tenga el tamaño actual del contenedor antes de
+	# ajustar la cámara, ya que el resize puede no haberse emitido todavía.
+	_sync_map_preview_viewport_size()
 	_fit_map_preview_camera()
 
 func _has_character_preview_position(char_data: Dictionary) -> bool:
