@@ -13,6 +13,14 @@ enum State {
 
 var _state: State
 
+# Cuando es true, la pantalla reconecta y reloguea la cuenta automáticamente
+# usando los datos de sesión cacheados en Global (session_host/port/username/password).
+# Se usa al volver a la selección de personajes desde el juego.
+var _auto_login_requested: bool = false
+
+func request_auto_login() -> void:
+	_auto_login_requested = true
+
 func _ready() -> void:
 	ClientInterface.connected.connect(_OnConnected)
 	ClientInterface.disconnected.connect(_OnDisconnected)
@@ -61,6 +69,28 @@ func _ready() -> void:
 	_loginPanel.error.connect(func(message):
 		Utils.ShowAlertDialog("Login", message, self))
 	_loginPanel.quit_requested.connect(_OnLoginPanelQuitRequested)
+
+	# Reconexión automática al volver a la selección de personajes desde el juego
+	if _auto_login_requested:
+		_perform_auto_login()
+
+func _perform_auto_login() -> void:
+	# Requiere datos de sesión cacheados (host, puerto, usuario, contraseña)
+	if Global.session_host.is_empty() or Global.session_port <= 0 \
+			or Global.session_username.is_empty() or Global.session_password.is_empty():
+		print("🔍 LoginScreen: auto-login solicitado pero faltan datos de sesión cacheados.")
+		_auto_login_requested = false
+		return
+
+	print("🔍 LoginScreen: auto-login con cuenta cacheada '", Global.session_username, "'...")
+	# Restaurar credenciales y endpoint en el panel por si falla y el usuario debe reintentar
+	_loginPanel.SetCredentials(Global.session_username, Global.session_password)
+	%Ip.text = Global.session_host
+	%Port.value = Global.session_port
+
+	_state = State.LoginAccount
+	_loginPanel.DisableAuthControls()
+	ClientInterface.ConnectToHost(Global.session_host, Global.session_port)
 
 func _exit_tree() -> void:
 	# Desconectar señales del ProtocolHandler al salir
@@ -141,6 +171,12 @@ func _ConnectToHost(state: State) -> void:
 	_loginPanel.DisableAuthControls()
 	
 	var endpoint = _GetEnpoint()
+	# Guardar datos de conexión en memoria para permitir reconexión automática
+	# (ej. al volver a la selección de personajes desde el juego)
+	Global.session_host = endpoint.ip
+	Global.session_port = endpoint.port
+	Global.session_username = _loginPanel.GetUsername()
+	Global.session_password = _loginPanel.GetPassword()
 	ClientInterface.ConnectToHost(endpoint.ip, endpoint.port)
 
 func _Flush() -> void:
@@ -220,6 +256,12 @@ func _on_create_character_requested() -> void:
 func _on_logout_requested() -> void:
 	"""Cuando se solicita cerrar sesión"""
 	print("Cerrar sesión solicitado")
+	
+	# Limpiar caché de sesión al cerrar sesión explícitamente
+	Global.session_host = ""
+	Global.session_port = 0
+	Global.session_username = ""
+	Global.session_password = ""
 	
 	# Desconectar del servidor
 	ClientInterface.DisconnectFromHost()

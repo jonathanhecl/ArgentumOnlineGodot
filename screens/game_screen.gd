@@ -143,6 +143,12 @@ func _request_return_to_character_selection() -> void:
 		return
 
 	_logout_to_character_selection_pending = true
+
+	# Ocultar el diálogo de "Salir del juego" para que no quede por encima
+	# mientras el servidor procesa el logout y la cuenta regresiva.
+	if _window_close_dialog:
+		_window_close_dialog.hide()
+
 	ProtocolWriteToServer.WriteQuit()
 	_FlushData()
 
@@ -217,10 +223,26 @@ func _scale_cursor(texture: Texture2D, scale_factor: float) -> Texture2D:
 	return new_texture
 	 
 func _OnDisconnected() -> void:
+	var was_return_to_selection := _logout_to_character_selection_pending
 	_logout_to_character_selection_pending = false
-	print("[GameScreen] Desconectado del servidor, volviendo a login...")
 	Security.reset_redundance()
-	var screen = load("uid://cd452cndcck7v").instantiate() 
+
+	# Si el usuario pidió volver a la selección de personajes, el servidor nos
+	# desconecta (tras la cuenta regresiva si no estamos en zona segura).
+	# Reconectamos y relogueamos la cuenta automáticamente usando los datos de
+	# sesión cacheados, para llegar a la lista de personajes sin intervención.
+	if was_return_to_selection \
+			and not Global.session_host.is_empty() \
+			and not Global.session_username.is_empty() \
+			and not Global.session_password.is_empty():
+		print("[GameScreen] Desconectado tras logout, reconectando para selección de personajes...")
+		var login_screen = load("uid://cd452cndcck7v").instantiate()
+		login_screen.request_auto_login()
+		ScreenController.SwitchScreen(login_screen)
+		return
+
+	print("[GameScreen] Desconectado del servidor, volviendo a login...")
+	var screen = load("uid://cd452cndcck7v").instantiate()
 	ScreenController.SwitchScreen(screen)
 
 func _process(_delta: float) -> void:

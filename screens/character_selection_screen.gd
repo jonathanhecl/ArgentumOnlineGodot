@@ -562,6 +562,11 @@ func _on_delete_pressed() -> void:
 func _on_logout_pressed() -> void:
 	Global.account_name = ""
 	Global.account_hash = ""
+	# Limpiar caché de sesión al cerrar sesión explícitamente
+	Global.session_host = ""
+	Global.session_port = 0
+	Global.session_username = ""
+	Global.session_password = ""
 	ClientInterface.DisconnectFromHost()
 	
 	var login_screen = load("res://screens/login_screen.tscn").instantiate()

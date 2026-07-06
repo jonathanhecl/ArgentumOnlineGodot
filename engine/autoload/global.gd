@@ -11,6 +11,13 @@ var account_name:String = ""
 var account_hash:String = ""
 var account_characters: Array[Dictionary] = []
 
+# Caché en memoria (solo sesión) para reconexión automática al volver a la
+# selección de personajes desde el juego. No se persiste a disco.
+var session_host:String = ""
+var session_port:int = 0
+var session_username:String = ""
+var session_password:String = ""
+
 # Control de logging para paquetes salientes al servidor
 var log_outgoing_packets:bool = true
 
