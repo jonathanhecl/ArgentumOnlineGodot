@@ -39,6 +39,12 @@ const HOME_MAP_IDS := {
 # Animación
 @export var _animationTimer: Timer
 
+# Levitación suave del personaje mientras se crea (sensación mágica).
+@export var _levitateAmplitude: float = 6.0  # px en espacio del SubViewport
+@export var _levitateSpeed: float = 1.6      # rad/s
+var _previewBasePosition: Vector2
+var _levitateTime: float = 0.0
+
 # Estado del personaje en creación
 var _currentHead: int = 1
 var _currentBody: int = 1
@@ -128,6 +134,16 @@ func _ready() -> void:
 	_InitializeUI()
 	_InitializeCharacterPreview()
 	_ThrowDice()
+	
+	if _previewCharacter:
+		_previewBasePosition = _previewCharacter.position
+
+func _process(delta: float) -> void:
+	if not _previewCharacter:
+		return
+	_levitateTime += delta
+	var offset_y = sin(_levitateTime * _levitateSpeed) * _levitateAmplitude
+	_previewCharacter.position = Vector2(_previewBasePosition.x, _previewBasePosition.y + offset_y)
 
 func _exit_tree() -> void:
 	if ClientInterface.disconnected.is_connected(_OnDisconnected):

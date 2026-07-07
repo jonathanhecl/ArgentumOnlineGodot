@@ -1,8 +1,21 @@
-[gd_scene load_steps=10 format=3 uid="uid://bp35uafwebjdb"]
+[gd_scene load_steps=12 format=3 uid="uid://bp35uafwebjdb"]
 
 [ext_resource type="Script" uid="uid://jq4g00j8tbc4" path="res://screens/character_creation_screen.gd" id="1_tkq11"]
 [ext_resource type="PackedScene" path="res://maps/Map1.tscn" id="2_hwus4"]
 [ext_resource type="PackedScene" uid="uid://twhhld7du3lq" path="res://engine/character/character.tscn" id="3_char"]
+[ext_resource type="Shader" path="res://shaders/character_preview_aura.gdshader" id="4_aura"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
+shader = ExtResource("4_aura")
+shader_parameter/halo_radius = 26.0
+shader_parameter/halo_intensity = 0.92
+shader_parameter/halo_falloff = 1.6
+shader_parameter/smoke_intensity = 0.55
+shader_parameter/smoke_scale = 5.0
+shader_parameter/time_scale = 0.35
+shader_parameter/halo_color = Color(0, 0, 0, 1)
+shader_parameter/smoke_tint = Color(0.2, 0.09, 0.26, 1)
+shader_parameter/sample_step = 2.5
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
 font_size = 24
@@ -209,8 +222,21 @@ size = Vector2i(500, 500)
 render_target_update_mode = 4
 
 [node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
-position = Vector2(258, 475)
+position = Vector2(433, 475)
 scale = Vector2(8, 8)
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport"]
+copy_mode = 0
+
+[node name="AuraBackground" type="ColorRect" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+material = SubResource("ShaderMaterial_aura")
+mouse_filter = 2
 
 [node name="HeadSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2

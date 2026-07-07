@@ -71,6 +71,7 @@ func _ready() -> void:
 	# esté ajustada antes de cargar el primer personaje (especialmente al volver
 	# de otras pantallas donde el layout puede tardar en estabilizarse).
 	_sync_map_preview_viewport_size()
+	_fit_map_preview_camera()
 
 	if characters.size() > 0:
 		_update_character_list()
@@ -353,13 +354,17 @@ func _update_preview_map(char_data: Dictionary) -> void:
 	_clear_preview_map_node()
 
 	var map_path := "res://Maps/Map%d.tscn" % map_id
+	print("[CharacterSelection] Cargando mapa preview: ", map_path)
 	if not ResourceLoader.exists(map_path):
+		print("[CharacterSelection] Mapa no encontrado: ", map_path)
 		return
 	var packed := load(map_path) as PackedScene
 	if not packed:
+		print("[CharacterSelection] No se pudo cargar PackedScene: ", map_path)
 		return
 	var map_instance := packed.instantiate()
 	if not (map_instance is Node2D):
+		print("[CharacterSelection] Instancia no es Node2D: ", map_path)
 		map_instance.queue_free()
 		return
 	_preview_map_node = map_instance as Node2D
@@ -371,6 +376,7 @@ func _update_preview_map(char_data: Dictionary) -> void:
 	# ajustar la cámara, ya que el resize puede no haberse emitido todavía.
 	_sync_map_preview_viewport_size()
 	_fit_map_preview_camera()
+	print("[CharacterSelection] Mapa preview cargado. Viewport: ", map_preview_viewport.size, ", cámara pos: ", map_preview_camera.position, ", zoom: ", map_preview_camera.zoom)
 
 func _has_character_preview_position(char_data: Dictionary) -> bool:
 	return int(char_data.get("x", 0)) > 0 and int(char_data.get("y", 0)) > 0
@@ -442,8 +448,10 @@ func _get_map_walkable_focus_world_position(map_node: Node2D) -> Vector2:
 
 func _fit_map_preview_camera() -> void:
 	if not map_preview_camera or not map_preview_viewport:
+		print("[CharacterSelection] _fit_map_preview_camera: cámara o viewport no disponibles")
 		return
 	var viewport_size := Vector2(map_preview_viewport.size)
+	print("[CharacterSelection] _fit_map_preview_camera: viewport size = ", viewport_size)
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 	var map_world_size := Vector2(MAP_TILE_SIZE * MAP_TILES_PER_SIDE, MAP_TILE_SIZE * MAP_TILES_PER_SIDE)
@@ -464,6 +472,9 @@ func _fit_map_preview_camera() -> void:
 
 	map_preview_camera.position = clamped_focus
 	map_preview_camera.zoom = Vector2(zoom_factor, zoom_factor)
+	map_preview_camera.enabled = true
+	map_preview_camera.make_current()
+	map_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 
 func _update_preview_renderer(char_data: Dictionary) -> void:
 	if not _preview_renderer: return
