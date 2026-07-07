@@ -1,22 +1,18 @@
 shader_type canvas_item;
 render_mode unshaded;
 
-// Aura que envuelve la silueta completa del personaje (cuerpo + cabeza).
-// Lee screen_texture (el personaje ya renderizado en el SubViewport) y dilata
-// su alfa para construir un halo con falloff + humo FBM ascendente.
-// Solo dibuja FUERA de la silueta (alfa 0 sobre el personaje) => el personaje
-// se ve por encima y el halo parece estar detrás.
+// Aura épica detrás del personaje en creación.
+// Núcleo radial negro + energía/humo ascendente con ráfagas de viento mágico.
+// El centro se actualiza desde GDScript para seguir al personaje (incl. levitación).
 
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float halo_radius : hint_range(4.0, 60.0) = 26.0; // px (en resolución del viewport)
-uniform float halo_intensity : hint_range(0.0, 1.0) = 0.92;
-uniform float halo_falloff : hint_range(0.5, 4.0) = 1.6;
-uniform float smoke_intensity : hint_range(0.0, 1.0) = 0.55;
-uniform float smoke_scale = 5.0;
-uniform float time_scale = 0.35;
-uniform vec3 halo_color : source_color = vec3(0.0, 0.0, 0.0);
-uniform vec3 smoke_tint : source_color = vec3(0.20, 0.09, 0.26);
-uniform float sample_step = 2.5; // paso del muestreo para la distancia a la silueta
+uniform vec2 aura_center = vec2(0.86, 0.62); // UV (0-1), actualizado desde script
+uniform float aura_radius : hint_range(0.05, 1.0) = 0.42;
+uniform float core_intensity : hint_range(0.0, 1.0) = 0.88;
+uniform float smoke_intensity : hint_range(0.0, 1.0) = 0.7;
+uniform float smoke_scale = 4.0;
+uniform float time_scale = 0.4;
+uniform float wind_strength : hint_range(0.0, 2.0) = 0.8;
+uniform vec3 aura_color : source_color = vec3(0.0, 0.0, 0.0);
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -44,61 +40,48 @@ float fbm(vec2 p) {
 	return v;
 }
 
-// Distancia aproximada a la silueta opaca más cercana (en píxeles del viewport).
-float dist_to_silhouette(vec2 uv) {
-	float min_dist = halo_radius;
-	for (float x = -halo_radius; x <= halo_radius; x += sample_step) {
-		for (float y = -halo_radius; y <= halo_radius; y += sample_step) {
-			float a = texture(screen_texture, uv + vec2(x, y) * SCREEN_PIXEL_SIZE).a;
-			if (a > 0.5) {
-				min_dist = min(min_dist, length(vec2(x, y)));
-			}
-		}
-	}
-	return min_dist;
-}
-
 void fragment() {
-	float charA = texture(screen_texture, UV).a;
+	vec2 p = UV;
+	float dist = distance(p, aura_center);
 
-	// Sobre el personaje: no dibujar nada (deja ver el personaje que ya está renderizado).
-	if (charA > 0.5) {
-		COLOR = vec4(0.0);
-		return;
-	}
+	// Vignette: núcleo oscuro que decae a transparente.
+	float vignette = 1.0 - smoothstep(0.0, aura_radius, dist);
+	vignette = pow(vignette, 1.5);
 
-	float d = dist_to_silhouette(UV);
-	if (d >= halo_radius) {
-		COLOR = vec4(0.0);
-		return;
-	}
-
-	// Halo con falloff: 1 en la silueta, 0 en halo_radius.
-	float halo = 1.0 - smoothstep(0.0, halo_radius, d);
-	halo = pow(halo, halo_falloff);
-
-	// Humo ascendente en espacio de pantalla, enmascarado por el halo.
 	float t = TIME * time_scale;
-	vec2 smoke_uv = UV * smoke_scale;
-	smoke_uv.y -= t * 2.0;
-	smoke_uv.x += sin(t * 0.5 + UV.y * 8.0) * 0.3;
+
+	// Capa 1: humo ascendente denso (energía que se eleva).
+	vec2 smoke_uv = (p - aura_center) * smoke_scale;
+	smoke_uv.y += t * 2.5; // += = ascendente (UV.y crece hacia abajo)
+	smoke_uv.x += sin(t * 0.6 + p.y * 6.0) * wind_strength * 0.4;
 	float smoke = fbm(smoke_uv);
-	smoke = smoothstep(0.35, 0.78, smoke);
+	smoke = smoothstep(0.32, 0.72, smoke);
 
-	// Segunda capa: wisp más lento y ancho.
-	vec2 vapor_uv = UV * (smoke_scale * 0.5);
-	vapor_uv.y -= t * 1.1;
-	vapor_uv.x += cos(t * 0.3) * 0.4;
+	// Capa 2: wisp más lento, ancho, con viento cruzado.
+	vec2 vapor_uv = (p - aura_center) * (smoke_scale * 0.45);
+	vapor_uv.y += t * 1.3;
+	vapor_uv.x += cos(t * 0.35 + p.y * 4.0) * wind_strength * 0.6;
 	float vapor = fbm(vapor_uv);
-	vapor = smoothstep(0.42, 0.82, vapor);
+	vapor = smoothstep(0.40, 0.80, vapor);
 
-	float smoke_combined = mix(smoke, vapor, 0.5);
-	float smoke_mask = halo * smoke_combined;
+	// Capa 3: ráfagas verticales — rayos de energía que suben rápido.
+	vec2 gust_uv = vec2((p.x - aura_center.x) * 12.0 + sin(t * 1.2) * 2.0,
+						(p.y - aura_center.y) * 3.0 + t * 5.0);
+	float gust = fbm(gust_uv);
+	gust = smoothstep(0.55, 0.85, gust);
+	// Las ráfagas solo en la columna sobre el personaje, no debajo.
+	float vertical_mask = smoothstep(0.0, 0.3, (aura_center.y - p.y));
+	gust *= vertical_mask;
 
-	float alpha = halo * halo_intensity + smoke_mask * smoke_intensity;
+	float energy = mix(mix(smoke, vapor, 0.5), gust, 0.35);
+	float energy_mask = vignette * energy;
+
+	// Falloff vertical: la energía se intensifica arriba del personaje.
+	float upward_boost = smoothstep(0.0, aura_radius * 0.8, (aura_center.y - p.y));
+	energy_mask *= 0.6 + 0.4 * upward_boost;
+
+	float alpha = vignette * core_intensity + energy_mask * smoke_intensity;
 	alpha = clamp(alpha, 0.0, 1.0);
 
-	vec3 col = mix(halo_color, smoke_tint, smoke_combined * 0.45);
-
-	COLOR = vec4(col, alpha);
+	COLOR = vec4(aura_color, alpha);
 }

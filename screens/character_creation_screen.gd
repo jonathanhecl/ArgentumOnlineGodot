@@ -44,6 +44,13 @@ const HOME_MAP_IDS := {
 @export var _levitateSpeed: float = 1.6      # rad/s
 var _previewBasePosition: Vector2
 var _levitateTime: float = 0.0
+var _auraMaterial: ShaderMaterial
+
+# Tamaño del SubViewport de preview (para convertir posición px → UV).
+const SUBVIEWPORT_SIZE := Vector2(500.0, 500.0)
+# Offset vertical del centro del aura respecto a la posición del personaje (px).
+# Negativo = arriba del pivote (cuerpo+cabeza están sobre el pivote).
+const AURA_CENTER_OFFSET_Y := -165.0
 
 # Estado del personaje en creación
 var _currentHead: int = 1
@@ -137,6 +144,12 @@ func _ready() -> void:
 	
 	if _previewCharacter:
 		_previewBasePosition = _previewCharacter.position
+	
+	# Obtener el material del aura para actualizar su centro dinámicamente.
+	var subviewport = _previewCharacter.get_parent()
+	if subviewport and subviewport.has_node("AuraBackground"):
+		var aura = subviewport.get_node("AuraBackground")
+		_auraMaterial = aura.material as ShaderMaterial
 
 func _process(delta: float) -> void:
 	if not _previewCharacter:
@@ -144,6 +157,12 @@ func _process(delta: float) -> void:
 	_levitateTime += delta
 	var offset_y = sin(_levitateTime * _levitateSpeed) * _levitateAmplitude
 	_previewCharacter.position = Vector2(_previewBasePosition.x, _previewBasePosition.y + offset_y)
+	
+	# Actualizar el centro del aura para que siga al personaje (incl. levitación).
+	if _auraMaterial:
+		var center_px := Vector2(_previewCharacter.position.x, _previewCharacter.position.y + AURA_CENTER_OFFSET_Y)
+		var center_uv := Vector2(center_px.x / SUBVIEWPORT_SIZE.x, center_px.y / SUBVIEWPORT_SIZE.y)
+		_auraMaterial.set_shader_parameter("aura_center", center_uv)
 
 func _exit_tree() -> void:
 	if ClientInterface.disconnected.is_connected(_OnDisconnected):

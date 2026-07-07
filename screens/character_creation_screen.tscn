@@ -7,15 +7,14 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
 shader = ExtResource("4_aura")
-shader_parameter/halo_radius = 26.0
-shader_parameter/halo_intensity = 0.92
-shader_parameter/halo_falloff = 1.6
-shader_parameter/smoke_intensity = 0.55
-shader_parameter/smoke_scale = 5.0
-shader_parameter/time_scale = 0.35
-shader_parameter/halo_color = Color(0, 0, 0, 1)
-shader_parameter/smoke_tint = Color(0.2, 0.09, 0.26, 1)
-shader_parameter/sample_step = 2.5
+shader_parameter/aura_center = Vector2(0.86, 0.62)
+shader_parameter/aura_radius = 0.42
+shader_parameter/core_intensity = 0.88
+shader_parameter/smoke_intensity = 0.7
+shader_parameter/smoke_scale = 4.0
+shader_parameter/time_scale = 0.4
+shader_parameter/wind_strength = 0.8
+shader_parameter/aura_color = Color(0, 0, 0, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
 font_size = 24
@@ -221,13 +220,6 @@ canvas_item_default_texture_filter = 0
 size = Vector2i(500, 500)
 render_target_update_mode = 4
 
-[node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
-position = Vector2(433, 475)
-scale = Vector2(8, 8)
-
-[node name="BackBufferCopy" type="BackBufferCopy" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport"]
-copy_mode = 0
-
 [node name="AuraBackground" type="ColorRect" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport"]
 anchors_preset = 15
 anchor_right = 1.0
@@ -237,6 +229,10 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0)
 material = SubResource("ShaderMaterial_aura")
 mouse_filter = 2
+
+[node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
+position = Vector2(428, 475)
+scale = Vector2(8, 8)
 
 [node name="HeadSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]
 layout_mode = 2
