@@ -48,9 +48,8 @@ var _auraMaterial: ShaderMaterial
 
 # Tamaño del SubViewport de preview (para convertir posición px → UV).
 const SUBVIEWPORT_SIZE := Vector2(500.0, 500.0)
-# Offset vertical del centro del aura respecto a la posición del personaje (px).
-# Negativo = arriba del pivote (cuerpo+cabeza están sobre el pivote).
-const AURA_CENTER_OFFSET_Y := -165.0
+# Altura del personaje en px del SubViewport (se actualiza con cada cambio de cuerpo/raza).
+var _characterHeightPx: float = 200.0
 
 # Estado del personaje en creación
 var _currentHead: int = 1
@@ -150,6 +149,12 @@ func _ready() -> void:
 	if subviewport and subviewport.has_node("AuraBackground"):
 		var aura = subviewport.get_node("AuraBackground")
 		_auraMaterial = aura.material as ShaderMaterial
+	
+	# Calcular el tamaño inicial del aura en base al cuerpo ya cargado.
+	if _previewCharacter and _previewCharacter.has_node("Renderer"):
+		var renderer = _previewCharacter.get_node("Renderer") as CharacterRenderer
+		if renderer:
+			_UpdateAuraSize(renderer)
 
 func _process(delta: float) -> void:
 	if not _previewCharacter:
@@ -158,13 +163,15 @@ func _process(delta: float) -> void:
 	var offset_y = sin(_levitateTime * _levitateSpeed) * _levitateAmplitude
 	_previewCharacter.position = Vector2(_previewBasePosition.x, _previewBasePosition.y + offset_y)
 	
-	# Actualizar el centro del aura para que quede detrás del personaje.
-	# El personaje está alineado al centro visual del viewport, pero su pivote
-	# está desplazado; usamos el centro del viewport en X para que el aura no se corte.
+	# Actualizar el centro y radio del aura según la posición y altura real del personaje.
 	if _auraMaterial:
-		var center_px := Vector2(SUBVIEWPORT_SIZE.x / 2.0, _previewCharacter.position.y + AURA_CENTER_OFFSET_Y)
+		# El pivote del personaje está en los pies; la mitad del cuerpo está arriba.
+		var center_px := Vector2(SUBVIEWPORT_SIZE.x / 2.0, _previewCharacter.position.y - _characterHeightPx * 0.5)
 		var center_uv := Vector2(center_px.x / SUBVIEWPORT_SIZE.x, center_px.y / SUBVIEWPORT_SIZE.y)
+		# Radio horizontal: la mitad de la altura del personaje en UV, para que cubra la silueta.
+		var radius_uv := (_characterHeightPx * 0.55) / SUBVIEWPORT_SIZE.y
 		_auraMaterial.set_shader_parameter("aura_center", center_uv)
+		_auraMaterial.set_shader_parameter("aura_radius", radius_uv)
 
 func _exit_tree() -> void:
 	if ClientInterface.disconnected.is_connected(_OnDisconnected):
@@ -254,6 +261,9 @@ func _UpdateBodyAndHead() -> void:
 			# Crear animación suave de fade-in
 			var tween = create_tween()
 			tween.tween_property(renderer, "modulate:a", 1.0, 0.1)
+			
+			# Actualizar el tamaño del aura en base al sprite del cuerpo.
+			_UpdateAuraSize(renderer)
 	
 	_UpdateHeadLabel()
 
@@ -264,6 +274,25 @@ func _UpdateHeadLabel() -> void:
 		var relative_index = _currentHead - head_range.min + 1
 		var total_heads = head_range.max - head_range.min + 1
 		_headIndexLabel.text = "%d / %d" % [relative_index, total_heads]
+
+# Calcula la altura del personaje en píxeles del SubViewport a partir del sprite del cuerpo
+# escalado, y almacena el resultado en _characterHeightPx para que _process lo use.
+func _UpdateAuraSize(renderer: CharacterRenderer) -> void:
+	if not renderer._bodyAnimatedSprite:
+		return
+	var frames = renderer._bodyAnimatedSprite.sprite_frames
+	if not frames:
+		return
+	if not frames.has_animation("idle_south") or frames.get_frame_count("idle_south") == 0:
+		return
+	var tex = frames.get_frame_texture("idle_south", 0)
+	if not tex:
+		return
+	# Altura del sprite en píxeles originales × escala del CharacterPreview (×8).
+	var sprite_h_original: float = tex.get_height()
+	var char_scale: float = _previewCharacter.scale.y  # debería ser 8
+	# La altura total del personaje (cuerpo + cabeza) es aprox. 1.6× la altura del cuerpo.
+	_characterHeightPx = sprite_h_original * char_scale * 1.6
 
 func _UpdatePreviewDirection() -> void:
 	if _previewCharacter and _previewCharacter.has_node("Renderer"):

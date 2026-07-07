@@ -7,6 +7,7 @@ render_mode unshaded;
 
 uniform vec2 aura_center = vec2(0.5, 0.62); // UV (0-1), actualizado desde script
 uniform float aura_radius : hint_range(0.05, 1.0) = 0.28;
+uniform float vertical_stretch : hint_range(0.5, 9.0) = 1.6;
 uniform float core_intensity : hint_range(0.0, 1.0) = 0.88;
 uniform float smoke_intensity : hint_range(0.0, 1.0) = 0.7;
 uniform float smoke_scale = 4.0;
@@ -45,7 +46,9 @@ float fbm(vec2 p) {
 
 void fragment() {
 	vec2 p = UV;
-	float dist = distance(p, aura_center);
+	// Distancia elíptica: el aura se estira verticalmente para acompañar
+	// la silueta del personaje y dejar que el humo suba más alto.
+	float dist = length((p - aura_center) * vec2(1.0, vertical_stretch));
 
 	float t = TIME * time_scale;
 	float pulse = sin(TIME * pulse_speed) * 0.5 + 0.5;
@@ -57,7 +60,7 @@ void fragment() {
 
 	// Capa 1: humo ascendente denso (energía que se eleva).
 	vec2 smoke_uv = (p - aura_center) * smoke_scale;
-	smoke_uv.y += t * 2.5; // += = ascendente (UV.y crece hacia abajo)
+	smoke_uv.y += t * 3.5; // += = ascendente (UV.y crece hacia abajo)
 	smoke_uv.x += sin(t * 0.6 + p.y * 6.0) * wind_strength * 0.4;
 	// Deriva radial: el humo también se expande desde el centro del cuerpo.
 	smoke_uv += normalize(p - aura_center + 0.0001) * t * emanate_strength * 0.35;
@@ -66,7 +69,7 @@ void fragment() {
 
 	// Capa 2: wisp más lento, ancho, con viento cruzado.
 	vec2 vapor_uv = (p - aura_center) * (smoke_scale * 0.45);
-	vapor_uv.y += t * 1.3;
+	vapor_uv.y += t * 2.0;
 	vapor_uv.x += cos(t * 0.35 + p.y * 4.0) * wind_strength * 0.6;
 	vapor_uv += normalize(p - aura_center + 0.0001) * t * emanate_strength * 0.2;
 	float vapor = fbm(vapor_uv);
@@ -78,15 +81,15 @@ void fragment() {
 	float gust = fbm(gust_uv);
 	gust = smoothstep(0.55, 0.85, gust);
 	// Las ráfagas solo en la columna sobre el personaje, no debajo.
-	float vertical_mask = smoothstep(0.0, 0.3, (aura_center.y - p.y));
+	float vertical_mask = smoothstep(0.0, 0.5, (aura_center.y - p.y));
 	gust *= vertical_mask;
 
 	float energy = mix(mix(smoke, vapor, 0.5), gust, 0.35);
 	float energy_mask = vignette * energy;
 
 	// Falloff vertical: la energía se intensifica arriba del personaje.
-	float upward_boost = smoothstep(0.0, dynamic_radius * 0.8, (aura_center.y - p.y));
-	energy_mask *= 0.6 + 0.4 * upward_boost;
+	float upward_boost = smoothstep(0.0, dynamic_radius * 0.9, (aura_center.y - p.y));
+	energy_mask *= 0.5 + 0.5 * upward_boost;
 
 	float alpha = vignette * core_intensity + energy_mask * smoke_intensity;
 	// Pulso sutil en la intensidad del núcleo para que la oscuridad "respire".
