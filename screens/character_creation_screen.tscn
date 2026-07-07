@@ -7,8 +7,8 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aura"]
 shader = ExtResource("4_aura")
-shader_parameter/aura_center = Vector2(0.86, 0.62)
-shader_parameter/aura_radius = 0.42
+shader_parameter/aura_center = Vector2(0.5, 0.62)
+shader_parameter/aura_radius = 0.28
 shader_parameter/core_intensity = 0.88
 shader_parameter/smoke_intensity = 0.7
 shader_parameter/smoke_scale = 4.0

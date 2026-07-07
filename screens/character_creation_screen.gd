@@ -158,9 +158,11 @@ func _process(delta: float) -> void:
 	var offset_y = sin(_levitateTime * _levitateSpeed) * _levitateAmplitude
 	_previewCharacter.position = Vector2(_previewBasePosition.x, _previewBasePosition.y + offset_y)
 	
-	# Actualizar el centro del aura para que siga al personaje (incl. levitación).
+	# Actualizar el centro del aura para que quede detrás del personaje.
+	# El personaje está alineado al centro visual del viewport, pero su pivote
+	# está desplazado; usamos el centro del viewport en X para que el aura no se corte.
 	if _auraMaterial:
-		var center_px := Vector2(_previewCharacter.position.x, _previewCharacter.position.y + AURA_CENTER_OFFSET_Y)
+		var center_px := Vector2(SUBVIEWPORT_SIZE.x / 2.0, _previewCharacter.position.y + AURA_CENTER_OFFSET_Y)
 		var center_uv := Vector2(center_px.x / SUBVIEWPORT_SIZE.x, center_px.y / SUBVIEWPORT_SIZE.y)
 		_auraMaterial.set_shader_parameter("aura_center", center_uv)
 

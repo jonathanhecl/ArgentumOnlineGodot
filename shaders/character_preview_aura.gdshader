@@ -5,13 +5,16 @@ render_mode unshaded;
 // Núcleo radial negro + energía/humo ascendente con ráfagas de viento mágico.
 // El centro se actualiza desde GDScript para seguir al personaje (incl. levitación).
 
-uniform vec2 aura_center = vec2(0.86, 0.62); // UV (0-1), actualizado desde script
-uniform float aura_radius : hint_range(0.05, 1.0) = 0.42;
+uniform vec2 aura_center = vec2(0.5, 0.62); // UV (0-1), actualizado desde script
+uniform float aura_radius : hint_range(0.05, 1.0) = 0.28;
 uniform float core_intensity : hint_range(0.0, 1.0) = 0.88;
 uniform float smoke_intensity : hint_range(0.0, 1.0) = 0.7;
 uniform float smoke_scale = 4.0;
 uniform float time_scale = 0.4;
 uniform float wind_strength : hint_range(0.0, 2.0) = 0.8;
+uniform float pulse_speed : hint_range(0.0, 4.0) = 1.2;
+uniform float pulse_amount : hint_range(0.0, 0.25) = 0.05;
+uniform float emanate_strength : hint_range(0.0, 2.0) = 0.8;
 uniform vec3 aura_color : source_color = vec3(0.0, 0.0, 0.0);
 
 float hash(vec2 p) {
@@ -44,16 +47,20 @@ void fragment() {
 	vec2 p = UV;
 	float dist = distance(p, aura_center);
 
-	// Vignette: núcleo oscuro que decae a transparente.
-	float vignette = 1.0 - smoothstep(0.0, aura_radius, dist);
-	vignette = pow(vignette, 1.5);
-
 	float t = TIME * time_scale;
+	float pulse = sin(TIME * pulse_speed) * 0.5 + 0.5;
+	float dynamic_radius = aura_radius * (1.0 + (pulse - 0.5) * pulse_amount);
+
+	// Vignette: núcleo oscuro que respira y decae suavemente hacia los bordes.
+	float vignette = 1.0 - smoothstep(0.0, dynamic_radius, dist);
+	vignette = pow(vignette, 1.5);
 
 	// Capa 1: humo ascendente denso (energía que se eleva).
 	vec2 smoke_uv = (p - aura_center) * smoke_scale;
 	smoke_uv.y += t * 2.5; // += = ascendente (UV.y crece hacia abajo)
 	smoke_uv.x += sin(t * 0.6 + p.y * 6.0) * wind_strength * 0.4;
+	// Deriva radial: el humo también se expande desde el centro del cuerpo.
+	smoke_uv += normalize(p - aura_center + 0.0001) * t * emanate_strength * 0.35;
 	float smoke = fbm(smoke_uv);
 	smoke = smoothstep(0.32, 0.72, smoke);
 
@@ -61,6 +68,7 @@ void fragment() {
 	vec2 vapor_uv = (p - aura_center) * (smoke_scale * 0.45);
 	vapor_uv.y += t * 1.3;
 	vapor_uv.x += cos(t * 0.35 + p.y * 4.0) * wind_strength * 0.6;
+	vapor_uv += normalize(p - aura_center + 0.0001) * t * emanate_strength * 0.2;
 	float vapor = fbm(vapor_uv);
 	vapor = smoothstep(0.40, 0.80, vapor);
 
@@ -77,10 +85,12 @@ void fragment() {
 	float energy_mask = vignette * energy;
 
 	// Falloff vertical: la energía se intensifica arriba del personaje.
-	float upward_boost = smoothstep(0.0, aura_radius * 0.8, (aura_center.y - p.y));
+	float upward_boost = smoothstep(0.0, dynamic_radius * 0.8, (aura_center.y - p.y));
 	energy_mask *= 0.6 + 0.4 * upward_boost;
 
 	float alpha = vignette * core_intensity + energy_mask * smoke_intensity;
+	// Pulso sutil en la intensidad del núcleo para que la oscuridad "respire".
+	alpha *= 1.0 + (pulse - 0.5) * 0.08;
 	alpha = clamp(alpha, 0.0, 1.0);
 
 	COLOR = vec4(aura_color, alpha);
