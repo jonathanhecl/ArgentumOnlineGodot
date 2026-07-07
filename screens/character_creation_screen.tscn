@@ -9,7 +9,7 @@
 shader = ExtResource("4_aura")
 shader_parameter/aura_center = Vector2(0.5, 0.55)
 shader_parameter/aura_radius = 0.28
-shader_parameter/vertical_stretch = 1.8
+shader_parameter/horizontal_squeeze = 0.45
 shader_parameter/core_intensity = 0.88
 shader_parameter/smoke_intensity = 0.7
 shader_parameter/smoke_scale = 4.0

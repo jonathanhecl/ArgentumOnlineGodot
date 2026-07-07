@@ -165,11 +165,11 @@ func _process(delta: float) -> void:
 	
 	# Actualizar el centro y radio del aura según la posición y altura real del personaje.
 	if _auraMaterial:
-		# El pivote del personaje está en los pies; la mitad del cuerpo está arriba.
+		# El pivote del personaje está en los pies; centramos el aura a la mitad del cuerpo.
 		var center_px := Vector2(SUBVIEWPORT_SIZE.x / 2.0, _previewCharacter.position.y - _characterHeightPx * 0.5)
 		var center_uv := Vector2(center_px.x / SUBVIEWPORT_SIZE.x, center_px.y / SUBVIEWPORT_SIZE.y)
-		# Radio horizontal: la mitad de la altura del personaje en UV, para que cubra la silueta.
-		var radius_uv := (_characterHeightPx * 0.55) / SUBVIEWPORT_SIZE.y
+		# Radio = semiejee Y de la elipse en UV (mitad de la altura del personaje, con margen).
+		var radius_uv := (_characterHeightPx * 0.6) / SUBVIEWPORT_SIZE.y
 		_auraMaterial.set_shader_parameter("aura_center", center_uv)
 		_auraMaterial.set_shader_parameter("aura_radius", radius_uv)
 
