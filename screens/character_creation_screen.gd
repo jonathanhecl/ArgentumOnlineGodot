@@ -133,6 +133,16 @@ const RACE_MODIFIERS = {
 	Enums.Race.Dwarf: {"str": 1, "agi": -1, "int": -1, "cha": -1, "con": 2},
 }
 
+# Factor aplicado a la altura calculada del aura para razas de distinto tamaño.
+# 1.0 = altura normal (humano, elfo, elfo oscuro). < 1.0 = aura más baja.
+const RACE_HEIGHT_FACTORS = {
+	Enums.Race.Human: 1.0,
+	Enums.Race.Elf: 1.0,
+	Enums.Race.Drow: 1.0,
+	Enums.Race.Gnome: 0.75,
+	Enums.Race.Dwarf: 0.75,
+}
+
 func _ready() -> void:
 	ClientInterface.disconnected.connect(_OnDisconnected)
 	ClientInterface.dataReceived.connect(_OnDataReceived)
@@ -293,7 +303,9 @@ func _UpdateAuraSize(renderer: CharacterRenderer) -> void:
 	var sprite_h_original: float = tex.get_height()
 	var char_scale: float = _previewCharacter.scale.y  # debería ser 8
 	# La altura total del personaje (cuerpo + cabeza) es aprox. 1.6× la altura del cuerpo.
-	_characterHeightPx = sprite_h_original * char_scale * 1.6
+	# Las razas bajas (gnomo/enano) usan un factor menor para que el aura se ajuste a su silueta.
+	var height_factor: float = RACE_HEIGHT_FACTORS.get(_currentRace, 1.0)
+	_characterHeightPx = sprite_h_original * char_scale * 1.6 * height_factor
 
 func _UpdatePreviewDirection() -> void:
 	if _previewCharacter and _previewCharacter.has_node("Renderer"):
