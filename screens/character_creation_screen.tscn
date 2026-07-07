@@ -186,14 +186,19 @@ label_settings = SubResource("LabelSettings_section")
 text = "👤 TU AVATAR"
 horizontal_alignment = 1
 
-[node name="PreviewContainer" type="PanelContainer" parent="UI/MainContainer/CenterPanel"]
+[node name="PreviewContainer" type="AspectRatioContainer" parent="UI/MainContainer/CenterPanel"]
 custom_minimum_size = Vector2(450, 450)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_preview")
+ratio = 1.0
+alignment_horizontal = 1
+alignment_vertical = 1
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="UI/MainContainer/CenterPanel/PreviewContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer"]
@@ -204,7 +209,7 @@ size = Vector2i(500, 500)
 render_target_update_mode = 4
 
 [node name="CharacterPreview" parent="UI/MainContainer/CenterPanel/PreviewContainer/SubViewportContainer/SubViewport" instance=ExtResource("3_char")]
-position = Vector2(250, 470)
+position = Vector2(258, 475)
 scale = Vector2(8, 8)
 
 [node name="HeadSelector" type="HBoxContainer" parent="UI/MainContainer/CenterPanel"]

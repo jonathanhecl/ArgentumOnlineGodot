@@ -18,9 +18,12 @@ extends Node
 @export var _mapView: Node2D
 
 # Mapeo de pueblo de origen (Home ID) al mapa de fondo.
-# TODO: completar con los mapas reales de cada pueblo de origen del servidor.
 const HOME_MAP_IDS := {
-	1: 1,  # Ullathorpe provisional
+	Enums.Home.Ullathorpe: 1,
+	Enums.Home.Nix: 34,
+	Enums.Home.Banderbill: 59,
+	Enums.Home.Lindos: 62,
+	Enums.Home.Arghal: 196,
 }
 
 # Selector de cabezas
