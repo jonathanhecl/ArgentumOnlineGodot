@@ -123,3 +123,11 @@ const HomeNames: Dictionary[int, String] = {
 	Enums.Home.Lindos: "Lindos",
 	Enums.Home.Arghal: "Arghal"
 }
+
+const HomeMapIds: Dictionary[int, int] = {
+	Enums.Home.Ullathorpe: 1,
+	Enums.Home.Nix: 34,
+	Enums.Home.Banderbill: 59,
+	Enums.Home.Lindos: 62,
+	Enums.Home.Arghal: 196
+}

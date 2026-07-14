@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://cd452cndcck7v"]
+[gd_scene format=3 uid="uid://cd452cndcck7v"]
 
 [ext_resource type="Script" uid="uid://1y0cwxd2hj2r" path="res://screens/login_screen.gd" id="1_n65iu"]
 [ext_resource type="PackedScene" uid="uid://bea3h14qh8jve" path="res://ui/login_panel.tscn" id="2_tjwxy"]
+[ext_resource type="Script" uid="uid://byrlmast157a3" path="res://ui/login_background_map.gd" id="3_8w0i8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2"]
 bg_color = Color(0.8, 0.2, 0.2, 0.8)
@@ -10,16 +11,13 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3"]
-bg_color = Color(1, 0, 0, 1)
-
-[node name="LoginScreen" type="Node" node_paths=PackedStringArray("_loginPanel")]
+[node name="LoginScreen" type="Node" unique_id=1062267946 node_paths=PackedStringArray("_loginPanel")]
 script = ExtResource("1_n65iu")
 _loginPanel = NodePath("CanvasLayer/LoginPanel")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=875674075]
 
-[node name="LoginPanel" parent="CanvasLayer" instance=ExtResource("2_tjwxy")]
+[node name="LoginPanel" parent="CanvasLayer" unique_id=2146121814 instance=ExtResource("2_tjwxy")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -32,7 +30,7 @@ offset_bottom = 118.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer"]
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer" unique_id=169279069]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -47,29 +45,32 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_2")
 metadata/_edit_group_ = true
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PanelContainer" unique_id=1251195192]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/PanelContainer/MarginContainer" unique_id=1514491235]
 layout_mode = 2
 
-[node name="Ip" type="LineEdit" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer"]
+[node name="Ip" type="LineEdit" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer" unique_id=1528187629]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "127.0.0.1"
 alignment = 1
 
-[node name="Port" type="SpinBox" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer"]
+[node name="Port" type="SpinBox" parent="CanvasLayer/PanelContainer/MarginContainer/HBoxContainer" unique_id=1511012427]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 65535.0
 value = 7666.0
 rounded = true
+
+[node name="BackgroundMap" type="Node2D" parent="." unique_id=300369201]
+script = ExtResource("3_8w0i8")
 
 [connection signal="register" from="CanvasLayer/LoginPanel" to="." method="_OnLoginPanelRegister"]
 [connection signal="submit" from="CanvasLayer/LoginPanel" to="." method="_OnLoginPanelSubmit"]

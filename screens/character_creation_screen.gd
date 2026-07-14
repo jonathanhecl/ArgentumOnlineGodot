@@ -17,14 +17,7 @@ extends Node
 # Fondo de mapa mostrado detrás del personaje según el pueblo de origen
 @export var _mapView: Node2D
 
-# Mapeo de pueblo de origen (Home ID) al mapa de fondo.
-const HOME_MAP_IDS := {
-	Enums.Home.Ullathorpe: 1,
-	Enums.Home.Nix: 34,
-	Enums.Home.Banderbill: 59,
-	Enums.Home.Lindos: 62,
-	Enums.Home.Arghal: 196,
-}
+# Mapeo de pueblo de origen (Home ID) al mapa de fondo (centralizado en Consts.HomeMapIds).
 
 # Selector de cabezas
 @export var _headIndexLabel: Label
@@ -535,7 +528,7 @@ func _UpdateBackgroundMap() -> void:
 	if not _mapView:
 		return
 	var home_id := _homeOptionButton.get_selected_id()
-	var map_id: int = HOME_MAP_IDS.get(home_id, 1)
+	var map_id: int = Consts.HomeMapIds.get(home_id, 1)
 	var map_path := "res://Maps/Map%d.tscn" % map_id
 	if not ResourceLoader.exists(map_path):
 		print("[CharacterCreation] Mapa de fondo no encontrado para hogar ", home_id, ": ", map_path)
