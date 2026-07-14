@@ -34,12 +34,17 @@ ProtocolHandler="*res://engine/autoload/protocol_handler.gd"
 SpellMacroSystem="*res://engine/autoload/spell_macro_system.gd"
 HotkeyConfig="*res://engine/autoload/hotkey_config.gd"
 MapNeighbors="*res://engine/autoload/map_neighbors.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
 [input]
 
