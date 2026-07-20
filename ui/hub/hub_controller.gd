@@ -3,8 +3,6 @@ class_name HubController
 
 signal quit_button_pressed
 
-const REAL_GAME_VIEW_SIZE := Vector2(541, 413)
-
 # Función para restaurar el cursor al predeterminado
 func _restore_default_cursor() -> void:
 	if _gameContext.usingSkill != 0:
@@ -28,7 +26,6 @@ const SpawnListWindowScene = preload("res://ui/hub/spawn_list_window.tscn")
 @export var _inventoryContainer:InventoryContainer 
 @export var _consoleRichTextLabel:RichTextLabel
 @export var _consoleInputLineEdit:LineEdit
-@export var _camera:Camera2D
 @export var _console_max_lines:int = 10
 @export var _console_blocked:bool = false
 
@@ -235,16 +232,6 @@ func update_equipment_label(slot:int, item_stack:ItemStack) -> void:
 				%LblHelmet.text = "0/0"
 				_user_helmet_slot = 0
 	
-func _CameraTransformVector(vec:Vector2) -> Vector2:
-	return _camera.get_canvas_transform().affine_inverse() * vec
-
-func _get_real_game_view_rect() -> Rect2:
-	var viewport_container := get_node_or_null("MainViewportContainer") as Control
-	if not viewport_container:
-		return Rect2()
-	var rect_position := (viewport_container.size - REAL_GAME_VIEW_SIZE) * 0.5
-	return Rect2(rect_position, REAL_GAME_VIEW_SIZE)
-
 func _on_console_font_size_changed(value:int) -> void:
 	_apply_console_font_size(value)
 
@@ -272,56 +259,38 @@ func _apply_console_font_size(value:int) -> void:
 	_consoleRichTextLabel.set("theme_override_font_sizes/italics_font_size", value)
 	_consoleRichTextLabel.set("theme_override_font_sizes/bold_italics_font_size", value)
 
-func _HandleMouseInput(event:InputEventMouseButton) -> void:
-	var real_game_view_rect := _get_real_game_view_rect()
-	if real_game_view_rect.size != Vector2.ZERO and not real_game_view_rect.has_point(event.position):
-		return
-	var mouse_tile_position = Vector2i((_CameraTransformVector(event.position) / 32.0).ceil()) 
-	
-	if _gameContext.trading:
-		return
-	  
-	if event.pressed && event.button_index == MOUSE_BUTTON_LEFT:
-		var is_in_core := false
-		var map_container = get_node_or_null("MainViewportContainer/Viewport/GameWorld/MapContainer") as MapContainer
-		if map_container:
-			is_in_core = map_container.IsTileInCore(mouse_tile_position.x, mouse_tile_position.y)
-		var fov_label = "IN FOV" if is_in_core else "OUTSIDE FOV"
+func _HandleMouseInput(event:InputEventMouseButton) -> bool:
+	if not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
+		return false
+	var map_container := get_node_or_null("MainViewportContainer/Viewport/GameWorld/MapContainer") as MapContainer
+	if not map_container or not map_container.IsScreenPointInCore(event.position):
+		return false
+	var mouse_tile_position := map_container.ScreenToTile(event.position)
+	var fov_label := "IN FOV"
+
+	if event.double_click:
+		ProtocolWriteToServer.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
+		if Global.debug_show_all_entities:
+			ShowConsoleMessage("[DEBUG] DoubleClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
+		return true
+
+	if _gameContext.usingSkill == 0:
+		ProtocolWriteToServer.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
+		if Global.debug_show_all_entities:
+			ShowConsoleMessage("[DEBUG] LeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
+	else:
+		if _gameContext.usingSkill == Enums.Skill.Magia:
+			ProtocolHandler.last_magic_caster_id = ProtocolHandler.main_character_id
+			ProtocolHandler.last_magic_cast_time = Time.get_ticks_msec()
 		
-		if event.double_click:
-			ProtocolWriteToServer.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
-			if Global.debug_show_all_entities:
-				ShowConsoleMessage("[DEBUG] DoubleClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
-			return
-		
-		if _gameContext.usingSkill == 0:
-			ProtocolWriteToServer.WriteLeftClick(mouse_tile_position.x, mouse_tile_position.y)
-			if Global.debug_show_all_entities:
-				ShowConsoleMessage("[DEBUG] LeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") " + fov_label, FontData.new(Color.CYAN, true))
-		else:
-			if _gameContext.usingSkill == Enums.Skill.Proyectiles:
-				if !_gameContext.tick_intervals.request_attack_with_bow():
-					_restore_default_cursor()
-					ShowConsoleMessage("No puedes lanzar proyectiles tan rápido.", \
-					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
-					return
-			
-			if _gameContext.usingSkill == Enums.Skill.Magia:
-				if !_gameContext.tick_intervals.request_cast_spell():
-					_restore_default_cursor()
-					ShowConsoleMessage("No puedes lanzar hechizos tan rápido.", \
-					GameAssets.FontDataList[Enums.FontTypeNames.FontType_Talk])
-					return
-				ProtocolHandler.last_magic_caster_id = ProtocolHandler.main_character_id
-				ProtocolHandler.last_magic_cast_time = Time.get_ticks_msec()
-			
-			ProtocolWriteToServer.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
-			if Global.debug_show_all_entities:
-				var skill_name = Enums.Skill.keys()[_gameContext.usingSkill] if _gameContext.usingSkill >= 0 and _gameContext.usingSkill < Enums.Skill.size() else str(_gameContext.usingSkill)
-				ShowConsoleMessage("[DEBUG] WorkLeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") Skill: " + skill_name + " " + fov_label, FontData.new(Color.CYAN, true))
-			# Restaurar el cursor al predeterminado después de hacer click
-			_restore_default_cursor()
-			print("Cursor restaurado después de hacer click en objetivo")
+		ProtocolWriteToServer.WriteWorkLeftClick(mouse_tile_position.x, mouse_tile_position.y, _gameContext.usingSkill)
+		if Global.debug_show_all_entities:
+			var skill_name = Enums.Skill.keys()[_gameContext.usingSkill] if _gameContext.usingSkill >= 0 and _gameContext.usingSkill < Enums.Skill.size() else str(_gameContext.usingSkill)
+			ShowConsoleMessage("[DEBUG] WorkLeftClick enviado: (" + str(mouse_tile_position.x) + ", " + str(mouse_tile_position.y) + ") Skill: " + skill_name + " " + fov_label, FontData.new(Color.CYAN, true))
+		# Restaurar el cursor al predeterminado después de hacer click
+		_restore_default_cursor()
+		print("Cursor restaurado después de hacer click en objetivo")
+	return true
 	
 				  
 func _handle_key_event(event:InputEventKey) -> void: 
@@ -599,8 +568,8 @@ func _meditate() -> void:
 
 func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		_HandleMouseInput(event)
-		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and Input.is_key_pressed(KEY_SHIFT):
+		var click_sent := _HandleMouseInput(event)
+		if click_sent and Input.is_key_pressed(KEY_SHIFT):
 			ProtocolWriteToServer.WriteWarpMeToTarget()
 			get_viewport().set_input_as_handled()
 			
@@ -867,21 +836,17 @@ func _setup_spell_macro_system() -> void:
 ## Obtiene la posición del tile donde está el cursor del mouse
 ## Esta función es pública para que otros sistemas (como SpellMacroSystem) la usen
 func get_mouse_tile_position() -> Vector2i:
-	var viewport = get_viewport()
+	var viewport := get_viewport()
 	if not viewport:
 		return Vector2i.ZERO
-	
-	var mouse_pos = viewport.get_mouse_position()
 	var viewport_container := get_node_or_null("MainViewportContainer") as Control
-	if viewport_container:
-		var local_mouse_pos: Vector2 = mouse_pos - viewport_container.global_position
-		var real_game_view_rect := _get_real_game_view_rect()
-		if real_game_view_rect.size != Vector2.ZERO and not real_game_view_rect.has_point(local_mouse_pos):
-			return Vector2i.ZERO
-		mouse_pos = local_mouse_pos
-	var mouse_tile_position = Vector2i((_CameraTransformVector(mouse_pos) / 32.0).ceil())
-	mouse_tile_position.y =mouse_tile_position.y - 5
-	return mouse_tile_position
+	var map_container := get_node_or_null("MainViewportContainer/Viewport/GameWorld/MapContainer") as MapContainer
+	if not viewport_container or not map_container:
+		return Vector2i.ZERO
+	var mouse_pos := viewport.get_mouse_position() - viewport_container.global_position
+	if not map_container.IsScreenPointInCore(mouse_pos):
+		return Vector2i.ZERO
+	return map_container.ScreenToTile(mouse_pos)
 
 ## Muestra el diálogo de confirmación para aprender hechizos
 func _show_spell_learn_dialog(spell_name: String, slot: int) -> void:

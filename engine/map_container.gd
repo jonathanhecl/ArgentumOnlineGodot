@@ -36,7 +36,7 @@ func _ready() -> void:
 	_debug_outline.default_color = Color.RED
 	_debug_outline.closed = true
 	_debug_outline.visible = false
-	_debug_outline.z_index = 9999
+	_debug_outline.z_index = 4096
 	add_child(_debug_outline)
 	move_child(_debug_outline, -1)
 
@@ -53,9 +53,6 @@ func _update_debug_outline() -> void:
 	var viewport := get_viewport()
 	if not viewport:
 		return
-	var camera := viewport.get_camera_2d()
-	if not camera:
-		return
 	var viewport_size := viewport.get_visible_rect().size
 	if viewport_size == Vector2.ZERO:
 		return
@@ -66,11 +63,10 @@ func _update_debug_outline() -> void:
 		Vector2(core_rect.position.x + core_rect.size.x, core_rect.position.y + core_rect.size.y),
 		Vector2(core_rect.position.x, core_rect.position.y + core_rect.size.y),
 	]
+	var screen_to_outline := _debug_outline.get_global_transform_with_canvas().affine_inverse()
 	var points: PackedVector2Array = PackedVector2Array()
 	for screen_pos in corners_screen:
-		var world_pos = (screen_pos - viewport_size * 0.5) * camera.zoom + camera.global_position
-		var local_pos = world_pos - global_position
-		points.append(local_pos)
+		points.append(screen_to_outline * screen_pos)
 	_debug_outline.points = points
 
 func LoadMap(id:int) -> void:
@@ -546,30 +542,24 @@ func _update_entities_visibility() -> void:
 	var viewport := get_viewport()
 	if not viewport:
 		return
-	var camera := viewport.get_camera_2d()
-	if not camera:
-		return
 	var viewport_size := viewport.get_visible_rect().size
 	if viewport_size == Vector2.ZERO:
 		return
 	for character in _characterCollection:
 		if is_instance_valid(character):
-			_check_entity_visibility(character, camera, viewport_size)
+			_check_entity_visibility(character, viewport_size)
 	for obj in _objectCollection:
 		if is_instance_valid(obj):
-			_check_object_visibility(obj, camera, viewport_size)
+			_check_object_visibility(obj, viewport_size)
 
 func _apply_initial_visibility(entity: CanvasItem) -> void:
 	var viewport := get_viewport()
 	if not viewport:
 		return
-	var camera := viewport.get_camera_2d()
-	if not camera:
-		return
 	var viewport_size := viewport.get_visible_rect().size
 	if viewport_size == Vector2.ZERO:
 		return
-	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var screen_pos := _get_entity_screen_position(entity)
 	var core_rect := _get_core_rect(viewport_size)
 	var is_in_core := core_rect.has_point(screen_pos)
 	entity.set_meta("_in_core", is_in_core)
@@ -585,13 +575,10 @@ func _apply_initial_object_visibility(entity: CanvasItem) -> void:
 	var viewport := get_viewport()
 	if not viewport:
 		return
-	var camera := viewport.get_camera_2d()
-	if not camera:
-		return
 	var viewport_size := viewport.get_visible_rect().size
 	if viewport_size == Vector2.ZERO:
 		return
-	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var screen_pos := _get_entity_screen_position(entity)
 	var core_rect := _get_core_rect(viewport_size)
 	var is_in_core := core_rect.has_point(screen_pos)
 	entity.set_meta("_in_core", is_in_core)
@@ -606,8 +593,8 @@ func _apply_initial_object_visibility(entity: CanvasItem) -> void:
 		return
 	entity.modulate.a = 0.0
 
-func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
-	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+func _check_entity_visibility(entity: CanvasItem, viewport_size: Vector2) -> void:
+	var screen_pos := _get_entity_screen_position(entity)
 	var core_rect := _get_core_rect(viewport_size)
 	var is_in_core := core_rect.has_point(screen_pos)
 	if Global.debug_show_all_entities:
@@ -635,12 +622,12 @@ func _check_entity_visibility(entity: CanvasItem, camera: Camera2D, viewport_siz
 	entity.set_meta("_in_core", is_in_core)
 	_fade_entity(entity, 1.0 if is_in_core else 0.0)
 
-func _check_object_visibility(entity: CanvasItem, camera: Camera2D, viewport_size: Vector2) -> void:
+func _check_object_visibility(entity: CanvasItem, viewport_size: Vector2) -> void:
 	var core_rect := _get_core_rect(viewport_size)
 	if not entity.has_meta("_in_core"):
 		_apply_initial_object_visibility(entity)
 		return
-	var screen_pos := _world_to_screen(entity.global_position, camera, viewport_size)
+	var screen_pos := _get_entity_screen_position(entity)
 	var is_in_core := core_rect.has_point(screen_pos)
 	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
 	if is_in_core == was_in_core:
@@ -690,23 +677,25 @@ func _is_door_open(entity: CanvasItem) -> bool:
 	var tile: Vector2i = entity.get_meta(GridPositionKey, Vector2i(-1, -1))
 	return _door_open_state_by_tile.get(tile, false)
 
-func IsTileInCore(tile_x: int, tile_y: int) -> bool:
+func IsScreenPointInCore(screen_position: Vector2) -> bool:
 	var viewport := get_viewport()
 	if not viewport:
 		return false
-	var camera := viewport.get_camera_2d()
-	if not camera:
-		return false
-	var viewport_size := viewport.get_visible_rect().size
-	if viewport_size == Vector2.ZERO:
-		return false
-	var world_pos := Vector2((tile_x - 1) * 32 + 16, (tile_y - 1) * 32 + 32)
-	var screen_pos := _world_to_screen(world_pos, camera, viewport_size)
-	var core_rect := _get_core_rect(viewport_size)
-	return core_rect.has_point(screen_pos)
+	return _get_core_rect(viewport.get_visible_rect().size).has_point(screen_position)
 
-func _world_to_screen(world_pos: Vector2, camera: Camera2D, viewport_size: Vector2) -> Vector2:
-	return (world_pos - camera.global_position) / camera.zoom + (viewport_size * 0.5)
+func ScreenToTile(screen_position: Vector2) -> Vector2i:
+	var screen_to_map := get_global_transform_with_canvas().affine_inverse()
+	var map_position := screen_to_map * screen_position
+	return Vector2i((map_position / float(Consts.TileSize)).ceil())
+
+func IsTileInCore(tile_x: int, tile_y: int) -> bool:
+	var half_tile := Consts.TileSize * 0.5
+	var tile_center := Vector2((tile_x - 1) * Consts.TileSize + half_tile, (tile_y - 1) * Consts.TileSize + half_tile)
+	var screen_pos := get_global_transform_with_canvas() * tile_center
+	return IsScreenPointInCore(screen_pos)
+
+func _get_entity_screen_position(entity: CanvasItem) -> Vector2:
+	return entity.get_global_transform_with_canvas() * Vector2(0, -Consts.TileSize * 0.5)
 
 func _fade_entity(entity: CanvasItem, target_alpha: float) -> void:
 	var tween := create_tween()

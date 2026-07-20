@@ -98,12 +98,11 @@ _gameWorld = NodePath("HubController/MainViewportContainer/Viewport/GameWorld")
 _camera = NodePath("HubController/MainViewportContainer/Viewport/GameWorld/Camera2D")
 _rainOverlay = NodePath("HubController/MainViewportContainer/RainOverlay")
 
-[node name="HubController" type="CanvasLayer" parent="." unique_id=68307642 node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit", "_camera")]
+[node name="HubController" type="CanvasLayer" parent="." unique_id=68307642 node_paths=PackedStringArray("_inventoryContainer", "_consoleRichTextLabel", "_consoleInputLineEdit")]
 script = ExtResource("2_b7a1e")
 _inventoryContainer = NodePath("Inventory-Spell/InventoryPanel/InventoryContainer")
 _consoleRichTextLabel = NodePath("Console")
 _consoleInputLineEdit = NodePath("ConsoleInput")
-_camera = NodePath("MainViewportContainer/Viewport/GameWorld/Camera2D")
 
 [node name="TextureRect" type="TextureRect" parent="HubController" unique_id=955848253]
 offset_right = 1920.0

@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-07-20 — El borde de visión debe ser la única fuente de verdad para clicks y entidades
+- **Context:** Área central dibujada por `MapContainer` y clicks del mundo procesados por `HubController`.
+- **Problem:** Un NPC visualmente dentro del borde inferior se clasificaba fuera, y los clicks cercanos a los bordes no siempre enviaban paquetes.
+- **Root cause:** `HubController` filtraba con un rectángulo obsoleto de 541×413 mientras `MapContainer` dibujaba 829×669; además, la visibilidad usaba los pies del personaje y fórmulas manuales de cámara, por lo que el borde inferior excluía tiles visibles.
+- **Fix:** `MapContainer.IsScreenPointInCore` y `ScreenToTile` centralizan la validación/conversión con transforms de canvas; entidades y objetos se evalúan desde el centro lógico del tile. Se quitaron los gates locales que cancelaban `WriteWorkLeftClick`.
+- **Rule:** El rectángulo de `MapContainer` es la única fuente de verdad para dibujar el FOV, clasificar entidades y aceptar clicks. Nunca mantener tamaños paralelos ni bloquear paquetes de acción con temporizadores locales.
+
 ### 2026-07-06 — WriteQuit en mapa inseguro desconecta al cliente completamente
 - **Context:** Flujo "Volver a selección de personajes" desde `GameScreen` (`screens/game_screen.gd`).
 - **Problem:** Al enviar `WriteQuit` desde un mapa no seguro, el servidor inicia una cuenta regresiva y luego **desconecta por completo** al cliente (no envía `account_logged`). El cliente caía a la pantalla de login manual en lugar de la lista de personajes.
