@@ -3,9 +3,17 @@ class_name MapContainer
 
 const GridPositionKey = "GridPosition"
 const CORE_VIEW_SIZE := Vector2(765, 637)
+const CREATURE_VIEW_SIZE := Vector2(829, 701)
+
 func _get_core_rect(viewport_size: Vector2) -> Rect2:
 	var pos = (viewport_size - CORE_VIEW_SIZE) * 0.5
 	return Rect2(pos, CORE_VIEW_SIZE)
+
+func _get_creature_rect(viewport_size: Vector2) -> Rect2:
+	var pos_x = (viewport_size.x - CREATURE_VIEW_SIZE.x) * 0.5
+	var pos_y = (viewport_size.y - CORE_VIEW_SIZE.y) * 0.5
+	return Rect2(Vector2(pos_x, pos_y), CREATURE_VIEW_SIZE)
+
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
 const MAP_SIZE_PX := 100 * 32 # 3200 px (un mapa completo de 100x100 tiles de 32px)
@@ -25,49 +33,53 @@ var _objectCollection:Array[Node2D]
 var _tiles:PackedByteArray
 var _door_open_state_by_tile: Dictionary = {}
 var _debug_outline: Line2D
+var _creature_debug_outline: Line2D
 
 func _ready() -> void:
 	print("🏗️ MapContainer: Inicializando contenedor de mapas...")
 	_tiles.resize(100 * 100)
 	_tiles.fill(Enums.TileState.Blocked)
 	print("🏗️ MapContainer: Contenedor inicializado con ", _tiles.size(), " tiles bloqueados por defecto")
-	_debug_outline = Line2D.new()
-	_debug_outline.width = 3.0
-	_debug_outline.default_color = Color.RED
-	_debug_outline.closed = true
-	_debug_outline.visible = false
-	_debug_outline.z_index = 4096
-	add_child(_debug_outline)
-	move_child(_debug_outline, -1)
+	_debug_outline = _create_debug_outline(Color.RED)
+	_creature_debug_outline = _create_debug_outline(Color.CYAN)
+
+func _create_debug_outline(color: Color) -> Line2D:
+	var outline := Line2D.new()
+	outline.width = 3.0
+	outline.default_color = color
+	outline.closed = true
+	outline.visible = false
+	outline.z_index = 4096
+	add_child(outline)
+	move_child(outline, -1)
+	return outline
 
 func _process(_delta: float) -> void:
 	_update_entities_visibility()
-	if _debug_outline:
+	if _debug_outline and _creature_debug_outline:
 		if Global.debug_show_all_entities:
-			_update_debug_outline()
+			_update_debug_outline(_debug_outline, _get_core_rect(get_viewport_rect().size))
+			_update_debug_outline(_creature_debug_outline, _get_creature_rect(get_viewport_rect().size))
 			_debug_outline.visible = true
+			_creature_debug_outline.visible = true
 		else:
 			_debug_outline.visible = false
+			_creature_debug_outline.visible = false
 
-func _update_debug_outline() -> void:
-	var viewport := get_viewport()
-	if not viewport:
+func _update_debug_outline(outline: Line2D, rect: Rect2) -> void:
+	if rect.size == Vector2.ZERO:
 		return
-	var viewport_size := viewport.get_visible_rect().size
-	if viewport_size == Vector2.ZERO:
-		return
-	var core_rect := _get_core_rect(viewport_size)
 	var corners_screen = [
-		Vector2(core_rect.position.x, core_rect.position.y),
-		Vector2(core_rect.position.x + core_rect.size.x, core_rect.position.y),
-		Vector2(core_rect.position.x + core_rect.size.x, core_rect.position.y + core_rect.size.y),
-		Vector2(core_rect.position.x, core_rect.position.y + core_rect.size.y),
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y),
 	]
-	var screen_to_outline := _debug_outline.get_global_transform_with_canvas().affine_inverse()
+	var screen_to_outline := outline.get_global_transform_with_canvas().affine_inverse()
 	var points: PackedVector2Array = PackedVector2Array()
 	for screen_pos in corners_screen:
 		points.append(screen_to_outline * screen_pos)
-	_debug_outline.points = points
+	outline.points = points
 
 func LoadMap(id:int) -> void:
 	print("🗺️ MapContainer: Iniciando carga del mapa ", id)
@@ -560,16 +572,16 @@ func _apply_initial_visibility(entity: CanvasItem) -> void:
 	if viewport_size == Vector2.ZERO:
 		return
 	var screen_pos := _get_entity_screen_position(entity)
-	var core_rect := _get_core_rect(viewport_size)
-	var is_in_core := core_rect.has_point(screen_pos)
-	entity.set_meta("_in_core", is_in_core)
+	var creature_rect := _get_creature_rect(viewport_size)
+	var is_in_creature_view := creature_rect.has_point(screen_pos)
+	entity.set_meta("_in_creature_view", is_in_creature_view)
 	if entity is Character and entity.IsPlayer():
 		entity.modulate = Color.WHITE
 		return
 	if Global.debug_show_all_entities:
-		entity.modulate = Color.WHITE if is_in_core else Color.RED
+		entity.modulate = Color.WHITE if is_in_creature_view else Color.RED
 		return
-	entity.modulate.a = 1.0 if is_in_core else 0.0
+	entity.modulate.a = 1.0 if is_in_creature_view else 0.0
 
 func _apply_initial_object_visibility(entity: CanvasItem) -> void:
 	var viewport := get_viewport()
@@ -595,32 +607,32 @@ func _apply_initial_object_visibility(entity: CanvasItem) -> void:
 
 func _check_entity_visibility(entity: CanvasItem, viewport_size: Vector2) -> void:
 	var screen_pos := _get_entity_screen_position(entity)
-	var core_rect := _get_core_rect(viewport_size)
-	var is_in_core := core_rect.has_point(screen_pos)
+	var creature_rect := _get_creature_rect(viewport_size)
+	var is_in_creature_view := creature_rect.has_point(screen_pos)
 	if Global.debug_show_all_entities:
 		if entity is Character and entity.IsPlayer():
-			entity.set_meta("_in_core", is_in_core)
+			entity.set_meta("_in_creature_view", is_in_creature_view)
 			entity.modulate = Color.WHITE
 			return
-		entity.set_meta("_in_core", is_in_core)
-		entity.modulate = Color.WHITE if is_in_core else Color.RED
+		entity.set_meta("_in_creature_view", is_in_creature_view)
+		entity.modulate = Color.WHITE if is_in_creature_view else Color.RED
 		return
-	if not entity.has_meta("_in_core"):
-		entity.set_meta("_in_core", is_in_core)
+	if not entity.has_meta("_in_creature_view"):
+		entity.set_meta("_in_creature_view", is_in_creature_view)
 		if entity is Character and entity.IsPlayer():
 			entity.modulate.a = 1.0
 			return
-		entity.modulate.a = 1.0 if is_in_core else 0.0
+		entity.modulate.a = 1.0 if is_in_creature_view else 0.0
 		return
 	if entity is Character and entity.IsPlayer():
-		entity.set_meta("_in_core", is_in_core)
+		entity.set_meta("_in_creature_view", is_in_creature_view)
 		entity.modulate.a = 1.0
 		return
-	var was_in_core: bool = entity.get_meta("_in_core", is_in_core)
-	if is_in_core == was_in_core:
+	var was_in_creature_view: bool = entity.get_meta("_in_creature_view", is_in_creature_view)
+	if is_in_creature_view == was_in_creature_view:
 		return
-	entity.set_meta("_in_core", is_in_core)
-	_fade_entity(entity, 1.0 if is_in_core else 0.0)
+	entity.set_meta("_in_creature_view", is_in_creature_view)
+	_fade_entity(entity, 1.0 if is_in_creature_view else 0.0)
 
 func _check_object_visibility(entity: CanvasItem, viewport_size: Vector2) -> void:
 	var core_rect := _get_core_rect(viewport_size)

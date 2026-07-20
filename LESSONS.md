@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-07-20 — El límite de aparición de criaturas debe ser independiente del FOV
+- **Context:** Visibilidad de personajes y contornos de depuración en `MapContainer`.
+- **Problem:** Las criaturas usaban el rectángulo rojo del FOV, aunque debían comenzar a dibujarse un tile antes de alcanzarlo y el FOV cambiará de tamaño.
+- **Root cause:** `_apply_initial_visibility` y `_check_entity_visibility` reutilizaban `_get_core_rect` y el metadato `_in_core`.
+- **Fix:** `CREATURE_VIEW_SIZE`, `_get_creature_rect` y `_in_creature_view` separan el límite de criaturas; su contorno cian es un tile más amplio por cada lado que el rojo actual.
+- **Rule:** Mantener independientes los tamaños y estados de visibilidad de criaturas y FOV; los objetos siguen clasificados por `_get_core_rect`.
+
 ### 2026-07-20 — El borde de visión debe centralizar la clasificación, no bloquear clicks de debug
 - **Context:** Área central dibujada por `MapContainer` y clicks del mundo procesados por `HubController`.
 - **Problem:** Un NPC visualmente dentro del borde inferior se clasificaba fuera, y un rectángulo obsoleto impedía enviar clicks cerca o fuera del FOV para depuración.

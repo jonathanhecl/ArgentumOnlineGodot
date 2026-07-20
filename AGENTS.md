@@ -16,12 +16,13 @@ Single source of truth for any human or AI agent working on this project. Read t
 6. **Never invent APIs.** Reference real symbols/paths only. Search the codebase first (existing helpers usually already exist).
 7. **Keep files small and patterns consistent.** Aim for < 200–300 lines per file; reuse existing patterns instead of introducing new tech.
 8. **Stay proactive & record what you learn.** Append non-obvious findings to `LESSONS.md` (see §10). Consult it before debugging.
+9. **Use `godot-ai` for verification.** Validate scenes, scripts, runtime behavior and logs through the connected Godot editor. Do not run Godot from the shell or perform routine `git status`, `git diff`, `git diff --check`, or similar Git checks unless the user explicitly asks for Git work.
 
 ---
 
 ## 2. Tech Stack & How to Run
 
-- **Engine:** Godot **4.6** (the `project.godot` declares features `4.6` + `GL Compatibility`). README states minimum 4.4.1; develop on 4.6.
+- **Engine:** Godot **4.7** (the `project.godot` declares features `4.7` + `GL Compatibility`). README states minimum 4.4.1; develop on 4.7.
 - **Language:** GDScript only.
 - **Renderer:** GL Compatibility (broad hardware support).
 - **Display:** `viewport_width=1920`, `viewport_height=1080`, stretch mode `canvas_items`.
