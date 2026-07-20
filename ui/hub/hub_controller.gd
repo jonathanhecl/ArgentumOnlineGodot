@@ -263,10 +263,10 @@ func _HandleMouseInput(event:InputEventMouseButton) -> bool:
 	if not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
 		return false
 	var map_container := get_node_or_null("MainViewportContainer/Viewport/GameWorld/MapContainer") as MapContainer
-	if not map_container or not map_container.IsScreenPointInCore(event.position):
+	if not map_container:
 		return false
 	var mouse_tile_position := map_container.ScreenToTile(event.position)
-	var fov_label := "IN FOV"
+	var fov_label := "IN FOV" if map_container.IsScreenPointInCore(event.position) else "OUTSIDE FOV"
 
 	if event.double_click:
 		ProtocolWriteToServer.WriteDoubleClick(mouse_tile_position.x, mouse_tile_position.y)
@@ -844,8 +844,6 @@ func get_mouse_tile_position() -> Vector2i:
 	if not viewport_container or not map_container:
 		return Vector2i.ZERO
 	var mouse_pos := viewport.get_mouse_position() - viewport_container.global_position
-	if not map_container.IsScreenPointInCore(mouse_pos):
-		return Vector2i.ZERO
 	return map_container.ScreenToTile(mouse_pos)
 
 ## Muestra el diálogo de confirmación para aprender hechizos
