@@ -22,7 +22,9 @@ var session_password:String = ""
 var log_outgoing_packets:bool = true
 
 # DEBUG: Mostrar todas las entidades cargadas incluso fuera del CORE_RECT (war fog)
-var debug_show_all_entities:bool = true
+# En true: dibuja outlines rojo/azul del área y pinta en rojo las criaturas fuera de la zona azul.
+# En false: oculta los outlines y aplica fade al entrar/salir de la zona azul (comportamiento normal).
+var debug_show_all_entities:bool = false
 
 signal dialog_font_size_changed(value:int)
 signal console_font_size_changed(value:int)
