@@ -132,7 +132,7 @@ func set_skills(skills:Array):
 		child.free()  # Usar free() en lugar de queue_free() para eliminación inmediata
 	
 	# Asegurarse de que la ventana tenga un tamaño adecuado y compacto
-	size = Vector2(300, 400)
+	size = Vector2(340, 440)
 	
 	# Inicializar valores de skills
 	for i in range(SKILL_NAMES.size()):
@@ -163,12 +163,15 @@ func _create_skills_interface():
 		var hbox = HBoxContainer.new()
 		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		hbox.custom_minimum_size = Vector2(0, 32)
+		hbox.add_theme_constant_override("separation", 8)
 
 		var name_label = Label.new()
 		name_label.text = SKILL_NAMES[i]
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		name_label.custom_minimum_size = Vector2(120, 0)
+		name_label.add_theme_color_override("font_color", Color(0.88, 0.84, 0.72, 1))
+		name_label.add_theme_font_size_override("font_size", 13)
 
 		var minus_btn = Button.new()
 		minus_btn.text = "-"
@@ -185,6 +188,8 @@ func _create_skills_interface():
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		value_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		value_label.custom_minimum_size = Vector2(40, 0)
+		value_label.add_theme_color_override("font_color", Color(0.55, 0.86, 1.0, 1))
+		value_label.add_theme_font_size_override("font_size", 14)
 
 		var plus_btn = Button.new()
 		plus_btn.text = "+"

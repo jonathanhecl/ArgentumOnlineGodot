@@ -39,9 +39,13 @@ func _class_to_text(v) -> String:
 @onready var skills_container: VBoxContainer = $VBox/Columns/LeftColumn/LeftPadding/LeftContent/SkillsPadding/SkillsScroll/SkillsSection/SkillsList
 @onready var close_button: Button = $VBox/ButtonsContainer/CloseButton
 
-const BASE_WIDTH := 460.0
+const BASE_WIDTH := 480.0
 const BASE_FONT := 14
 const MIN_FONT := 10
+
+# Paleta rolera
+const COLOR_NAME := Color(0.88, 0.84, 0.72, 1)   # Pergamino claro
+const COLOR_VALUE := Color(0.55, 0.86, 1.0, 1)   # Cian suave para valores
 
 var attribute_labels := {}
 var ministats_labels := {}
@@ -123,11 +127,13 @@ func _build_attribute_labels() -> void:
 		var name_label = Label.new()
 		name_label.text = attr_name
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.add_theme_color_override("font_color", COLOR_NAME)
 		var value_label = Label.new()
 		value_label.text = "0"
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value_label.custom_minimum_size = Vector2(VALUE_COL_MIN_WIDTH, 0)
 		value_label.size_flags_horizontal = 0
+		value_label.add_theme_color_override("font_color", COLOR_VALUE)
 		attributes_grid.add_child(name_label)
 		attributes_grid.add_child(value_label)
 		attribute_labels[k] = value_label
@@ -147,11 +153,13 @@ func _build_ministats_labels() -> void:
 		var name_label = Label.new()
 		name_label.text = p[0]
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.add_theme_color_override("font_color", COLOR_NAME)
 		var value_label = Label.new()
 		value_label.text = p[1]
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value_label.custom_minimum_size = Vector2(VALUE_COL_MIN_WIDTH, 0)
 		value_label.size_flags_horizontal = 0
+		value_label.add_theme_color_override("font_color", COLOR_VALUE)
 		ministats_grid.add_child(name_label)
 		ministats_grid.add_child(value_label)
 		ministats_labels[p[0]] = value_label
@@ -172,11 +180,13 @@ func _build_fame_labels() -> void:
 		var name_label = Label.new()
 		name_label.text = p[0]
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.add_theme_color_override("font_color", COLOR_NAME)
 		var value_label = Label.new()
 		value_label.text = p[1]
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value_label.custom_minimum_size = Vector2(VALUE_COL_MIN_WIDTH, 0)
 		value_label.size_flags_horizontal = 0
+		value_label.add_theme_color_override("font_color", COLOR_VALUE)
 		fame_grid.add_child(name_label)
 		fame_grid.add_child(value_label)
 		fame_labels[p[0]] = value_label
@@ -216,7 +226,9 @@ func set_skills(skills:Array) -> void:
 		var h = HBoxContainer.new()
 		h.add_theme_constant_override("separation", 12)
 		var lbln = Label.new(); lbln.text = skill_name; lbln.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		lbln.add_theme_color_override("font_color", COLOR_NAME)
 		var lblv = Label.new(); lblv.text = str(value); lblv.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; lblv.custom_minimum_size = Vector2(VALUE_COL_MIN_WIDTH, 0); lblv.size_flags_horizontal = 0
+		lblv.add_theme_color_override("font_color", COLOR_VALUE)
 		h.add_child(lbln)
 		h.add_child(lblv)
 		skills_container.add_child(h)
