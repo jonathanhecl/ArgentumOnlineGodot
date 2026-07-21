@@ -11,8 +11,10 @@ func _get_core_rect(viewport_size: Vector2) -> Rect2:
 
 func _get_creature_rect(viewport_size: Vector2) -> Rect2:
 	var pos_x = (viewport_size.x - CREATURE_VIEW_SIZE.x) * 0.5
-	var pos_y = (viewport_size.y - CORE_VIEW_SIZE.y) * 0.5
-	return Rect2(Vector2(pos_x, pos_y), CREATURE_VIEW_SIZE)
+	# 1 tile extra de alto hacia arriba para dibujar NPCs 1 tile antes (más lejos),
+	# manteniendo el borde inferior igual.
+	var pos_y = (viewport_size.y - CORE_VIEW_SIZE.y) * 0.5 - Consts.TileSize
+	return Rect2(Vector2(pos_x, pos_y), Vector2(CREATURE_VIEW_SIZE.x, CREATURE_VIEW_SIZE.y + Consts.TileSize))
 
 const FADE_DURATION := 0.4
 const DOOR_SERVER_GRH_IDS: Array[int] = []
