@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b3x7lam2pqr4t"]
+
+[ext_resource type="Script" path="res://Tests/test_render_projectile.gd" id="1_test"]
+
+[node name="TestRenderProjectile" type="Node2D"]
+script = ExtResource("1_test")

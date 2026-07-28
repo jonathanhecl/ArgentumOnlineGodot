@@ -171,30 +171,27 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	_wave.visible = false # Se hace visible en el primer _process
 	add_child(_wave)
 	
-	# Luz circular que emana del proyectil: glow radial grande y suave que ilumina debajo
+	# Luz en forma de flecha hacia el objetivo: sutil, debajo del orbe
 	_light = Sprite2D.new()
-	var light_grad = Gradient.new()
-	light_grad.set_color(0, Color(1, 1, 1, 0.5))
-	light_grad.set_color(1, Color(1, 1, 1, 0.0))
-	# Nucleo amplio y luminoso con caida muy suave hacia el borde (luz, no destello puntual)
-	light_grad.set_offset(0, 0.0)
-	light_grad.set_offset(1, 1.0)
-	light_grad.add_point(0.45, Color(1, 1, 1, 0.55))
-	light_grad.add_point(0.75, Color(1, 1, 1, 0.18))
+	var lg = Gradient.new()
+	lg.set_color(0, Color(1, 1, 1, 1))
+	lg.set_color(1, Color(1, 1, 1, 1))
 	var light_tex = GradientTexture2D.new()
-	light_tex.gradient = light_grad
-	light_tex.fill = GradientTexture2D.FILL_RADIAL
-	light_tex.fill_from = Vector2(0.5, 0.5)
-	light_tex.fill_to = Vector2(0.5, 0.0)
-	light_tex.width = 128
-	light_tex.height = 128
+	light_tex.gradient = lg
+	light_tex.width = 192
+	light_tex.height = 72
 	_light.texture = light_tex
-	var light_mat = CanvasItemMaterial.new()
-	light_mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	var light_shader = load("res://shaders/spell_projectile_light.gdshader")
+	var light_mat = ShaderMaterial.new()
+	light_mat.shader = light_shader
 	_light.material = light_mat
 	var light_color = _projectile_color.lightened(0.35)
 	light_color.a = 0.9
 	_light.modulate = light_color
+	# Anclar la flecha en el orbe: la textura cubre 160px hacia atras y 32px hacia adelante
+	_light.offset = Vector2(-80, 0)
+	# Medio tile mas abajo (16px) para alinear con los pies del personaje, inicio y final
+	_light.position = Vector2(0, 16)
 	# Detras del orbe pero dentro de la misma capa (z_index -1 lo hundiria bajo el terreno)
 	_light.show_behind_parent = true
 	add_child(_light)
@@ -277,6 +274,12 @@ func _process(delta: float) -> void:
 		else:
 			_wave.visible = false
 	
+	# Orientar la flecha de luz hacia la posicion actual del objetivo
+	if _light and is_instance_valid(_light):
+		var aim_vec = current_end_pos - global_position
+		if aim_vec.length_squared() > 1.0:
+			_light.rotation = aim_vec.angle()
+	
 	# Reached target
 	if t >= 1.0:
 		_on_arrival.call()
@@ -293,10 +296,25 @@ func _process(delta: float) -> void:
 			tween.tween_method(func(v): _wave_mat.set_shader_parameter("dissipation", v), 0.0, 1.0, 2.0)
 		if _particles and is_instance_valid(_particles):
 			_particles.emitting = false
-		# Disipar la luz del proyectil suavemente
+		# Explosion de luz en la direccion del impacto
 		if _light and is_instance_valid(_light):
-			var light_tween = create_tween()
-			light_tween.tween_property(_light, "modulate:a", 0.0, 0.6)
+			# Textura cuadrada centrada en el punto de impacto (el burst dibuja su propio alpha)
+			var bg = Gradient.new()
+			bg.set_color(0, Color(1, 1, 1, 1))
+			bg.set_color(1, Color(1, 1, 1, 1))
+			var burst_tex = GradientTexture2D.new()
+			burst_tex.gradient = bg
+			burst_tex.width = 256
+			burst_tex.height = 256
+			_light.texture = burst_tex
+			_light.offset = Vector2.ZERO
+			# ~2 tiles de radio (64px): 128px de media textura a escala 0.5
+			_light.scale = Vector2(0.5, 0.5)
+			var burst_mat = ShaderMaterial.new()
+			burst_mat.shader = load("res://shaders/spell_impact_burst.gdshader")
+			_light.material = burst_mat
+			var burst_tween = create_tween()
+			burst_tween.tween_method(func(v): burst_mat.set_shader_parameter("progress", v), 0.0, 1.0, 0.7)
 		# El nodo persiste 2 segundos para que el surco se disipe visiblemente
 		var timer = get_tree().create_timer(2.0)
 		timer.timeout.connect(queue_free)
