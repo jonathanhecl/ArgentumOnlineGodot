@@ -185,9 +185,10 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	light_tex.height = 72
 	_light.texture = light_tex
 	var light_shader = load("res://shaders/spell_projectile_light.gdshader")
-	var light_mat = ShaderMaterial.new()
-	light_mat.shader = light_shader
-	_light.material = light_mat
+	_light_mat = ShaderMaterial.new()
+	_light_mat.shader = light_shader
+	_light_mat.set_shader_parameter("tail_clip_x", 0.8) # Sin cola al lanzar
+	_light.material = _light_mat
 	var light_color = _projectile_color.lightened(0.35)
 	light_color.a = 0.9
 	_light.modulate = light_color
@@ -199,46 +200,56 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	_light.show_behind_parent = true
 	add_child(_light)
 
-	# Estela de humo: puffs suaves que quedan en el aire unos segundos y desvanecen en fade
+	# Estela de "humo": pixeles pequenos emitidos en la direccion del vuelo
+	# (hacia atras del proyectil), desplazados suavemente por el viento y con
+	# fade suave. Coordenadas globales => quedan flotando donde se emitieron.
 	_smoke = GPUParticles2D.new()
-	_smoke.amount = 50
-	_smoke.lifetime = 2.5
+	_smoke.amount = 90
+	_smoke.lifetime = 1.8
 	_smoke.local_coords = false
 	var smoke_mat = ParticleProcessMaterial.new()
-	smoke_mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	smoke_mat.emission_sphere_radius = 4.0
-	smoke_mat.spread = 180.0
-	smoke_mat.initial_velocity_min = 4.0
-	smoke_mat.initial_velocity_max = 10.0
-	smoke_mat.gravity = Vector3(0, -6, 0) # El humo deriva suavemente hacia arriba
-	smoke_mat.damping_min = 2.0
-	smoke_mat.damping_max = 4.0
-	# Los puffs crecen a medida que envejecen
+	smoke_mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
+	# Emitir hacia atras del vuelo (la direccion se setea abajo con flight_dir)
+	smoke_mat.direction = Vector3(-flight_dir.x, -flight_dir.y, 0.0)
+	smoke_mat.spread = 12.0
+	smoke_mat.initial_velocity_min = 2.0
+	smoke_mat.initial_velocity_max = 6.0
+	# Viento: deriva perpendicular al vuelo + ligero empuje hacia arriba.
+	# Usamos gravity como fuerza constante de viento (no es gravedad real aqui).
+	var wind_perp = Vector2(-flight_dir.y, flight_dir.x) * 8.0 # perpendicular
+	smoke_mat.gravity = Vector3(wind_perp.x, wind_perp.y - 4.0, 0.0)
+	smoke_mat.damping_min = 1.0
+	smoke_mat.damping_max = 2.0
+	# Turbulencia suave para que el desplazamiento no sea perfectamente recto
+	smoke_mat.turbulence_enabled = true
+	smoke_mat.turbulence_noise_strength = 3.0
+	smoke_mat.turbulence_noise_scale = 0.8
+	# Pixeles pequenos: escala baja y estable (sin crecimiento)
 	var smoke_curve = Curve.new()
-	smoke_curve.add_point(Vector2(0, 0.5))
-	smoke_curve.add_point(Vector2(1, 1.8))
+	smoke_curve.add_point(Vector2(0, 0.35))
+	smoke_curve.add_point(Vector2(1, 0.35))
 	var smoke_curve_tex = CurveTexture.new()
 	smoke_curve_tex.curve = smoke_curve
 	smoke_mat.scale_curve = smoke_curve_tex
-	# Fade suave de alpha durante toda la vida
+	# Fade suave de alpha: arranca suave y se desvanece a cero al final
 	var smoke_ramp = Gradient.new()
-	smoke_ramp.set_color(0, Color(1, 1, 1, 0.45))
+	smoke_ramp.set_color(0, Color(1, 1, 1, 0.55))
 	smoke_ramp.set_color(1, Color(1, 1, 1, 0.0))
 	var smoke_ramp_tex = GradientTexture1D.new()
 	smoke_ramp_tex.gradient = smoke_ramp
 	smoke_mat.color_ramp = smoke_ramp_tex
 	_smoke.process_material = smoke_mat
-	# Textura puff radial suave (mismo patron que el glow de la estela)
+	# Textura de pixel suave: cuadrado chico con borde levemente suave (4x4)
 	var puff_grad = Gradient.new()
-	puff_grad.set_color(0, Color(1, 1, 1, 0.9))
+	puff_grad.set_color(0, Color(1, 1, 1, 1.0))
 	puff_grad.set_color(1, Color(1, 1, 1, 0.0))
 	var puff_tex = GradientTexture2D.new()
 	puff_tex.gradient = puff_grad
 	puff_tex.fill = GradientTexture2D.FILL_RADIAL
 	puff_tex.fill_from = Vector2(0.5, 0.5)
 	puff_tex.fill_to = Vector2(0.5, 0.0)
-	puff_tex.width = 48
-	puff_tex.height = 48
+	puff_tex.width = 4
+	puff_tex.height = 4
 	_smoke.texture = puff_tex
 	add_child(_smoke)
 	_smoke.position = ORB_DRAW_OFFSET
@@ -259,6 +270,7 @@ var _particles: GPUParticles2D = null
 var _wave: Sprite2D = null
 var _wave_mat: ShaderMaterial = null
 var _light: Sprite2D = null
+var _light_mat: ShaderMaterial = null
 var _smoke: GPUParticles2D = null
 var _wave_tex: GradientTexture2D = null
 var _is_first_frame: bool = true
@@ -328,6 +340,17 @@ func _process(delta: float) -> void:
 		var aim_vec = current_end_pos - global_position
 		if aim_vec.length_squared() > 1.0:
 			_light.rotation = aim_vec.angle()
+		# Recortar la cola para que arranque en la linea del lanzador:
+		# calcular la distancia del orbe al lanzador en el espacio local
+		# de la luz (eje X = direccion de vuelo). La cola crece a medida
+		# que el proyectil se aleja del lanzador.
+		if _light_mat:
+			var to_start = _start_pos - _light.global_position
+			var local_to_start = to_start.rotated(-_light.rotation)
+			var tail_distance = maxf(0.0, -local_to_start.x)
+			# 176px = distancia del orbe (UV.x=0.8) al extremo trasero (UV.x=0)
+			var clip = clampf((176.0 - tail_distance) / 192.0, 0.0, 0.8)
+			_light_mat.set_shader_parameter("tail_clip_x", clip)
 	
 	# Reached target
 	if t >= 1.0:
