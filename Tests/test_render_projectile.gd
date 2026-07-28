@@ -14,12 +14,19 @@ var _target: Node2D
 var _fx_id: int = FIRST_FX_ID
 
 func _ready() -> void:
-	# Fondo oscuro tipo pasto para que la luz aditiva se aprecie bien
+	# Fondo oscuro tipo pasto por si el mapa no cubre toda la pantalla
 	var bg = ColorRect.new()
 	bg.color = Color(0.11, 0.16, 0.09)
 	bg.size = Vector2(1920, 1080)
 	bg.z_index = -10
 	add_child(bg)
+
+	# Mapa real de fondo para apreciar la distorsion de la estela y el humo
+	var map_scene = load("res://Maps/Map1.tscn")
+	if map_scene:
+		var map = map_scene.instantiate()
+		map.z_index = -5
+		add_child(map)
 
 	_caster = _create_marker(CASTER_POS, Color(0.3, 0.6, 1.0))
 	_target = _create_marker(TARGET_POS, Color(1.0, 0.35, 0.3))

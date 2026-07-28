@@ -198,6 +198,51 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	# Detras del orbe pero dentro de la misma capa (z_index -1 lo hundiria bajo el terreno)
 	_light.show_behind_parent = true
 	add_child(_light)
+
+	# Estela de humo: puffs suaves que quedan en el aire unos segundos y desvanecen en fade
+	_smoke = GPUParticles2D.new()
+	_smoke.amount = 50
+	_smoke.lifetime = 2.5
+	_smoke.local_coords = false
+	var smoke_mat = ParticleProcessMaterial.new()
+	smoke_mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	smoke_mat.emission_sphere_radius = 4.0
+	smoke_mat.spread = 180.0
+	smoke_mat.initial_velocity_min = 4.0
+	smoke_mat.initial_velocity_max = 10.0
+	smoke_mat.gravity = Vector3(0, -6, 0) # El humo deriva suavemente hacia arriba
+	smoke_mat.damping_min = 2.0
+	smoke_mat.damping_max = 4.0
+	# Los puffs crecen a medida que envejecen
+	var smoke_curve = Curve.new()
+	smoke_curve.add_point(Vector2(0, 0.5))
+	smoke_curve.add_point(Vector2(1, 1.8))
+	var smoke_curve_tex = CurveTexture.new()
+	smoke_curve_tex.curve = smoke_curve
+	smoke_mat.scale_curve = smoke_curve_tex
+	# Fade suave de alpha durante toda la vida
+	var smoke_ramp = Gradient.new()
+	smoke_ramp.set_color(0, Color(1, 1, 1, 0.45))
+	smoke_ramp.set_color(1, Color(1, 1, 1, 0.0))
+	var smoke_ramp_tex = GradientTexture1D.new()
+	smoke_ramp_tex.gradient = smoke_ramp
+	smoke_mat.color_ramp = smoke_ramp_tex
+	_smoke.process_material = smoke_mat
+	# Textura puff radial suave (mismo patron que el glow de la estela)
+	var puff_grad = Gradient.new()
+	puff_grad.set_color(0, Color(1, 1, 1, 0.9))
+	puff_grad.set_color(1, Color(1, 1, 1, 0.0))
+	var puff_tex = GradientTexture2D.new()
+	puff_tex.gradient = puff_grad
+	puff_tex.fill = GradientTexture2D.FILL_RADIAL
+	puff_tex.fill_from = Vector2(0.5, 0.5)
+	puff_tex.fill_to = Vector2(0.5, 0.0)
+	puff_tex.width = 48
+	puff_tex.height = 48
+	_smoke.texture = puff_tex
+	add_child(_smoke)
+	_smoke.position = ORB_DRAW_OFFSET
+	_smoke.emitting = true
 	
 	_target_ref = weakref(target_char)
 	_on_arrival = on_arrival
@@ -214,6 +259,7 @@ var _particles: GPUParticles2D = null
 var _wave: Sprite2D = null
 var _wave_mat: ShaderMaterial = null
 var _light: Sprite2D = null
+var _smoke: GPUParticles2D = null
 var _wave_tex: GradientTexture2D = null
 var _is_first_frame: bool = true
 
@@ -299,6 +345,8 @@ func _process(delta: float) -> void:
 			tween.tween_method(func(v): _wave_mat.set_shader_parameter("dissipation", v), 0.0, 1.0, 2.0)
 		if _particles and is_instance_valid(_particles):
 			_particles.emitting = false
+		if _smoke and is_instance_valid(_smoke):
+			_smoke.emitting = false
 		# Explosion de luz en la direccion del impacto
 		if _light and is_instance_valid(_light):
 			# Textura cuadrada centrada en el punto de impacto (el burst dibuja su propio alpha)
@@ -318,8 +366,8 @@ func _process(delta: float) -> void:
 			_light.material = burst_mat
 			var burst_tween = create_tween()
 			burst_tween.tween_method(func(v): burst_mat.set_shader_parameter("progress", v), 0.0, 1.0, 0.7)
-		# El nodo persiste 2 segundos para que el surco se disipe visiblemente
-		var timer = get_tree().create_timer(2.0)
+		# El nodo persiste casi 3 segundos: el surco se disipa y el humo completa su fade
+		var timer = get_tree().create_timer(2.8)
 		timer.timeout.connect(queue_free)
 
 # Computes the average color of all non-transparent pixels in the given texture
