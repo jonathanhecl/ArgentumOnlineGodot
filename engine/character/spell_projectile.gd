@@ -10,6 +10,8 @@ var _fx_vertical_offset: Vector2
 var _duration: float = 0.25 # Snappy, fast and highly satisfying speed (0.25 seconds)
 # Paso maximo de avance por frame (~1/30s). Evita que un hitch teletransporte el orbe.
 const MAX_PROCESS_STEP: float = 1.0 / 30.0
+# Medio tile abajo: alinea el orbe y la luz con los pies del personaje
+const ORB_DRAW_OFFSET := Vector2(0, 16)
 var _elapsed_time: float = 0.0
 var _is_launched: bool = false
 var _projectile_hidden: bool = false
@@ -31,19 +33,20 @@ func _draw() -> void:
 		return
 	# Draw a glowing magic orb matching the spell's custom average color (+20% brightness)
 	# Scaled down 30% as requested (0.7x scale) for a beautiful, compact look
+	# ORB_DRAW_OFFSET: medio tile abajo, alineado con la cabeza de la flecha de luz
 	var glow_color = _projectile_color
 	glow_color.a = 0.35 # Semi-transparent aura
-	
+
 	# 1. Outer glow aura (smooth) - 4.5 pixels radius (down from 6.5)
-	draw_circle(Vector2.ZERO, 4.5, glow_color)
-	
+	draw_circle(ORB_DRAW_OFFSET, 4.5, glow_color)
+
 	# 2. Solid inner core - 2.5 pixels radius (down from 3.5)
-	draw_circle(Vector2.ZERO, 2.5, _projectile_color)
-	
+	draw_circle(ORB_DRAW_OFFSET, 2.5, _projectile_color)
+
 	# 3. Draw the spell's animation frame scaled down exactly to the size of the sphere core (8.5 pixels wide/high)
 	if _spell_texture:
 		var target_size = Vector2(8.5, 8.5)
-		var dest_rect = Rect2(-target_size / 2.0, target_size)
+		var dest_rect = Rect2(ORB_DRAW_OFFSET - target_size / 2.0, target_size)
 		draw_texture_rect(_spell_texture, dest_rect, false)
 
 func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
@@ -191,7 +194,7 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	# Anclar la flecha en el orbe: la textura cubre 160px hacia atras y 32px hacia adelante
 	_light.offset = Vector2(-80, 0)
 	# Medio tile mas abajo (16px) para alinear con los pies del personaje, inicio y final
-	_light.position = Vector2(0, 16)
+	_light.position = ORB_DRAW_OFFSET
 	# Detras del orbe pero dentro de la misma capa (z_index -1 lo hundiria bajo el terreno)
 	_light.show_behind_parent = true
 	add_child(_light)
