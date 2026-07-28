@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-07-27 — Luz del proyectil: z_index negativo la hunde bajo el terreno y deja artefactos
+- **Context:** Efecto de luz circular del `SpellProjectile` (`engine/character/spell_projectile.gd`).
+- **Problem:** La luz agregada como hija con `z_index = -1` no se veía (quedaba dibujada debajo del mapa) y aparecían artefactos brillantes intermitentes en la esquina superior izquierda de la pantalla mientras el proyectil volaba.
+- **Root cause:** El proyectil vive en `Layer3` con `z_index = 0`/`z_as_relative`; un hijo con z relativo -1 cae por debajo de los TileMapLayers del terreno. Además el proyectil no estaba marcado como entidad runtime, por lo que `_ClearRuntimeNodes` del caché 3×3 de mapas no lo liberaba al reciclar vistas.
+- **Fix:** Usar `show_behind_parent = true` en la luz (se dibuja detrás del orbe pero dentro de la misma capa, sobre el terreno) y `set_meta("is_runtime_entity", true)` en `_ready()` del proyectil.
+- **Rule:** Nunca usar z_index negativo para "dibujar debajo" dentro de `Layer3`; usar `show_behind_parent`. Todo nodo visual que se agrega a capas del mapa en runtime debe marcarse `is_runtime_entity`.
+
 ### 2026-07-20 — El límite de aparición de criaturas debe ser independiente del FOV
 - **Context:** Visibilidad de personajes y contornos de depuración en `MapContainer`.
 - **Problem:** Las criaturas usaban el rectángulo rojo del FOV, aunque debían comenzar a dibujarse un tile antes de alcanzarlo y el FOV cambiará de tamaño.

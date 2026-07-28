@@ -23,6 +23,8 @@ var _spell_texture: Texture2D = null
 func _ready() -> void:
 	# Use nearest-neighbor texture filtering to preserve high-fidelity pixel art
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# Entidad runtime: el cache de mapas debe liberarla al reciclar vistas (evita fugas/duplicados)
+	set_meta("is_runtime_entity", true)
 
 func _draw() -> void:
 	if _projectile_hidden:
@@ -169,6 +171,34 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 	_wave.visible = false # Se hace visible en el primer _process
 	add_child(_wave)
 	
+	# Luz circular que emana del proyectil: glow radial grande y suave que ilumina debajo
+	_light = Sprite2D.new()
+	var light_grad = Gradient.new()
+	light_grad.set_color(0, Color(1, 1, 1, 0.5))
+	light_grad.set_color(1, Color(1, 1, 1, 0.0))
+	# Nucleo amplio y luminoso con caida muy suave hacia el borde (luz, no destello puntual)
+	light_grad.set_offset(0, 0.0)
+	light_grad.set_offset(1, 1.0)
+	light_grad.add_point(0.45, Color(1, 1, 1, 0.55))
+	light_grad.add_point(0.75, Color(1, 1, 1, 0.18))
+	var light_tex = GradientTexture2D.new()
+	light_tex.gradient = light_grad
+	light_tex.fill = GradientTexture2D.FILL_RADIAL
+	light_tex.fill_from = Vector2(0.5, 0.5)
+	light_tex.fill_to = Vector2(0.5, 0.0)
+	light_tex.width = 128
+	light_tex.height = 128
+	_light.texture = light_tex
+	var light_mat = CanvasItemMaterial.new()
+	light_mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_light.material = light_mat
+	var light_color = _projectile_color.lightened(0.35)
+	light_color.a = 0.9
+	_light.modulate = light_color
+	# Detras del orbe pero dentro de la misma capa (z_index -1 lo hundiria bajo el terreno)
+	_light.show_behind_parent = true
+	add_child(_light)
+	
 	_target_ref = weakref(target_char)
 	_on_arrival = on_arrival
 	
@@ -183,6 +213,7 @@ func launch(fx_id: int, caster_char, target_char, on_arrival: Callable) -> void:
 var _particles: GPUParticles2D = null
 var _wave: Sprite2D = null
 var _wave_mat: ShaderMaterial = null
+var _light: Sprite2D = null
 var _wave_tex: GradientTexture2D = null
 var _is_first_frame: bool = true
 
@@ -262,6 +293,10 @@ func _process(delta: float) -> void:
 			tween.tween_method(func(v): _wave_mat.set_shader_parameter("dissipation", v), 0.0, 1.0, 2.0)
 		if _particles and is_instance_valid(_particles):
 			_particles.emitting = false
+		# Disipar la luz del proyectil suavemente
+		if _light and is_instance_valid(_light):
+			var light_tween = create_tween()
+			light_tween.tween_property(_light, "modulate:a", 0.0, 0.6)
 		# El nodo persiste 2 segundos para que el surco se disipe visiblemente
 		var timer = get_tree().create_timer(2.0)
 		timer.timeout.connect(queue_free)
