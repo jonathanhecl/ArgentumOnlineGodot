@@ -5,6 +5,9 @@ signal click(mouse_position:Vector2)
 
 const MAP_TILE_SIZE := 100
 const DOT_SIZE := 5.0
+const DEFAULT_ALPHA := 0.3
+const HOVER_ALPHA := 1.0
+const ALPHA_FADE_DURATION := 0.2
 
 # Offset de corrección para alinear el punto con la miniatura (en tiles)
 # Positivo = mover a la derecha, Negativo = mover a la izquierda
@@ -18,12 +21,16 @@ var _player_dot_position: Vector2 = Vector2.ZERO
 var _texture_old: Texture2D = null
 var _crossfade_alpha: float = 0.0
 var _crossfade_tween: Tween = null
+var _alpha_tween: Tween = null
 var _info_label: Label = null
 var _current_map_id: int = 0
 
 func _ready() -> void:
 	_setup_info_label()
 	update_player_position(0, 0)
+	modulate.a = DEFAULT_ALPHA
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
 
 func _setup_info_label() -> void:
 	_info_label = Label.new()
@@ -97,6 +104,18 @@ func _draw() -> void:
 	var draw_pos = _player_dot_position - dot_offset
 	draw_rect(Rect2(draw_pos, Vector2(DOT_SIZE, DOT_SIZE)), Color.RED, true)
 
+
+func _set_alpha_smoothly(target_alpha: float) -> void:
+	if _alpha_tween and _alpha_tween.is_valid():
+		_alpha_tween.kill()
+	_alpha_tween = create_tween()
+	_alpha_tween.tween_property(self, "modulate:a", target_alpha, ALPHA_FADE_DURATION)
+
+func _on_mouse_entered() -> void:
+	_set_alpha_smoothly(HOVER_ALPHA)
+
+func _on_mouse_exited() -> void:
+	_set_alpha_smoothly(DEFAULT_ALPHA)
 
 func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
