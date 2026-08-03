@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-03 — Mapa del mundo: grafo `MapNeighbors` + miniaturas 100×100 para layout BFS; cuidado con `Input.is_action_pressed` y ventanas `exclusive`
+- **Context:** Feature "clic en el minimapa abre el mapa del mundo" (`ui/hub/world_map_window.*`, `world_map_view.gd`, `hub_controller`, `minimap.gd`, `game_screen`).
+- **Problem:** Había dos trampas: (1) en un `const` de GDScript no se puede usar `MapNeighbors.N` (constante de autoload) como clave de diccionario — no compila; (2) una `Window` con `exclusive = true` NO bloquea el estado global de `Input.is_action_pressed`, así que el jugador seguía caminando con el mapa abierto.
+- **Root cause:** `Input` acumula estado de acciones a nivel global sin importar a qué subventana se rutearon los eventos; `_CheckKeys` (game_screen) sondea `Input.is_action_pressed` por frame. El layout BFS se construye desde el mapa actual con `MapNeighbors.get_neighbor_info` (8 direcciones) y las miniaturas `.bmp` de 100×100 px (1px = 1 tile) se dibujan con `draw_texture_rect`.
+- **Fix:** Usar literales `"N"/"S"/...` como claves de `DIR_OFFSET` (coinciden con `MapNeighbors.N/...`); guardar `_CheckKeys` con `_gameInput.is_world_map_open()` y el flujo de Esc (pressed en game_screen cierra el mapa, released en hub consume con `_map_close_pending` para no mandar `WriteQuit`). El auto-fit inicial se difiere con `_pending_fit` + señal `resized` porque el `View` aún tiene `size=0` al instanciar la ventana.
+- **Rule:** Las ventanas modales (`exclusive=true`) bloquean la entrega de eventos de input a otros controles, pero NO el muestreo de `Input.is_action_*` en `_process`; hay que guardar manualmente el movimiento/acciones mientras una ventana modal está abierta. Nunca usar constantes de autoloads en `const` de GDScript (usar literales o `var`).
+
 ### 2026-08-03 — La geometría del viewport de juego se define solo en `game_screen.tscn` y todo lo demás la sigue dinámicamente
 - **Context:** Pedido de extender la zona de juego hasta arriba (se veía una franja negra superior).
 - **Problem:** El área jugable quedaba limitada a `y=238..991`, dejando la franja superior `0..238` sin render del mapa.

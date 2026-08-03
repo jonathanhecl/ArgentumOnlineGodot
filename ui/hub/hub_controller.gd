@@ -14,7 +14,8 @@ func _restore_default_cursor() -> void:
 		_gameContext.usingSkill = 0
 
 const MerchantPanelScene = preload("uid://b5q8b0u4jmm2b")
-const BankPanelScene = preload("uid://c4skiho4j6vjn") 
+const BankPanelScene = preload("uid://c4skiho4j6vjn")
+const WorldMapWindowScene = preload("res://ui/hub/world_map_window.tscn")
 const OptionsWindowScene = preload("res://ui/hub/options_window.tscn")
 const SkillsWindowScene = preload("res://ui/hub/skills_window.tscn")
 const PasswordChangeWindowScene = preload("res://ui/hub/password_change_window.tscn")
@@ -66,12 +67,18 @@ var _user_shield_slot:int
 var _user_helmet_slot:int
 var _user_armor_slot:int
 
+var _world_map_window
+var _map_close_pending := false
+
 func _ready() -> void:
 	# Inicializar el sistema de hotkeys
 	HotkeyConfig.load_hotkey_config()
 	
 	# Conectar señales del sistema de hotkeys
 	HotkeyConfig.hotkey_changed.connect(_on_hotkey_changed)
+	
+	# Actualizar el mapa del mundo en vivo si está abierto
+	minimap.player_tile_changed.connect(_on_player_tile_changed)
 	
 	# Conectar señales del sistema de protocolo para actualizar UI
 	ProtocolHandler.weapon_updated.connect(_on_weapon_updated)
@@ -319,7 +326,10 @@ func _handle_key_event(event:InputEventKey) -> void:
 	if event.is_action_pressed("RequestRefresh"):
 		_request_position_update()
 	if event.is_action_released("ExitGame"):
-		_exit_game()
+		if _map_close_pending:
+			_map_close_pending = false
+		else:
+			_exit_game()
 	if event.is_action_pressed("ToggleSafeMode"):
 		ProtocolWriteToServer.WriteSafeToggle()
 	if event.is_action_pressed("SpellMacro"):
@@ -606,8 +616,31 @@ func _on_console_meta_clicked(meta: Variant) -> void:
 	
 	
 func _on_minimap_click(mouse_position: Vector2) -> void:
-	if _gameContext.player_map > 0:
+	# Ctrl+clic conserva el warp directo (debug/GM); el clic simple abre el mapa del mundo.
+	if Input.is_key_pressed(KEY_CTRL) and _gameContext.player_map > 0:
 		ProtocolWriteToServer.WriteWarpChar("YO", _gameContext.player_map, int(mouse_position.x), int(mouse_position.y))
+		return
+	_open_world_map()
+
+func _open_world_map() -> void:
+	if _world_map_window == null or not is_instance_valid(_world_map_window):
+		_world_map_window = WorldMapWindowScene.instantiate()
+		add_child(_world_map_window)
+	_world_map_window.show_map(_gameContext.player_map, minimap.get_player_tile())
+	_world_map_window.popup_centered()
+
+func is_world_map_open() -> bool:
+	return _world_map_window != null and is_instance_valid(_world_map_window) and _world_map_window.visible
+
+func close_world_map(esc_consumed: bool = false) -> void:
+	if _world_map_window and is_instance_valid(_world_map_window):
+		_world_map_window.hide()
+	if esc_consumed:
+		_map_close_pending = true
+
+func _on_player_tile_changed(tile: Vector2i) -> void:
+	if _world_map_window and _world_map_window.visible:
+		_world_map_window.refresh(_gameContext.player_map, tile)
 
 func _on_btn_options_pressed() -> void:
 	if _options_window == null:

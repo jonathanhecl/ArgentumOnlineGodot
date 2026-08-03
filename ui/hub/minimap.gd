@@ -2,6 +2,7 @@ extends TextureRect
 class_name Minimap
 
 signal click(mouse_position:Vector2)
+signal player_tile_changed(new_tile: Vector2i)
 
 const MAP_TILE_SIZE := 100
 const DOT_SIZE := 5.0
@@ -89,12 +90,20 @@ func load_thumbnail(map_id:int) -> void:
 		texture = new_texture
 
 func update_player_position(x:int, y:int) -> void:
-	_player_tile_x = clampi(x, 1, MAP_TILE_SIZE)
-	_player_tile_y = clampi(y, 1, MAP_TILE_SIZE)
+	var new_tile := Vector2i(clampi(x, 1, MAP_TILE_SIZE), clampi(y, 1, MAP_TILE_SIZE))
+	if new_tile == Vector2i(_player_tile_x, _player_tile_y):
+		return
+	
+	_player_tile_x = new_tile.x
+	_player_tile_y = new_tile.y
 	
 	_update_player_dot_position()
 	_update_info_label_text()
 	queue_redraw()
+	player_tile_changed.emit(new_tile)
+
+func get_player_tile() -> Vector2i:
+	return Vector2i(_player_tile_x, _player_tile_y)
 	
 func _draw() -> void:
 	if _texture_old and _crossfade_alpha > 0.0:
@@ -119,5 +128,6 @@ func _on_mouse_exited() -> void:
 
 func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		if event.pressed:
-			click.emit(event.position.ceil())
+		var button_event := event as InputEventMouseButton
+		if button_event.pressed and button_event.button_index == MOUSE_BUTTON_LEFT:
+			click.emit(button_event.position.ceil())

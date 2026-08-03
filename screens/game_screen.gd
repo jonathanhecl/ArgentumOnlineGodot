@@ -248,6 +248,9 @@ func _OnDisconnected() -> void:
 func _process(_delta: float) -> void:
 	# Verificar ExitGame (Escape) - siempre funciona independientemente del estado
 	if Input.is_action_just_pressed("ExitGame"):
+		if _gameInput and _gameInput.is_world_map_open():
+			_gameInput.close_world_map(true)
+			return
 		_request_return_to_character_selection()
 		return
 	
@@ -348,6 +351,9 @@ func _UpdateCameraPosition() -> void:
 func _CheckKeys() -> void:
 	if _gameContext.traveling || _gameContext.mirandoForo ||\
 		_gameContext.trading  || _gameContext.pause:
+		return
+
+	if _gameInput and _gameInput.is_world_map_open():
 		return
 
 	if not Global.moveWhileTalking and _gameInput and _gameInput.is_console_input_active():
