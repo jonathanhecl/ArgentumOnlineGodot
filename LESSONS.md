@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-03 — La geometría del viewport de juego se define solo en `game_screen.tscn` y todo lo demás la sigue dinámicamente
+- **Context:** Pedido de extender la zona de juego hasta arriba (se veía una franja negra superior).
+- **Problem:** El área jugable quedaba limitada a `y=238..991`, dejando la franja superior `0..238` sin render del mapa.
+- **Root cause:** `MainViewportContainer` (SubViewportContainer) usaba `offset_top = 238` y el `SubViewport` un `size` fijo de `1452x753`; la `PeripheralFogOverlay` copiaba esos offsets.
+- **Fix:** En `screens/game_screen.tscn`: `MainViewportContainer.offset_top = 4` (4px de margen para la interfaz), `custom_minimum_size = (1451, 987)`, `Viewport.size = Vector2i(1452, 987)` y `PeripheralFogOverlay.offset_top = 4`. Nada en código GDScript fija estas medidas (no hay referencias a 238/753).
+- **Rule:** La geometría del área de juego (posición, tamaño del SubViewport, overlays `PeripheralFogOverlay`/`RainOverlay`) se centraliza en `game_screen.tscn`. FOV, visibilidad, clics y conversión a tiles leen el viewport dinámicamente (`get_viewport_rect().size`, `ScreenToTile`), así que redimensionar el viewport no requiere tocar código. El FOV (`CORE_VIEW_SIZE`/`CREATURE_VIEW_SIZE`) queda centrado en el personaje y no cambia su radio de visión al agrandar la pantalla.
+
 ### 2026-07-27 — Luz del proyectil: z_index negativo la hunde bajo el terreno y deja artefactos
 - **Context:** Efecto de luz circular del `SpellProjectile` (`engine/character/spell_projectile.gd`).
 - **Problem:** La luz agregada como hija con `z_index = -1` no se veía (quedaba dibujada debajo del mapa) y aparecían artefactos brillantes intermitentes en la esquina superior izquierda de la pantalla mientras el proyectil volaba.

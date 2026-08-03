@@ -110,9 +110,9 @@ offset_bottom = 1080.0
 texture = ExtResource("3_6rrxf")
 
 [node name="MainViewportContainer" type="SubViewportContainer" parent="HubController" unique_id=1195275678]
-custom_minimum_size = Vector2(1451, 753)
+custom_minimum_size = Vector2(1451, 987)
 offset_left = 20.0
-offset_top = 238.0
+offset_top = 4.0
 offset_right = 1472.0
 offset_bottom = 991.0
 focus_mode = 0
@@ -121,7 +121,7 @@ metadata/_edit_group_ = true
 
 [node name="Viewport" type="SubViewport" parent="HubController/MainViewportContainer" unique_id=1997888074]
 handle_input_locally = false
-size = Vector2i(1452, 753)
+size = Vector2i(1452, 987)
 render_target_update_mode = 4
 
 [node name="GameWorld" type="Node2D" parent="HubController/MainViewportContainer/Viewport" unique_id=830839902 node_paths=PackedStringArray("_mapContainer")]
@@ -142,7 +142,7 @@ mouse_filter = 2
 [node name="PeripheralFogOverlay" type="ColorRect" parent="HubController" unique_id=114420338]
 material = SubResource("ShaderMaterial_peripheral_fog")
 offset_left = 20.0
-offset_top = 238.0
+offset_top = 4.0
 offset_right = 1472.0
 offset_bottom = 991.0
 mouse_filter = 2
