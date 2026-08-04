@@ -148,6 +148,14 @@ func _get_texture(map_id: int) -> Texture2D:
 	_texture_cache[map_id] = tex
 	return tex
 
+func _get_thumbnail_region(texture: Texture2D) -> Rect2:
+	var source_size := Vector2i(texture.get_size())
+	var crop_size := Vector2i(int(MAP_PX), int(MAP_PX))
+	if source_size.x <= crop_size.x or source_size.y <= crop_size.y:
+		return Rect2(Vector2.ZERO, texture.get_size())
+	var origin := (source_size - crop_size) / 2
+	return Rect2(origin, crop_size)
+
 func _draw() -> void:
 	if _ordered_maps.is_empty():
 		return
@@ -160,7 +168,7 @@ func _draw() -> void:
 		var rect := _get_map_rect(map_id)
 		var tex := _get_texture(map_id)
 		if tex:
-			draw_texture_rect(tex, rect, false)
+			draw_texture_rect_region(tex, rect, _get_thumbnail_region(tex))
 		draw_rect(rect, COLOR_MAP_BORDER, false, 1.0)
 		_draw_map_id(map_id, rect, map_id == _current_map_id)
 	if _grid.has(_current_map_id):

@@ -122,6 +122,8 @@ func _ExportMaps() -> void:
 	_map_exits.clear()
 	
 	for fileName in files:
+		if not fileName.to_lower().ends_with(".map") or not fileName.to_lower().begins_with("mapa"):
+			continue
 		current += 1
 		var mapNumber = fileName.substr(4)
 		mapNumber = mapNumber.substr(0, mapNumber.find("."))
@@ -283,6 +285,10 @@ func _ExportMapAdjacency() -> void:
 	# Si un mismo vecino quedó en N y S (o E y W) a la vez (p.ej. mapa portal 167/168),
 	# conservar el enlace con más votos.
 	_RemoveOppositeDoubleLinks(cardinals)
+	# El seed también debe contener los mapas que sólo aparecen como destino. Sin esta
+	# materialización, esos mapas dependen de que MapNeighbors reconstruya la reciprocidad
+	# en runtime y el export generado queda incompleto para consumidores offline.
+	_AddReciprocalCardinalLinks(cardinals)
 
 	# Derivar diagonales transitivamente (suma vectorial de offsets).
 	var connections: Dictionary = cardinals.duplicate(true)
@@ -332,6 +338,35 @@ func _ExportMapAdjacency() -> void:
 		connections.size(), cardinal_count, diag_count, portal_count, conflict_count, total_exits
 	])
 
+func _AddReciprocalCardinalLinks(cardinals: Dictionary) -> void:
+	var opposite := {"N": "S", "S": "N", "E": "W", "W": "E"}
+	var added := 0
+	var links: Array = []
+	for a in cardinals.keys():
+		for d in cardinals[a].keys():
+			var entry: Dictionary = cardinals[a][d]
+			links.append([int(a), d, int(entry["id"]), int(entry["dx"]), int(entry["dy"])])
+	for link in links:
+		var from_id: int = link[0]
+		var direction: String = link[1]
+		var to_id: int = link[2]
+		if to_id <= 0 or not opposite.has(direction):
+			continue
+		if not cardinals.has(to_id):
+			cardinals[to_id] = {}
+		var reverse: String = opposite[direction]
+		if cardinals[to_id].has(reverse):
+			continue
+		cardinals[to_id][reverse] = {
+			"id": from_id,
+			"dx": -link[3],
+			"dy": -link[4],
+			"votes": 0,
+		}
+		added += 1
+	if added > 0:
+		print("  🔁 %d reciprocidades materializadas en el seed" % added)
+
 # Reconciliación por pares: cuando A y B se enlazan en direcciones que no son opuestas
 # (cruces en esquina), deja la pareja (dir, opuesta) que AMBOS reclaman con más votos
 # combinados. Si hay empate de votos, prioriza el eje del segmento de salida (vertical
@@ -373,7 +408,7 @@ func _ReconcileCardinalPairs(cardinals: Dictionary) -> void:
 		var best_score := -1
 		for pair in valid:
 			var votes_sum := int(a_dirs[pair[0]]) + int(b_dirs[pair[1]])
-			var preferred: bool = bool(horizontal[pair[0]]) == (not vertical)
+			var preferred: bool = bool(horizontal.get(pair[0], false)) == (not vertical)
 			var score_val := votes_sum * 2 + (1 if preferred else 0)
 			if score_val > best_score:
 				best_score = score_val

@@ -10,11 +10,6 @@ const DEFAULT_ALPHA := 0.3
 const HOVER_ALPHA := 1.0
 const ALPHA_FADE_DURATION := 0.2
 
-# Offset de corrección para alinear el punto con la miniatura (en tiles)
-# Positivo = mover a la derecha, Negativo = mover a la izquierda
-const MINIMAP_OFFSET_X_TILES := -3.0  # El punto está 3 tiles desplazado a la derecha, corregimos hacia la izquierda
-const MINIMAP_OFFSET_Y_TILES := 0.0
-
 var _player_tile_x:int = 1
 var _player_tile_y:int = 1
 var _player_dot_position: Vector2 = Vector2.ZERO
@@ -55,9 +50,8 @@ func _update_info_label_text() -> void:
 		_info_label.text = "Mapa %d (%d, %d)" % [_current_map_id, _player_tile_x, _player_tile_y]
 
 func _update_player_dot_position() -> void:
-	# Aplicar offset de corrección a las coordenadas de tile
-	var tx = clampi(_player_tile_x + int(MINIMAP_OFFSET_X_TILES), 1, MAP_TILE_SIZE)
-	var ty = clampi(_player_tile_y + int(MINIMAP_OFFSET_Y_TILES), 1, MAP_TILE_SIZE)
+	var tx = clampi(_player_tile_x, 1, MAP_TILE_SIZE)
+	var ty = clampi(_player_tile_y, 1, MAP_TILE_SIZE)
 
 	# Usar el tamaño del control para el mapeo (la textura se estira a este tamaño)
 	# Tile (1,1) -> Pixel (0,0), Tile (100,100) -> Pixel (size.x, size.y)
@@ -70,7 +64,8 @@ func load_thumbnail(map_id:int) -> void:
 	_update_info_label_text()
 	
 	var path = "res://Assets/minimap_thumbnails/%d.bmp" % map_id
-	var new_texture = load(path) if ResourceLoader.exists(path) else null
+	var source_texture: Texture2D = load(path) if ResourceLoader.exists(path) else null
+	var new_texture: Texture2D = _crop_thumbnail(source_texture)
 	
 	if texture != new_texture and texture != null:
 		_texture_old = texture
@@ -88,6 +83,19 @@ func load_thumbnail(map_id:int) -> void:
 		step_tween.tween_method(func(_val): queue_redraw(), 0.0, 1.0, 0.5)
 	else:
 		texture = new_texture
+
+func _crop_thumbnail(source: Texture2D) -> Texture2D:
+	if source == null:
+		return null
+	var source_size := Vector2i(source.get_size())
+	if source_size.x <= MAP_TILE_SIZE or source_size.y <= MAP_TILE_SIZE:
+		return source
+	var crop_size := Vector2i(MAP_TILE_SIZE, MAP_TILE_SIZE)
+	var region := Rect2i((source_size - crop_size) / 2, crop_size)
+	var cropped := AtlasTexture.new()
+	cropped.atlas = source
+	cropped.region = region
+	return cropped
 
 func update_player_position(x:int, y:int) -> void:
 	var new_tile := Vector2i(clampi(x, 1, MAP_TILE_SIZE), clampi(y, 1, MAP_TILE_SIZE))

@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-04 — Los mapas sin `.Inf` sólo pueden aportar reciprocidades
+- **Context:** Auditoría del mapa mundial y del exportador de adyacencias para la zona `84/255/81/82/202/12/13/18/19/98`.
+- **Problem:** Algunas celdas quedan vacías y parece faltar una continuación.
+- **Root cause:** `GetMapInf()` sólo puede descubrir salidas desde `MapaN.Inf`; varios mapas destino (`81`, `98`, `202`, `203`, `255`) sólo tienen `.map`, así que son extremos desde la evidencia disponible. Además el exportador omitía esos destinos del seed aunque fueran vecinos válidos.
+- **Fix:** Materializar enlaces cardinales recíprocos en `Tools/Exportador.gd`, filtrar `_ExportMaps()` para procesar sólo `.map` y usar la ruta exacta `MapaN.Inf` en `GameAssets.GetMapInf()`.
+- **Rule:** No inventar un mapa intermedio cuando no existe un `TileExit` que lo pruebe; si un mapa carece de `.Inf`, sólo se puede conservar la conexión inversa conocida.
+
+### 2026-08-04 — Recortar miniaturas antes de dibujar el mapa mundial
+- **Context:** Vista de minimapa y mapa mundial (`ui/hub/minimap.gd`, `ui/hub/world_map_view.gd`).
+- **Problem:** Cada miniatura mostraba también contenido del mapa contiguo en sus bordes; el punto del jugador necesitaba un offset manual de -3 tiles.
+- **Root cause:** Los BMP tienen un margen de tiles alrededor del área lógica de 100×100 y se dibujaban completos, haciendo visible ese margen en cada celda.
+- **Fix:** Recortar dinámicamente el rectángulo central de 100×100 al cargar/dibujar la textura y eliminar el offset X del punto del jugador.
+- **Rule:** Las miniaturas deben representar exclusivamente los tiles 1..100 del mapa; no compensar márgenes de assets con offsets de gameplay.
+
 ### 2026-08-03 — Adyacencia de mapas: clasificar cruces por GRUPO de exits y con reciprocidad; el seed debe mandar sobre `user://map_neighbors.json`
 - **Context:** Revisión del "importar mapas" tras ver el mapa del mundo con enlaces mal dibujados.
 - **Problem:** Algunos mapas se enlazaban mal: `163.S->165` mientras `165.E->163` (contradicción), `167<->168` en N y S a la vez, y se perdían cruces reales cuyo destino caía justo fuera de la banda estricta (`dest_x=85` con `ADJACENCY_BORDER_DIST=15` exige `>=86`). Además `user://map_neighbors.json` (runtime, viejo) PISABA los enlaces del seed al cargar.

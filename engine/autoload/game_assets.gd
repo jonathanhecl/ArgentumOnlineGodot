@@ -185,7 +185,7 @@ func GetMap(fileId:int) -> MapData:
 #     if flags & 0x2: 1 × Integer        -> NpcIndex
 #     if flags & 0x4: 2 × Integer        -> ObjIndex, Amount
 func GetMapInf(fileId: int) -> Array:
-	var path := "res://Assets/Maps/mapa%d.inf" % fileId
+	var path := "res://Assets/Maps/Mapa%d.Inf" % fileId
 	if not FileAccess.file_exists(path):
 		return []
 	var bytes := FileAccess.get_file_as_bytes(path)
