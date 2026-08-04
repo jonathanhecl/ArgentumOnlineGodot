@@ -30,6 +30,10 @@ const COLOR_ID_SHADOW := Color(0, 0, 0, 0.85)
 const MIN_ZOOM := 0.15
 const MAX_ZOOM := 3.0
 const ZOOM_STEP := 1.1
+# Radio de expansión (en saltos) desde el mapa del jugador: muestra las continuaciones
+# cercanas en vez de recorrer todo el componente conexo, que al centrar dejaba el mapa
+# del jugador en una esquina rodeado de mapas lejanos.
+const MAX_BFS_HOPS := 2
 
 var _grid: Dictionary = {}
 var _ordered_maps: Array[int] = []
@@ -92,6 +96,7 @@ func _build_layout(center_map: int) -> void:
 	if center_map <= 0:
 		return
 	var edge_keys := {}
+	var hops := {center_map: 0}
 	_grid[center_map] = Vector2i.ZERO
 	_ordered_maps.append(center_map)
 	var head := 0
@@ -99,6 +104,9 @@ func _build_layout(center_map: int) -> void:
 		var map_id: int = _ordered_maps[head]
 		head += 1
 		var cell: Vector2i = _grid[map_id]
+		var hop: int = hops[map_id]
+		if hop >= MAX_BFS_HOPS:
+			continue
 		for dir in MapNeighbors.ALL_DIRS:
 			var info := MapNeighbors.get_neighbor_info(map_id, dir)
 			var nid := int(info.get("id", 0))
@@ -110,6 +118,7 @@ func _build_layout(center_map: int) -> void:
 				_edges.append({"a": map_id, "b": nid})
 			if not _grid.has(nid):
 				_grid[nid] = cell + DIR_OFFSET[dir]
+				hops[nid] = hop + 1
 				_ordered_maps.append(nid)
 
 func _fit_to_content() -> void:
@@ -128,8 +137,11 @@ func _fit_to_content() -> void:
 	if content_size.x <= 0 or content_size.y <= 0 or view.x <= 0 or view.y <= 0:
 		return
 	_zoom = clampf(minf(view.x / content_size.x, view.y / content_size.y) * 0.92, MIN_ZOOM, MAX_ZOOM)
-	var world_center := (Vector2(min_cell) + Vector2(max_cell) + Vector2.ONE) * 0.5 * MAP_PX
-	_pan = view * 0.5 - world_center * _zoom
+	# Centrar en el mapa del jugador, no en el centro del clúster: así el mapa actual queda
+	# en el medio y sus continuaciones a su alrededor (no al revés).
+	var current_cell: Vector2i = _grid.get(_current_map_id, _grid.get(_ordered_maps[0], Vector2i.ZERO))
+	var focus := (Vector2(current_cell) + Vector2(0.5, 0.5)) * MAP_PX
+	_pan = view * 0.5 - focus * _zoom
 	_pending_fit = false
 
 func _world_to_local(point: Vector2) -> Vector2:

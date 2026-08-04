@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-04 — El mapa mundial debe centrarse en el mapa del jugador, no en el centro del clúster
+- **Context:** Al pararte en un mapa sin continuaciones (p.ej. `202`, `98`) y abrir el mapa del mundo, "marcaba un mapa al azar".
+- **Problem:** Tu mapa quedaba en una esquina y el centro lo ocupaban mapas lejanos del componente conexo, con aspecto de aleatorio.
+- **Root cause:** `_build_layout` hacía un BFS sin límite sobre todo el componente conexo y `_fit_to_content` centraba en el bounding box del clúster (no en el mapa actual).
+- **Fix:** En `ui/hub/world_map_view.gd`: `MAX_BFS_HOPS := 2` limita el layout a las continuaciones cercanas, y `_fit_to_content` centra en `_grid[_current_map_id]` (verificado: `rect` del mapa actual == centro del viewport para `202` y `98`).
+- **Rule:** Un visor local de continuaciones se reconstruye SIEMPRE desde el mapa del jugador (BFS acotado + centrado en él); nunca centrar en el centroide del grafo.
+
 ### 2026-08-04 — Los mapas sin `.Inf` sólo pueden aportar reciprocidades
 - **Context:** Auditoría del mapa mundial y del exportador de adyacencias para la zona `84/255/81/82/202/12/13/18/19/98`.
 - **Problem:** Algunas celdas quedan vacías y parece faltar una continuación.
