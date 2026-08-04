@@ -178,9 +178,12 @@ func _set_if_missing(map_id: int, direction: String, target: int, dx: int, dy: i
 func _load() -> void:
 	_connections.clear()
 	# Base: seed generado por el Exportador (res://Assets/Init/map_neighbors.json).
-	var seed_count := _merge_from_file(SEED_PATH)
-	# Encima: descubrimientos runtime persistidos (user://map_neighbors.json).
-	var user_count := _merge_from_file(SAVE_PATH)
+	# El seed es autoritativo (deriva de los .inf del servidor): sus enlaces no deben
+	# ser reemplazados por datos de runtime viejos que podrían clasificar mal un cruce
+	# en esquina. El archivo del usuario SOLO rellena huecos (mapas sin .inf, offsets
+	# descubiertos jugando) sin pisar lo que ya conoce el seed.
+	var seed_count := _merge_from_file(SEED_PATH, true)
+	var user_count := _merge_from_file(SAVE_PATH, false)
 	_derive_all_diagonals()
 	print("🧭 MapNeighbors: %d mapas con conexiones (seed: %d, user: %d)" % [
 		_connections.size(), seed_count, user_count
@@ -194,7 +197,7 @@ func _derive_all_diagonals() -> void:
 		for map_id in map_ids:
 			changed = _derive_diagonals_for(int(map_id)) or changed
 
-func _merge_from_file(path: String) -> int:
+func _merge_from_file(path: String, overwrite: bool = true) -> int:
 	if not FileAccess.file_exists(path):
 		return 0
 	var txt := FileAccess.get_file_as_string(path)
@@ -229,7 +232,8 @@ func _merge_from_file(path: String) -> int:
 				var neighbor_id := int(raw)
 				if neighbor_id > 0:
 					entry = {"id": neighbor_id, "dx": default_offset.x, "dy": default_offset.y}
-			if not entry.is_empty():
+			# Con overwrite=false el seed manda: sólo se rellena la dirección si aún no existe.
+			if not entry.is_empty() and (overwrite or not existing.has(d)):
 				existing[d] = entry
 		if not existing.is_empty():
 			_connections[map_id] = existing

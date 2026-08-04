@@ -6,6 +6,9 @@ extends Node
 # (no un portal mágico). Las coordenadas del .inf son 1-100, así que "cerca del oeste"
 # significa x <= BORDER_DIST, "cerca del este" significa x >= 101 - BORDER_DIST.
 const ADJACENCY_BORDER_DIST: int = 15
+# Banda más amplia para DETECTAR candidatos: algunos cruces reales caen justo fuera de la
+# banda estricta (p.ej. dest_x = 85 con ADJACENCY_BORDER_DIST = 15 exige 86) y se perdían.
+const ADJACENCY_CANDIDATE_BAND: int = ADJACENCY_BORDER_DIST + 1
 const ADJACENCY_OUTPUT_PATH: String = "res://Assets/Init/map_neighbors.json"
 
 # Exits recopilados durante _ExportMap desde los archivos .inf:
@@ -197,23 +200,22 @@ func _CollectMapExits(fileId: int) -> void:
 	if not exits.is_empty():
 		_map_exits[fileId] = exits
 
-# Clasifica un TileExit como cardinal N/S/E/W si el tile está cerca del borde del mapa A
-# y el destino está cerca del borde OPUESTO del mapa B. Retorna "" si es portal interior.
-func _ClassifyExit(exit: Dictionary) -> String:
+# Devuelve las direcciones cardinales candidatas (0-2) de un TileExit: el tile de salida
+# debe estar cerca de un borde de A y el destino cerca del borde OPUESTO de B. Una esquina
+# puede generar dos candidatos (p.ej. "W" y "S"); la resolución por votos + reciprocidad
+# decide la dirección final. Retorna [] si es portal interior.
+func _ClassifyExitCandidates(exit: Dictionary) -> Array:
 	var x: int = int(exit["x"])
 	var y: int = int(exit["y"])
 	var dx: int = int(exit["dest_x"])
 	var dy: int = int(exit["dest_y"])
-	var low := ADJACENCY_BORDER_DIST             # p.ej. 15
-	var high := 101 - ADJACENCY_BORDER_DIST      # p.ej. 86
-	# Chequeamos que exit Y dest estén en bordes opuestos (crossing geográfico).
-	# Si el exit está en una esquina, puede satisfacer dos direcciones — priorizamos
-	# la dirección cuyo destino también esté en el borde opuesto "puro" (no esquina).
-	if x >= high and dx <= low: return "E"
-	if x <= low and dx >= high: return "W"
-	if y >= high and dy <= low: return "S"
-	if y <= low and dy >= high: return "N"
-	return ""
+	var band := ADJACENCY_CANDIDATE_BAND
+	var cand: Array = []
+	if x >= 101 - band and dx <= band: cand.append("E")
+	if x <= band and dx >= 101 - band: cand.append("W")
+	if y >= 101 - band and dy <= band: cand.append("S")
+	if y <= band and dy >= 101 - band: cand.append("N")
+	return cand
 
 func _ExportMapAdjacency() -> void:
 	var map_ids: Array = _map_exits.keys()
@@ -222,6 +224,7 @@ func _ExportMapAdjacency() -> void:
 
 	# Por cada mapa y dirección, acumulamos: dest_map -> Array[Vector2i(dx, dy)]
 	# cardinals_raw[map_id][dir][dest_map] = [Vector2i(dx, dy), ...]
+	# Un exit en esquina puede votar por dos direcciones (candidatos); la mayoría decide.
 	var cardinals_raw: Dictionary = {}
 	for id in map_ids:
 		cardinals_raw[id] = {"N": {}, "S": {}, "E": {}, "W": {}}
@@ -232,19 +235,19 @@ func _ExportMapAdjacency() -> void:
 		var exits: Array = _map_exits[a_id]
 		for exit in exits:
 			total_exits += 1
-			var direction := _ClassifyExit(exit)
-			if direction == "":
+			var directions := _ClassifyExitCandidates(exit)
+			if directions.is_empty():
 				portal_count += 1
 				continue
 			var dest_map: int = int(exit["dest_map"])
 			if dest_map <= 0 or dest_map == a_id:
 				continue
 			var offset := Vector2i(int(exit["x"]) - int(exit["dest_x"]), int(exit["y"]) - int(exit["dest_y"]))
-			var by_dest: Dictionary = cardinals_raw[a_id][direction]
-			var list: Array = by_dest.get(dest_map, [])
-			list.append(offset)
-			by_dest[dest_map] = list
-			cardinals_raw[a_id][direction] = by_dest
+			for direction in directions:
+				var by_dest: Dictionary = cardinals_raw[a_id][direction]
+				var list: Array = by_dest.get(dest_map, [])
+				list.append(offset)
+				by_dest[dest_map] = list
 
 	# Resolver cardinales: por cada (map, dir) elegimos el dest_map con más exits.
 	# Si hay empate, nos quedamos con el menor id (determinismo). Offset = moda entre sus exits.
@@ -269,9 +272,17 @@ func _ExportMapAdjacency() -> void:
 					a_id, d, by_dest.size(), best_dest, best_votes, str(by_dest.keys())
 				])
 			var offset := _ModalOffset(by_dest[best_dest])
-			dirs[d] = {"id": best_dest, "dx": offset.x, "dy": offset.y}
+			dirs[d] = {"id": best_dest, "dx": offset.x, "dy": offset.y, "votes": best_votes}
 		if not dirs.is_empty():
 			cardinals[a_id] = dirs
+
+	# Corregir cruces de esquina: si A y B se enlazan pero con direcciones que no son
+	# opuestas entre sí (p.ej. 163.S->165 mientras 165.E->163), quedarse con la pareja
+	# consistente que AMBOS reclaman, priorizando el eje del segmento de salida.
+	_ReconcileCardinalPairs(cardinals)
+	# Si un mismo vecino quedó en N y S (o E y W) a la vez (p.ej. mapa portal 167/168),
+	# conservar el enlace con más votos.
+	_RemoveOppositeDoubleLinks(cardinals)
 
 	# Derivar diagonales transitivamente (suma vectorial de offsets).
 	var connections: Dictionary = cardinals.duplicate(true)
@@ -320,6 +331,108 @@ func _ExportMapAdjacency() -> void:
 	print("🧭 Exportador: adyacencia — %d mapas con conexiones, %d cardinales, %d diagonales, %d portales ignorados, %d conflictos, %d exits totales" % [
 		connections.size(), cardinal_count, diag_count, portal_count, conflict_count, total_exits
 	])
+
+# Reconciliación por pares: cuando A y B se enlazan en direcciones que no son opuestas
+# (cruces en esquina), deja la pareja (dir, opuesta) que AMBOS reclaman con más votos
+# combinados. Si hay empate de votos, prioriza el eje del segmento de salida (vertical
+# -> preferir E/W; horizontal -> preferir N/S).
+func _ReconcileCardinalPairs(cardinals: Dictionary) -> void:
+	var opposite := {"N": "S", "S": "N", "E": "W", "W": "E"}
+	var horizontal := {"N": true, "S": true, "E": false, "W": false}
+	var fixes := 0
+	var links: Array = []
+	for a in cardinals.keys():
+		for d in cardinals[a].keys():
+			links.append([a, d, int(cardinals[a][d]["id"])])
+	for link in links:
+		var a: int = link[0]
+		var d: String = link[1]
+		var b: int = link[2]
+		if b <= a:
+			continue
+		if not cardinals.has(a) or not cardinals[a].has(d) or not cardinals.has(b):
+			continue
+		var a_dirs: Dictionary = {}
+		for dd in cardinals[a].keys():
+			if int(cardinals[a][dd]["id"]) == b:
+				a_dirs[dd] = int(cardinals[a][dd].get("votes", 0))
+		var b_dirs: Dictionary = {}
+		for dd in cardinals[b].keys():
+			if int(cardinals[b][dd]["id"]) == a:
+				b_dirs[dd] = int(cardinals[b][dd].get("votes", 0))
+		if a_dirs.is_empty() or b_dirs.is_empty():
+			continue
+		var valid: Array = []
+		for dd in a_dirs.keys():
+			if b_dirs.has(opposite[dd]):
+				valid.append([dd, opposite[dd]])
+		if valid.is_empty():
+			continue
+		var vertical := _IsExitSegmentVertical(a, b)
+		var best_pair: Array = valid[0]
+		var best_score := -1
+		for pair in valid:
+			var votes_sum := int(a_dirs[pair[0]]) + int(b_dirs[pair[1]])
+			var preferred: bool = bool(horizontal[pair[0]]) == (not vertical)
+			var score_val := votes_sum * 2 + (1 if preferred else 0)
+			if score_val > best_score:
+				best_score = score_val
+				best_pair = pair
+		var keep_a: String = best_pair[0]
+		var keep_b: String = best_pair[1]
+		for dd in cardinals[a].keys():
+			if dd != keep_a and int(cardinals[a][dd]["id"]) == b:
+				cardinals[a].erase(dd)
+				fixes += 1
+		for dd in cardinals[b].keys():
+			if int(cardinals[b][dd]["id"]) == a and dd != keep_b:
+				cardinals[b].erase(dd)
+				fixes += 1
+	if fixes > 0:
+		print("  🔧 %d enlaces corregidos por reciprocidad entre pares" % fixes)
+
+# Devuelve true si el segmento de exits del mapa A hacia B es vertical (x casi constante,
+# y varía) => cruce E/W; false si es horizontal (y casi constante) => cruce N/S.
+func _IsExitSegmentVertical(a_id: int, b_id: int) -> bool:
+	var exits: Array = _map_exits.get(a_id, [])
+	var min_x := 101
+	var max_x := 0
+	var min_y := 101
+	var max_y := 0
+	var found := false
+	for exit in exits:
+		if int(exit["dest_map"]) != b_id:
+			continue
+		var x := int(exit["x"])
+		var y := int(exit["y"])
+		min_x = mini(min_x, x)
+		max_x = maxi(max_x, x)
+		min_y = mini(min_y, y)
+		max_y = maxi(max_y, y)
+		found = true
+	if not found:
+		return false
+	return (max_y - min_y) > (max_x - min_x)
+
+# Si un mapa enlaza al MISMO vecino en direcciones opuestas (N y S, o E y W) —p.ej. el
+# mapa portal 167/168—, conserva el enlace con más votos y elimina el otro.
+func _RemoveOppositeDoubleLinks(cardinals: Dictionary) -> void:
+	var opposite := {"N": "S", "S": "N", "E": "W", "W": "E"}
+	var removed := 0
+	for a in cardinals.keys():
+		for d in ["N", "S", "E", "W"]:
+			var opp: String = opposite[d]
+			var e1: Dictionary = cardinals[a].get(d, {})
+			var e2: Dictionary = cardinals[a].get(opp, {})
+			if not e1.is_empty() and not e2.is_empty() \
+					and int(e1.get("id", 0)) == int(e2.get("id", 0)):
+				if int(e2.get("votes", 0)) > int(e1.get("votes", 0)):
+					cardinals[a].erase(d)
+				else:
+					cardinals[a].erase(opp)
+				removed += 1
+	if removed > 0:
+		print("  🔧 %d dobles enlaces opuestos eliminados (mismo vecino en N y S / E y W)" % removed)
 
 # Devuelve el Vector2i más frecuente en la lista (moda). En empate, el primero visto.
 func _ModalOffset(offsets: Array) -> Vector2i:
