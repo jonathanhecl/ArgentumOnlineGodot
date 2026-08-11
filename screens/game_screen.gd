@@ -2,6 +2,7 @@ extends Node
 class_name GameScreen
 
 const SpellProjectile = preload("res://engine/character/spell_projectile.gd")
+const ArrowProjectile = preload("res://engine/character/arrow_projectile.gd")
 
 # Cursor personalizado para selección de objetivo
 var _crosshair_cursor: Texture2D = null
@@ -65,6 +66,16 @@ var _nearby_portal_objects: Dictionary = {}  # {Vector2i: grh_id} - portales det
 
 # DEBUG: Modo debug para mostrar información de objetos al hacer clic
 var _debug_click_mode: bool = true  # Activado por defecto para ayudar a identificar portales
+
+# Flechas en vuelo pendientes de correlacionar con el CreateDamage del servidor
+# (key: Vector2i de la tile objetivo, value: Array[ArrowProjectile]).
+var _pending_arrows: Dictionary = {}
+const _DAMAGE_TYPE_FALLO = 4
+
+# Unicos proyectiles del juego: la flecha y sus variantes (+1, +2, +3).
+# El servidor tambien envia el paquete Proyectil al usar pergaminos (GrhIndex 609),
+# pero esos NO son proyectiles visuales: se filtran aqui.
+const _ARROW_GRH_IDS: Array[int] = [752, 753, 754, 755]
 
 
 
@@ -465,6 +476,7 @@ func _connect_protocol_signals() -> void:
 	ProtocolHandler.user_char_index_received.connect(_on_user_char_index)
 	ProtocolHandler.set_invisible.connect(_on_set_invisible)
 	ProtocolHandler.fx_created.connect(_on_fx_created)
+	ProtocolHandler.proyectil_received.connect(_on_proyectil_received)
 	ProtocolHandler.paralize_toggle.connect(_on_paralize_toggle)
 	ProtocolHandler.update_tag_and_status.connect(_on_update_tag_status)
 	ProtocolHandler.chat_over_head.connect(_on_chat_over_head)
@@ -542,7 +554,7 @@ func _disconnect_protocol_signals() -> void:
 	var signals_to_disconnect = [
 		"account_logged",
 		"character_created", "character_removed", "character_moved", "character_changed",
-		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created", "paralize_toggle",
+		"character_change_nick", "character_heading_changed", "user_char_index_received", "set_invisible", "fx_created", "proyectil_received", "paralize_toggle",
 		"update_tag_and_status", "chat_over_head", "remove_char_dialog", "remove_all_dialogs",
 		"map_changed", "pos_updated", "force_char_move", "object_created", "object_deleted",
 		"block_position_changed", "inventory_slot_changed", "spell_slot_changed",
@@ -670,14 +682,14 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 					var map_l3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
 					if map_l3:
 						for child in map_l3.get_children():
-							if child is SpellProjectile and child != projectile and child.is_flying():
+							if (child is SpellProjectile or child is ArrowProjectile) and child != projectile and child.is_flying():
 								var tr = child.get_target_ref()
 								if tr and tr.get_ref() == t:
 									other_projectiles = true
 									break
 					if not other_projectiles:
 						for child in _gameWorld.GetMapContainer().get_children():
-							if child is SpellProjectile and child != projectile and child.is_flying():
+							if (child is SpellProjectile or child is ArrowProjectile) and child != projectile and child.is_flying():
 								var tr = child.get_target_ref()
 								if tr and tr.get_ref() == t:
 									other_projectiles = true
@@ -705,6 +717,57 @@ func _on_fx_created(char_index: int, fx: int, loops: int) -> void:
 		# No califica para proyectil: reproducir efecto directo en el personaje
 		print("[FX] Reproduciendo efecto directo en PJ %d: fx=%d loops=%d" % [char_index, fx, loops])
 		character.effect.play_effect(fx, loops)
+
+func _on_proyectil_received(attacker: int, target: int, grh_index: int) -> void:
+	# Solo las flechas son proyectiles visibles (no pergaminos/objetos de hechizo)
+	if not grh_index in _ARROW_GRH_IDS:
+		print("[PROYECTIL] Ignorando grh %d (no es flecha)" % grh_index)
+		return
+	var attacker_char = _gameWorld.GetCharacter(attacker)
+	var target_char = _gameWorld.GetCharacter(target)
+	if not attacker_char or not target_char:
+		print("[PROYECTIL] Sin personajes para atacante=%d target=%d" % [attacker, target])
+		return
+	
+	var projectile = ArrowProjectile.new()
+	var layer3 = _gameWorld.GetMapContainer()._GetLayer("Layer3")
+	if layer3:
+		layer3.add_child(projectile)
+	else:
+		_gameWorld.GetMapContainer().add_child(projectile)
+	
+	# Registrar como pendiente para correlacionar el CreateDamage (hit/miss)
+	var tile = Vector2i(target_char.gridPosition)
+	if not _pending_arrows.has(tile):
+		_pending_arrows[tile] = []
+	_pending_arrows[tile].append(projectile)
+	
+	# Si la flecha se libera sin que llegue su CreateDamage (p.ej. target murió),
+	# sacarla de la cola para no dejar referencias colgando.
+	projectile.tree_exiting.connect(_on_arrow_tree_exiting.bind(tile, projectile))
+	
+	projectile.launch(grh_index, attacker_char, target_char)
+	print("[PROYECTIL] Flecha de PJ %d hacia PJ %d con GRH %d" % [attacker, target, grh_index])
+
+func _on_arrow_tree_exiting(tile: Vector2i, projectile: ArrowProjectile) -> void:
+	if not _pending_arrows.has(tile):
+		return
+	var arrows: Array = _pending_arrows[tile]
+	arrows.erase(projectile)
+	if arrows.is_empty():
+		_pending_arrows.erase(tile)
+
+func _resolve_pending_arrow_hit(x: int, y: int, damage_type: int) -> void:
+	var tile = Vector2i(x, y)
+	if not _pending_arrows.has(tile):
+		return
+	var arrows: Array = _pending_arrows[tile]
+	var projectile = arrows.pop_front() if not arrows.is_empty() else null
+	if arrows.is_empty():
+		_pending_arrows.erase(tile)
+	if projectile and is_instance_valid(projectile):
+		var is_hit = damage_type != _DAMAGE_TYPE_FALLO
+		projectile.resolve_hit(is_hit)
 
 func _on_paralize_toggle(time_remaining: int) -> void:
 	print("[PARALISIS] ParalizeOK recibido. timeRemaining=%d, userParalizado=%s" % [time_remaining, _gameContext.userParalizado])
@@ -1484,6 +1547,7 @@ func _on_console_message(message: String, font_data: FontData) -> void:
 	_gameInput.ShowConsoleMessage(message, font_data)
 
 func _on_damage_created(x: int, y: int, damage: int, damage_type: int) -> void:
+	_resolve_pending_arrow_hit(x, y, damage_type)
 	if _gameWorld:
 		_gameWorld.AddDamageText(x, y, damage, damage_type)
 

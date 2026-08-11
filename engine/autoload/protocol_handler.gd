@@ -60,6 +60,7 @@ signal remove_char_dialog(char_index: int)
 signal remove_all_dialogs()
 
 signal fx_created(char_index: int, fx: int, loops: int)
+signal proyectil_received(attacker: int, target: int, grh_index: int)
 signal set_invisible(char_index: int, invisible: bool)
 signal update_tag_and_status(char_index: int, tag: String, nick_color: int)
 
@@ -733,7 +734,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 
 		Enums.ServerPacketID.Proyectil:
 			var _p = Proyectil.new(stream)
-			# TODO: Implement handling logic for Proyectil
+			proyectil_received.emit(_p.arg1, _p.arg2, _p.arg3)
 
 		Enums.ServerPacketID.PlayIsInChatMode:
 			var _p = PlayIsInChatMode.new(stream)

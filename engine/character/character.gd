@@ -25,6 +25,8 @@ var _originalNameLabelPosition:Vector2
 var _currentDialogText:String = ""
 var _currentDialogColor:Color
 var _isTypingDialog:bool = false
+# True mientras dura el temblor de impacto (evita que _ProcessShipFloating cancele el shake)
+var _is_hit_shaking:bool = false
 
 var instanceId:int
 var gridPosition:Vector2i
@@ -227,7 +229,8 @@ func _ProcessShipFloating(delta:float) -> void:
 	# Solo aplicar animación de flotación si estamos en una barca y no nos estamos moviendo
 	if !IsNavigating() or isMoving:
 		# Si no es una barca o se está moviendo, restaurar posición original
-		if renderer.position != _originalRendererPosition:
+		# (pero no pisotear el temblor de impacto mientras dura)
+		if renderer.position != _originalRendererPosition and not _is_hit_shaking:
 			renderer.position = _originalRendererPosition
 			_shipFloatTime = 0.0
 		return
@@ -265,7 +268,48 @@ func _on_animated_dialog_changed(animated: bool) -> void:
 		_dialogShadowLabel.text = _currentDialogText
 		_dialogClearTimer.start()
 
+# Clava una flecha en esta criatura (hijo del nodo, sigue al personaje).
+# flight_angle: rotacion visual que tenia la flecha en vuelo (para que la punta
+# apunte hacia adentro de la criatura). Se posiciona con un pequeño offset aleatorio.
+func attach_stuck_arrow(grh_id: int, flight_angle: float, base_angle: float) -> void:
+	var stuck = StuckArrow.new()
+	stuck.setup(grh_id, flight_angle, base_angle, true)
+	add_child(stuck)
+	# La flecha se clava en el torso: offset aleatorio en X, altura media del cuerpo
+	stuck.position = Vector2(randf_range(-8.0, 8.0), randf_range(-34.0, -18.0))
+	stuck.z_index = 1
+	stuck.z_as_relative = true
+
+func clear_stuck_arrows() -> void:
+	for child in get_children():
+		if child is StuckArrow:
+			child.queue_free()
+
+# Reaccion de impacto al recibir una flecha.
+# strong=true (acierto): temblor fuerte corto (±5px, ~0.2s).
+# strong=false (fallo/rasguño): temblor leve (±2px, ~0.1s).
+# No detiene el procesamiento (a diferencia de la muerte).
+func play_hit_reaction(strong: bool) -> void:
+	if strong:
+		_play_renderer_shake(0.2, 5.0, 0.02)
+	else:
+		_play_renderer_shake(0.1, 2.0, 0.02)
+
+func _play_renderer_shake(duration: float, amount: float, step: float) -> void:
+	if renderer == null or not is_instance_valid(renderer):
+		return
+	var base_x = renderer.position.x
+	_is_hit_shaking = true
+	var tween = create_tween()
+	var cycles = maxi(1, int(duration / (step * 2.0)))
+	for i in range(cycles):
+		tween.tween_property(renderer, "position:x", base_x + amount, step)
+		tween.tween_property(renderer, "position:x", base_x - amount, step)
+	tween.tween_property(renderer, "position:x", base_x, step)
+	tween.finished.connect(func(): _is_hit_shaking = false)
+
 func play_death_animation() -> void:
+	clear_stuck_arrows()
 	# Detener procesamiento y movimiento para que quede estático al morir
 	StopMoving()
 	set_process(false)

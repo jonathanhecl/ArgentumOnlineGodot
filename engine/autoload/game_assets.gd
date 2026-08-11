@@ -7,6 +7,12 @@ var _textureList = {}
 var _itemIconList = {}
 # Caché de GetMapInf: el .inf es estático y se lee repetido (Exportador + mapa del mundo).
 var _map_inf_cache: Dictionary = {}
+# Caché de texturas de GRH single-frame (para proyectiles/objetos dibujados en runtime).
+var _grh_texture_cache: Dictionary = {}
+# Caché de SpriteFrames construidos en runtime desde GrhData (proyectiles).
+var _grh_sprite_frames_cache: Dictionary = {}
+# Caché del ángulo base de una textura GRH (apunta la flecha hacia el objetivo).
+var _grh_pointing_angle_cache: Dictionary = {}
 
 
 var GrhDataList = []
@@ -106,7 +112,117 @@ func GetItemIcon(grhId: int) -> Texture2D:
 		
 	_itemIconList[grhId] = final_texture
 	return final_texture
+
+# Devuelve la textura (AtlasTexture) del PRIMER frame de un GrhData dado.
+# A diferencia de GetItemIcon no recorta transparencia: devuelve la región completa
+# (necesario para rotar flechas/proyectiles con pivote correcto).
+func GetGrhTexture(grhId:int) -> Texture2D:
+	if grhId <= 0:
+		return null
+	if _grh_texture_cache.has(grhId):
+		return _grh_texture_cache.get(grhId)
+	if grhId >= GrhDataList.size() or GrhDataList[grhId] == null:
+		return null
+		
+	var grh = GrhDataList[grhId]
+	var frame_grh_id = grh.frames[1] if grh.frameCount > 1 else grhId
+	if frame_grh_id >= GrhDataList.size() or GrhDataList[frame_grh_id] == null:
+		return null
+		
+	var frame_grh = GrhDataList[frame_grh_id]
+	var base_texture = GetTexture(frame_grh.fileId)
+	if not base_texture:
+		return null
+		
+	var atlas = AtlasTexture.new()
+	atlas.atlas = base_texture
+	atlas.region = frame_grh.region
+	_grh_texture_cache[grhId] = atlas
+	return atlas
+
+# Construye un SpriteFrames en runtime desde un GrhData (animación o frame único).
+# La velocidad de animación se deriva del campo speed del GRH (duración total en ms),
+# igual que el motor VB6: FrameDuration = Speed / NumFrames.
+func BuildSpriteFramesFromGrh(grhId:int) -> SpriteFrames:
+	if grhId <= 0:
+		return null
+	if _grh_sprite_frames_cache.has(grhId):
+		return _grh_sprite_frames_cache.get(grhId)
+	if grhId >= GrhDataList.size() or GrhDataList[grhId] == null:
+		return null
+		
+	var grh = GrhDataList[grhId]
+	var sprite_frames = SpriteFrames.new()
 	
+	if grh.frameCount > 1:
+		for i in range(1, grh.frameCount + 1):
+			var frame_grh_id = grh.frames[i]
+			if frame_grh_id >= GrhDataList.size() or GrhDataList[frame_grh_id] == null:
+				continue
+			var frame_grh = GrhDataList[frame_grh_id]
+			var base_texture = GetTexture(frame_grh.fileId)
+			if not base_texture:
+				continue
+			var atlas = AtlasTexture.new()
+			atlas.atlas = base_texture
+			atlas.region = frame_grh.region
+			sprite_frames.add_frame("default", atlas)
+		# FPS derivado de la duración total (ms) igual que VB6
+		if grh.speed > 0.0 and sprite_frames.get_frame_count("default") > 0:
+			var fps = 1000.0 * float(sprite_frames.get_frame_count("default")) / grh.speed
+			sprite_frames.set_animation_speed("default", clampf(fps, 1.0, 60.0))
+	else:
+		var texture = GetGrhTexture(grhId)
+		if not texture:
+			return null
+		sprite_frames.add_frame("default", texture)
+		
+	if sprite_frames.get_frame_count("default") == 0:
+		return null
+		
+	_grh_sprite_frames_cache[grhId] = sprite_frames
+	return sprite_frames
+
+# Calcula el ángulo (en radianes) hacia donde "apunta" la textura de un GRH:
+# desde el centro de masa de píxeles visibles hacia el píxel más lejano (la punta).
+# Se usa para orientar la flecha en vuelo hacia su trayectoria.
+func GetGrhPointingAngle(grhId:int) -> float:
+	if grhId <= 0:
+		return 0.0
+	if _grh_pointing_angle_cache.has(grhId):
+		return _grh_pointing_angle_cache.get(grhId)
+		
+	var texture = GetGrhTexture(grhId)
+	var angle = 0.0
+	if texture:
+		var img = texture.get_image()
+		if img:
+			var w = img.get_width()
+			var h = img.get_height()
+			var centroid := Vector2.ZERO
+			var count := 0
+			for x in w:
+				for y in h:
+					if img.get_pixel(x, y).a > 0.2:
+						centroid += Vector2(x, y)
+						count += 1
+			if count > 0:
+				centroid /= float(count)
+				# Píxel visible más lejano del centro de masa = la punta
+				var tip := centroid
+				var max_dist_sq := 0.0
+				for x in w:
+					for y in h:
+						if img.get_pixel(x, y).a > 0.2:
+							var dist_sq = Vector2(x, y).distance_squared_to(centroid)
+							if dist_sq > max_dist_sq:
+								max_dist_sq = dist_sq
+								tip = Vector2(x, y)
+				angle = (tip - centroid).angle()
+				
+	_grh_pointing_angle_cache[grhId] = angle
+	return angle
+
 func GetNickColor(id:int) -> Color:
 	return ColoresPJ[id]
 

@@ -382,7 +382,7 @@ func DeleteCharacter(instanceId:int) -> void:
 		var layer3 = _GetLayer("Layer3")
 		if layer3:
 			for child in layer3.get_children():
-				if child is SpellProjectile and child.is_flying():
+				if (child is SpellProjectile or child is ArrowProjectile) and child.is_flying():
 					var target_ref = child.get_target_ref()
 					if target_ref and target_ref.get_ref() == character:
 						has_incoming_projectile = true
@@ -390,7 +390,7 @@ func DeleteCharacter(instanceId:int) -> void:
 						
 		if not has_incoming_projectile:
 			for child in get_children():
-				if child is SpellProjectile and child.is_flying():
+				if (child is SpellProjectile or child is ArrowProjectile) and child.is_flying():
 					var target_ref = child.get_target_ref()
 					if target_ref and target_ref.get_ref() == character:
 						has_incoming_projectile = true

@@ -11,7 +11,7 @@ const BORDER_PX := 10
 const INNER_SIZE := MAP_TILE_SIZE - 2 * BORDER_PX
 const THUMB_PATH := "res://Assets/minimap_thumbnails/%d.bmp"
 
-const DIR_OFFSET := {
+const DIR_OFFSET: Dictionary[String, Vector2i] = {
 	"N": Vector2i(0, -1),
 	"S": Vector2i(0, 1),
 	"E": Vector2i(1, 0),
