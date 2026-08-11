@@ -239,6 +239,8 @@ func _on_character_selected(character_name: String) -> void:
 	"""Cuando se selecciona un personaje para jugar"""
 	print("Jugando con personaje: ", character_name)
 	
+	Global.character_name = character_name
+	
 	# Enviar al servidor que queremos jugar con este personaje
 	GameProtocol.WriteLoginExistingCharacter(character_name, _loginPanel.GetPassword())
 	_Flush()
@@ -262,6 +264,7 @@ func _on_logout_requested() -> void:
 	Global.session_port = 0
 	Global.session_username = ""
 	Global.session_password = ""
+	Global.character_name = ""
 	
 	# Desconectar del servidor
 	ClientInterface.DisconnectFromHost()

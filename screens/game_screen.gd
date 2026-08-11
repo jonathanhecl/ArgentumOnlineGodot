@@ -162,6 +162,10 @@ func _on_account_logged(account_name: String, _account_hash: String, characters:
 func _return_to_character_selection(account_name: String = Global.account_name, characters: Array = Global.account_characters) -> void:
 	print("[GameScreen] Volviendo a selección de personajes...")
 	
+	# Al volver a la selección se deja de estar jugando con el personaje actual:
+	# se limpia para que el siguiente personaje seleccionado tenga su propio registro.
+	Global.character_name = ""
+	
 	# Desconectar señales
 	if ClientInterface.disconnected.is_connected(_OnDisconnected):
 		ClientInterface.disconnected.disconnect(_OnDisconnected)

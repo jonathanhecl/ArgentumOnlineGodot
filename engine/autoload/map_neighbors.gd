@@ -44,6 +44,10 @@ func get_neighbor(map_id: int, direction: String) -> int:
 	var info := get_neighbor_info(map_id, direction)
 	return int(info.get("id", 0))
 
+# Devuelve todos los ids de mapas con conexiones conocidas (seed + runtime).
+func get_all_map_ids() -> Array:
+	return _connections.keys()
+
 # Devuelve {"id": int, "dx": int, "dy": int} con el offset del vecino (en tiles) o
 # diccionario vacío si no se conoce. El offset por defecto se aplica aquí si sólo se
 # guardó el id (formato legacy).

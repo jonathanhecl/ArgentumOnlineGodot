@@ -515,6 +515,7 @@ func _on_connect_pressed() -> void:
 		if not char_name.is_empty():
 			# Guardar el nombre del personaje
 			Global.username = char_name
+			Global.character_name = char_name
 			
 			# Conectar para recibir respuesta del servidor
 			if not ClientInterface.dataReceived.is_connected(_on_data_received):
@@ -582,6 +583,7 @@ func _on_delete_pressed() -> void:
 func _on_logout_pressed() -> void:
 	Global.account_name = ""
 	Global.account_hash = ""
+	Global.character_name = ""
 	# Limpiar caché de sesión al cerrar sesión explícitamente
 	Global.session_host = ""
 	Global.session_port = 0

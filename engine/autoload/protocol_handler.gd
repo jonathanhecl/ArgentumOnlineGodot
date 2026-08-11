@@ -285,6 +285,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		Enums.ServerPacketID.ChangeMap:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
+			Global.mark_map_visited(p.mapId)
 			print("--------------------------------------------------")
 			print("🗺️ [REVELACIÓN DE DESTINO] ¡EL MAPA HA SIDO ENTREGADO!")
 			print("🗺️ ID Mapa: ", p.mapId)

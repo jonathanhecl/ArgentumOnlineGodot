@@ -5,6 +5,8 @@ const MAGIC_VERSION = 10
 
 var _textureList = {}
 var _itemIconList = {}
+# Caché de GetMapInf: el .inf es estático y se lee repetido (Exportador + mapa del mundo).
+var _map_inf_cache: Dictionary = {}
 
 
 var GrhDataList = []
@@ -185,11 +187,15 @@ func GetMap(fileId:int) -> MapData:
 #     if flags & 0x2: 1 × Integer        -> NpcIndex
 #     if flags & 0x4: 2 × Integer        -> ObjIndex, Amount
 func GetMapInf(fileId: int) -> Array:
+	if _map_inf_cache.has(fileId):
+		return _map_inf_cache[fileId]
 	var path := "res://Assets/Maps/Mapa%d.Inf" % fileId
 	if not FileAccess.file_exists(path):
+		_map_inf_cache[fileId] = []
 		return []
 	var bytes := FileAccess.get_file_as_bytes(path)
 	if bytes.size() < 10:
+		_map_inf_cache[fileId] = []
 		return []
 	var stream := StreamPeerBuffer.new()
 	stream.data_array = bytes
@@ -198,6 +204,7 @@ func GetMapInf(fileId: int) -> Array:
 	for y in range(1, 101):
 		for x in range(1, 101):
 			if stream.get_position() >= bytes.size():
+				_map_inf_cache[fileId] = exits
 				return exits
 			var flags := stream.get_u8()
 			if flags & 0x1:
@@ -216,6 +223,7 @@ func GetMapInf(fileId: int) -> Array:
 			if flags & 0x4:
 				stream.get_16() # ObjIndex
 				stream.get_16() # Amount
+	_map_inf_cache[fileId] = exits
 	return exits
 
 func _LoadColours() -> void:

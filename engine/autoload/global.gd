@@ -11,6 +11,10 @@ var account_name:String = ""
 var account_hash:String = ""
 var account_characters: Array[Dictionary] = []
 
+# Nombre del personaje actualmente en juego (solo sesión). Se rellena al
+# seleccionar/crear un personaje y se limpia al volver a la selección/logout.
+var character_name:String = ""
+
 # Caché en memoria (solo sesión) para reconexión automática al volver a la
 # selección de personajes desde el juego. No se persiste a disco.
 var session_host:String = ""
@@ -138,6 +142,11 @@ var nameFontSize:int:
 # Velocidad de diálogo para texto animado
 const DIALOG_TYPING_SPEED:float = 0.025
 
+# Mapas visitados por personaje: { account_key + "/" + character_key: { map_id: true } }.
+# Cada personaje (de cada cuenta) tiene su propio registro; no se comparten.
+const VISITED_SAVE_PATH := "user://visited_maps.json"
+var _visited_maps: Dictionary = {}
+
 func get_timestamp() -> String:
 	var time = Time.get_time_dict_from_system()
 	return " [%02d:%02d:%02d]" % [time.hour, time.minute, time.second]
@@ -196,6 +205,8 @@ func _ready() -> void:
 		# Cargar intensidad de niebla periférica
 		var saved_peripheral_fog = cfg.get_value("ui", "peripheral_fog_intensity", peripheralFogIntensity)
 		peripheralFogIntensity = float(saved_peripheral_fog)
+	
+	_load_visited_maps()
 
 func save_animated_dialog() -> void:
 	var cfg = ConfigFile.new()
@@ -203,3 +214,42 @@ func save_animated_dialog() -> void:
 	cfg.load(cfg_path)
 	cfg.set_value("ui", "animated_dialog", _animatedDialog)
 	cfg.save(cfg_path)
+
+func _visited_key() -> String:
+	var account_key := account_name if account_name != "" else "default"
+	var character_key := character_name if character_name != "" else "default"
+	return account_key + "/" + character_key
+
+func is_map_visited(map_id: int) -> bool:
+	if map_id <= 0:
+		return false
+	return bool(_visited_maps.get(_visited_key(), {}).get(map_id, false))
+
+func mark_map_visited(map_id: int) -> bool:
+	if map_id <= 0:
+		return false
+	var key := _visited_key()
+	var set_map: Dictionary = _visited_maps.get(key, {})
+	if set_map.has(map_id):
+		return false
+	set_map[map_id] = true
+	_visited_maps[key] = set_map
+	save_visited_maps()
+	return true
+
+func _load_visited_maps() -> void:
+	if not FileAccess.file_exists(VISITED_SAVE_PATH):
+		return
+	var txt := FileAccess.get_file_as_string(VISITED_SAVE_PATH)
+	if txt.is_empty():
+		return
+	var data: Variant = JSON.parse_string(txt)
+	if typeof(data) == TYPE_DICTIONARY:
+		_visited_maps = data
+
+func save_visited_maps() -> void:
+	var file := FileAccess.open(VISITED_SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("Global: no se pudo abrir %s para escritura" % VISITED_SAVE_PATH)
+		return
+	file.store_string(JSON.stringify(_visited_maps))

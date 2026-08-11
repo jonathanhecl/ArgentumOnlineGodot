@@ -330,6 +330,7 @@ func _ExportMapAdjacency() -> void:
 		connections[a_id] = dirs
 
 	_WriteAdjacencyJson(connections)
+	_ExportMapTransitions()
 
 	var cardinal_count := 0
 	for id in cardinals.keys():
@@ -508,6 +509,32 @@ func _WriteAdjacencyJson(connections: Dictionary) -> void:
 		return
 	file.store_string(JSON.stringify(out, "  "))
 	print("🧭 Exportador: adyacencia escrita en %s" % ADJACENCY_OUTPUT_PATH)
+
+# Dump fiel de TODOS los TileExit mapa->mapa (incluidos portales interiores que el
+# análisis geográfico descarta). Formato: { "from": [to_id, ...] } dirigido y sin duplicar.
+const TRANSITIONS_OUTPUT_PATH: String = "res://Assets/Init/map_transitions.json"
+
+func _ExportMapTransitions() -> void:
+	var out: Dictionary = {}
+	for raw_a in _map_exits.keys():
+		var a_id := int(raw_a)
+		var targets: Dictionary = {}
+		for exit in _map_exits[a_id]:
+			var to_id := int(exit["dest_map"])
+			if to_id <= 0 or to_id == a_id:
+				continue
+			targets[to_id] = true
+		if not targets.is_empty():
+			var sorted_targets: Array = targets.keys()
+			sorted_targets.sort()
+			out[str(a_id)] = sorted_targets
+	_ensure_directory_exists(TRANSITIONS_OUTPUT_PATH.get_base_dir())
+	var file := FileAccess.open(TRANSITIONS_OUTPUT_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("Exportador: no se pudo escribir %s" % TRANSITIONS_OUTPUT_PATH)
+		return
+	file.store_string(JSON.stringify(out, "  "))
+	print("🧭 Exportador: %d mapas con teletransportes escritos en %s" % [out.size(), TRANSITIONS_OUTPUT_PATH])
 
 # --- Fin inferencia de adyacencia ---
 

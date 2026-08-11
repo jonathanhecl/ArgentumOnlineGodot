@@ -442,6 +442,10 @@ func _HandleLogged(data: PackedByteArray) -> void:
 	# Pasar los datos a ProtocolHandler para que los procese normalmente
 	ProtocolHandler._handle_incoming_data(data)
 	
+	# El personaje recién creado entra al juego: fijar su nombre para el
+	# registro individual de mapas visitados.
+	Global.character_name = _characterNameEdit.text.strip_edges()
+	
 	var screen = load("uid://b2dyxo3826bub").instantiate() as GameScreen
 	ScreenController.SwitchScreen(screen)
 	ClientInterface.dataReceived.disconnect(_OnDataReceived)

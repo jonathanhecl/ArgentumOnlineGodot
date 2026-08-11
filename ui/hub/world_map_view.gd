@@ -31,18 +31,24 @@ const COLOR_PLAYER_DOT := Color(1, 0.15, 0.15, 1)
 const COLOR_MAP_ID := Color(1, 1, 1, 0.9)
 const COLOR_MAP_ID_CURRENT := Color(0.2, 1, 0.2, 1)
 const COLOR_ID_SHADOW := Color(0, 0, 0, 0.85)
+# Los mapas no visitados se muestran oscurecidos (multiplica la miniatura) pero visibles.
+const COLOR_UNVISITED := Color(0.28, 0.28, 0.28, 1)
+# Teletransportes (TileExit): líneas con flecha hacia el destino, por encima de los mapas.
+const COLOR_TELEPORT := Color(1.0, 0.35, 0.8, 0.85)
+const TRANSITIONS_PATH := "res://Assets/Init/map_transitions.json"
 
 const MIN_ZOOM := 0.15
 const MAX_ZOOM := 3.0
 const ZOOM_STEP := 1.1
-# Radio de expansión (en saltos) desde el mapa del jugador: muestra las continuaciones
-# cercanas en vez de recorrer todo el componente conexo, que al centrar dejaba el mapa
-# del jugador en una esquina rodeado de mapas lejanos.
-const MAX_BFS_HOPS := 2
+# El mapa del mundo muestra TODOS los mapas del grafo (sin límite de saltos).
 
 var _grid: Dictionary = {}
 var _ordered_maps: Array[int] = []
 var _edges: Array = []
+var _teleport_links: Array = []
+var _geo_pairs: Dictionary = {}
+var _transition_seed: Dictionary = {}
+var _transition_seed_loaded := false
 var _current_map_id := 0
 var _player_tile := Vector2i(1, 1)
 var _hovered_map_id := 0
@@ -68,6 +74,8 @@ func clear_map() -> void:
 	_grid.clear()
 	_ordered_maps.clear()
 	_edges.clear()
+	_teleport_links.clear()
+	_geo_pairs.clear()
 	_current_map_id = 0
 	queue_redraw()
 
@@ -98,20 +106,55 @@ func _build_layout(center_map: int) -> void:
 	_grid.clear()
 	_ordered_maps.clear()
 	_edges.clear()
-	if center_map <= 0:
+	_teleport_links.clear()
+	_geo_pairs.clear()
+	_load_transition_seed()
+	var all_ids := MapNeighbors.get_all_map_ids()
+	# Mapas que sólo existen vía teletransporte (mazmorras/interiores): incluirlos en el
+	# layout para que sus uniones se vean, aunque no tengan adyacencia geográfica.
+	for raw_mid in _get_transition_map_ids():
+		var mid := int(raw_mid)
+		if not all_ids.has(mid):
+			all_ids.append(mid)
+	if all_ids.is_empty():
 		return
 	var edge_keys := {}
-	var hops := {center_map: 0}
-	_grid[center_map] = Vector2i.ZERO
-	_ordered_maps.append(center_map)
+	# BFS sin límite de saltos sobre todo el grafo: muestra el mundo completo.
+	var start := center_map if all_ids.has(center_map) else int(all_ids[0])
+	_bfs_layout(start, Vector2i.ZERO, edge_keys)
+	# Componentes desconectados (poco comunes): colocarlos debajo de lo ya ubicado.
+	for raw_id in all_ids:
+		var map_id := int(raw_id)
+		if _grid.has(map_id):
+			continue
+		var min_cell := _content_min_cell()
+		var max_cell := _content_max_cell()
+		_bfs_layout(map_id, Vector2i(min_cell.x, max_cell.y + 2), edge_keys)
+	# Pares geográficos (caminables): los teletransportes excluyen estas uniones.
+	for edge in _edges:
+		var key := "%d_%d" % [mini(int(edge["a"]), int(edge["b"])), maxi(int(edge["a"]), int(edge["b"]))]
+		_geo_pairs[key] = true
+	_build_teleport_links()
+
+# Mapas que aparecen como origen o destino en los teletransportes del seed del export.
+func _get_transition_map_ids() -> Array:
+	var ids := {}
+	for raw_key in _transition_seed:
+		ids[int(raw_key)] = true
+		for t in _transition_seed[raw_key]:
+			ids[int(t)] = true
+	return ids.keys()
+
+func _bfs_layout(seed_id: int, seed_cell: Vector2i, edge_keys: Dictionary) -> void:
+	if seed_id <= 0 or _grid.has(seed_id):
+		return
+	_grid[seed_id] = seed_cell
+	_ordered_maps.append(seed_id)
 	var head := 0
 	while head < _ordered_maps.size():
 		var map_id: int = _ordered_maps[head]
 		head += 1
 		var cell: Vector2i = _grid[map_id]
-		var hop: int = hops[map_id]
-		if hop >= MAX_BFS_HOPS:
-			continue
 		for dir in MapNeighbors.ALL_DIRS:
 			var info := MapNeighbors.get_neighbor_info(map_id, dir)
 			var nid := int(info.get("id", 0))
@@ -123,8 +166,71 @@ func _build_layout(center_map: int) -> void:
 				_edges.append({"a": map_id, "b": nid})
 			if not _grid.has(nid):
 				_grid[nid] = cell + DIR_OFFSET[dir]
-				hops[nid] = hop + 1
 				_ordered_maps.append(nid)
+
+func _content_min_cell() -> Vector2i:
+	var min_cell := Vector2i(0, 0)
+	for map_id in _ordered_maps:
+		var cell: Vector2i = _grid[map_id]
+		min_cell.x = mini(min_cell.x, cell.x)
+		min_cell.y = mini(min_cell.y, cell.y)
+	return min_cell
+
+func _content_max_cell() -> Vector2i:
+	var max_cell := Vector2i(0, 0)
+	for map_id in _ordered_maps:
+		var cell: Vector2i = _grid[map_id]
+		max_cell.x = maxi(max_cell.x, cell.x)
+		max_cell.y = maxi(max_cell.y, cell.y)
+	return max_cell
+
+# Seed fiel de teletransportes generado por el Exportador (map_transitions.json).
+func _load_transition_seed() -> void:
+	if _transition_seed_loaded:
+		return
+	_transition_seed_loaded = true
+	if not ResourceLoader.exists(TRANSITIONS_PATH):
+		return
+	var txt := FileAccess.get_file_as_string(TRANSITIONS_PATH)
+	if txt.is_empty():
+		return
+	var data: Variant = JSON.parse_string(txt)
+	if typeof(data) == TYPE_DICTIONARY:
+		_transition_seed = data
+
+# Teletransportes mapa->mapa: combina el seed del export con la lectura en tiempo real
+# de los .inf (GameAssets.GetMapInf). Excluye uniones geográficas (ya dibujadas).
+func _build_teleport_links() -> void:
+	_teleport_links.clear()
+	_load_transition_seed()
+	var seen := {}
+	for map_id in _ordered_maps:
+		if not _grid.has(map_id):
+			continue
+		var targets := {}
+		if _transition_seed.has(str(map_id)):
+			for t in _transition_seed[str(map_id)]:
+				targets[int(t)] = true
+		for exit_info in GameAssets.GetMapInf(map_id):
+			var to_id := int(exit_info["dest_map"])
+			if to_id > 0:
+				targets[to_id] = true
+		for to_id in targets:
+			if to_id == map_id or not _grid.has(to_id):
+				continue
+			var a := mini(map_id, to_id)
+			var b := maxi(map_id, to_id)
+			var key := "%d_%d" % [a, b]
+			if _geo_pairs.has(key):
+				continue
+			if not seen.has(key):
+				seen[key] = {"a": a, "b": b, "a_to_b": false, "b_to_a": false}
+			if map_id == a and to_id == b:
+				seen[key]["a_to_b"] = true
+			else:
+				seen[key]["b_to_a"] = true
+	for key in seen:
+		_teleport_links.append(seen[key])
 
 func _fit_to_content() -> void:
 	if _ordered_maps.is_empty():
@@ -176,16 +282,33 @@ func _get_thumbnail_region(texture: Texture2D) -> Rect2:
 func _draw() -> void:
 	if _ordered_maps.is_empty():
 		return
+	# Miniaturas primero (fondo).
+	for map_id in _ordered_maps:
+		var rect := _get_map_rect(map_id)
+		var tex := _get_texture(map_id)
+		if tex:
+			var tint := Color.WHITE if Global.is_map_visited(map_id) else COLOR_UNVISITED
+			draw_texture_rect_region(tex, rect, _get_thumbnail_region(tex), tint)
+	# Uniones geográficas (fronteras caminables), por encima de los mapas.
 	for edge in _edges:
 		var a := _get_map_rect(int(edge["a"]))
 		var b := _get_map_rect(int(edge["b"]))
 		var is_current := int(edge["a"]) == _current_map_id or int(edge["b"]) == _current_map_id
 		draw_line(a.get_center(), b.get_center(), COLOR_EDGE_CURRENT if is_current else COLOR_EDGE, 1.5 if is_current else 1.0)
+	# Teletransportes (TileExit): flecha hacia el destino, siempre por encima de los mapas.
+	var tp_width := maxf(1.5, 2.0 * _zoom)
+	for link in _teleport_links:
+		var ca := _get_map_rect(int(link["a"])).get_center()
+		var cb := _get_map_rect(int(link["b"])).get_center()
+		if bool(link["a_to_b"]) and bool(link["b_to_a"]):
+			draw_line(ca, cb, COLOR_TELEPORT, tp_width)
+		elif bool(link["a_to_b"]):
+			_draw_arrow(ca, cb, COLOR_TELEPORT, tp_width)
+		else:
+			_draw_arrow(cb, ca, COLOR_TELEPORT, tp_width)
+	# Bordes e ids encima de las líneas.
 	for map_id in _ordered_maps:
 		var rect := _get_map_rect(map_id)
-		var tex := _get_texture(map_id)
-		if tex:
-			draw_texture_rect_region(tex, rect, _get_thumbnail_region(tex))
 		draw_rect(rect, COLOR_MAP_BORDER, false, 1.0)
 		_draw_map_id(map_id, rect, map_id == _current_map_id)
 	if _grid.has(_current_map_id):
@@ -194,6 +317,19 @@ func _draw() -> void:
 		_draw_player_dot(current_rect)
 	if _grid.has(_hovered_map_id):
 		draw_rect(_get_map_rect(_hovered_map_id), COLOR_HOVER_BORDER, false, 2.0)
+
+func _draw_arrow(from: Vector2, to: Vector2, color: Color, width: float) -> void:
+	draw_line(from, to, color, width)
+	var dir := to - from
+	var length := dir.length()
+	if length < 10.0:
+		return
+	var unit := dir / length
+	var head_size := maxf(7.0, width * 4.0)
+	var base := to - unit * head_size
+	var perp := Vector2(-unit.y, unit.x)
+	draw_line(to, base + perp * head_size * 0.55, color, width)
+	draw_line(to, base - perp * head_size * 0.55, color, width)
 
 func _draw_map_id(map_id: int, rect: Rect2, is_current: bool) -> void:
 	if rect.size.x < 12 or rect.size.y < 12:
