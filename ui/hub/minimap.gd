@@ -5,6 +5,10 @@ signal click(mouse_position:Vector2)
 signal player_tile_changed(new_tile: Vector2i)
 
 const MAP_TILE_SIZE := 100
+# Las miniaturas .bmp traen ~10 px de contenido del mapa contiguo en cada borde;
+# se recorta y escala el interior para que la unión entre mapas no se vea extraña.
+const BORDER_PX := 10
+const INNER_SIZE := MAP_TILE_SIZE - 2 * BORDER_PX
 const DOT_SIZE := 5.0
 const DEFAULT_ALPHA := 0.3
 const HOVER_ALPHA := 1.0
@@ -50,13 +54,13 @@ func _update_info_label_text() -> void:
 		_info_label.text = "Mapa %d (%d, %d)" % [_current_map_id, _player_tile_x, _player_tile_y]
 
 func _update_player_dot_position() -> void:
-	var tx = clampi(_player_tile_x, 1, MAP_TILE_SIZE)
-	var ty = clampi(_player_tile_y, 1, MAP_TILE_SIZE)
+	# El recorte muestra los tiles [BORDER_PX+1, MAP_TILE_SIZE-BORDER_PX]; los tiles del
+	# borde quedan fuera del área visible y se anclan al extremo correspondiente.
+	var tx = clampi(_player_tile_x, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
+	var ty = clampi(_player_tile_y, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
 
-	# Usar el tamaño del control para el mapeo (la textura se estira a este tamaño)
-	# Tile (1,1) -> Pixel (0,0), Tile (100,100) -> Pixel (size.x, size.y)
-	var px = (float(tx - 1) / float(MAP_TILE_SIZE - 1)) * size.x
-	var py = (float(ty - 1) / float(MAP_TILE_SIZE - 1)) * size.y
+	var px = (float(tx - (BORDER_PX + 1)) / float(INNER_SIZE - 1)) * size.x
+	var py = (float(ty - (BORDER_PX + 1)) / float(INNER_SIZE - 1)) * size.y
 	_player_dot_position = Vector2(px, py)
 
 func load_thumbnail(map_id:int) -> void:
@@ -88,9 +92,9 @@ func _crop_thumbnail(source: Texture2D) -> Texture2D:
 	if source == null:
 		return null
 	var source_size := Vector2i(source.get_size())
-	if source_size.x <= MAP_TILE_SIZE or source_size.y <= MAP_TILE_SIZE:
+	if source_size.x <= INNER_SIZE or source_size.y <= INNER_SIZE:
 		return source
-	var crop_size := Vector2i(MAP_TILE_SIZE, MAP_TILE_SIZE)
+	var crop_size := Vector2i(INNER_SIZE, INNER_SIZE)
 	var region := Rect2i((source_size - crop_size) / 2, crop_size)
 	var cropped := AtlasTexture.new()
 	cropped.atlas = source
@@ -138,4 +142,7 @@ func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var button_event := event as InputEventMouseButton
 		if button_event.pressed and button_event.button_index == MOUSE_BUTTON_LEFT:
-			click.emit(button_event.position.ceil())
+			# Convertir el clic a tiles visibles del mapa (interior recortado)
+			var tile_x := BORDER_PX + 1 + int(button_event.position.x / size.x * float(INNER_SIZE - 1))
+			var tile_y := BORDER_PX + 1 + int(button_event.position.y / size.y * float(INNER_SIZE - 1))
+			click.emit(Vector2(tile_x, tile_y))

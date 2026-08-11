@@ -4,6 +4,11 @@ class_name WorldMapView
 signal close_requested
 
 const MAP_PX := 100.0
+const MAP_TILE_SIZE := 100
+# Las miniaturas .bmp traen ~10 px de contenido del mapa contiguo en cada borde;
+# se recorta y escala el interior para que la unión entre mapas no se vea extraña.
+const BORDER_PX := 10
+const INNER_SIZE := MAP_TILE_SIZE - 2 * BORDER_PX
 const THUMB_PATH := "res://Assets/minimap_thumbnails/%d.bmp"
 
 const DIR_OFFSET := {
@@ -162,7 +167,7 @@ func _get_texture(map_id: int) -> Texture2D:
 
 func _get_thumbnail_region(texture: Texture2D) -> Rect2:
 	var source_size := Vector2i(texture.get_size())
-	var crop_size := Vector2i(int(MAP_PX), int(MAP_PX))
+	var crop_size := Vector2i(INNER_SIZE, INNER_SIZE)
 	if source_size.x <= crop_size.x or source_size.y <= crop_size.y:
 		return Rect2(Vector2.ZERO, texture.get_size())
 	var origin := (source_size - crop_size) / 2
@@ -199,8 +204,10 @@ func _draw_map_id(map_id: int, rect: Rect2, is_current: bool) -> void:
 	draw_string(ThemeDB.fallback_font, pos, str(map_id), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, COLOR_MAP_ID_CURRENT if is_current else COLOR_MAP_ID)
 
 func _draw_player_dot(rect: Rect2) -> void:
-	var tile_f := Vector2(maxi(_player_tile.x, 1) - 1, maxi(_player_tile.y, 1) - 1)
-	var center := rect.position + tile_f * (rect.size / 100.0)
+	var tx := clampi(_player_tile.x, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
+	var ty := clampi(_player_tile.y, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
+	var tile_f := Vector2(float(tx - (BORDER_PX + 1)), float(ty - (BORDER_PX + 1)))
+	var center := rect.position + tile_f * (rect.size / float(INNER_SIZE - 1))
 	draw_circle(center, maxf(3.0, 3.0 * _zoom), COLOR_PLAYER_DOT)
 	draw_arc(center, maxf(6.0, 6.0 * _zoom), 0, TAU, 24, COLOR_PLAYER_DOT, 1.5)
 
