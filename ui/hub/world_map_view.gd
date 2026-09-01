@@ -38,6 +38,7 @@ const COLOR_TELEPORT := Color(0.35, 0.78, 0.9, 0.18)
 const TRANSITIONS_PATH := "res://Assets/Init/map_transitions.json"
 # Banda (en tiles) para considerar que un TileExit está sobre un borde del mapa.
 const PASSAGE_BORDER_BAND := 16
+const MIN_PASSAGE_EXITS := 5
 
 const MIN_ZOOM := 0.15
 const MAX_ZOOM := 3.0
@@ -138,8 +139,8 @@ func _build_layout(center_map: int) -> void:
 	_place_disconnected_grid(all_ids)
 
 # Clasifica cada par (mapa, destino) por la geometría de sus TileExit:
-# - Paso de mapa: >=3 exits formando una línea sobre un borde -> adyacencia geográfica.
-# - Teletransporte: pocos exits (1-2) o no alineados con un borde -> línea celeste de puntos.
+# - Paso de mapa: >=5 exits formando una línea sobre un borde -> adyacencia geográfica.
+# - Teletransporte: pocos exits (1-4) o no alineados con un borde -> línea celeste de puntos.
 func _build_connections(all_ids: Array) -> void:
 	# Base: adyacencia geográfica conocida (seed del export + runtime por caminar).
 	for raw_map in all_ids:
@@ -147,7 +148,7 @@ func _build_connections(all_ids: Array) -> void:
 		for dir in MapNeighbors.ALL_DIRS:
 			var info := MapNeighbors.get_neighbor_info(map_id, dir)
 			var nid := int(info.get("id", 0))
-			if nid > 0 and nid != map_id:
+			if nid > 0 and nid != map_id and _has_geographic_evidence(map_id, nid):
 				_add_geo_neighbor(map_id, nid, dir)
 	# Clasificar los TileExit reales de cada mapa.
 	var seen_tp := {}
@@ -189,7 +190,17 @@ func _build_connections(all_ids: Array) -> void:
 			continue
 		_teleport_links.append(l)
 
-# Un paso de mapa es una línea de exits sobre un borde (>=3, mayoría en un mismo borde).
+func _has_geographic_evidence(from_map: int, to_map: int) -> bool:
+	return _has_geographic_exits(from_map, to_map) or _has_geographic_exits(to_map, from_map)
+
+func _has_geographic_exits(from_map: int, to_map: int) -> bool:
+	var exits_to_target: Array = []
+	for exit_info in GameAssets.GetMapInf(from_map):
+		if int(exit_info["dest_map"]) == to_map:
+			exits_to_target.append(exit_info)
+	return not exits_to_target.is_empty() and _passage_direction(exits_to_target) != ""
+
+# Un paso de mapa es una línea de exits sobre un borde (>=5, mayoría en un mismo borde).
 func _passage_direction(exits: Array) -> String:
 	var east := 0
 	var west := 0
@@ -210,7 +221,7 @@ func _passage_direction(exits: Array) -> String:
 			south += 1
 		if y <= PASSAGE_BORDER_BAND and dest_y >= 101 - PASSAGE_BORDER_BAND:
 			north += 1
-	var threshold := maxi(3, int(ceil(float(exits.size()) * 0.5)))
+	var threshold := maxi(MIN_PASSAGE_EXITS, int(ceil(float(exits.size()) * 0.5)))
 	if east >= threshold:
 		return "E"
 	if west >= threshold:

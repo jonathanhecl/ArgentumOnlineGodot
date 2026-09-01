@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Los portales internos de dungeon no son adyacencias geográficas
+- **Context:** Clasificación de enlaces de `MapNeighbors` en `ui/hub/world_map_view.gd` y generación de `Assets/Init/map_neighbors.json`.
+- **Problem:** La cadena de mapas `264–268` aparecía pegada al mundo como si fueran mapas contiguos, aunque `264.Inf` sólo contiene un portal interno con 4 exits hacia `265`.
+- **Root cause:** El exportador y el visor aceptaban grupos pequeños de exits alineados cerca de bordes como cruces cardinales; además, el visor confiaba en enlaces antiguos de `map_neighbors.json` sin validarlos contra los `.Inf` actuales.
+- **Fix:** Los cruces geográficos requieren al menos 5 exits consistentes y salida/llegada por bordes opuestos. El visor valida también los enlaces del seed con esa evidencia; los portales internos se conservan como teletransportes.
+- **Rule:** No tratar una coordenada cercana a un borde como prueba suficiente de continuidad; validar cantidad de exits, orientación y borde opuesto antes de colocar mapas juntos.
+
 ### 2026-08-31 — Priorizar adyacencias cardinales en el layout del mapa mundial
 - **Context:** Distribución de miniaturas contiguas en `ui/hub/world_map_view.gd`.
 - **Problem:** Algunos mapas geográficamente contiguos aparecían separados porque una diagonal ocupaba primero una celda y la resolución de colisiones desplazaba después al vecino cardinal.

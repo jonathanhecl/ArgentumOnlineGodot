@@ -9,6 +9,7 @@ const ADJACENCY_BORDER_DIST: int = 15
 # Banda más amplia para DETECTAR candidatos: algunos cruces reales caen justo fuera de la
 # banda estricta (p.ej. dest_x = 85 con ADJACENCY_BORDER_DIST = 15 exige 86) y se perdían.
 const ADJACENCY_CANDIDATE_BAND: int = ADJACENCY_BORDER_DIST + 1
+const MIN_PASSAGE_EXITS: int = 5
 const ADJACENCY_OUTPUT_PATH: String = "res://Assets/Init/map_neighbors.json"
 
 # Exits recopilados durante _ExportMap desde los archivos .inf:
@@ -227,6 +228,7 @@ func _ExportMapAdjacency() -> void:
 	# Por cada mapa y dirección, acumulamos: dest_map -> Array[Vector2i(dx, dy)]
 	# cardinals_raw[map_id][dir][dest_map] = [Vector2i(dx, dy), ...]
 	# Un exit en esquina puede votar por dos direcciones (candidatos); la mayoría decide.
+	# Un cruce válido debe reunir al menos MIN_PASSAGE_EXITS exits consistentes.
 	var cardinals_raw: Dictionary = {}
 	for id in map_ids:
 		cardinals_raw[id] = {"N": {}, "S": {}, "E": {}, "W": {}}
@@ -270,7 +272,7 @@ func _ExportMapAdjacency() -> void:
 					best_votes = votes
 			# Un cruce geográfico necesita una línea de exits, no un portal aislado.
 			# Los dungeons suelen tener 1-2 exits cerca de un borde por casualidad.
-			if best_votes < 3:
+			if best_votes < MIN_PASSAGE_EXITS:
 				continue
 			if by_dest.size() > 1:
 				conflict_count += 1
