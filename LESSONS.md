@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — 65, 66 y 78 no tienen Inf propio; los pasos se prueban desde el mapa vecino
+- **Context:** Auditoría de continuidad del continente en `Assets/Init/map_neighbors.json` y `Assets/Maps/Mapa*.Inf`.
+- **Problem:** Parecía faltar un paso debajo de `78` y el mapa `66` parecía tener que estar encima de `65`.
+- **Root cause:** `Mapa65.Inf`, `Mapa66.Inf` y `Mapa78.Inf` no existen. La continuidad sólo puede demostrarse desde mapas vecinos: `34→78` tiene 80 exits normales y `58→65` tiene 69; `66` aparece como destino de TP, pero no como destino de un paso normal.
+- **Fix:** Se verificaron las entradas inversas del seed y los exits reales de los mapas vecinos; no se inventó `66→65` ni una salida inferior de `78` sin evidencia del servidor.
+- **Rule:** La ausencia de `.Inf` no prueba que un mapa sea aislado, pero tampoco permite inventar salidas: revisar siempre exits de todos los vecinos y el inventario de transiciones antes de editar la topología.
+
+### 2026-08-31 — Regenerar completamente el seed antes de validar el mapa mundial
+- **Context:** Exportación de adyacencias y layout del mapa mundial.
+- **Problem:** El mapa mundial seguía mostrando componentes muy separados y dungeons mezclados aunque el criterio del Exportador ya estuviera corregido.
+- **Root cause:** La exportación de mapas se había interrumpido antes de llegar a `_ExportMapAdjacency()`, por lo que `map_neighbors.json` conservaba enlaces antiguos; además, el archivo local podía volver a aportar datos obsoletos.
+- **Fix:** Se dejó terminar la exportación completa y se verificó que el seed ya no contiene la cadena falsa `264–268`; el visor valida esos enlaces contra los `.Inf` y los mantiene como TPs.
+- **Rule:** Nunca validar el layout usando un seed parcialmente regenerado; esperar siempre a que finalice explícitamente la fase de adyacencias.
+
 ### 2026-08-31 — El mapa 1 ancla el continente y los dungeons son componentes separados
 - **Context:** Construcción del layout completo del mapa mundial en `ui/hub/world_map_view.gd`.
 - **Problem:** Centrar y construir el layout desde el mapa actual mezclaba componentes, mientras que los dungeons y sus TPs podían parecer parte del continente.
