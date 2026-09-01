@@ -33,8 +33,10 @@ const COLOR_MAP_ID_CURRENT := Color(0.55, 1, 0.6, 1)
 const COLOR_ID_SHADOW := Color(0, 0, 0, 0.85)
 # Los mapas no visitados se muestran atenuados, pero con suficiente luz para distinguir el terreno.
 const COLOR_UNVISITED := Color(0.62, 0.66, 0.64, 1)
-# Teletransportes (TileExit): línea de puntos celeste con flecha hacia el destino.
-const COLOR_TELEPORT := Color(0.35, 0.78, 0.9, 0.18)
+# Teletransportes (TileExit): colores según el sentido y el componente.
+const COLOR_TP_TO_DUNGEON := Color(0.35, 0.95, 0.45, 0.34)
+const COLOR_TP_TO_CONTINENT := Color(1.0, 0.58, 0.2, 0.34)
+const COLOR_TP_INTERNAL := Color(0.35, 0.78, 0.9, 0.18)
 const TRANSITIONS_PATH := "res://Assets/Init/map_transitions.json"
 # Banda (en tiles) para considerar que un TileExit está sobre un borde del mapa.
 const PASSAGE_BORDER_BAND := 15
@@ -52,6 +54,7 @@ var _teleport_links: Array = []
 # _geo_neighbors[map_id][neighbor_id] = dirección (N/S/E/W...): adyacencia geográfica
 # combinada (MapNeighbors + pasos de mapa detectados en los .inf).
 var _geo_neighbors: Dictionary = {}
+var _continent_maps: Dictionary = {}
 var _occupied_cells: Dictionary = {}
 var _transition_seed: Dictionary = {}
 var _transition_seed_loaded := false
@@ -86,6 +89,7 @@ func clear_map() -> void:
 	_ordered_maps.clear()
 	_teleport_links.clear()
 	_geo_neighbors.clear()
+	_continent_maps.clear()
 	_occupied_cells.clear()
 	_current_map_id = 0
 	queue_redraw()
@@ -120,6 +124,7 @@ func _build_layout(center_map: int) -> void:
 	_ordered_maps.clear()
 	_teleport_links.clear()
 	_geo_neighbors.clear()
+	_continent_maps.clear()
 	_occupied_cells.clear()
 	_load_transition_seed()
 	var all_ids := MapNeighbors.get_all_map_ids()
@@ -135,6 +140,8 @@ func _build_layout(center_map: int) -> void:
 	# El mapa 1 es el ancla estable del continente; el mapa actual sólo controla el foco.
 	var continent_root := 1 if all_ids.has(1) else (center_map if all_ids.has(center_map) else int(all_ids[0]))
 	_bfs_layout(continent_root, Vector2i.ZERO)
+	for map_id in _ordered_maps:
+		_continent_maps[map_id] = true
 	# Cada componente unido por pasos normales conserva su continuidad interna.
 	_place_geographic_components(all_ids)
 	# Mapas sin paso normal (sólo teletransporte): cuadrícula compacta aparte.
@@ -349,20 +356,88 @@ func _place_disconnected_grid(all_ids: Array) -> void:
 		return
 
 	disconnected.sort()
+	var pending := disconnected.duplicate()
+	var placed_from_tp := true
+	while not pending.is_empty() and placed_from_tp:
+		placed_from_tp = false
+		for raw_id in pending.duplicate():
+			var map_id := int(raw_id)
+			var preferred := _get_tp_preferred_cell(map_id)
+			if preferred == Vector2i(2147483647, 2147483647):
+				continue
+			var cell := _find_safe_tp_cell(preferred)
+			_occupied_cells[_cell_key(cell)] = true
+			_grid[map_id] = cell
+			_ordered_maps.append(map_id)
+			pending.erase(raw_id)
+			placed_from_tp = true
+
 	var min_cell := _content_min_cell()
 	var max_cell := _content_max_cell()
-	var columns := mini(6, maxi(3, int(ceil(sqrt(float(disconnected.size()))))))
+	var columns := mini(6, maxi(3, int(ceil(sqrt(float(pending.size()))))))
 	var start := Vector2i(max_cell.x + 2, min_cell.y)
-	for i in range(disconnected.size()):
+	for i in range(pending.size()):
 		var preferred := start + Vector2i(
 			(i % columns) * DISCONNECTED_GRID_SPACING,
 			floori(float(i) / float(columns)) * DISCONNECTED_GRID_SPACING
 		)
 		var cell := _find_free_cell(preferred, _occupied_cells)
 		_occupied_cells[_cell_key(cell)] = true
-		var map_id := int(disconnected[i])
+		var map_id := int(pending[i])
 		_grid[map_id] = cell
 		_ordered_maps.append(map_id)
+
+func _find_safe_tp_cell(preferred: Vector2i) -> Vector2i:
+	var direction := Vector2(preferred) - _cluster_center()
+	if direction.length_squared() < 0.25:
+		direction = Vector2.RIGHT
+	var outward := Vector2i(sign(direction.x), sign(direction.y))
+	if outward == Vector2i.ZERO:
+		outward = Vector2i(1, 0)
+	for distance in range(0, 16):
+		var candidate := preferred + outward * distance
+		if not _occupied_cells.has(_cell_key(candidate)) and not _touches_continent(candidate):
+			return candidate
+	return _find_free_cell(preferred + outward * 16, _occupied_cells)
+
+func _touches_continent(cell: Vector2i) -> bool:
+	for raw_map_id in _continent_maps:
+		var continent_cell: Vector2i = _grid[int(raw_map_id)]
+		if maxi(abs(cell.x - continent_cell.x), abs(cell.y - continent_cell.y)) <= 1:
+			return true
+	return false
+
+func _get_tp_preferred_cell(map_id: int) -> Vector2i:
+	var no_anchor := Vector2i(2147483647, 2147483647)
+	var continent_anchor := 0
+	var fallback_anchor := 0
+	for link in _teleport_links:
+		var a_id := int(link["a"])
+		var b_id := int(link["b"])
+		var anchor_id := 0
+		if a_id == map_id and _grid.has(b_id):
+			anchor_id = b_id
+		elif b_id == map_id and _grid.has(a_id):
+			anchor_id = a_id
+		if anchor_id <= 0:
+			continue
+		if _continent_maps.has(anchor_id):
+			continent_anchor = anchor_id
+			break
+		fallback_anchor = anchor_id
+	var anchor_id := continent_anchor if continent_anchor > 0 else fallback_anchor
+	if anchor_id <= 0:
+		return no_anchor
+
+	var continent_center := _cluster_center()
+	var anchor_cell: Vector2i = _grid[anchor_id]
+	var direction := Vector2(anchor_cell) - continent_center
+	if direction.length_squared() < 0.25:
+		direction = Vector2.RIGHT
+	var outward := Vector2i(sign(direction.x), sign(direction.y))
+	if outward == Vector2i.ZERO:
+		outward = Vector2i(1, 0)
+	return anchor_cell + outward * 2
 
 func _cluster_center() -> Vector2:
 	var min_cell := _content_min_cell()
@@ -468,11 +543,9 @@ func _draw() -> void:
 	var dash := maxf(2.0, 3.0 * _zoom)
 	for link in _teleport_links:
 		if bool(link["a_to_b"]):
-			var a_to_b := _get_teleport_points(link, true)
-			_draw_dotted_arrow(a_to_b["from"], a_to_b["to"], COLOR_TELEPORT, tp_width, dash)
+			_draw_teleport_link(link, true, tp_width, dash)
 		if bool(link["b_to_a"]):
-			var b_to_a := _get_teleport_points(link, false)
-			_draw_dotted_arrow(b_to_a["from"], b_to_a["to"], COLOR_TELEPORT, tp_width, dash)
+			_draw_teleport_link(link, false, tp_width, dash)
 	# Bordes e ids encima de las líneas.
 	for map_id in _ordered_maps:
 		var rect := _get_map_rect(map_id)
@@ -486,6 +559,17 @@ func _draw() -> void:
 		draw_rect(_get_map_rect(_selected_map_id), COLOR_SELECTED_BORDER, false, 3.0)
 	if _grid.has(_hovered_map_id) and _hovered_map_id != _selected_map_id:
 		draw_rect(_get_map_rect(_hovered_map_id), COLOR_HOVER_BORDER, false, 2.0)
+
+func _draw_teleport_link(link: Dictionary, from_is_a: bool, width: float, dash: float) -> void:
+	var from_id := int(link["a"] if from_is_a else link["b"])
+	var to_id := int(link["b"] if from_is_a else link["a"])
+	var points := _get_teleport_points(link, from_is_a)
+	var color := COLOR_TP_INTERNAL
+	if _continent_maps.has(from_id) and not _continent_maps.has(to_id):
+		color = COLOR_TP_TO_DUNGEON
+	elif not _continent_maps.has(from_id) and _continent_maps.has(to_id):
+		color = COLOR_TP_TO_CONTINENT
+	_draw_dotted_arrow(points["from"], points["to"], color, width, dash)
 
 func _get_tile_position(rect: Rect2, x: int, y: int) -> Vector2:
 	var tx := clampi(x, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)

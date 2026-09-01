@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Colores y anclaje geográfico para las rutas TP
+- **Context:** Organización final de dungeons y mapas sueltos alrededor del continente.
+- **Problem:** Todas las líneas de TP tenían el mismo color y los destinos se colocaban sin considerar el mapa continental desde el que se accedía.
+- **Root cause:** El visor no conservaba la membresía del componente raíz del mapa `1` al dibujar y `_get_tp_preferred_cell()` podía usar cualquier mapa ya colocado como ancla.
+- **Fix:** Se marca el componente continental, se prioriza como ancla para cada destino TP, se evita tocar sus celdas y se colorean las rutas continente→zona en verde, zona→continente en naranja y zona→zona en celeste.
+- **Rule:** El continente define las referencias espaciales; los TPs se organizan alrededor de sus entradas y su color debe indicar el sentido de viaje.
+
+### 2026-08-31 — Colocar destinos TP cerca de su ancla geográfica
+- **Context:** Organización visual de dungeons y mapas sueltos en `ui/hub/world_map_view.gd`.
+- **Problem:** La cuadrícula por id de mapa dejaba destinos de TP muy alejados del continente y generaba líneas largas que parecían continuidad.
+- **Root cause:** Los mapas desconectados se ordenaban numéricamente, ignorando qué mapa geográfico originaba el TP.
+- **Fix:** Los destinos con un enlace TP hacia un mapa ya ubicado se colocan cerca de ese ancla, y los enlaces entre destinos se propagan iterativamente; sólo los que no tienen ancla usan la cuadrícula secundaria.
+- **Rule:** La posición visual de un destino TP debe depender de su origen geográfico, no de su id; la topología normal permanece independiente del overlay de TPs.
+
 ### 2026-08-31 — Los pasos normales pueden tener pocos exits en una franja de 15 tiles
 - **Context:** Ajuste final del Exportador para diferenciar pasos de mapa y TPs internos.
 - **Problem:** El mínimo fijo de 5 exits descartaba pasos normales legítimos con sólo 1–4 cruces, mientras algunos TPs internos tenían varios exits.
