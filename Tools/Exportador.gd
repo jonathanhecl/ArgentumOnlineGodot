@@ -8,8 +8,8 @@ extends Node
 const ADJACENCY_BORDER_DIST: int = 15
 # Banda más amplia para DETECTAR candidatos: algunos cruces reales caen justo fuera de la
 # banda estricta (p.ej. dest_x = 85 con ADJACENCY_BORDER_DIST = 15 exige 86) y se perdían.
-const ADJACENCY_CANDIDATE_BAND: int = ADJACENCY_BORDER_DIST + 1
-const MIN_PASSAGE_EXITS: int = 5
+const ADJACENCY_CANDIDATE_BAND: int = ADJACENCY_BORDER_DIST
+const MIN_PASSAGE_EXITS: int = 1
 const ADJACENCY_OUTPUT_PATH: String = "res://Assets/Init/map_neighbors.json"
 
 # Exits recopilados durante _ExportMap desde los archivos .inf:
@@ -207,6 +207,17 @@ func _CollectMapExits(fileId: int) -> void:
 # debe estar cerca de un borde de A y el destino cerca del borde OPUESTO de B. Una esquina
 # puede generar dos candidatos (p.ej. "W" y "S"); la resolución por votos + reciprocidad
 # decide la dirección final. Retorna [] si es portal interior.
+func _IsInteriorTeleportGroup(exits: Array) -> bool:
+	if exits.is_empty():
+		return false
+	for exit in exits:
+		var x := int(exit["x"])
+		var y := int(exit["y"])
+		if x <= ADJACENCY_BORDER_DIST or y <= ADJACENCY_BORDER_DIST \
+				or x >= 101 - ADJACENCY_BORDER_DIST or y >= 101 - ADJACENCY_BORDER_DIST:
+			return false
+	return true
+
 func _ClassifyExitCandidates(exit: Dictionary) -> Array:
 	var x: int = int(exit["x"])
 	var y: int = int(exit["y"])
@@ -228,7 +239,7 @@ func _ExportMapAdjacency() -> void:
 	# Por cada mapa y dirección, acumulamos: dest_map -> Array[Vector2i(dx, dy)]
 	# cardinals_raw[map_id][dir][dest_map] = [Vector2i(dx, dy), ...]
 	# Un exit en esquina puede votar por dos direcciones (candidatos); la mayoría decide.
-	# Un cruce válido debe reunir al menos MIN_PASSAGE_EXITS exits consistentes.
+	# Un cruce válido puede tener 1 o más exits si cruza de borde a borde.
 	var cardinals_raw: Dictionary = {}
 	for id in map_ids:
 		cardinals_raw[id] = {"N": {}, "S": {}, "E": {}, "W": {}}
@@ -237,21 +248,29 @@ func _ExportMapAdjacency() -> void:
 	var portal_count := 0
 	for a_id in map_ids:
 		var exits: Array = _map_exits[a_id]
+		var exits_by_dest: Dictionary = {}
 		for exit in exits:
 			total_exits += 1
-			var directions := _ClassifyExitCandidates(exit)
-			if directions.is_empty():
-				portal_count += 1
-				continue
 			var dest_map: int = int(exit["dest_map"])
-			if dest_map <= 0 or dest_map == a_id:
+			if dest_map > 0 and dest_map != a_id:
+				exits_by_dest[dest_map] = exits_by_dest.get(dest_map, []) + [exit]
+		for dest in exits_by_dest:
+			var dest_map := int(dest)
+			var destination_exits: Array = exits_by_dest[dest]
+			if _IsInteriorTeleportGroup(destination_exits):
+				portal_count += destination_exits.size()
 				continue
-			var offset := Vector2i(int(exit["x"]) - int(exit["dest_x"]), int(exit["y"]) - int(exit["dest_y"]))
-			for direction in directions:
-				var by_dest: Dictionary = cardinals_raw[a_id][direction]
-				var list: Array = by_dest.get(dest_map, [])
-				list.append(offset)
-				by_dest[dest_map] = list
+			for exit in destination_exits:
+				var directions := _ClassifyExitCandidates(exit)
+				if directions.is_empty():
+					portal_count += 1
+					continue
+				var offset := Vector2i(int(exit["x"]) - int(exit["dest_x"]), int(exit["y"]) - int(exit["dest_y"]))
+				for direction in directions:
+					var by_dest: Dictionary = cardinals_raw[a_id][direction]
+					var list: Array = by_dest.get(dest_map, [])
+					list.append(offset)
+					by_dest[dest_map] = list
 
 	# Resolver cardinales: por cada (map, dir) elegimos el dest_map con más exits.
 	# Si hay empate, nos quedamos con el menor id (determinismo). Offset = moda entre sus exits.
@@ -270,8 +289,7 @@ func _ExportMapAdjacency() -> void:
 				if votes > best_votes or (votes == best_votes and (best_dest == 0 or dest < best_dest)):
 					best_dest = dest
 					best_votes = votes
-			# Un cruce geográfico necesita una línea de exits, no un portal aislado.
-			# Los dungeons suelen tener 1-2 exits cerca de un borde por casualidad.
+			# Los cruces se validan por borde opuesto; no se descartan por tener pocos exits.
 			if best_votes < MIN_PASSAGE_EXITS:
 				continue
 			if by_dest.size() > 1:

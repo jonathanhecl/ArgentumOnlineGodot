@@ -37,8 +37,9 @@ const COLOR_UNVISITED := Color(0.62, 0.66, 0.64, 1)
 const COLOR_TELEPORT := Color(0.35, 0.78, 0.9, 0.18)
 const TRANSITIONS_PATH := "res://Assets/Init/map_transitions.json"
 # Banda (en tiles) para considerar que un TileExit está sobre un borde del mapa.
-const PASSAGE_BORDER_BAND := 16
-const MIN_PASSAGE_EXITS := 5
+const PASSAGE_BORDER_BAND := 15
+const MIN_PASSAGE_EXITS := 1
+const DISCONNECTED_GRID_SPACING := 2
 
 const MIN_ZOOM := 0.15
 const MAX_ZOOM := 3.0
@@ -140,8 +141,8 @@ func _build_layout(center_map: int) -> void:
 	_place_disconnected_grid(all_ids)
 
 # Clasifica cada par (mapa, destino) por la geometría de sus TileExit:
-# - Paso de mapa: >=5 exits formando una línea sobre un borde -> adyacencia geográfica.
-# - Teletransporte: pocos exits (1-4) o no alineados con un borde -> línea celeste de puntos.
+# - Paso de mapa: exits que cruzan una franja de 15 tiles hacia el borde opuesto.
+# - Teletransporte: exits interiores o no alineados con un borde opuesto.
 func _build_connections(all_ids: Array) -> void:
 	# Base: adyacencia geográfica conocida (seed del export + runtime por caminar).
 	for raw_map in all_ids:
@@ -316,13 +317,25 @@ func _find_free_cell(near: Vector2i, occupied: Dictionary) -> Vector2i:
 	return near
 
 func _place_geographic_components(all_ids: Array) -> void:
+	var continent_min := _content_min_cell()
+	var continent_max := _content_max_cell()
+	var continent_size := continent_max - continent_min + Vector2i.ONE
+	var component_slot_width := maxi(15, int(ceil(float(continent_size.x) / 2.0)) + 4)
+	var component_slot_height := maxi(15, int(ceil(float(continent_size.y) / 2.0)) + 4)
+	var component_columns := 3
+	var component_index := 0
+
 	for raw_id in all_ids:
 		var map_id := int(raw_id)
 		if _grid.has(map_id) or not _geo_neighbors.has(map_id):
 			continue
-		var component_origin := Vector2i(_content_max_cell().x + 3, _content_min_cell().y)
+		var component_origin := Vector2i(
+			continent_max.x + 4 + (component_index % component_columns) * component_slot_width,
+			continent_min.y + floori(float(component_index) / float(component_columns)) * component_slot_height
+		)
 		var free_origin := _find_free_cell(component_origin, _occupied_cells)
 		_bfs_layout(map_id, free_origin)
+		component_index += 1
 
 # Los mapas sin paso geográfico (solo teletransporte) se agrupan en una cuadrícula
 # compacta para que las zonas subterráneas no formen un círculo alrededor del mundo.
@@ -341,7 +354,10 @@ func _place_disconnected_grid(all_ids: Array) -> void:
 	var columns := mini(6, maxi(3, int(ceil(sqrt(float(disconnected.size()))))))
 	var start := Vector2i(max_cell.x + 2, min_cell.y)
 	for i in range(disconnected.size()):
-		var preferred := start + Vector2i(i % columns, floori(float(i) / float(columns)))
+		var preferred := start + Vector2i(
+			(i % columns) * DISCONNECTED_GRID_SPACING,
+			floori(float(i) / float(columns)) * DISCONNECTED_GRID_SPACING
+		)
 		var cell := _find_free_cell(preferred, _occupied_cells)
 		_occupied_cells[_cell_key(cell)] = true
 		var map_id := int(disconnected[i])

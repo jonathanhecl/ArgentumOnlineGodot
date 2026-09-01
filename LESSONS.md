@@ -23,6 +23,34 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Los pasos normales pueden tener pocos exits en una franja de 15 tiles
+- **Context:** Ajuste final del Exportador para diferenciar pasos de mapa y TPs internos.
+- **Problem:** El mínimo fijo de 5 exits descartaba pasos normales legítimos con sólo 1–4 cruces, mientras algunos TPs internos tenían varios exits.
+- **Root cause:** La clasificación mezclaba cantidad global de exits con continuidad; el criterio correcto es agrupar por destino, revisar si el origen sale dentro de los 15 tiles del borde y si el destino llega al borde opuesto.
+- **Fix:** La franja es `<=15`/`>=86`, los grupos interiores se marcan como TP y los grupos de borde opuesto pueden ser pasos normales aunque tengan pocos exits; los TPs internos de otros destinos no contaminan el grupo normal.
+- **Rule:** La cantidad no decide sola: 1–4 exits pueden ser paso normal si cruzan bordes opuestos, y muchos exits interiores pueden seguir siendo TPs.
+
+### 2026-08-31 — Clasificar TPs interiores por grupo origen-destino
+- **Context:** Corrección del Exportador de adyacencias en `Tools/Exportador.gd`.
+- **Problem:** Clasificar cada exit individualmente permitía que portales interiores pequeños votaran como pasos normales.
+- **Root cause:** La decisión no consideraba el grupo completo de exits del par `mapa origen → mapa destino` ni la regla de que un TP interior tiene 1–4 salidas con coordenadas de origen interiores (`x/y` entre 13 y 88).
+- **Fix:** `_IsInteriorTeleportGroup()` se evalúa antes de acumular votos cardinales; sólo grupos no interiores pueden votar como continuidad y deben reunir al menos `MIN_PASSAGE_EXITS` exits de borde opuesto.
+- **Rule:** La clasificación debe hacerse por grupo dirigido origen-destino: TP interior si cumple la regla de coordenadas y cantidad; continuidad normal sólo con evidencia suficiente de cruce de borde.
+
+### 2026-08-31 — Los destinos de TP no deben parecer una red continua
+- **Context:** Auditoría de `170`, `199`, `163` y `274` en el mapa mundial.
+- **Problem:** El bloque de destinos de TP se dibujaba como una cuadrícula de miniaturas pegadas, y las líneas punteadas hacían parecer que todos eran mapas contiguos.
+- **Root cause:** Esos mapas sólo tienen 1–2 exits por destino (o varios destinos aislados), no grupos de exits de borde suficientes para continuidad geográfica; `_place_disconnected_grid()` no dejaba separación visual entre ellos.
+- **Fix:** Se mantienen fuera de `_geo_neighbors`, se conservan como conexiones TP y la cuadrícula secundaria usa una celda de separación entre miniaturas.
+- **Rule:** Un destino de TP debe tener tratamiento visual distinto al de un paso normal; las miniaturas de la cuadrícula de TPs no deben tocarse.
+
+### 2026-08-31 — Un dungeon puede ser un componente geográfico interno válido
+- **Context:** Auditoría de la red `172–178` y del continente del mapa mundial.
+- **Problem:** El bloque de dungeons parecía estar marcado como continuidad incorrecta, mientras otros mapas normales quedaban separados.
+- **Root cause:** “Dungeon” describe una zona del mundo, no necesariamente ausencia de pasos normales. Los `.Inf` muestran pasos bidireccionales reales entre `172–178` (7–17 exits por par), mientras que los componentes se empaquetaban visualmente sin separar la zona del continente.
+- **Fix:** Mantener los pasos normales internos como componente geográfico propio, anclar el continente en el mapa `1`, separar componentes en el layout y reservar los TPs para el overlay. `65↔66` no se acepta como continuidad sin evidencia en `.Inf`.
+- **Rule:** Clasificar primero por evidencia de paso normal; después separar componentes geográficamente. No clasificar un mapa como TP o continuidad sólo por su apariencia de dungeon.
+
 ### 2026-08-31 — 65, 66 y 78 no tienen Inf propio; los pasos se prueban desde el mapa vecino
 - **Context:** Auditoría de continuidad del continente en `Assets/Init/map_neighbors.json` y `Assets/Maps/Mapa*.Inf`.
 - **Problem:** Parecía faltar un paso debajo de `78` y el mapa `66` parecía tener que estar encima de `65`.
