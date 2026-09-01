@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Priorizar adyacencias cardinales en el layout del mapa mundial
+- **Context:** Distribución de miniaturas contiguas en `ui/hub/world_map_view.gd`.
+- **Problem:** Algunos mapas geográficamente contiguos aparecían separados porque una diagonal ocupaba primero una celda y la resolución de colisiones desplazaba después al vecino cardinal.
+- **Root cause:** `_bfs_layout()` procesaba direcciones en el orden de iteración del diccionario y `_find_free_cell()` movía cualquier conflicto a otra celda, rompiendo la continuidad esperada.
+- **Fix:** El BFS ahora resuelve primero todas las direcciones cardinales y después las diagonales; las colisiones inevitables sólo se desplazan después de respetar la red cardinal.
+- **Rule:** En layouts de mapas, las conexiones N/S/E/O deben tener prioridad geométrica sobre las diagonales y los enlaces secundarios.
+
+### 2026-08-31 — Las flechas de TP usan TileExit.x/y y dest_x/dest_y
+- **Context:** Líneas y flechas de teletransporte en `ui/hub/world_map_view.gd`.
+- **Problem:** Las conexiones se dibujaban entre los centros de las miniaturas, no desde el punto aproximado donde salía y llegaba cada TP.
+- **Root cause:** `GameAssets.GetMapInf()` ya devuelve `x/y` de salida y `dest_x/dest_y` de llegada, pero `_teleport_links` sólo conservaba los ids y las direcciones.
+- **Fix:** Cada dirección conserva sus `TileExit`, se promedian varios exits hacia el mismo destino y se transforman con el mismo recorte `11..90` usado por la miniatura y el punto del jugador.
+- **Rule:** Para representar conexiones sobre miniaturas recortadas, transformar las coordenadas del asset con la misma función en origen y destino; no usar los centros de los mapas como sustituto.
+
 ### 2026-08-31 — El mapa mundial muestra las entradas del mapa seleccionado
 - **Context:** Interacción del visor del mapa mundial (`ui/hub/world_map_view.gd`, `world_map_window.tscn`).
 - **Problem:** El usuario podía ver el grafo, pero no saber qué mapas llevaban a una miniatura concreta.

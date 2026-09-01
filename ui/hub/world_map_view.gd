@@ -169,11 +169,20 @@ func _build_connections(all_ids: Array) -> void:
 				var b := maxi(map_id, to_id)
 				var key := "%d_%d" % [a, b]
 				if not seen_tp.has(key):
-					seen_tp[key] = {"a": a, "b": b, "a_to_b": false, "b_to_a": false}
+					seen_tp[key] = {
+						"a": a,
+						"b": b,
+						"a_to_b": false,
+						"b_to_a": false,
+						"a_to_b_exits": [],
+						"b_to_a_exits": [],
+					}
 				if map_id == a:
 					seen_tp[key]["a_to_b"] = true
+					seen_tp[key]["a_to_b_exits"].append_array(by_dest[to_id])
 				else:
 					seen_tp[key]["b_to_a"] = true
+					seen_tp[key]["b_to_a_exits"].append_array(by_dest[to_id])
 	for key in seen_tp:
 		var l: Dictionary = seen_tp[key]
 		if _is_geo_pair(int(l["a"]), int(l["b"])):
@@ -245,18 +254,29 @@ func _bfs_layout(seed_id: int, seed_cell: Vector2i) -> void:
 	_grid[seed_id] = seed_cell
 	_occupied_cells[_cell_key(seed_cell)] = true
 	_ordered_maps.append(seed_id)
+
+	# Resolver primero todo el grafo cardinal para que las rutas contiguas conserven
+	# sus celdas esperadas antes de añadir las diagonales.
 	var head := 0
 	while head < _ordered_maps.size():
 		var map_id: int = _ordered_maps[head]
 		head += 1
-		var cell: Vector2i = _grid[map_id]
+		_place_neighbors(map_id, MapNeighbors.CARDINAL_DIRS)
+
+	# Las diagonales completan el dibujo, pero nunca deben desplazar una conexión cardinal.
+	var diagonal_head := 0
+	while diagonal_head < _ordered_maps.size():
+		var diagonal_map_id: int = _ordered_maps[diagonal_head]
+		diagonal_head += 1
+		_place_neighbors(diagonal_map_id, MapNeighbors.DIAGONAL_DIRS)
+
+func _place_neighbors(map_id: int, directions: Array[String]) -> void:
+	var cell: Vector2i = _grid[map_id]
+	for dir in directions:
 		for nid in _geo_neighbors.get(map_id, {}):
-			if _grid.has(nid):
+			if _geo_neighbors[map_id][nid] != dir or _grid.has(nid):
 				continue
-			var dir: String = _geo_neighbors[map_id][nid]
 			var preferred: Vector2i = cell + DIR_OFFSET[dir]
-			# El grafo puede tener offsets inconsistentes y dos mapas caerían en la misma
-			# celda: buscar la celda libre más cercana para no solaparlos.
 			var final_cell := _find_free_cell(preferred, _occupied_cells)
 			_grid[nid] = final_cell
 			_occupied_cells[_cell_key(final_cell)] = true
@@ -406,14 +426,12 @@ func _draw() -> void:
 	var tp_width := maxf(0.9, 1.1 * _zoom)
 	var dash := maxf(2.0, 3.0 * _zoom)
 	for link in _teleport_links:
-		var ca := _get_map_rect(int(link["a"])).get_center()
-		var cb := _get_map_rect(int(link["b"])).get_center()
-		if bool(link["a_to_b"]) and bool(link["b_to_a"]):
-			draw_dashed_line(ca, cb, COLOR_TELEPORT, tp_width, dash)
-		elif bool(link["a_to_b"]):
-			_draw_dotted_arrow(ca, cb, COLOR_TELEPORT, tp_width, dash)
-		else:
-			_draw_dotted_arrow(cb, ca, COLOR_TELEPORT, tp_width, dash)
+		if bool(link["a_to_b"]):
+			var a_to_b := _get_teleport_points(link, true)
+			_draw_dotted_arrow(a_to_b["from"], a_to_b["to"], COLOR_TELEPORT, tp_width, dash)
+		if bool(link["b_to_a"]):
+			var b_to_a := _get_teleport_points(link, false)
+			_draw_dotted_arrow(b_to_a["from"], b_to_a["to"], COLOR_TELEPORT, tp_width, dash)
 	# Bordes e ids encima de las líneas.
 	for map_id in _ordered_maps:
 		var rect := _get_map_rect(map_id)
@@ -427,6 +445,29 @@ func _draw() -> void:
 		draw_rect(_get_map_rect(_selected_map_id), COLOR_SELECTED_BORDER, false, 3.0)
 	if _grid.has(_hovered_map_id) and _hovered_map_id != _selected_map_id:
 		draw_rect(_get_map_rect(_hovered_map_id), COLOR_HOVER_BORDER, false, 2.0)
+
+func _get_tile_position(rect: Rect2, x: int, y: int) -> Vector2:
+	var tx := clampi(x, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
+	var ty := clampi(y, BORDER_PX + 1, MAP_TILE_SIZE - BORDER_PX)
+	var tile_f := Vector2(float(tx - (BORDER_PX + 1)), float(ty - (BORDER_PX + 1)))
+	return rect.position + tile_f * (rect.size / float(INNER_SIZE - 1))
+
+func _get_teleport_points(link: Dictionary, from_is_a: bool) -> Dictionary:
+	var source_id := int(link["a"] if from_is_a else link["b"])
+	var destination_id := int(link["b"] if from_is_a else link["a"])
+	var exits: Array = link["a_to_b_exits"] if from_is_a else link["b_to_a_exits"]
+	var source_sum := Vector2.ZERO
+	var destination_sum := Vector2.ZERO
+	for exit_info in exits:
+		source_sum += Vector2(int(exit_info["x"]), int(exit_info["y"]))
+		destination_sum += Vector2(int(exit_info["dest_x"]), int(exit_info["dest_y"]))
+	var count := maxf(1.0, float(exits.size()))
+	var source_tile := source_sum / count
+	var destination_tile := destination_sum / count
+	return {
+		"from": _get_tile_position(_get_map_rect(source_id), int(round(source_tile.x)), int(round(source_tile.y))),
+		"to": _get_tile_position(_get_map_rect(destination_id), int(round(destination_tile.x)), int(round(destination_tile.y))),
+	}
 
 func _draw_dotted_arrow(from: Vector2, to: Vector2, color: Color, width: float, dash: float) -> void:
 	draw_dashed_line(from, to, color, width, dash)
