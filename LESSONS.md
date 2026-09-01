@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Separar componentes geográficos entre sí, no sólo del continente
+- **Context:** Empaquetado de componentes alrededor del continente en `ui/hub/world_map_view.gd`.
+- **Problem:** Los dungeons `40–45` y `172–178` quedaron pegados visualmente aunque no comparten ningún enlace.
+- **Root cause:** La búsqueda de celda segura sólo verificaba contacto con el continente; el BFS de un componente podía crecer hacia celdas libres adyacentes a otro componente.
+- **Fix:** `_find_safe_tp_cell()` ahora rechaza celdas adyacentes a cualquier mapa ya colocado (`_touches_any_component()`), garantizando separación entre todos los componentes.
+- **Rule:** La separación debe validarse contra todos los componentes colocados, no sólo contra el continente; un anillo saturado debe ampliar su radio antes de permitir contacto.
+
 ### 2026-08-31 — Distribuir componentes y destinos en anillos alrededor del continente
 - **Context:** Empaquetado final de componentes geográficos y destinos TP en `ui/hub/world_map_view.gd`.
 - **Problem:** Los componentes geográficos secundarios y los destinos TP se colocaban en columnas fijas a la derecha del continente, quedando muy lejos y con líneas largas.

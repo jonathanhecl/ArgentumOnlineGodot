@@ -326,21 +326,40 @@ func _find_free_cell(near: Vector2i, occupied: Dictionary) -> Vector2i:
 func _place_geographic_components(all_ids: Array) -> void:
 	var continent_center := _cluster_center()
 	var continent_radius := _cluster_radius(continent_center)
-	var ring_radius := int(ceil(continent_radius)) + 4
 	var component_index := 0
+	var ring_radius := int(ceil(continent_radius)) + 4
 
 	for raw_id in all_ids:
 		var map_id := int(raw_id)
 		if _grid.has(map_id) or not _geo_neighbors.has(map_id):
 			continue
+		var component_size := _estimate_component_size(map_id)
 		var angle := TAU * float(component_index) / 8.0
 		var preferred := Vector2i(
-			int(round(continent_center.x + cos(angle) * continent_radius)),
-			int(continent_center.y + sin(angle) * continent_radius)
+			int(round(continent_center.x + cos(angle) * ring_radius)),
+			int(round(continent_center.y + sin(angle) * ring_radius))
 		)
 		var free_origin := _find_safe_tp_cell(preferred)
 		_bfs_layout(map_id, free_origin)
 		component_index += 1
+		# Si este componente llenó su sector, ampliar el anillo para el siguiente.
+		var component_radius := _cluster_radius(continent_center)
+		if component_index % 8 == 0:
+			ring_radius = int(ceil(_cluster_radius(continent_center))) + 4
+
+func _estimate_component_size(seed_id: int) -> int:
+	var visited := {}
+	var queue: Array[int] = [seed_id]
+	visited[seed_id] = true
+	var head := 0
+	while head < queue.size():
+		var map_id: int = queue[head]
+		head += 1
+		for nid in _geo_neighbors.get(map_id, {}):
+			if not visited.has(nid):
+				visited[nid] = true
+				queue.append(nid)
+	return queue.size()
 
 # Los mapas sin paso geográfico (solo teletransporte) se agrupan en una cuadrícula
 # compacta para que las zonas subterráneas no formen un círculo alrededor del mundo.
@@ -386,7 +405,7 @@ func _place_disconnected_grid(all_ids: Array) -> void:
 		_ordered_maps.append(map_id)
 
 func _find_safe_tp_cell(preferred: Vector2i) -> Vector2i:
-	if not _occupied_cells.has(_cell_key(preferred)) and not _touches_continent(preferred):
+	if not _occupied_cells.has(_cell_key(preferred)) and not _touches_any_component(preferred):
 		return preferred
 	for radius in range(1, 16):
 		for y in range(-radius, radius + 1):
@@ -394,7 +413,7 @@ func _find_safe_tp_cell(preferred: Vector2i) -> Vector2i:
 				if maxi(abs(x), abs(y)) != radius:
 					continue
 				var candidate := preferred + Vector2i(x, y)
-				if not _occupied_cells.has(_cell_key(candidate)) and not _touches_continent(candidate):
+				if not _occupied_cells.has(_cell_key(candidate)) and not _touches_any_component(candidate):
 					return candidate
 	return _find_free_cell(preferred, _occupied_cells)
 
@@ -402,6 +421,13 @@ func _touches_continent(cell: Vector2i) -> bool:
 	for raw_map_id in _continent_maps:
 		var continent_cell: Vector2i = _grid[int(raw_map_id)]
 		if maxi(abs(cell.x - continent_cell.x), abs(cell.y - continent_cell.y)) <= 1:
+			return true
+	return false
+
+func _touches_any_component(cell: Vector2i) -> bool:
+	for map_id in _ordered_maps:
+		var component_cell: Vector2i = _grid[map_id]
+		if maxi(abs(cell.x - component_cell.x), abs(cell.y - component_cell.y)) <= 1:
 			return true
 	return false
 
