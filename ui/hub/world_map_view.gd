@@ -324,23 +324,21 @@ func _find_free_cell(near: Vector2i, occupied: Dictionary) -> Vector2i:
 	return near
 
 func _place_geographic_components(all_ids: Array) -> void:
-	var continent_min := _content_min_cell()
-	var continent_max := _content_max_cell()
-	var continent_size := continent_max - continent_min + Vector2i.ONE
-	var component_slot_width := maxi(15, int(ceil(float(continent_size.x) / 2.0)) + 4)
-	var component_slot_height := maxi(15, int(ceil(float(continent_size.y) / 2.0)) + 4)
-	var component_columns := 3
+	var continent_center := _cluster_center()
+	var continent_radius := _cluster_radius(continent_center)
+	var ring_radius := int(ceil(continent_radius)) + 4
 	var component_index := 0
 
 	for raw_id in all_ids:
 		var map_id := int(raw_id)
 		if _grid.has(map_id) or not _geo_neighbors.has(map_id):
 			continue
-		var component_origin := Vector2i(
-			continent_max.x + 4 + (component_index % component_columns) * component_slot_width,
-			continent_min.y + floori(float(component_index) / float(component_columns)) * component_slot_height
+		var angle := TAU * float(component_index) / 8.0
+		var preferred := Vector2i(
+			int(round(continent_center.x + cos(angle) * continent_radius)),
+			int(continent_center.y + sin(angle) * continent_radius)
 		)
-		var free_origin := _find_free_cell(component_origin, _occupied_cells)
+		var free_origin := _find_safe_tp_cell(preferred)
 		_bfs_layout(map_id, free_origin)
 		component_index += 1
 
@@ -388,17 +386,17 @@ func _place_disconnected_grid(all_ids: Array) -> void:
 		_ordered_maps.append(map_id)
 
 func _find_safe_tp_cell(preferred: Vector2i) -> Vector2i:
-	var direction := Vector2(preferred) - _cluster_center()
-	if direction.length_squared() < 0.25:
-		direction = Vector2.RIGHT
-	var outward := Vector2i(sign(direction.x), sign(direction.y))
-	if outward == Vector2i.ZERO:
-		outward = Vector2i(1, 0)
-	for distance in range(0, 16):
-		var candidate := preferred + outward * distance
-		if not _occupied_cells.has(_cell_key(candidate)) and not _touches_continent(candidate):
-			return candidate
-	return _find_free_cell(preferred + outward * 16, _occupied_cells)
+	if not _occupied_cells.has(_cell_key(preferred)) and not _touches_continent(preferred):
+		return preferred
+	for radius in range(1, 16):
+		for y in range(-radius, radius + 1):
+			for x in range(-radius, radius + 1):
+				if maxi(abs(x), abs(y)) != radius:
+					continue
+				var candidate := preferred + Vector2i(x, y)
+				if not _occupied_cells.has(_cell_key(candidate)) and not _touches_continent(candidate):
+					return candidate
+	return _find_free_cell(preferred, _occupied_cells)
 
 func _touches_continent(cell: Vector2i) -> bool:
 	for raw_map_id in _continent_maps:
@@ -437,7 +435,7 @@ func _get_tp_preferred_cell(map_id: int) -> Vector2i:
 	var outward := Vector2i(sign(direction.x), sign(direction.y))
 	if outward == Vector2i.ZERO:
 		outward = Vector2i(1, 0)
-	return anchor_cell + outward * 2
+	return _find_safe_tp_cell(anchor_cell + outward * 2)
 
 func _cluster_center() -> Vector2:
 	var min_cell := _content_min_cell()

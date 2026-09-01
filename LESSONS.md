@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — Distribuir componentes y destinos en anillos alrededor del continente
+- **Context:** Empaquetado final de componentes geográficos y destinos TP en `ui/hub/world_map_view.gd`.
+- **Problem:** Los componentes geográficos secundarios y los destinos TP se colocaban en columnas fijas a la derecha del continente, quedando muy lejos y con líneas largas.
+- **Root cause:** El layout usaba slots fijos en columnas (`x = max + 4 + índice * slot`), lo que acumulaba componentes en columnas lejanas en lugar de rodear el continente.
+- **Fix:** Los componentes geográficos secundarios se distribuyen en 8 direcciones alrededor del centro del continente usando `_find_safe_tp_cell()`, que busca en anillos concéntricos la primera celda libre que no toque el continente.
+- **Rule:** Los componentes externos deben rodear el continente, no apilarse en columnas; la búsqueda de posición debe rechazar celdas ocupadas o adyacentes al continente.
+
 ### 2026-08-31 — Colores y anclaje geográfico para las rutas TP
 - **Context:** Organización final de dungeons y mapas sueltos alrededor del continente.
 - **Problem:** Todas las líneas de TP tenían el mismo color y los destinos se colocaban sin considerar el mapa continental desde el que se accedía.
