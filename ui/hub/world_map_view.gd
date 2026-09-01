@@ -198,13 +198,17 @@ func _passage_direction(exits: Array) -> String:
 	for e in exits:
 		var x := int(e["x"])
 		var y := int(e["y"])
-		if x >= 101 - PASSAGE_BORDER_BAND:
+		var dest_x := int(e["dest_x"])
+		var dest_y := int(e["dest_y"])
+		# Un cruce geográfico debe salir por un borde y llegar por el borde opuesto.
+		# Sólo mirar x/y clasifica erróneamente muchos portales internos de dungeons.
+		if x >= 101 - PASSAGE_BORDER_BAND and dest_x <= PASSAGE_BORDER_BAND:
 			east += 1
-		if x <= PASSAGE_BORDER_BAND:
+		if x <= PASSAGE_BORDER_BAND and dest_x >= 101 - PASSAGE_BORDER_BAND:
 			west += 1
-		if y >= 101 - PASSAGE_BORDER_BAND:
+		if y >= 101 - PASSAGE_BORDER_BAND and dest_y <= PASSAGE_BORDER_BAND:
 			south += 1
-		if y <= PASSAGE_BORDER_BAND:
+		if y <= PASSAGE_BORDER_BAND and dest_y >= 101 - PASSAGE_BORDER_BAND:
 			north += 1
 	var threshold := maxi(3, int(ceil(float(exits.size()) * 0.5)))
 	if east >= threshold:

@@ -69,8 +69,8 @@ func _AddTileSetAtlasSource(tiles:PackedInt32Array, tileSet:TileSet) -> void:
 		tileSetAtlasSource.texture_region_size = Vector2(32, 32)
 		tileSetAtlasSource.texture = texture
 		
-		for y in texture.get_height() / 32:
-			for x in texture.get_width() / 32:
+		for y in floori(float(texture.get_height()) / 32.0):
+			for x in floori(float(texture.get_width()) / 32.0):
 				tileSetAtlasSource.create_tile(Vector2i(x, y))
 				
 		tileSet.add_source(tileSetAtlasSource, grhData.fileId)
@@ -96,7 +96,7 @@ func _AddTileMapLayer(tiles:PackedInt32Array, tileSet:TileSet) -> TileMapLayer:
 			var grhData = GameAssets.GrhDataList[tile]
 			if !tileSet.has_source(grhData.fileId):
 				continue
-			tileMapLayer.set_cell(Vector2i(x, y), grhData.fileId, Vector2i(grhData.region.position) / 32)
+			tileMapLayer.set_cell(Vector2i(x, y), grhData.fileId, Vector2i(grhData.region.position / 32.0))
 	return tileMapLayer	
 			
 func _ExportAll() -> void:
@@ -268,6 +268,10 @@ func _ExportMapAdjacency() -> void:
 				if votes > best_votes or (votes == best_votes and (best_dest == 0 or dest < best_dest)):
 					best_dest = dest
 					best_votes = votes
+			# Un cruce geográfico necesita una línea de exits, no un portal aislado.
+			# Los dungeons suelen tener 1-2 exits cerca de un borde por casualidad.
+			if best_votes < 3:
+				continue
 			if by_dest.size() > 1:
 				conflict_count += 1
 				print("  ⚠️ Mapa %d dir %s tiene %d destinos distintos; elegido %d con %d votos (%s)" % [
@@ -538,14 +542,14 @@ func _ExportMapTransitions() -> void:
 
 # --- Fin inferencia de adyacencia ---
 
-func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
+func _AttachHeadAnimation(spriteFrames:SpriteFrames, animation_name:String, grhId:int) -> void:
 	if grhId <= 0 or grhId >= GameAssets.GrhDataList.size():
-		spriteFrames.add_animation("idle_" + name)
+		spriteFrames.add_animation("idle_" + animation_name)
 		return
 
 	var frame = GameAssets.GrhDataList[grhId]
 	if frame == null:
-		spriteFrames.add_animation("idle_" + name)
+		spriteFrames.add_animation("idle_" + animation_name)
 		return
 		
 	var atlasTexture = AtlasTexture.new()
@@ -553,15 +557,15 @@ func _AttachHeadAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> 
 	atlasTexture.region = frame.region
 	atlasTexture.atlas = GameAssets.GetTexture(frame.fileId)
 
-	spriteFrames.add_animation("idle_" + name);
-	spriteFrames.add_frame("idle_" + name, atlasTexture);
+	spriteFrames.add_animation("idle_" + animation_name);
+	spriteFrames.add_frame("idle_" + animation_name, atlasTexture);
 
-func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void:
-	spriteFrames.add_animation("idle_" + name)
-	spriteFrames.add_animation("walk_" + name)
+func _AttachAnimation(spriteFrames:SpriteFrames, animation_name:String, grhId:int) -> void:
+	spriteFrames.add_animation("idle_" + animation_name)
+	spriteFrames.add_animation("walk_" + animation_name)
 
-	spriteFrames.set_animation_speed("idle_" + name, 1)
-	spriteFrames.set_animation_speed("walk_" + name, 12.0)
+	spriteFrames.set_animation_speed("idle_" + animation_name, 1)
+	spriteFrames.set_animation_speed("walk_" + animation_name, 12.0)
 	
 	if grhId <= 0 or grhId >= GameAssets.GrhDataList.size():
 		return
@@ -586,9 +590,9 @@ func _AttachAnimation(spriteFrames:SpriteFrames, name:String, grhId:int) -> void
 		atlasTexture.region = frame.region
 		atlasTexture.atlas = GameAssets.GetTexture(frame.fileId)
 		
-		spriteFrames.add_frame("walk_" + name, atlasTexture)
+		spriteFrames.add_frame("walk_" + animation_name, atlasTexture)
 		if i == 1:
-			spriteFrames.add_frame("idle_" + name, atlasTexture)
+			spriteFrames.add_frame("idle_" + animation_name, atlasTexture)
 	
 	
 func _Bodies() -> void:
@@ -1076,9 +1080,6 @@ func _add_file_to_pack(packer: PCKPacker, path: String, relative_path: String) -
 	# 2. Verificar si existe un archivo .import correspondiente
 	var import_path = path + ".import"
 	if FileAccess.file_exists(import_path):
-		# Agregar el archivo .import
-		var import_relative_path = relative_path + ".import"
-		
 		# Procesar el archivo .import para encontrar recursos adicionales
 		var import_info = _process_import_file(import_path)
 		
@@ -1291,7 +1292,6 @@ func _createPackageGrh() -> void:
 		
 		var files = []
 		var dirs_to_explore = [""]  # Empezar con el directorio raíz
-		var dir_files_count = 0
 		
 		while not dirs_to_explore.is_empty():
 			var current_dir = dirs_to_explore.pop_front()
@@ -1315,7 +1315,6 @@ func _createPackageGrh() -> void:
 					var ext = file_name.get_extension().to_lower()
 					if ext in ["png", "import", "tres"]:
 						files.append(rel_path)
-						dir_files_count += 1
 						total_files += 1
 						
 						# Actualizar la interfaz periódicamente
