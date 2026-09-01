@@ -131,11 +131,12 @@ func _build_layout(center_map: int) -> void:
 	if all_ids.is_empty():
 		return
 	_build_connections(all_ids)
-	# BFS sobre la adyacencia geográfica: los mapas con paso de mapa quedan lado a lado,
-	# formando una estrella alrededor del mapa central.
-	var start := center_map if all_ids.has(center_map) else int(all_ids[0])
-	_bfs_layout(start, Vector2i.ZERO)
-	# Mapas sin paso de mapa (solo teletransporte): cuadrícula compacta junto al clúster.
+	# El mapa 1 es el ancla estable del continente; el mapa actual sólo controla el foco.
+	var continent_root := 1 if all_ids.has(1) else (center_map if all_ids.has(center_map) else int(all_ids[0]))
+	_bfs_layout(continent_root, Vector2i.ZERO)
+	# Cada componente unido por pasos normales conserva su continuidad interna.
+	_place_geographic_components(all_ids)
+	# Mapas sin paso normal (sólo teletransporte): cuadrícula compacta aparte.
 	_place_disconnected_grid(all_ids)
 
 # Clasifica cada par (mapa, destino) por la geometría de sus TileExit:
@@ -313,6 +314,15 @@ func _find_free_cell(near: Vector2i, occupied: Dictionary) -> Vector2i:
 				if not occupied.has(_cell_key(cell)):
 					return cell
 	return near
+
+func _place_geographic_components(all_ids: Array) -> void:
+	for raw_id in all_ids:
+		var map_id := int(raw_id)
+		if _grid.has(map_id) or not _geo_neighbors.has(map_id):
+			continue
+		var component_origin := Vector2i(_content_max_cell().x + 3, _content_min_cell().y)
+		var free_origin := _find_free_cell(component_origin, _occupied_cells)
+		_bfs_layout(map_id, free_origin)
 
 # Los mapas sin paso geográfico (solo teletransporte) se agrupan en una cuadrícula
 # compacta para que las zonas subterráneas no formen un círculo alrededor del mundo.

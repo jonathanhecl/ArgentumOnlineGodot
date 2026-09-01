@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — El mapa 1 ancla el continente y los dungeons son componentes separados
+- **Context:** Construcción del layout completo del mapa mundial en `ui/hub/world_map_view.gd`.
+- **Problem:** Centrar y construir el layout desde el mapa actual mezclaba componentes, mientras que los dungeons y sus TPs podían parecer parte del continente.
+- **Root cause:** El layout iniciaba el BFS desde el mapa actual y luego trataba todos los mapas restantes como una única bolsa de desconectados, sin distinguir componentes unidos por pasos normales de portales sin continuidad.
+- **Fix:** El layout inicia en el mapa `1`, coloca cada componente geográfico normal con su continuidad interna y deja los mapas sin pasos normales para la cuadrícula secundaria de teletransportes.
+- **Rule:** El mundo geográfico debe tener un ancla estable (`mapa 1`); los TPs nunca deben definir la posición del continente y cada componente normal separado debe conservar su propia topología.
+
 ### 2026-08-31 — Los portales internos de dungeon no son adyacencias geográficas
 - **Context:** Clasificación de enlaces de `MapNeighbors` en `ui/hub/world_map_view.gd` y generación de `Assets/Init/map_neighbors.json`.
 - **Problem:** La cadena de mapas `264–268` aparecía pegada al mundo como si fueran mapas contiguos, aunque `264.Inf` sólo contiene un portal interno con 4 exits hacia `265`.
