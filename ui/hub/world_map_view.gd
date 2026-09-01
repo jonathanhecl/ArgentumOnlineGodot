@@ -22,17 +22,19 @@ const DIR_OFFSET: Dictionary[String, Vector2i] = {
 	"SW": Vector2i(-1, 1),
 }
 
-const COLOR_MAP_BORDER := Color(0, 0, 0, 0.55)
-const COLOR_CURRENT_BORDER := Color(0.2, 1, 0.2, 1)
-const COLOR_HOVER_BORDER := Color(1, 1, 0, 1)
-const COLOR_PLAYER_DOT := Color(1, 0.15, 0.15, 1)
-const COLOR_MAP_ID := Color(1, 1, 1, 0.9)
-const COLOR_MAP_ID_CURRENT := Color(0.2, 1, 0.2, 1)
+const COLOR_MAP_BACKGROUND := Color(0.035, 0.05, 0.06, 0.96)
+const COLOR_MAP_BORDER := Color(0.65, 0.78, 0.78, 0.7)
+const COLOR_CURRENT_BORDER := Color(0.35, 1, 0.45, 1)
+const COLOR_SELECTED_BORDER := Color(1, 0.72, 0.2, 1)
+const COLOR_HOVER_BORDER := Color(1, 0.9, 0.35, 1)
+const COLOR_PLAYER_DOT := Color(1, 0.22, 0.18, 1)
+const COLOR_MAP_ID := Color(1, 1, 1, 0.95)
+const COLOR_MAP_ID_CURRENT := Color(0.55, 1, 0.6, 1)
 const COLOR_ID_SHADOW := Color(0, 0, 0, 0.85)
-# Los mapas no visitados se muestran oscurecidos (multiplica la miniatura) pero visibles.
-const COLOR_UNVISITED := Color(0.28, 0.28, 0.28, 1)
+# Los mapas no visitados se muestran atenuados, pero con suficiente luz para distinguir el terreno.
+const COLOR_UNVISITED := Color(0.62, 0.66, 0.64, 1)
 # Teletransportes (TileExit): línea de puntos celeste con flecha hacia el destino.
-const COLOR_TELEPORT := Color(0.3, 0.85, 1.0, 0.95)
+const COLOR_TELEPORT := Color(0.35, 0.78, 0.9, 0.18)
 const TRANSITIONS_PATH := "res://Assets/Init/map_transitions.json"
 # Banda (en tiles) para considerar que un TileExit está sobre un borde del mapa.
 const PASSAGE_BORDER_BAND := 16
@@ -59,8 +61,13 @@ var _texture_cache: Dictionary = {}
 var _zoom := 1.0
 var _pan := Vector2.ZERO
 var _dragging := false
+var _drag_start := Vector2.ZERO
+var _drag_moved := false
 var _last_mouse := Vector2.ZERO
+var _selected_map_id := 0
 var _pending_fit := false
+
+@onready var _selection_info: Label = $SelectionInfo
 
 func _ready() -> void:
 	clip_contents = true
@@ -86,6 +93,8 @@ func show_map(current_map_id: int, player_tile: Vector2i) -> void:
 	_current_map_id = current_map_id
 	_player_tile = player_tile
 	_hovered_map_id = 0
+	_selected_map_id = 0
+	_update_selection_info()
 	_pending_fit = true
 	_fit_to_content()
 	queue_redraw()
@@ -125,9 +134,8 @@ func _build_layout(center_map: int) -> void:
 	# formando una estrella alrededor del mapa central.
 	var start := center_map if all_ids.has(center_map) else int(all_ids[0])
 	_bfs_layout(start, Vector2i.ZERO)
-	# Mapas sin paso de mapa (solo teletransporte): anillo alrededor del clúster, no uno
-	# debajo del otro.
-	_place_disconnected_ring(all_ids)
+	# Mapas sin paso de mapa (solo teletransporte): cuadrícula compacta junto al clúster.
+	_place_disconnected_grid(all_ids)
 
 # Clasifica cada par (mapa, destino) por la geometría de sus TileExit:
 # - Paso de mapa: >=3 exits formando una línea sobre un borde -> adyacencia geográfica.
@@ -271,29 +279,27 @@ func _find_free_cell(near: Vector2i, occupied: Dictionary) -> Vector2i:
 					return cell
 	return near
 
-# Los mapas sin paso de mapa (solo teletransporte) se reparten en un anillo alrededor
-# del clúster geográfico, formando una estrella en lugar de apilarse uno debajo del otro.
-# Si una celda ya está ocupada, el mapa se desplaza radialmente hacia afuera (sin solapes).
-func _place_disconnected_ring(all_ids: Array) -> void:
-	var ring: Array = []
+# Los mapas sin paso geográfico (solo teletransporte) se agrupan en una cuadrícula
+# compacta para que las zonas subterráneas no formen un círculo alrededor del mundo.
+func _place_disconnected_grid(all_ids: Array) -> void:
+	var disconnected: Array = []
 	for raw_id in all_ids:
 		var map_id := int(raw_id)
 		if not _grid.has(map_id):
-			ring.append(map_id)
-	if ring.is_empty():
+			disconnected.append(map_id)
+	if disconnected.is_empty():
 		return
-	var center := _cluster_center()
-	var radius := maxf(_cluster_radius(center) + 3.0, float(ring.size()) / TAU + 1.0)
-	var n := ring.size()
-	for i in range(n):
-		var angle := (float(i) / float(n)) * TAU
-		var preferred: Vector2i = Vector2i(
-			int(center.x + cos(angle) * radius),
-			int(center.y + sin(angle) * radius)
-		)
+
+	disconnected.sort()
+	var min_cell := _content_min_cell()
+	var max_cell := _content_max_cell()
+	var columns := mini(6, maxi(3, int(ceil(sqrt(float(disconnected.size()))))))
+	var start := Vector2i(max_cell.x + 2, min_cell.y)
+	for i in range(disconnected.size()):
+		var preferred := start + Vector2i(i % columns, floori(float(i) / float(columns)))
 		var cell := _find_free_cell(preferred, _occupied_cells)
 		_occupied_cells[_cell_key(cell)] = true
-		var map_id := int(ring[i])
+		var map_id := int(disconnected[i])
 		_grid[map_id] = cell
 		_ordered_maps.append(map_id)
 
@@ -386,6 +392,7 @@ func _get_thumbnail_region(texture: Texture2D) -> Rect2:
 	return Rect2(origin, crop_size)
 
 func _draw() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), COLOR_MAP_BACKGROUND, true)
 	if _ordered_maps.is_empty():
 		return
 	# Miniaturas primero (fondo).
@@ -393,10 +400,10 @@ func _draw() -> void:
 		var rect := _get_map_rect(map_id)
 		var tex := _get_texture(map_id)
 		if tex:
-			var tint := Color.WHITE if Global.is_map_visited(map_id) else COLOR_UNVISITED
+			var tint := Color(1.12, 1.1, 1.04, 1) if Global.is_map_visited(map_id) else Color(0.82, 0.86, 0.82, 1)
 			draw_texture_rect_region(tex, rect, _get_thumbnail_region(tex), tint)
 	# Teletransportes: línea de puntos celeste con flecha hacia el destino.
-	var tp_width := maxf(1.5, 2.0 * _zoom)
+	var tp_width := maxf(0.9, 1.1 * _zoom)
 	var dash := maxf(2.0, 3.0 * _zoom)
 	for link in _teleport_links:
 		var ca := _get_map_rect(int(link["a"])).get_center()
@@ -416,7 +423,9 @@ func _draw() -> void:
 		var current_rect := _get_map_rect(_current_map_id)
 		draw_rect(current_rect, COLOR_CURRENT_BORDER, false, 3.0)
 		_draw_player_dot(current_rect)
-	if _grid.has(_hovered_map_id):
+	if _grid.has(_selected_map_id):
+		draw_rect(_get_map_rect(_selected_map_id), COLOR_SELECTED_BORDER, false, 3.0)
+	if _grid.has(_hovered_map_id) and _hovered_map_id != _selected_map_id:
 		draw_rect(_get_map_rect(_hovered_map_id), COLOR_HOVER_BORDER, false, 2.0)
 
 func _draw_dotted_arrow(from: Vector2, to: Vector2, color: Color, width: float, dash: float) -> void:
@@ -426,7 +435,7 @@ func _draw_dotted_arrow(from: Vector2, to: Vector2, color: Color, width: float, 
 	if length < 10.0:
 		return
 	var unit := dir / length
-	var head_size := maxf(7.0, width * 4.0)
+	var head_size := maxf(5.0, width * 3.5)
 	var base := to - unit * head_size
 	var perp := Vector2(-unit.y, unit.x)
 	draw_line(to, base + perp * head_size * 0.55, color, width)
@@ -454,6 +463,42 @@ func _map_at(point: Vector2) -> int:
 			return map_id
 	return 0
 
+func _select_map(map_id: int) -> void:
+	_selected_map_id = map_id
+	_update_selection_info()
+	queue_redraw()
+
+func _update_selection_info() -> void:
+	if not _selection_info:
+		return
+	if _selected_map_id <= 0:
+		_selection_info.text = "Hacé clic en un mapa para ver sus entradas"
+		return
+
+	var geographic_sources: Array[String] = []
+	for raw_source in _geo_neighbors:
+		var source_id := int(raw_source)
+		var neighbors: Dictionary = _geo_neighbors[source_id]
+		if neighbors.has(_selected_map_id):
+			geographic_sources.append("%d (%s)" % [source_id, str(neighbors[_selected_map_id])])
+	geographic_sources.sort()
+
+	var teleport_sources: Array[String] = []
+	for link in _teleport_links:
+		var from_id := 0
+		if int(link["b"]) == _selected_map_id and bool(link["a_to_b"]):
+			from_id = int(link["a"])
+		elif int(link["a"]) == _selected_map_id and bool(link["b_to_a"]):
+			from_id = int(link["b"])
+		if from_id > 0:
+			teleport_sources.append(str(from_id))
+	teleport_sources.sort()
+
+	var lines := ["Mapa %d" % _selected_map_id]
+	lines.append("Caminos: %s" % (", ".join(geographic_sources) if not geographic_sources.is_empty() else "ninguno"))
+	lines.append("Teletransportes: %s" % (", ".join(teleport_sources) if not teleport_sources.is_empty() else "ninguno"))
+	_selection_info.text = "\n".join(lines)
+
 func _zoom_at(anchor: Vector2, factor: float) -> void:
 	var new_zoom := clampf(_zoom * factor, MIN_ZOOM, MAX_ZOOM)
 	if is_equal_approx(new_zoom, _zoom):
@@ -473,8 +518,15 @@ func _gui_input(event: InputEvent) -> void:
 			_zoom_at(button_event.position, 1.0 / ZOOM_STEP)
 			accept_event()
 		elif button_event.button_index == MOUSE_BUTTON_LEFT:
-			_dragging = button_event.pressed
-			_last_mouse = button_event.position
+			if button_event.pressed:
+				_dragging = true
+				_drag_start = button_event.position
+				_drag_moved = false
+				_last_mouse = button_event.position
+			else:
+				if not _drag_moved:
+					_select_map(_map_at(button_event.position))
+				_dragging = false
 			accept_event()
 		elif button_event.button_index == MOUSE_BUTTON_RIGHT and button_event.pressed:
 			close_requested.emit()
@@ -482,6 +534,8 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion:
 		var motion_event := event as InputEventMouseMotion
 		if _dragging:
+			if motion_event.position.distance_to(_drag_start) > 6.0:
+				_drag_moved = true
 			_pan += motion_event.position - _last_mouse
 			_last_mouse = motion_event.position
 			queue_redraw()

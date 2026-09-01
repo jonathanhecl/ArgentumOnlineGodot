@@ -145,4 +145,6 @@ func _on_gui_input(event: InputEvent) -> void:
 			# Convertir el clic a tiles visibles del mapa (interior recortado)
 			var tile_x := BORDER_PX + 1 + int(button_event.position.x / size.x * float(INNER_SIZE - 1))
 			var tile_y := BORDER_PX + 1 + int(button_event.position.y / size.y * float(INNER_SIZE - 1))
-			click.emit(Vector2(tile_x, tile_y))
+			# El warp de depuración conserva el clic simple con Ctrl; el visor se abre con doble clic.
+			if button_event.double_click or Input.is_key_pressed(KEY_CTRL):
+				click.emit(Vector2(tile_x, tile_y))

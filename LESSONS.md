@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-08-31 — El mapa mundial muestra las entradas del mapa seleccionado
+- **Context:** Interacción del visor del mapa mundial (`ui/hub/world_map_view.gd`, `world_map_window.tscn`).
+- **Problem:** El usuario podía ver el grafo, pero no saber qué mapas llevaban a una miniatura concreta.
+- **Root cause:** El visor sólo tenía hover, zoom y arrastre; no había estado de selección ni una vista de conexiones entrantes.
+- **Fix:** El clic sin arrastre selecciona la miniatura, resalta su borde y muestra los mapas de entrada geográfica con dirección y los teletransportes de entrada en `SelectionInfo`.
+- **Rule:** En un grafo visual interactivo, separar hover de selección persistente y mostrar los datos de entrada del nodo seleccionado sin afectar la navegación.
+
+### 2026-08-31 — El layout de teletransportes no debe formar un anillo
+- **Context:** Visor del mapa mundial abierto desde el minimapa (`ui/hub/minimap.gd`, `ui/hub/world_map_view.gd`).
+- **Problem:** Las zonas subterráneas conectadas sólo por teletransporte se distribuían en un círculo grande, con flechas muy dominantes y miniaturas no visitadas demasiado oscuras.
+- **Root cause:** `_place_disconnected_ring()` colocaba todos los mapas sin adyacencia geográfica sobre un anillo; además, `COLOR_TELEPORT` tenía alpha `0.95` y `COLOR_UNVISITED` multiplicaba el terreno por `0.28`.
+- **Fix:** Los mapas desconectados se organizan en una cuadrícula compacta, se añade un fondo uniforme, las miniaturas no visitadas usan un tinte `0.62` y las conexiones de teletransporte pasan a alpha `0.18` con menor grosor. El doble clic del minimapa abre el visor; `Ctrl+clic` conserva el warp de depuración.
+- **Rule:** En vistas de grafos geográficos, agrupar los nodos sin continuidad en una cuadrícula o sección secundaria; no distribuirlos radialmente alrededor del mapa del jugador.
+
 ### 2026-08-10 — Mapas visitados por personaje, no por cuenta
 - **Context:** La exploración del mapa del mundo se persistía en `Global._visited_maps` (`user://visited_maps.json`) con clave `account_name`.
 - **Problem:** Todos los personajes de una misma cuenta compartían el mismo registro de mapas visitados; el usuario pidió que cada personaje tenga el suyo propio.
