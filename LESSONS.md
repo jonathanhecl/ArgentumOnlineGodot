@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-09-08 — Los .Inf mezclan extensión .Inf/.inf: GetMapInf debe probar ambas
+- **Context:** Warnings del editor ("Case mismatch ... will not open when exported to other case-sensitive platforms") durante una corrida del Exportador.
+- **Problem:** En disco hay 122 `Mapa*.Inf` y 195 `Mapa*.inf`; `GetMapInf()` sólo pedía `.Inf`. En Windows funciona (FS insensible), pero en Linux/web 195 mapas devolvían `[]` y perdían todos sus teleports/adyacencia.
+- **Root cause:** Los seed del servidor traen ambas capitalizaciones; el código asumía una sola.
+- **Fix:** `engine/autoload/game_assets.gd::GetMapInf` prueba `.Inf` y luego `.inf`. (Los `.map`/`.dat` son uniformes en minúsculas, sin problema.)
+- **Rule:** Todo acceso a `Assets/Maps/` por nombre construido debe tolerar mayúsculas/minúsculas; `FileAccess.file_exists` no perdona en case-sensitive.
+
+### 2026-09-08 — Mapa 169 huérfano no es el TP perdido de 168; 286 es ciudad-nexus
+- **Context:** Búsqueda de "TPs del 168" y "mapa abajo del 168".
+- **Problem:** El 169 existe (`.map/.dat/.Inf`/thumbnail) pero con 0 exits y bioma unrelated (isla desértica con muelle vs laberinto de 168): huérfano real del server, correctamente ausente del layout. Inventario final de 168: 101 exits (48→167, 49→37, 4→286), único TP a 286. 286 es ciudad amurallada con plaza → TPs a 1, 34, 59, 62, 151, 196.
+- **Root cause:** Expectativa de TPs directos; la ruta real es 168→286→ciudades (2 saltos, invisibles desde 168).
+- **Fix:** El panel del visor muestra el segundo salto: `Salidas TP: 286 (-> 1, 34, 59, 62, 151, 196, ...)` vía `_teleport_out_of()`.
+- **Rule:** Ante "falta un TP", inventariar exits del `.Inf` antes de sospechar del layout; los mapas con 0 exits y sin referencias son huérfanos del server, no errores de exportación.
+
 ### 2026-09-08 — Componentes pegados sin continuidad: verificar el componente entero, no solo el origen
 - **Context:** Mapa del mundo (`ui/hub/world_map_view.gd`): tiras como 40-45 o 211-212 aparecían pegadas al bloque 286-290 y entre sí, fingiendo continuidad geográfica.
 - **Problem:** El origen del componente se elegía sin contacto (`_find_safe_tp_cell`), pero el crecimiento por BFS (`_place_neighbors` → `_find_free_cell`) sólo evita celdas ocupadas, no adyacentes: una tira larga crece hasta pegarse a otro componente ya colocado.

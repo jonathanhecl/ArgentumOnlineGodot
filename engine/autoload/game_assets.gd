@@ -307,6 +307,11 @@ func GetMapInf(fileId: int) -> Array:
 		return _map_inf_cache[fileId]
 	var path := "res://Assets/Maps/Mapa%d.Inf" % fileId
 	if not FileAccess.file_exists(path):
+		# Los .Inf del servidor traen la extensión en mayúsculas o minúsculas
+		# según el mapa (122 .Inf vs 195 .inf); en plataformas case-sensitive
+		# hay que probar ambas o esos mapas pierden todos sus teleports.
+		path = "res://Assets/Maps/Mapa%d.inf" % fileId
+	if not FileAccess.file_exists(path):
 		_map_inf_cache[fileId] = []
 		return []
 	var bytes := FileAccess.get_file_as_bytes(path)

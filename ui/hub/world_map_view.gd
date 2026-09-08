@@ -735,6 +735,19 @@ func _select_map(map_id: int) -> void:
 	_update_selection_info()
 	queue_redraw()
 
+# Ids destino de los TP que salen de un mapa (ordenados).
+func _teleport_out_of(map_id: int) -> Array[String]:
+	var out: Array[String] = []
+	for link in _teleport_links:
+		var a_id := int(link["a"])
+		var b_id := int(link["b"])
+		if a_id == map_id and bool(link["a_to_b"]):
+			out.append(str(b_id))
+		elif b_id == map_id and bool(link["b_to_a"]):
+			out.append(str(a_id))
+	out.sort()
+	return out
+
 func _update_selection_info() -> void:
 	if not _selection_info:
 		return
@@ -750,25 +763,30 @@ func _update_selection_info() -> void:
 			geographic_sources.append("%d (%s)" % [source_id, str(neighbors[_selected_map_id])])
 	geographic_sources.sort()
 
-	var teleport_out: Array[String] = []
+	var teleport_out := _teleport_out_of(_selected_map_id)
 	var teleport_in: Array[String] = []
 	for link in _teleport_links:
 		var a_id := int(link["a"])
 		var b_id := int(link["b"])
-		if a_id == _selected_map_id and bool(link["a_to_b"]):
-			teleport_out.append(str(b_id))
-		elif b_id == _selected_map_id and bool(link["b_to_a"]):
-			teleport_out.append(str(a_id))
 		if b_id == _selected_map_id and bool(link["a_to_b"]):
 			teleport_in.append(str(a_id))
 		elif a_id == _selected_map_id and bool(link["b_to_a"]):
 			teleport_in.append(str(b_id))
-	teleport_out.sort()
 	teleport_in.sort()
+
+	# Cada salida muestra su segundo salto (168 -> 286 -> ciudades), sin volver al origen.
+	var out_labels: Array[String] = []
+	for dest_str in teleport_out:
+		var via := _teleport_out_of(int(dest_str))
+		via.erase(str(_selected_map_id))
+		if via.is_empty():
+			out_labels.append(dest_str)
+		else:
+			out_labels.append("%s (-> %s)" % [dest_str, ", ".join(via)])
 
 	var lines := ["Mapa %d" % _selected_map_id]
 	lines.append("Caminos: %s" % (", ".join(geographic_sources) if not geographic_sources.is_empty() else "ninguno"))
-	lines.append("Salidas TP: %s" % (", ".join(teleport_out) if not teleport_out.is_empty() else "ninguna"))
+	lines.append("Salidas TP: %s" % (", ".join(out_labels) if not out_labels.is_empty() else "ninguna"))
 	lines.append("Entradas TP: %s" % (", ".join(teleport_in) if not teleport_in.is_empty() else "ninguna"))
 	_selection_info.text = "\n".join(lines)
 
