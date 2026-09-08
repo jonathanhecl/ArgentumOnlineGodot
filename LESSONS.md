@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-09-08 — Sólo links mutuos posicionan el mapa del mundo; one-way se dibuja, no ubica
+- **Context:** Zona 111/112 con 242 dibujado al sur de 112 y la tira norte (241/153) estacionada al este; verificado contra seed correcto (`111.N=242`, `112.N=154`, `112.S=113`, `111.S=114`).
+- **Problem:** El layout dibujaba adyacencias "conectadas" pero con geometría falsa: 154 quedaba a 13 celdas de su lugar.
+- **Root cause:** (1) Los cruces one-way (p.ej. 209.N→242 vs 242.S→111) crean ciclos imposibles y el BFS con `_find_free_cell` estaciona cadenas enteras en celda equivocada. (2) Sin corrección posterior, la distorsión queda congelada.
+- **Fix:** En `world_map_view.gd`: (a) `_prune_one_way_links()` retira de `_geo_neighbors` todo par sin cruce votado en AMBOS sentidos y lo dibuja aparte (`_oneway_links`, punteado con flecha; sigue siendo caminable en juego — el 3×3 de `map_container` no se toca); (b) `_relax_continent_layout()` tras el BFS del continente: cada mapa se mueve a la celda más votada por vecinos ya colocados (cardinales ×10, diagonales ×1 como desempate) sólo si supera los votos de su celda actual y está libre. Verificado con simulación offline del algoritmo contra el seed real: 7/7 relaciones correctas en la zona (242-N-de-111, 154-N-de-112, 114-S-de-111, 113-S-de-112, 112-E-de-111, 241-N-de-242, 153-N-de-154).
+- **Rule:** Adyacencia de COLOCACIÓN = mutua only; one-way = conector visual. Relajación posterior al BFS obligatoria: el crecimiento greedy no puede resolver ciclos contradictorios del dato.
+
 ### 2026-09-08 — Los .Inf mezclan extensión .Inf/.inf: GetMapInf debe probar ambas
 - **Context:** Warnings del editor ("Case mismatch ... will not open when exported to other case-sensitive platforms") durante una corrida del Exportador.
 - **Problem:** En disco hay 122 `Mapa*.Inf` y 195 `Mapa*.inf`; `GetMapInf()` sólo pedía `.Inf`. En Windows funciona (FS insensible), pero en Linux/web 195 mapas devolvían `[]` y perdían todos sus teleports/adyacencia.

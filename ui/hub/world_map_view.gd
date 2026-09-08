@@ -51,6 +51,7 @@ const ZOOM_STEP := 1.1
 var _grid: Dictionary = {}
 var _ordered_maps: Array[int] = []
 var _teleport_links: Array = []
+var _oneway_links: Array = []
 # _geo_neighbors[map_id][neighbor_id] = dirección (N/S/E/W...): adyacencia geográfica
 # combinada (MapNeighbors + pasos de mapa detectados en los .inf).
 var _geo_neighbors: Dictionary = {}
@@ -88,6 +89,7 @@ func clear_map() -> void:
 	_grid.clear()
 	_ordered_maps.clear()
 	_teleport_links.clear()
+	_oneway_links.clear()
 	_geo_neighbors.clear()
 	_continent_maps.clear()
 	_occupied_cells.clear()
@@ -123,6 +125,7 @@ func _build_layout(center_map: int) -> void:
 	_grid.clear()
 	_ordered_maps.clear()
 	_teleport_links.clear()
+	_oneway_links.clear()
 	_geo_neighbors.clear()
 	_continent_maps.clear()
 	_occupied_cells.clear()
@@ -142,6 +145,7 @@ func _build_layout(center_map: int) -> void:
 	_bfs_layout(continent_root, Vector2i.ZERO)
 	for map_id in _ordered_maps:
 		_continent_maps[map_id] = true
+	_relax_continent_layout()
 	# Cada componente unido por pasos normales conserva su continuidad interna.
 	_place_geographic_components(all_ids)
 	# Mapas sin paso normal (sólo teletransporte): cuadrícula compacta aparte.
@@ -198,6 +202,53 @@ func _build_connections(all_ids: Array) -> void:
 		if _is_geo_pair(int(l["a"]), int(l["b"])):
 			continue
 		_teleport_links.append(l)
+	_prune_one_way_links(all_ids)
+
+# Los cruces sin retorno (one-way) no definen posición: crean ciclos geométricamente
+# imposibles (p.ej. 209.N->242 contra 242.S->111) y desalinean el layout. Un enlace
+# sólo posiciona si hay cruce votado EN AMBOS sentidos; el one-way se dibuja como
+# conexión punteada aparte (sigue siendo caminable en el juego).
+func _prune_one_way_links(all_ids: Array) -> void:
+	var prune: Array = []
+	for raw_map in all_ids:
+		var map_id := int(raw_map)
+		var neighbors: Dictionary = _geo_neighbors.get(map_id, {})
+		for nid in neighbors.keys():
+			var n := int(nid)
+			if n <= map_id:
+				continue
+			if _has_geographic_exits(map_id, n) and _has_geographic_exits(n, map_id):
+				continue
+			prune.append([map_id, n])
+	for pair in prune:
+		var a := int(pair[0])
+		var b := int(pair[1])
+		if _geo_neighbors.has(a):
+			_geo_neighbors[a].erase(b)
+			if (_geo_neighbors[a] as Dictionary).is_empty():
+				_geo_neighbors.erase(a)
+		if _geo_neighbors.has(b):
+			_geo_neighbors[b].erase(a)
+			if (_geo_neighbors[b] as Dictionary).is_empty():
+				_geo_neighbors.erase(b)
+		_add_oneway_link(a, b)
+
+# Registra un one-way con el mismo formato que _teleport_links para reusar el dibujo.
+func _add_oneway_link(from_id: int, to_id: int) -> void:
+	var exits: Array = []
+	for exit_info in GameAssets.GetMapInf(from_id):
+		if int(exit_info["dest_map"]) == to_id:
+			exits.append(exit_info)
+	if exits.is_empty():
+		return
+	_oneway_links.append({
+		"a": mini(from_id, to_id),
+		"b": maxi(from_id, to_id),
+		"a_to_b": from_id < to_id,
+		"b_to_a": from_id > to_id,
+		"a_to_b_exits": (exits if from_id < to_id else []),
+		"b_to_a_exits": (exits if from_id > to_id else []),
+	})
 
 func _has_geographic_evidence(from_map: int, to_map: int) -> bool:
 	return _has_geographic_exits(from_map, to_map) or _has_geographic_exits(to_map, from_map)
@@ -391,6 +442,57 @@ func _component_touches_foreign(members: Array) -> bool:
 			if maxi(abs(cell.x - ocell.x), abs(cell.y - ocell.y)) <= 1:
 				return true
 	return false
+
+# Reendereza el continente tras el BFS: el crecimiento con _find_free_cell puede dejar
+# ramas desplazadas (p.ej. 242 dibujado al sur de 112 cuando en realidad es el norte de
+# 111). Cada mapa se mueve a la celda más votada por sus vecinos cardinales ya colocados,
+# sólo si esa celda reúne MÁS votos que su celda actual y está libre. Varias pasadas
+# enderezan cadenas largas; corta al no mover a nadie.
+func _relax_continent_layout() -> void:
+	for _pass in range(32):
+		var moved := false
+		var ids: Array = _continent_maps.keys()
+		ids.sort()
+		for raw_id in ids:
+			var map_id := int(raw_id)
+			var current: Vector2i = _grid[map_id]
+			var neighbors: Dictionary = _geo_neighbors.get(map_id, {})
+			if neighbors.is_empty():
+				continue
+			var votes := {}
+			for nid in neighbors:
+				var n := int(nid)
+				if not _continent_maps.has(n) or not _grid.has(n):
+					continue
+				var dir: String = neighbors[nid]
+				if not DIR_OFFSET.has(dir):
+					continue
+				# Si n está en dirección dir desde map_id, map_id debe quedar del lado opuesto.
+				var want: Vector2i = _grid[n] + DIR_OFFSET[_opposite_dir(dir)]
+				# Los cardinales son evidencia real (exits votados); los diagonales son
+				# derivados y sólo desempatan.
+				var weight := 10 if MapNeighbors.CARDINAL_DIRS.has(dir) else 1
+				votes[want] = int(votes.get(want, 0)) + weight
+			if votes.is_empty():
+				continue
+			var current_votes := int(votes.get(current, 0))
+			var best := current
+			var best_votes := current_votes
+			for want in votes:
+				var cell := Vector2i(want)
+				if cell == current or _occupied_cells.has(_cell_key(cell)):
+					continue
+				var v := int(votes[want])
+				if v > best_votes:
+					best_votes = v
+					best = cell
+			if best != current:
+				_occupied_cells.erase(_cell_key(current))
+				_grid[map_id] = best
+				_occupied_cells[_cell_key(best)] = true
+				moved = true
+		if not moved:
+			break
 
 # Origen preferido de un componente geográfico desconectado: junto a su ancla de
 # teletransporte ya colocada (p.ej. el bloque 286-290 junto a 168). Retorna un
@@ -643,6 +745,12 @@ func _draw() -> void:
 	var tp_width := maxf(0.9, 1.1 * _zoom)
 	var dash := maxf(2.0, 3.0 * _zoom)
 	for link in _teleport_links:
+		if bool(link["a_to_b"]):
+			_draw_teleport_link(link, true, tp_width, dash)
+		if bool(link["b_to_a"]):
+			_draw_teleport_link(link, false, tp_width, dash)
+	# Cruces one-way: caminables pero sin retorno; punteado con flecha al destino.
+	for link in _oneway_links:
 		if bool(link["a_to_b"]):
 			_draw_teleport_link(link, true, tp_width, dash)
 		if bool(link["b_to_a"]):
