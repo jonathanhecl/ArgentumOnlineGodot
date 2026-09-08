@@ -333,33 +333,68 @@ func _place_geographic_components(all_ids: Array) -> void:
 		var map_id := int(raw_id)
 		if _grid.has(map_id) or not _geo_neighbors.has(map_id):
 			continue
-		var component_size := _estimate_component_size(map_id)
-		var angle := TAU * float(component_index) / 8.0
-		var preferred := Vector2i(
-			int(round(continent_center.x + cos(angle) * ring_radius)),
-			int(round(continent_center.y + sin(angle) * ring_radius))
-		)
+		# Si el componente tiene un ancla de teletransporte ya colocada (p.ej. 286
+		# sale a 168), ponerlo junto a ella para que el TP quede visible en vez de
+		# perderse en un anillo lejano. Si no, anillo como antes.
+		var preferred := _get_component_tp_preferred_cell(map_id)
+		if preferred == Vector2i(2147483647, 2147483647):
+			var angle := TAU * float(component_index) / 8.0
+			preferred = Vector2i(
+				int(round(continent_center.x + cos(angle) * ring_radius)),
+				int(round(continent_center.y + sin(angle) * ring_radius))
+			)
 		var free_origin := _find_safe_tp_cell(preferred)
 		_bfs_layout(map_id, free_origin)
 		component_index += 1
 		# Si este componente llenó su sector, ampliar el anillo para el siguiente.
-		var component_radius := _cluster_radius(continent_center)
 		if component_index % 8 == 0:
 			ring_radius = int(ceil(_cluster_radius(continent_center))) + 4
 
-func _estimate_component_size(seed_id: int) -> int:
-	var visited := {}
+# Origen preferido de un componente geográfico desconectado: junto a su ancla de
+# teletransporte ya colocada (p.ej. el bloque 286-290 junto a 168). Retorna un
+# centinela si ningún miembro tiene TP hacia un mapa ya colocado.
+func _get_component_tp_preferred_cell(seed_id: int) -> Vector2i:
+	var no_anchor := Vector2i(2147483647, 2147483647)
+	var members := {}
 	var queue: Array[int] = [seed_id]
-	visited[seed_id] = true
+	members[seed_id] = true
 	var head := 0
 	while head < queue.size():
-		var map_id: int = queue[head]
+		var mid: int = queue[head]
 		head += 1
-		for nid in _geo_neighbors.get(map_id, {}):
-			if not visited.has(nid):
-				visited[nid] = true
-				queue.append(nid)
-	return queue.size()
+		for nid in _geo_neighbors.get(mid, {}):
+			var n := int(nid)
+			if not members.has(n):
+				members[n] = true
+				queue.append(n)
+	var continent_anchor := 0
+	var fallback_anchor := 0
+	for link in _teleport_links:
+		var a_id := int(link["a"])
+		var b_id := int(link["b"])
+		var outside := 0
+		if members.has(a_id) and _grid.has(b_id) and not members.has(b_id):
+			outside = b_id
+		elif members.has(b_id) and _grid.has(a_id) and not members.has(a_id):
+			outside = a_id
+		if outside <= 0:
+			continue
+		if _continent_maps.has(outside):
+			continent_anchor = outside
+			break
+		fallback_anchor = outside
+	var anchor_id := continent_anchor if continent_anchor > 0 else fallback_anchor
+	if anchor_id <= 0:
+		return no_anchor
+	var continent_center := _cluster_center()
+	var anchor_cell: Vector2i = _grid[anchor_id]
+	var direction := Vector2(anchor_cell) - continent_center
+	if direction.length_squared() < 0.25:
+		direction = Vector2.RIGHT
+	var outward := Vector2i(sign(direction.x), sign(direction.y))
+	if outward == Vector2i.ZERO:
+		outward = Vector2i(1, 0)
+	return anchor_cell + outward * 3
 
 # Los mapas sin paso geográfico (solo teletransporte) se agrupan en una cuadrícula
 # compacta para que las zonas subterráneas no formen un círculo alrededor del mundo.
@@ -673,20 +708,26 @@ func _update_selection_info() -> void:
 			geographic_sources.append("%d (%s)" % [source_id, str(neighbors[_selected_map_id])])
 	geographic_sources.sort()
 
-	var teleport_sources: Array[String] = []
+	var teleport_out: Array[String] = []
+	var teleport_in: Array[String] = []
 	for link in _teleport_links:
-		var from_id := 0
-		if int(link["b"]) == _selected_map_id and bool(link["a_to_b"]):
-			from_id = int(link["a"])
-		elif int(link["a"]) == _selected_map_id and bool(link["b_to_a"]):
-			from_id = int(link["b"])
-		if from_id > 0:
-			teleport_sources.append(str(from_id))
-	teleport_sources.sort()
+		var a_id := int(link["a"])
+		var b_id := int(link["b"])
+		if a_id == _selected_map_id and bool(link["a_to_b"]):
+			teleport_out.append(str(b_id))
+		elif b_id == _selected_map_id and bool(link["b_to_a"]):
+			teleport_out.append(str(a_id))
+		if b_id == _selected_map_id and bool(link["a_to_b"]):
+			teleport_in.append(str(a_id))
+		elif a_id == _selected_map_id and bool(link["b_to_a"]):
+			teleport_in.append(str(b_id))
+	teleport_out.sort()
+	teleport_in.sort()
 
 	var lines := ["Mapa %d" % _selected_map_id]
 	lines.append("Caminos: %s" % (", ".join(geographic_sources) if not geographic_sources.is_empty() else "ninguno"))
-	lines.append("Teletransportes: %s" % (", ".join(teleport_sources) if not teleport_sources.is_empty() else "ninguno"))
+	lines.append("Salidas TP: %s" % (", ".join(teleport_out) if not teleport_out.is_empty() else "ninguna"))
+	lines.append("Entradas TP: %s" % (", ".join(teleport_in) if not teleport_in.is_empty() else "ninguna"))
 	_selection_info.text = "\n".join(lines)
 
 func _zoom_at(anchor: Vector2, factor: float) -> void:

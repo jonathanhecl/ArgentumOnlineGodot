@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-09-08 — Los .Inf tienen cruces one-way reales; la reciprocidad estricta no aplica a todo
+- **Context:** Auditoría de reciprocidad de `Assets/Init/map_neighbors.json` (regla "Y.N=X ⇒ X.S=Y") con `Tools/Audit-MapAdjacency.ps1`.
+- **Problem:** 38+ enlaces no recíprocos en el seed (ej. 155.N→154 pero 154.S→112; 259.N→260 pero 260.S→171; doble cruce 168 E+W→37).
+- **Root cause:** Son datos dirigidos reales del servidor, no errores del export: 155.N→154 tiene 75 exits y 154.S→112 tiene 72 (sin retorno en ambos casos); dungeons con caídas/entradas one-way y pares con doble cruce (168↔37, 167↔168) donde el Exportador conserva el par mayoritario. Verificación completa: 412 pares mutuos votados, los 412 registrados (0 omitidos); 0 cardinales del seed sin respaldo (los 7 aparentes son recíprocas materializadas de one-ways votados); todo reclamo votado conservado.
+- **Fix:** Ninguno en el Exportador: registra bien todas las adyacencias mutuas sin saltearse nada. Re-ejecutar `Tools/Audit-MapAdjacency.ps1` tras cada regeneración del seed.
+- **Rule:** Adyacencia = link mutuo votado; one-way = teleport dirigido válido que el seed conserva dirigido. No forzar reciprocidad borrando reclamos votados. Offsets con ±4 de diferencia en mapas irregulares (162-165/310) son cosméticos (moda independiente por lado), no tocar sin motivo.
+
+### 2026-09-08 — El mapa 168 sale a ciudades vía el hub 286; anclar componentes TP a su entrada
+- **Context:** El mapa 168 parecía sin salidas en el visor del mundo (`ui/hub/world_map_view.gd`): sólo mostraba caminos a 37/167 y sus líneas de TP se perdían fuera de pantalla.
+- **Problem:** 168 no tiene TPs directos a ciudades; su única salida interior son 4 exits a 286 (`(50-51,55/59)` → `(42,74/78)`), y 286 es el hub con TPs a 6 ciudades (1, 34, 59, 62, 151, 196) más el retorno a 168. Además el panel del mapa sólo listaba TPs entrantes, nunca salidas.
+- **Root cause:** (1) El bloque 286-290 es un componente geográfico desconectado y `_place_geographic_components()` lo ponía en un anillo lejano sin mirar sus anclas de TP, así que la línea 168↔286 cruzaba medio mundo. (2) `_update_selection_info()` sólo recogía quién llega al mapa seleccionado, no a dónde sale.
+- **Fix:** `_place_geographic_components()` prueba primero `_get_component_tp_preferred_cell()` (origen junto al ancla TP ya colocada, p.ej. 286 junto a 168; anillo sólo sin ancla). El panel ahora muestra "Salidas TP" y "Entradas TP" por separado.
+- **Rule:** Un componente geográfico con TP a un mapa colocado debe dibujarse junto a su entrada, no en el anillo; el panel de un mapa siempre debe listar salidas y entradas por separado (los enlaces bidireccionales los ocultan si sólo se mira un sentido).
+
 ### 2026-08-31 — Separar componentes geográficos entre sí, no sólo del continente
 - **Context:** Empaquetado de componentes alrededor del continente en `ui/hub/world_map_view.gd`.
 - **Problem:** Los dungeons `40–45` y `172–178` quedaron pegados visualmente aunque no comparten ningún enlace.
