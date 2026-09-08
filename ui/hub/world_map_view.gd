@@ -344,11 +344,53 @@ func _place_geographic_components(all_ids: Array) -> void:
 				int(round(continent_center.y + sin(angle) * ring_radius))
 			)
 		var free_origin := _find_safe_tp_cell(preferred)
-		_bfs_layout(map_id, free_origin)
+		_place_component_safely(map_id, free_origin)
 		component_index += 1
 		# Si este componente llenó su sector, ampliar el anillo para el siguiente.
 		if component_index % 8 == 0:
 			ring_radius = int(ceil(_cluster_radius(continent_center))) + 4
+
+# Coloca un componente geográfico verificando que ningún miembro quede pegado a
+# mapas de OTRO componente (ni al continente): los vecinos reales van juntos,
+# pero componentes distintos deben flotar separados (>=2 celdas) o el mapa miente.
+# Si el crecimiento por BFS toca algo ajeno, revierte y reintenta más lejos.
+func _place_component_safely(map_id: int, preferred: Vector2i) -> void:
+	var origin := _find_safe_tp_cell(preferred)
+	for _attempt in range(4):
+		var before := _ordered_maps.size()
+		_bfs_layout(map_id, origin)
+		var members: Array = _ordered_maps.slice(before)
+		if members.is_empty():
+			return
+		if not _component_touches_foreign(members):
+			return
+		for mid in members:
+			_occupied_cells.erase(_cell_key(_grid[int(mid)]))
+			_grid.erase(int(mid))
+			_ordered_maps.erase(int(mid))
+		var continent_center := _cluster_center()
+		var direction := Vector2(origin) - continent_center
+		if direction.length_squared() < 0.25:
+			direction = Vector2.RIGHT
+		var step := direction.normalized() * 3.0
+		origin = _find_safe_tp_cell(origin + Vector2i(int(round(step.x)), int(round(step.y))))
+	# Último recurso: ubicar sin solapar (puede quedar pegado, pero visible).
+	_bfs_layout(map_id, _find_safe_tp_cell(preferred))
+
+# Devuelve true si alguna celda de `members` toca (Chebyshev <= 1) a un mapa que no es del grupo.
+func _component_touches_foreign(members: Array) -> bool:
+	var own := {}
+	for mid in members:
+		own[int(mid)] = true
+	for mid in members:
+		var cell: Vector2i = _grid[int(mid)]
+		for other in _grid.keys():
+			if own.has(int(other)):
+				continue
+			var ocell: Vector2i = _grid[other]
+			if maxi(abs(cell.x - ocell.x), abs(cell.y - ocell.y)) <= 1:
+				return true
+	return false
 
 # Origen preferido de un componente geográfico desconectado: junto a su ancla de
 # teletransporte ya colocada (p.ej. el bloque 286-290 junto a 168). Retorna un

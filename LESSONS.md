@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-09-08 — Componentes pegados sin continuidad: verificar el componente entero, no solo el origen
+- **Context:** Mapa del mundo (`ui/hub/world_map_view.gd`): tiras como 40-45 o 211-212 aparecían pegadas al bloque 286-290 y entre sí, fingiendo continuidad geográfica.
+- **Problem:** El origen del componente se elegía sin contacto (`_find_safe_tp_cell`), pero el crecimiento por BFS (`_place_neighbors` → `_find_free_cell`) sólo evita celdas ocupadas, no adyacentes: una tira larga crece hasta pegarse a otro componente ya colocado.
+- **Root cause:** La invariante "no tocar" se verificaba únicamente en el origen; los miembros colocados por expansión nunca se validaban contra mapas ajenos.
+- **Fix:** `_place_component_safely()`: coloca por BFS, verifica con `_component_touches_foreign()` (Chebyshev <= 1 contra todo mapa fuera del grupo) y, si toca algo ajeno, revierte el componente y reintenta con origen más lejano (4 intentos + fallback visible sin solapar).
+- **Rule:** Todo componente colocado debe validarse entero contra mapas ajenos (continente + otros componentes); sólo los miembros propios pueden tocarse. Los vecinos reales siempre caen en el mismo componente porque `_add_geo_neighbor` registra ambas direcciones, así que separarlos nunca rompe continuidad verdadera.
+
 ### 2026-09-08 — Los .Inf tienen cruces one-way reales; la reciprocidad estricta no aplica a todo
 - **Context:** Auditoría de reciprocidad de `Assets/Init/map_neighbors.json` (regla "Y.N=X ⇒ X.S=Y") con `Tools/Audit-MapAdjacency.ps1`.
 - **Problem:** 38+ enlaces no recíprocos en el seed (ej. 155.N→154 pero 154.S→112; 259.N→260 pero 260.S→171; doble cruce 168 E+W→37).
