@@ -120,7 +120,7 @@ signal multi_message_received(index: int, arg1: int, arg2: int, arg3: int, strin
 var _pending_messages: Array[PackedByteArray] = []
 
 # Logging temporal de paquetes (activar para depurar desincronizaciones)
-var packet_debug_enabled: bool = true
+var packet_debug_enabled: bool = false
 
 const _CREATE_DAMAGE_PACKET = preload("res://network/commands/CreateDamage.gd")
 const _HEADING_CHANGE_PACKET = preload("res://network/commands/HeadingChange.gd")
@@ -192,6 +192,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			print("🔍 DEBUG: packet_id=", packet_id, " -> packet_name=", packet_name)
 	else:
 		print("[ProtocolHandler] Paquete desconocido ID: ", packet_id)
+		stream.seek(stream.get_size())
 		return
 	
 	# Si el packet_id es 0, es un byte de datos mal interpretado - el stream está desincronizado
@@ -199,7 +200,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 	if packet_id == 0:
 		print("⚠️ ProtocolHandler: packet_id=0 detectado - posible desincronización del stream")
 		print("⚠️ Stream pos=", stream.get_position(), "/", stream.get_size())
-		# Intentar resincronizar buscando un packet_id válido conocido
+		stream.seek(stream.get_size())
 		return
 	
 	if should_log:
@@ -219,15 +220,15 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.Logged:
 			var _p = Logged.new(stream)
-			print("🔐 ProtocolHandler: ¡Recibido paquete Logged! Usuario autenticado")
-			print("🔐 ProtocolHandler: Esperando paquete ChangeMap para cargar el mapa...")
+			if packet_debug_enabled: print("🔐 ProtocolHandler: ¡Recibido paquete Logged! Usuario autenticado")
+			if packet_debug_enabled: print("🔐 ProtocolHandler: Esperando paquete ChangeMap para cargar el mapa...")
 			logged_in.emit()
-			print("🔐 ProtocolHandler: ¡Señal logged_in emitida! Esperando paquetes de datos del personaje...")
+			if packet_debug_enabled: print("🔐 ProtocolHandler: ¡Señal logged_in emitida! Esperando paquetes de datos del personaje...")
 		
 		# ==================== CHARACTER PACKETS ====================
 		Enums.ServerPacketID.CharacterCreate:
 			var p = CharacterCreate.new(stream)
-			print("👤 DEBUG: CharacterCreate - charIndex=", p.charIndex, " name=", p.name, " pos=(", p.x, ",", p.y, ")")
+			if packet_debug_enabled: print("👤 DEBUG: CharacterCreate - charIndex=", p.charIndex, " name=", p.name, " pos=(", p.x, ",", p.y, ")")
 			_process_character_privileges(p)
 			character_created.emit(p)
 		
@@ -287,13 +288,13 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 			var p = ChangeMap.new(stream)
 			game_context.player_map = p.mapId
 			Global.mark_map_visited(p.mapId)
-			print("--------------------------------------------------")
-			print("🗺️ [REVELACIÓN DE DESTINO] ¡EL MAPA HA SIDO ENTREGADO!")
-			print("🗺️ ID Mapa: ", p.mapId)
-			print("🗺️ Nombre: ", p.nameMap)
-			print("🗺️ Zona: ", p.zone)
-			print("🗺️ Posición Actual en Stream: ", stream.get_position())
-			print("--------------------------------------------------")
+			if packet_debug_enabled: print("--------------------------------------------------")
+			if packet_debug_enabled: print("🗺️ [REVELACIÓN DE DESTINO] ¡EL MAPA HA SIDO ENTREGADO!")
+			if packet_debug_enabled: print("🗺️ ID Mapa: ", p.mapId)
+			if packet_debug_enabled: print("🗺️ Nombre: ", p.nameMap)
+			if packet_debug_enabled: print("🗺️ Zona: ", p.zone)
+			if packet_debug_enabled: print("🗺️ Posición Actual en Stream: ", stream.get_position())
+			if packet_debug_enabled: print("--------------------------------------------------")
 			
 			# ¡ALTO AHÍ! Aquí es donde el báculo se detiene para que inspecciones la verdad.
 			# Puedes ver los valores arriba en la consola antes de continuar.
@@ -307,7 +308,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.PosUpdate:
 			var p = PosUpdate.new(stream)
-			print("📍 [POSICIÓN] x=", p.x, " y=", p.y)
+			if packet_debug_enabled: print("📍 [POSICIÓN] x=", p.x, " y=", p.y)
 			pos_updated.emit(p.x, p.y)
 		
 		Enums.ServerPacketID.ForceCharMove:
@@ -316,7 +317,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.ObjectCreate:
 			var p = ObjectCreate.new(stream)
-			print("DEBUG: ObjectCreate - grhId=", p.grhId, " pos=(", p.x, ",", p.y, ")")
+			if packet_debug_enabled: print("DEBUG: ObjectCreate - grhId=", p.grhId, " pos=(", p.x, ",", p.y, ")")
 			object_created.emit(p.grhId, p.x, p.y)
 		
 		Enums.ServerPacketID.ObjectDelete:
@@ -329,7 +330,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		# ==================== INVENTORY/ITEMS PACKETS ====================
 		Enums.ServerPacketID.ChangeInventorySlot:
-			print("DEBUG: Recibido ChangeInventorySlot (47) - Actualizando slot de inventario")
+			if packet_debug_enabled: print("DEBUG: Recibido ChangeInventorySlot (47) - Actualizando slot de inventario")
 			var p = ChangeInventorySlot.new(stream)
 			var item_stack = _create_item_stack(p)
 			game_context.playerInventory.SetSlot(p.slot - 1, item_stack)
@@ -371,7 +372,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 				
 				Global.UserHechizos[p.slot - 1] = p.spellId
 				
-				print("Hechizo actualizado: slot ", p.slot, ", ID: ", p.spellId)
+				if packet_debug_enabled: print("Hechizo actualizado: slot ", p.slot, ", ID: ", p.spellId)
 			
 			# Emitir señal con el nombre del hechizo para que la UI se actualice
 			var spell_name = GameAssets.GetSpellName(p.spellId)
@@ -392,7 +393,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		# ==================== STATS PACKETS ====================
 		Enums.ServerPacketID.UpdateUserStats:
 			var p = UpdateUserStats.new(stream)
-			print("📊 DEBUG: UpdateUserStats recibido - HP:", p.minHp, "/", p.maxHp, " - MANA:", p.minMana, "/", p.maxMana, " - ORO:", p.gold)
+			if packet_debug_enabled: print("📊 DEBUG: UpdateUserStats recibido - HP:", p.minHp, "/", p.maxHp, " - MANA:", p.minMana, "/", p.maxMana, " - ORO:", p.gold)
 			_update_game_context_stats(p)
 			stats_updated.emit(p)
 		
@@ -623,7 +624,7 @@ func _handle_one_packet(stream: StreamPeerBuffer) -> void:
 		
 		Enums.ServerPacketID.GuildDetails:
 			var p = GuildDetails.new(stream)
-			print("DEBUG: Recibido GuildDetails (80) - Mostrando detalles del clan: ", p.guild_name)
+			if packet_debug_enabled: print("DEBUG: Recibido GuildDetails (80) - Mostrando detalles del clan: ", p.guild_name)
 			var data = {
 				"name": p.guild_name,
 				"founder": p.founder,
