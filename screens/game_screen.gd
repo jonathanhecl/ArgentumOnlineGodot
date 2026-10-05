@@ -39,7 +39,7 @@ const PORTAL_GRH_IDS: Array[int] = [
 ]
 const SPECIAL_PORTAL_MAP_ID: int = 168
 const PORTAL_DETECTION_RADIUS: int = 2  # Radio en tiles para detectar portales cercanos
-const _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION := "return_to_character_selection"
+const GameMenuWindowScene = preload("res://ui/hub/game_menu_window.tscn")
 
 var _pending_map_transition_effect: bool = false
 var _pending_map_id: int = -1
@@ -58,7 +58,7 @@ var _is_portal_transition_playing: bool = false
 var _portal_restore_request_id: int = 0
 var _portal_from_origin_pending: bool = false
 var _portal_origin_grh_id: int = -1
-var _window_close_dialog: ConfirmationDialog = null
+var _window_close_dialog: Window = null
 var _logout_to_character_selection_pending: bool = false
 
 # Seguimiento de objetos portal cercanos para detección
@@ -124,30 +124,29 @@ func _notification(what: int) -> void:
 
 func _show_window_close_dialog() -> void:
 	if _window_close_dialog == null:
-		_window_close_dialog = ConfirmationDialog.new()
-		_window_close_dialog.title = "Salir del juego"
-		_window_close_dialog.dialog_text = "¿Qué querés hacer?"
-		_window_close_dialog.ok_button_text = "Cerrar todo"
-		_window_close_dialog.cancel_button_text = "Cancelar"
-		_window_close_dialog.add_button("Volver a selección", true, _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION)
-		_window_close_dialog.confirmed.connect(_on_window_close_confirmed)
-		_window_close_dialog.custom_action.connect(_on_window_close_custom_action)
+		_window_close_dialog = GameMenuWindowScene.instantiate()
+		_window_close_dialog.quit_requested.connect(_on_window_close_confirmed)
+		_window_close_dialog.return_to_selection_requested.connect(_request_return_to_character_selection)
+		_window_close_dialog.options_requested.connect(_on_game_menu_options_requested)
 		add_child(_window_close_dialog)
 
 	_window_close_dialog.popup_centered()
 
 func _on_hub_quit_button_pressed() -> void:
+	if _window_close_dialog and _window_close_dialog.visible:
+		_window_close_dialog.hide()
+		return
 	_show_window_close_dialog()
+
+func _on_game_menu_options_requested() -> void:
+	if _gameInput:
+		_gameInput._on_btn_options_pressed()
 
 func _on_window_close_confirmed() -> void:
 	ProtocolWriteToServer.WriteQuit()
 	_FlushData()
 	ClientInterface.DisconnectFromHost()
 	get_tree().quit()
-
-func _on_window_close_custom_action(action: StringName) -> void:
-	if String(action) == _CLOSE_ACTION_RETURN_TO_CHARACTER_SELECTION:
-		_request_return_to_character_selection()
 
 func _request_return_to_character_selection() -> void:
 	if _logout_to_character_selection_pending:
@@ -261,14 +260,6 @@ func _OnDisconnected() -> void:
 	ScreenController.SwitchScreen(screen)
 
 func _process(_delta: float) -> void:
-	# Verificar ExitGame (Escape) - siempre funciona independientemente del estado
-	if Input.is_action_just_pressed("ExitGame"):
-		if _gameInput and _gameInput.is_world_map_open():
-			_gameInput.close_world_map(true)
-			return
-		_request_return_to_character_selection()
-		return
-	
 	_CheckKeys()
 	_UpdateCameraPosition()
 	_FlushData()
@@ -369,6 +360,9 @@ func _CheckKeys() -> void:
 		return
 
 	if _gameInput and _gameInput.is_world_map_open():
+		return
+
+	if _window_close_dialog and _window_close_dialog.visible:
 		return
 
 	if not Global.moveWhileTalking and _gameInput and _gameInput.is_console_input_active():

@@ -68,7 +68,6 @@ var _user_helmet_slot:int
 var _user_armor_slot:int
 
 var _world_map_window
-var _map_close_pending := false
 
 func _ready() -> void:
 	# Inicializar el sistema de hotkeys
@@ -325,11 +324,6 @@ func _handle_key_event(event:InputEventKey) -> void:
 		_steal()
 	if event.is_action_pressed("RequestRefresh"):
 		_request_position_update()
-	if event.is_action_released("ExitGame"):
-		if _map_close_pending:
-			_map_close_pending = false
-		else:
-			_exit_game()
 	if event.is_action_pressed("ToggleSafeMode"):
 		ProtocolWriteToServer.WriteSafeToggle()
 	if event.is_action_pressed("SpellMacro"):
@@ -343,7 +337,36 @@ func _handle_key_event(event:InputEventKey) -> void:
 	
 func _unhandled_key_input(event: InputEvent) -> void: 
 	if event is InputEventKey:
+		# Verificar ExitGame (Escape) - siempre funciona independientemente del estado
+		if event.pressed and not event.echo and (event.keycode == KEY_ESCAPE or event.is_action_pressed("ExitGame")):
+			# Marcar el evento como manejado para evitar que se propague
+			get_viewport().set_input_as_handled()
+			if _consoleInputLineEdit.visible:
+				# Si la consola está visible y se presiona ESC, la cerramos
+				# Limpiar y ocultar la consola
+				_consoleInputLineEdit.text = ""
+				_consoleInputLineEdit.visible = false
+				# Quitar el foco para evitar que el LineEdit capture el siguiente evento
+				_consoleInputLineEdit.release_focus()
+				# Forzar la actualización del foco
+				get_viewport().gui_release_focus()
+			elif is_world_map_open():
+				close_world_map()
+			elif _is_any_dialog_window_open():
+				pass
+			else:
+				_exit_game()
+			return
 		_handle_key_event(event)	
+
+func _is_any_dialog_window_open() -> bool:
+	for child in get_children():
+		if child is Window and child.visible:
+			return true
+		for sub in child.get_children():
+			if sub is Window and sub.visible:
+				return true
+	return false
 	
 	
 func _OnConsoleInputTextSubmitted(newText: String) -> void:
@@ -442,7 +465,7 @@ func _request_position_update() -> void:
 
 
 func _exit_game() -> void:
-	ProtocolWriteToServer.WriteQuit()
+	quit_button_pressed.emit()
 
 func _on_hotkey_changed(action_name: String, key_code: int):
 	print("[HubController] Hotkey cambiado: ", action_name, " -> ", HotkeyConfig.get_key_name(key_code))
@@ -632,11 +655,9 @@ func _open_world_map() -> void:
 func is_world_map_open() -> bool:
 	return _world_map_window != null and is_instance_valid(_world_map_window) and _world_map_window.visible
 
-func close_world_map(esc_consumed: bool = false) -> void:
+func close_world_map() -> void:
 	if _world_map_window and is_instance_valid(_world_map_window):
 		_world_map_window.hide()
-	if esc_consumed:
-		_map_close_pending = true
 
 func _on_player_tile_changed(tile: Vector2i) -> void:
 	if _world_map_window and _world_map_window.visible:
@@ -738,21 +759,6 @@ func _show_guild_details_window(clan_name: String, url: String) -> void:
 	# Configurar la ventana para modo de creación
 	guild_details_window.setup_for_creation(clan_name, url)
 	guild_details_window.popup_centered()
-
-func _unhandled_input(event: InputEvent) -> void:
-	# Si la consola está visible y se presiona ESC, la cerramos
-	if event is InputEventKey and event.pressed and !event.echo and event.keycode == KEY_ESCAPE:
-		if _consoleInputLineEdit.visible:
-			# Marcar el evento como manejado para evitar que se propague
-			get_viewport().set_input_as_handled()
-			# Limpiar y ocultar la consola
-			_consoleInputLineEdit.text = ""
-			_consoleInputLineEdit.visible = false
-			# Quitar el foco para evitar que el LineEdit capture el siguiente evento
-			_consoleInputLineEdit.release_focus()
-			# Forzar la actualización del foco
-			get_viewport().gui_release_focus()
-
 
 func _on_console_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:

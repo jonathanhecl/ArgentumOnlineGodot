@@ -23,6 +23,20 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-10-05 — Salida con Escape: rutas duplicadas polling+release que enviaban WriteQuit directo
+- **Context:** Escape/`ExitGame` debía abrir un menú (`GameMenuWindow`) en vez de cerrar/loguear directo. Antes había DOS rutas: `_process` en `game_screen.gd` polleaba `Input.is_action_just_pressed("ExitGame")` → logout a selección, y `hub_controller.gd` en `is_action_released` → `_exit_game()` → `WriteQuit` (con el hack `_map_close_pending` para suprimir el release tras cerrar el mapa).
+- **Problem:** Dos rutas distintas (press vs release, dos scripts) con semánticas distintas (logout vs quit) para la misma tecla; cualquier ventana nueva debía sincronizar ambas y el release podía disparar WriteQuit sin consentimiento.
+- **Root cause:** Manejo por polling de `Input` + disparo en `released` en vez de una sola ruta por evento con prioridades explícitas.
+- **Fix:** Una sola ruta en `HubController._unhandled_key_input` (press, no echo, `keycode==KEY_ESCAPE or ExitGame`): consola → mapa → diálogo abierto → `_exit_game()` que ahora emite `quit_button_pressed` (toggle del menú). Los paquetes de salida sólo salen de las dos opciones explícitas del menú: `_on_window_close_confirmed` ("Cerrar el juego" → `WriteQuit`) y `_request_return_to_character_selection` ("Volver a selección" → logout). `_CheckKeys` se bloquea con `_window_close_dialog.visible` igual que con el mapa, sin pausar la red.
+- **Rule:** Una tecla, una ruta por evento (press no-echo); nunca `is_action_just_pressed` en `_process` si otro nodo maneja la misma acción. WriteQuit/logout sólo desde acciones explícitas del usuario en el menú, jamás al abrir/cerrar el menú.
+
+### 2026-10-05 — Botón Opciones con FOCUS_ALL se reactivaba con Espacio tras cerrar el diálogo
+- **Context:** Reporte de usuario: click en Opciones, inspeccionar "Configurar Teclas", cerrar, y al presionar Espacio se atacaba Y se reabría Opciones (`screens/game_screen.tscn` → `HubController/Buttons-Misc/btnOptions`).
+- **Problem:** Tras cerrar las ventanas, Espacio ejecutaba dos acciones: `Attack` (InputMap) y `pressed` en `btnOptions`.
+- **Root cause:** `btnOptions` heredaba `focus_mode = FOCUS_ALL` (default de `BaseButton`): el click le daba foco persistente y `ui_accept` (Espacio/Enter) reemitía `pressed`. El mismo evento llegaba además a `_unhandled_key_input` → `Attack`.
+- **Fix:** `focus_mode = 0` (FOCUS_NONE) en el nodo `btnOptions` del `.tscn`: sigue activándose por click pero no puede tomar foco ni responder a `ui_accept`. No se deshabilitó `ui_accept` global (otros botones lo necesitan, verificado con un Button de control que sí se activa con Espacio/Enter).
+- **Rule:** Botones del HUD que sólo deben lanzarse con mouse deben declarar `focus_mode = 0` (como ya hacen `ShowInventory`/`ShowSpells`); cualquier `BaseButton` enfocable es un atajo de teclado implícito vía `ui_accept`.
+
 ### 2026-09-08 — Sólo links mutuos posicionan el mapa del mundo; one-way se dibuja, no ubica
 - **Context:** Zona 111/112 con 242 dibujado al sur de 112 y la tira norte (241/153) estacionada al este; verificado contra seed correcto (`111.N=242`, `112.N=154`, `112.S=113`, `111.S=114`).
 - **Problem:** El layout dibujaba adyacencias "conectadas" pero con geometría falsa: 154 quedaba a 13 celdas de su lugar.
