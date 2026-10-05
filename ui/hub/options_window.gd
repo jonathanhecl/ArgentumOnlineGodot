@@ -28,6 +28,10 @@ func _ready() -> void:
 	title = "Opciones"
 	
 	get_ok_button().text = "Guardar"
+	get_ok_button().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for sib in get_ok_button().get_parent().get_children():
+		if sib != get_ok_button() and sib is Control:
+			sib.size_flags_horizontal = Control.SIZE_FILL
 	
 	var bus = AudioServer.get_bus_index("Master")
 	sliderVolume.value = db_to_linear(AudioServer.get_bus_volume_db(bus))

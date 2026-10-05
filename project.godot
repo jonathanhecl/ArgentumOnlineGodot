@@ -46,6 +46,10 @@ window/stretch/mode="canvas_items"
 
 enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
+[gui]
+
+theme/custom="res://ui/medieval_theme.tres"
+
 [input]
 
 EquipObject={

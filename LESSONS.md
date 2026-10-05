@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-10-05 — Theme custom: StyleBoxFlat sin content_margin colapsa ScrollBars y recorta títulos de Window
+- **Context:** Theme global `res://ui/medieval_theme.tres` (`gui/theme/custom`). Tras aplicarlo, la Skills window no mostraba scrollbar y los títulos de ventana quedaban flotando transparentes sobre el juego.
+- **Problem:** `VScrollBar` medía `size.x=0` (invisible, indraggable) y la barra de título de `Window` no dibujaba fondo.
+- **Root cause:** (1) Un `StyleBoxFlat` nuevo sin `content_margin_*` tiene minimum size 0: `ScrollContainer` calcula el ancho del scrollbar desde `scroll` stylebox `get_minimum_size()` → 0px (el default usa cm [4,0,4,0] → 8px). (2) `Window/styles/embedded_border` en el default tiene `expand_margin` [8,32,8,6] que extiende el dibujo sobre la región del título (`content_margin` solo empuja contenido, NO expande el dibujo); nuestro reemplazo sin expand dejaba el titlebar transparente.
+- **Fix:** `scrollbar_track` con `content_margin` 7/7/7/7 → barra 14px; sliders `track`/`fill` con margins 4 (igual default); `win_border`/`win_border_unf` con `expand_margin` 8/32/8/6 copiado del default theme. Verificado midiendo `ThemeDB.get_default_theme().get_stylebox(...)` contra el custom.
+- **Rule:** Al reemplazar styleboxes del theme default, copiar la geometría (content_margin/expand_margin/min size) del original medido mecánicamente via `ThemeDB` — los valores vacíos no heredan, colapsan a 0. Todo error dentro de `game_eval` (compile O runtime) parkea el juego en debug-break: evals 100% null-guarded.
+
 ### 2026-10-05 — Salida con Escape: rutas duplicadas polling+release que enviaban WriteQuit directo
 - **Context:** Escape/`ExitGame` debía abrir un menú (`GameMenuWindow`) en vez de cerrar/loguear directo. Antes había DOS rutas: `_process` en `game_screen.gd` polleaba `Input.is_action_just_pressed("ExitGame")` → logout a selección, y `hub_controller.gd` en `is_action_released` → `_exit_game()` → `WriteQuit` (con el hack `_map_close_pending` para suprimir el release tras cerrar el mapa).
 - **Problem:** Dos rutas distintas (press vs release, dos scripts) con semánticas distintas (logout vs quit) para la misma tecla; cualquier ventana nueva debía sincronizar ambas y el release podía disparar WriteQuit sin consentimiento.
