@@ -72,6 +72,7 @@ var _user_helmet_slot:int
 var _user_armor_slot:int
 
 var _world_map_window
+var _hovered_meta: Variant = null
 
 func _ready() -> void:
 	# Inicializar el sistema de hotkeys
@@ -655,12 +656,14 @@ func _meditate() -> void:
 		
 	ProtocolWriteToServer.WriteMeditate()
 
-func _on_main_viewport_container_gui_input(event: InputEvent) -> void:
+func _on_main_viewport_container_gui_input(event: InputEvent) -> bool:
+	var click_sent := false
 	if event is InputEventMouseButton:
-		var click_sent := _HandleMouseInput(event)
+		click_sent = _HandleMouseInput(event)
 		if click_sent and Input.is_key_pressed(KEY_SHIFT):
 			ProtocolWriteToServer.WriteWarpMeToTarget()
 			get_viewport().set_input_as_handled()
+	return click_sent
 			
 
 
@@ -817,8 +820,24 @@ func _show_guild_details_window(clan_name: String, url: String) -> void:
 	guild_details_window.popup_centered()
 
 func _on_console_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		_console_blocked = true
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+	_console_blocked = true
+	if event.button_index != MOUSE_BUTTON_LEFT or _hovered_meta != null:
+		return
+	var viewport_container := get_node_or_null("MainViewportContainer") as Control
+	if not viewport_container or not viewport_container.get_global_rect().has_point(event.global_position):
+		return
+	var forwarded := event.duplicate() as InputEventMouseButton
+	forwarded.position = viewport_container.get_global_transform_with_canvas().affine_inverse() * event.global_position
+	if _on_main_viewport_container_gui_input(forwarded):
+		_consoleRichTextLabel.accept_event()
+
+func _on_console_meta_hover_started(meta: Variant) -> void:
+	_hovered_meta = meta
+
+func _on_console_meta_hover_ended(_meta: Variant) -> void:
+	_hovered_meta = null
 
 func _on_console_mouse_exited() -> void:
 	_console_blocked = false

@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-10-05 — `MOUSE_FILTER_PASS` no deja pasar el click a hermanos de abajo: consola transparente bloqueaba el mundo
+- **Context:** La `Console` (RichTextLabel invisible, rect (30,15)-(1273,184)) cubre la parte superior del `MainViewportContainer` en `screens/game_screen.tscn`.
+- **Problem:** Clicks sobre el área de la consola no llegaban al mundo: imposible clickear NPCs/objetos detrás del texto del chat.
+- **Root cause:** `mouse_filter = 1` (PASS) propaga el evento no manejado al **padre** (un `CanvasLayer`, que no hace nada), NO a los controles hermanos que están debajo en z-order. El RichTextLabel recibía el click y el `SubViewportContainer` nunca lo veía.
+- **Fix:** En `hub_controller.gd::_on_console_gui_input`, los clicks izquierdos se duplican y reenvían a `_on_main_viewport_container_gui_input` con `position` traducida al espacio del container (`get_global_transform_with_canvas().affine_inverse() * event.global_position`); si el mundo lo consume se llama `accept_event()`. Se trackea `_hovered_meta` con `meta_hover_started/ended` para no reenviar clicks sobre links `[url]`, y el handler del viewport ahora devuelve `bool`.
+- **Rule:** Un Control transparente encima del viewport sigue siendo un bloqueador de input aunque tenga PASS; para "click-through" hay que reenviar el evento manualmente (o usar IGNORE si no se necesita scroll/links). `event.position` en `gui_input` es local al control — traducir siempre al espacio del receptor antes de reenviar.
+
 ### 2026-10-05 — HUD sharpness: don't scale Control parents to resize bars/minimap text
 - **Context:** HUD stat bars (`ui/hub/stat_bar.tscn` + five instances in `screens/game_screen.tscn`) and minimap (`ui/hub/minimap.tscn`/`.gd`).
 - **Problem:** Stat bars looked blurry: the 89×11 `TextureProgressBar` and its 10px Label inherited a fractional `Vector2(1.8, 1.8)` transform; the minimap had no local nearest-filter override.

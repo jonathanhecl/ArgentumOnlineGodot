@@ -443,6 +443,8 @@ offset_bottom = 930.0
 [connection signal="gui_input" from="HubController/MainViewportContainer" to="HubController" method="_on_main_viewport_container_gui_input"]
 [connection signal="gui_input" from="HubController/Console" to="HubController" method="_on_console_gui_input"]
 [connection signal="meta_clicked" from="HubController/Console" to="HubController" method="_on_console_meta_clicked"]
+[connection signal="meta_hover_started" from="HubController/Console" to="HubController" method="_on_console_meta_hover_started"]
+[connection signal="meta_hover_ended" from="HubController/Console" to="HubController" method="_on_console_meta_hover_ended"]
 [connection signal="mouse_exited" from="HubController/Console" to="HubController" method="_on_console_mouse_exited"]
 [connection signal="text_submitted" from="HubController/ConsoleInput" to="HubController" method="_OnConsoleInputTextSubmitted"]
 [connection signal="click" from="HubController/Minimap" to="HubController" method="_on_minimap_click"]
