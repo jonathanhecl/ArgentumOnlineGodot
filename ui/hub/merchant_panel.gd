@@ -1,4 +1,4 @@
-extends TextureRect
+extends Window
 class_name MerchantPanel
 
 @export var _merchantInventoryContainer:InventoryContainer
@@ -27,20 +27,19 @@ func _ready() -> void:
 	_quantitySpinBox.value_changed.connect(func(_value:float):
 		_UpdateInfo())
 	
+	close_requested.connect(_OnClosePressed)
+	window_input.connect(_OnWindowInput)
+	
 	# Desactivar tooltips en la ventana de comercio
 	InventorySlot.SetTooltipsEnabled(false)
 	
 	# Habilitar el mouse filter del label para que pueda mostrar tooltips
 	_infoLabel.mouse_filter = Control.MOUSE_FILTER_STOP
-	
-	# Configurar para que la ventana tenga el foco y pueda recibir eventos de teclado
-	focus_mode = Control.FOCUS_ALL
-	grab_focus()
 
 func _exit_tree() -> void:
 	# Reactivar tooltips al cerrar la ventana
 	InventorySlot.SetTooltipsEnabled(true)
-
+	
 func SetMerchantInventory(inventory:Inventory) -> void:
 	_merchantInventoryContainer.SetInventory(inventory)
 	_merchantInventory = inventory
@@ -67,10 +66,10 @@ func _UpdateInfo() -> void:
 	else:
 		totalPrice = _CalculateBuyPrice(_selectedItem.salePrice, quantity)
 	
-	# Truncar solo el nombre del ítem si es muy largo (más de 18 caracteres)
+	# Truncar solo el nombre del ítem si es muy largo (más de 26 caracteres)
 	var itemName = _selectedItem.name
 	var displayName = itemName
-	var maxNameLength = 18
+	var maxNameLength = 26
 	
 	if itemName.length() > maxNameLength:
 		displayName = itemName.substr(0, maxNameLength) + "..."
@@ -93,33 +92,30 @@ func _UpdateInfo() -> void:
 
 func _CalculateSellPrice(objValue: float, objAmount: int) -> int:
 	return int(objValue * objAmount + 0.5)
-
+	
 func _CalculateBuyPrice(objValue: float, objAmount: int) -> int:
 	return int(objValue * objAmount)
-
+	
 func _GetQuantity() -> int:
 	return int(_quantitySpinBox.value)
 
 func _OnBuyButtonPressed() -> void:
 	if _merchantInventoryContainer.GetSelectedSlot() == -1: return
 	GameProtocol.WriteCommerceBuy(_merchantInventoryContainer.GetSelectedSlot() + 1, _GetQuantity());
-
+	
 func _OnSellButtonPressed() -> void:
 	if _playerInventoryContainer.GetSelectedSlot() == -1: return
 	GameProtocol.WriteCommerceSell(_playerInventoryContainer.GetSelectedSlot() + 1, _GetQuantity());
-
-
-func _on_btn_close_pressed() -> void:
+	
+	
+func _OnClosePressed() -> void:
 	GameProtocol.WriteCommerceEnd()
 
 # Manejar eventos de teclado para cerrar con Escape y bloquear otras teclas
-func _input(event):
+func _OnWindowInput(event:InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ESCAPE:
-			_on_btn_close_pressed()
-			# Consumir el evento para que no se propague
-			get_viewport().set_input_as_handled()
-		else:
-			# Consumir TODOS los eventos de teclado cuando la ventana está abierta
-			# para evitar que se ejecuten acciones del juego (como equipar con E)
-			get_viewport().set_input_as_handled()
+			_OnClosePressed()
+		# Consumir TODOS los eventos de teclado cuando la ventana está abierta
+		# para evitar que se ejecuten acciones del juego (como equipar con E)
+		set_input_as_handled()

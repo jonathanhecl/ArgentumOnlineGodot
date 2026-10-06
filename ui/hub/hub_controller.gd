@@ -152,6 +152,7 @@ func OpenMerchant() -> void:
 	
 	merchantPanel.SetMerchantInventory(_gameContext.merchantInventory)
 	merchantPanel.SetPlayerInventory(_gameContext.playerInventory)
+	merchantPanel.popup_centered()
 	_gameContext.trading = true
 	
 func CloseMerchant() -> void:
@@ -413,6 +414,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				pass
 			else:
 				_exit_game()
+			return
+		# Bloquear teclas del juego mientras haya una ventana de diálogo abierta
+		if _is_any_dialog_window_open():
+			get_viewport().set_input_as_handled()
 			return
 		_handle_key_event(event)	
 
