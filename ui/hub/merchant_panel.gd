@@ -8,6 +8,12 @@ class_name MerchantPanel
 
 @export var _quantitySpinBox:SpinBox
 @export var _actionButton:Button
+@export var _presetsContainer:HBoxContainer
+
+const _PRESET_STEPS:Array[int] = [100, 1000, 10000]
+const _PRESET_LABELS:Array[String] = ["100", "1K", "10K"]
+
+var _presetButtons:Array[Button] = []
 
 var _merchantInventory:Inventory
 var _playerInventory:Inventory
@@ -30,6 +36,11 @@ func _ready() -> void:
 	_quantitySpinBox.value_changed.connect(func(_value:float):
 		_UpdateInfo())
 	
+	for button in _presetsContainer.get_children():
+		button.pressed.connect(_OnPresetButtonPressed.bind(button))
+		_presetButtons.append(button)
+	_UpdatePresetButtons()
+	
 	close_requested.connect(_OnClosePressed)
 	window_input.connect(_OnWindowInput)
 	
@@ -46,13 +57,18 @@ func _exit_tree() -> void:
 func SetMerchantInventory(inventory:Inventory) -> void:
 	_merchantInventoryContainer.SetInventory(inventory)
 	_merchantInventory = inventory
+	inventory.slotChanged.connect(func(_index:int, _stack:ItemStack):
+		_UpdatePresetButtons())
 	
 func SetPlayerInventory(inventory:Inventory) -> void:
 	_playerInventoryContainer.SetInventory(inventory)
 	_playerInventory = inventory
+	inventory.slotChanged.connect(func(_index:int, _stack:ItemStack):
+		_UpdatePresetButtons())
  
 func _UpdateInfo() -> void:
 	_UpdateActionButton()
+	_UpdatePresetButtons()
 	if _selectedItem == null or _selectedItem.name.is_empty():
 		_infoLabel.text = ""
 		_itemIcon.texture = null
@@ -132,8 +148,38 @@ func _OnActionPressed() -> void:
 	else:
 		_OnSellButtonPressed()
 
-func _OnPresetQuantityPressed(quantity:int) -> void:
-	_quantitySpinBox.value = quantity
+func _UpdatePresetButtons() -> void:
+	var available = 0
+	if _selectedItem != null and not _selectedItem.name.is_empty():
+		var container = _merchantInventoryContainer if _isFromMerchant else _playerInventoryContainer
+		var inventory = _merchantInventory if _isFromMerchant else _playerInventory
+		var slotIndex = container.GetSelectedSlot()
+		if slotIndex != -1:
+			var stack = inventory.GetSlot(slotIndex)
+			if stack:
+				available = mini(stack.quantity, int(_quantitySpinBox.max_value))
+	
+	var buttonIndex = 0
+	for i in _PRESET_STEPS.size():
+		if _PRESET_STEPS[i] <= available:
+			_SetPresetButton(buttonIndex, _PRESET_STEPS[i], _PRESET_LABELS[i])
+			buttonIndex += 1
+	# Último botón con la cantidad máxima disponible si no coincide con un preset fijo
+	if available > 0 and (buttonIndex == 0 or _PRESET_STEPS[buttonIndex - 1] != available):
+		_SetPresetButton(buttonIndex, available, str(available))
+		buttonIndex += 1
+	while buttonIndex < _presetButtons.size():
+		_presetButtons[buttonIndex].visible = false
+		buttonIndex += 1
+
+func _SetPresetButton(index:int, quantity:int, label:String) -> void:
+	var button = _presetButtons[index]
+	button.text = label
+	button.visible = true
+	button.set_meta("quantity", quantity)
+
+func _OnPresetButtonPressed(button:Button) -> void:
+	_quantitySpinBox.value = int(button.get_meta("quantity"))
 	
 func _OnClosePressed() -> void:
 	GameProtocol.WriteCommerceEnd()
