@@ -7,6 +7,7 @@ class_name MerchantPanel
 @export var _itemIcon:TextureRect
 
 @export var _quantitySpinBox:SpinBox
+@export var _actionButton:Button
 
 var _merchantInventory:Inventory
 var _playerInventory:Inventory
@@ -15,11 +16,13 @@ var _isFromMerchant:bool = false
 
 func _ready() -> void:
 	_merchantInventoryContainer.slotPressed.connect(func(index:int):
+		_playerInventoryContainer.ClearSelection()
 		_selectedItem = _merchantInventory.GetSlot(index).item
 		_isFromMerchant = true
 		_UpdateInfo())
 		
 	_playerInventoryContainer.slotPressed.connect(func(index:int):
+		_merchantInventoryContainer.ClearSelection()
 		_selectedItem = _playerInventory.GetSlot(index).item
 		_isFromMerchant = false
 		_UpdateInfo())
@@ -49,6 +52,7 @@ func SetPlayerInventory(inventory:Inventory) -> void:
 	_playerInventory = inventory
  
 func _UpdateInfo() -> void:
+	_UpdateActionButton()
 	if _selectedItem == null or _selectedItem.name.is_empty():
 		_infoLabel.text = ""
 		_itemIcon.texture = null
@@ -90,6 +94,21 @@ func _UpdateInfo() -> void:
 	else:
 		_infoLabel.tooltip_text = ""
 
+func _UpdateActionButton() -> void:
+	if _selectedItem == null or _selectedItem.name.is_empty():
+		_actionButton.disabled = true
+		_actionButton.text = "Comprar / Vender"
+		return
+	
+	var totalPrice = 0
+	if _isFromMerchant:
+		totalPrice = _CalculateSellPrice(_selectedItem.salePrice, _GetQuantity())
+		_actionButton.text = "Comprar (%d oro)" % totalPrice
+	else:
+		totalPrice = _CalculateBuyPrice(_selectedItem.salePrice, _GetQuantity())
+		_actionButton.text = "Vender (%d oro)" % totalPrice
+	_actionButton.disabled = false
+
 func _CalculateSellPrice(objValue: float, objAmount: int) -> int:
 	return int(objValue * objAmount + 0.5)
 	
@@ -107,6 +126,14 @@ func _OnSellButtonPressed() -> void:
 	if _playerInventoryContainer.GetSelectedSlot() == -1: return
 	GameProtocol.WriteCommerceSell(_playerInventoryContainer.GetSelectedSlot() + 1, _GetQuantity());
 	
+func _OnActionPressed() -> void:
+	if _isFromMerchant:
+		_OnBuyButtonPressed()
+	else:
+		_OnSellButtonPressed()
+
+func _OnPresetQuantityPressed(quantity:int) -> void:
+	_quantitySpinBox.value = quantity
 	
 func _OnClosePressed() -> void:
 	GameProtocol.WriteCommerceEnd()

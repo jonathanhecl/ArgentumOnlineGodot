@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://de3jg50cg7tyi" path="res://ui/hub/merchant_panel.gd" id="1_j83ap"]
 [ext_resource type="PackedScene" uid="uid://b5jojh26118kn" path="res://ui/hub/inventory_container.tscn" id="2_cer8s"]
 
-[node name="MerchantPanel" type="Window" node_paths=PackedStringArray("_merchantInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_itemIcon", "_quantitySpinBox")]
+[node name="MerchantPanel" type="Window" node_paths=PackedStringArray("_merchantInventoryContainer", "_playerInventoryContainer", "_infoLabel", "_itemIcon", "_quantitySpinBox", "_actionButton")]
 title = "Comercio"
 initial_position = 1
 size = Vector2i(680, 560)
@@ -13,6 +13,7 @@ _playerInventoryContainer = NodePath("Margin/VBox/GridsRow/PlayerColumn/PlayerSc
 _infoLabel = NodePath("Margin/VBox/InfoRow/Info")
 _itemIcon = NodePath("Margin/VBox/InfoRow/ItemIcon")
 _quantitySpinBox = NodePath("Margin/VBox/BottomRow/Quantity")
+_actionButton = NodePath("Margin/VBox/BottomRow/Action")
 
 [node name="Margin" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -107,22 +108,33 @@ max_value = 10000.0
 value = 1.0
 update_on_text_changed = true
 
+[node name="Preset100" type="Button" parent="Margin/VBox/BottomRow"]
+layout_mode = 2
+text = "100"
+
+[node name="Preset1K" type="Button" parent="Margin/VBox/BottomRow"]
+layout_mode = 2
+text = "1K"
+
+[node name="Preset10K" type="Button" parent="Margin/VBox/BottomRow"]
+layout_mode = 2
+text = "10K"
+
 [node name="Spacer" type="Control" parent="Margin/VBox/BottomRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Buy" type="Button" parent="Margin/VBox/BottomRow"]
+[node name="Action" type="Button" parent="Margin/VBox/BottomRow"]
 layout_mode = 2
-text = "Comprar"
-
-[node name="Sell" type="Button" parent="Margin/VBox/BottomRow"]
-layout_mode = 2
-text = "Vender"
+disabled = true
+text = "Comprar / Vender"
 
 [node name="BtnClose" type="Button" parent="Margin/VBox/BottomRow"]
 layout_mode = 2
 text = "Cerrar"
 
-[connection signal="pressed" from="Margin/VBox/BottomRow/Buy" to="." method="_OnBuyButtonPressed"]
-[connection signal="pressed" from="Margin/VBox/BottomRow/Sell" to="." method="_OnSellButtonPressed"]
+[connection signal="pressed" from="Margin/VBox/BottomRow/Preset100" to="." method="_OnPresetQuantityPressed" binds= [100]]
+[connection signal="pressed" from="Margin/VBox/BottomRow/Preset1K" to="." method="_OnPresetQuantityPressed" binds= [1000]]
+[connection signal="pressed" from="Margin/VBox/BottomRow/Preset10K" to="." method="_OnPresetQuantityPressed" binds= [10000]]
+[connection signal="pressed" from="Margin/VBox/BottomRow/Action" to="." method="_OnActionPressed"]
 [connection signal="pressed" from="Margin/VBox/BottomRow/BtnClose" to="." method="_OnClosePressed"]

@@ -10,6 +10,12 @@ var _dragging_from_slot:int = -1
 
 func GetSelectedSlot() -> int:
 	return _selectedSlot
+	
+func ClearSelection() -> void:
+	var slot = GetInventorySlot(_selectedSlot)
+	if slot:
+		slot.SetSelected(false)
+	_selectedSlot = -1
 
 func GetInventory() -> Inventory:
 	return _inventory
