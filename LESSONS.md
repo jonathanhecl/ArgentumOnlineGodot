@@ -23,6 +23,13 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-10-05 — HUD sharpness: don't scale Control parents to resize bars/minimap text
+- **Context:** HUD stat bars (`ui/hub/stat_bar.tscn` + five instances in `screens/game_screen.tscn`) and minimap (`ui/hub/minimap.tscn`/`.gd`).
+- **Problem:** Stat bars looked blurry: the 89×11 `TextureProgressBar` and its 10px Label inherited a fractional `Vector2(1.8, 1.8)` transform; the minimap had no local nearest-filter override.
+- **Root cause:** The bars resized the whole text subtree rather than setting final control dimensions, while the minimap inherited texture filtering. Font rasterization also depends on oversampling and viewport scaling; parent scale alone does not prove that Godot magnifies a fixed font bitmap.
+- **Fix:** Removed the instance `scale`, made the scene natively 160×20 with `nine_patch_stretch = true` for the bar texture, and set the Label to the real bold TTF at `font_size = 16` with `outline_size = 2` (linear `texture_filter = 2` on the Label, nearest `texture_filter = 1` on the root for the pixel-art bar). Minimap got `texture_filter = 1` (nearest) on its root and a 1px inner frame + snapped dot in `_draw`.
+- **Rule:** Resize `TextureProgressBar`/`TextureRect` controls via offsets + `nine_patch_stretch`, never via `scale` on the parent — scaling magnifies child text. Set `texture_filter` per-node: nearest for pixel art, linear for vector fonts; LabelSettings with a real `font_size` beats scaling a small font.
+
 ### 2026-10-05 — Theme custom: StyleBoxFlat sin content_margin colapsa ScrollBars y recorta títulos de Window
 - **Context:** Theme global `res://ui/medieval_theme.tres` (`gui/theme/custom`). Tras aplicarlo, la Skills window no mostraba scrollbar y los títulos de ventana quedaban flotando transparentes sobre el juego.
 - **Problem:** `VScrollBar` medía `size.x=0` (invisible, indraggable) y la barra de título de `Window` no dibujaba fondo.

@@ -58,9 +58,6 @@ base_font = ExtResource("8_s70vx")
 [sub_resource type="FontVariation" id="FontVariation_gwwhr"]
 base_font = ExtResource("7_rqp22")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rrxf"]
-bg_color = Color(0.104888, 0.192391, 0.192544, 0.392157)
-
 [sub_resource type="FontVariation" id="FontVariation_ayhfv"]
 base_font = ExtResource("7_rqp22")
 
@@ -152,6 +149,7 @@ offset_left = 30.0
 offset_top = 15.0
 offset_right = 1273.0
 offset_bottom = 184.0
+mouse_filter = 1
 theme_override_fonts/normal_font = SubResource("FontVariation_ltsmt")
 theme_override_fonts/bold_font = SubResource("FontVariation_t2d6d")
 theme_override_fonts/bold_italics_font = SubResource("FontVariation_ehycb")
@@ -165,9 +163,8 @@ offset_left = 22.0
 offset_top = 199.0
 offset_right = 1469.0
 offset_bottom = 227.0
+mouse_filter = 2
 theme_override_fonts/font = SubResource("FontVariation_gwwhr")
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_6rrxf")
 
 [node name="Minimap" parent="HubController" unique_id=860760806 instance=ExtResource("12_s70vx")]
 offset_left = 1290.0
@@ -293,41 +290,36 @@ clip_text = true
 [node name="StaminaStatBar" parent="HubController/StatBars" unique_id=603941630 instance=ExtResource("13_u317p")]
 offset_left = 1510.0
 offset_top = 725.0
-offset_right = 1599.0
-offset_bottom = 736.0
-scale = Vector2(1.8, 1.8)
+offset_right = 1670.0
+offset_bottom = 745.0
 texture_progress = SubResource("AtlasTexture_gwwhr")
 
 [node name="HealthStatBar" parent="HubController/StatBars" unique_id=340573870 instance=ExtResource("13_u317p")]
 offset_left = 1510.0
 offset_top = 777.0
-offset_right = 1599.0
-offset_bottom = 788.0
-scale = Vector2(1.8, 1.8)
+offset_right = 1670.0
+offset_bottom = 797.0
 texture_progress = SubResource("AtlasTexture_ehycb")
 
 [node name="ManaStatBar" parent="HubController/StatBars" unique_id=1859227552 instance=ExtResource("13_u317p")]
 offset_left = 1508.0
 offset_top = 837.0
-offset_right = 1597.0
-offset_bottom = 848.0
-scale = Vector2(1.8, 1.8)
+offset_right = 1668.0
+offset_bottom = 857.0
 texture_progress = SubResource("AtlasTexture_t2d6d")
 
 [node name="HungerStatBar" parent="HubController/StatBars" unique_id=1099376017 instance=ExtResource("13_u317p")]
 offset_left = 1508.0
 offset_top = 893.0
-offset_right = 1597.0
-offset_bottom = 904.0
-scale = Vector2(1.8, 1.8)
+offset_right = 1668.0
+offset_bottom = 913.0
 texture_progress = SubResource("AtlasTexture_dlj5t")
 
 [node name="ThirstStatBar" parent="HubController/StatBars" unique_id=176892941 instance=ExtResource("13_u317p")]
 offset_left = 1508.0
 offset_top = 948.0
-offset_right = 1597.0
-offset_bottom = 959.0
-scale = Vector2(1.8, 1.8)
+offset_right = 1668.0
+offset_bottom = 968.0
 texture_progress = SubResource("AtlasTexture_ce3ml")
 
 [node name="ExperienceStatBar" type="TextureProgressBar" parent="HubController/StatBars" unique_id=1056686806]

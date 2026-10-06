@@ -40,6 +40,8 @@ signal animated_dialog_changed(value:bool)
 signal npc_dialog_console_changed(value:bool)
 signal move_while_talking_changed(value:bool)
 signal peripheral_fog_intensity_changed(value:float)
+signal console_opacity_changed(value:float)
+signal minimap_opacity_changed(value:float)
 
 # Variable interna para show_player_names
 var _show_player_names:bool = true
@@ -101,6 +103,26 @@ var peripheralFogIntensity:float:
 		emit_signal("peripheral_fog_intensity_changed", _peripheralFogIntensity)
 	get:
 		return _peripheralFogIntensity
+
+# Opacidad de la consola de chat (0.0 = totalmente transparente, 1.0 = totalmente opaca)
+var _consoleOpacity:float = 0.4
+
+var consoleOpacity:float:
+	set(value):
+		_consoleOpacity = clamp(value, 0.0, 1.0)
+		emit_signal("console_opacity_changed", _consoleOpacity)
+	get:
+		return _consoleOpacity
+
+# Opacidad del minimapa en reposo (0.0 = totalmente transparente, 1.0 = totalmente opaco)
+var _minimapOpacity:float = 0.3
+
+var minimapOpacity:float:
+	set(value):
+		_minimapOpacity = clamp(value, 0.0, 1.0)
+		emit_signal("minimap_opacity_changed", _minimapOpacity)
+	get:
+		return _minimapOpacity
 
 # Opción para usar cursor personalizado
 var _useCustomCursor:bool = false
@@ -205,6 +227,14 @@ func _ready() -> void:
 		# Cargar intensidad de niebla periférica
 		var saved_peripheral_fog = cfg.get_value("ui", "peripheral_fog_intensity", peripheralFogIntensity)
 		peripheralFogIntensity = float(saved_peripheral_fog)
+
+		# Cargar opacidad de la consola
+		var saved_console_opacity = cfg.get_value("ui", "console_opacity", consoleOpacity)
+		consoleOpacity = float(saved_console_opacity)
+
+		# Cargar opacidad del minimapa
+		var saved_minimap_opacity = cfg.get_value("ui", "minimap_opacity", minimapOpacity)
+		minimapOpacity = float(saved_minimap_opacity)
 	
 	_load_visited_maps()
 

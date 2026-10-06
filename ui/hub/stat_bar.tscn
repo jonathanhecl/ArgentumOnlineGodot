@@ -1,29 +1,36 @@
-[gd_scene format=3 uid="uid://7gtb4htuo6c8"]
+[gd_scene load_steps=3 format=3 uid="uid://7gtb4htuo6c8"]
 
 [ext_resource type="Script" uid="uid://dnw8e0dssdpj4" path="res://ui/hub/stat_bar.gd" id="1_dvkvp"]
+[ext_resource type="FontFile" uid="uid://btcu01y0sr5he" path="res://Assets/Fonts/alegreya-sans/AlegreyaSans-Bold.ttf" id="2_bold"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_u317p"]
-font_size = 10
+font = ExtResource("2_bold")
+font_size = 16
+font_color = Color(1, 1, 1, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
 
 [node name="StatBar" type="TextureProgressBar" unique_id=2134914305]
-offset_right = 89.0
-offset_bottom = 11.0
+texture_filter = 1
+offset_right = 160.0
+offset_bottom = 20.0
 max_value = 0.0
 rounded = true
+nine_patch_stretch = true
 script = ExtResource("1_dvkvp")
 
 [node name="Label" type="Label" parent="." unique_id=1914048003]
+texture_filter = 2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -2.0
-offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "0/0"
 label_settings = SubResource("LabelSettings_u317p")
 horizontal_alignment = 1
+vertical_alignment = 1
 clip_text = true
 
 [connection signal="changed" from="." to="." method="_on_changed"]

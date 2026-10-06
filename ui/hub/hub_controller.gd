@@ -30,6 +30,10 @@ const SpawnListWindowScene = preload("res://ui/hub/spawn_list_window.tscn")
 @export var _console_max_lines:int = 10
 @export var _console_blocked:bool = false
 
+const CONSOLE_BG_COLOR := Color.BLACK
+const CONSOLE_INPUT_PADDING := 8
+const CONSOLE_SCROLLBAR_WIDTH := 6
+
 @onready var minimap: Minimap = $Minimap
 @onready var spell_list_panel: SpellListPanel = $"Inventory-Spell/SpellListPanel" 
 
@@ -94,7 +98,10 @@ func _ready() -> void:
 	Global.connect("player_names_visibility_changed", Callable(self, "_on_player_names_visibility_changed"))
 	Global.connect("fps_visibility_changed", Callable(self, "_on_fps_visibility_changed"))
 	Global.connect("peripheral_fog_intensity_changed", Callable(self, "_on_peripheral_fog_intensity_changed"))
+	Global.connect("console_opacity_changed", Callable(self, "_on_console_opacity_changed"))
 	_apply_console_font_size(Global.consoleFontSize)
+	_apply_console_opacity(Global.consoleOpacity)
+	_style_console_scrollbar()
 	_apply_peripheral_fog_intensity(Global.peripheralFogIntensity)
 	
 	# Inicializar el sistema de macro de hechizos
@@ -250,6 +257,9 @@ func _on_fps_visibility_changed(_visible:bool) -> void:
 func _on_peripheral_fog_intensity_changed(value:float) -> void:
 	_apply_peripheral_fog_intensity(value)
 
+func _on_console_opacity_changed(value:float) -> void:
+	_apply_console_opacity(value)
+
 func _apply_peripheral_fog_intensity(value:float) -> void:
 	var overlay := get_node_or_null("PeripheralFogOverlay") as CanvasItem
 	if overlay == null:
@@ -264,6 +274,52 @@ func _apply_console_font_size(value:int) -> void:
 	_consoleRichTextLabel.set("theme_override_font_sizes/bold_font_size", value)
 	_consoleRichTextLabel.set("theme_override_font_sizes/italics_font_size", value)
 	_consoleRichTextLabel.set("theme_override_font_sizes/bold_italics_font_size", value)
+	_consoleInputLineEdit.add_theme_font_size_override("font_size", value)
+	_update_console_input_height()
+
+func _apply_console_opacity(value:float) -> void:
+	var console_sb := StyleBoxFlat.new()
+	console_sb.bg_color = CONSOLE_BG_COLOR
+	console_sb.bg_color.a = value
+	console_sb.content_margin_left = CONSOLE_INPUT_PADDING
+	console_sb.content_margin_right = CONSOLE_INPUT_PADDING
+	console_sb.content_margin_top = 4
+	console_sb.content_margin_bottom = 4
+	_consoleRichTextLabel.add_theme_stylebox_override("normal", console_sb)
+
+	var input_sb := StyleBoxFlat.new()
+	input_sb.bg_color = CONSOLE_BG_COLOR
+	input_sb.bg_color.a = value
+	input_sb.content_margin_left = CONSOLE_INPUT_PADDING
+	input_sb.content_margin_right = CONSOLE_INPUT_PADDING
+	input_sb.content_margin_top = 4
+	input_sb.content_margin_bottom = 4
+	_consoleInputLineEdit.add_theme_stylebox_override("normal", input_sb)
+	_consoleInputLineEdit.add_theme_stylebox_override("focus", input_sb.duplicate())
+	_update_console_input_height()
+
+func _style_console_scrollbar() -> void:
+	var scrollbar := _consoleRichTextLabel.get_v_scroll_bar()
+	var track := StyleBoxEmpty.new()
+	track.content_margin_left = CONSOLE_SCROLLBAR_WIDTH / 2.0
+	track.content_margin_right = CONSOLE_SCROLLBAR_WIDTH / 2.0
+	scrollbar.add_theme_stylebox_override("scroll", track)
+	scrollbar.add_theme_stylebox_override("scroll_focus", track)
+	for style_alpha in [["grabber", 0.25], ["grabber_highlight", 0.4], ["grabber_pressed", 0.5]]:
+		var grabber := StyleBoxFlat.new()
+		grabber.bg_color = Color(1, 1, 1, style_alpha[1])
+		grabber.set_corner_radius_all(CONSOLE_SCROLLBAR_WIDTH / 2)
+		grabber.set_content_margin_all(CONSOLE_SCROLLBAR_WIDTH / 2.0)
+		scrollbar.add_theme_stylebox_override(style_alpha[0], grabber)
+
+func _update_console_input_height() -> void:
+	var font := _consoleInputLineEdit.get_theme_font("font")
+	if font == null:
+		return
+	var fs := _consoleInputLineEdit.get_theme_font_size("font_size")
+	var sb := _consoleInputLineEdit.get_theme_stylebox("normal")
+	var h := ceili(font.get_height(fs) + sb.get_content_margin(SIDE_TOP) + sb.get_content_margin(SIDE_BOTTOM) + 2)
+	_consoleInputLineEdit.offset_bottom = _consoleInputLineEdit.offset_top + h
 
 func _HandleMouseInput(event:InputEventMouseButton) -> bool:
 	if not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:

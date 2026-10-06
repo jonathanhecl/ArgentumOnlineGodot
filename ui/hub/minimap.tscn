@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cerr7rk4uulii" path="res://ui/hub/minimap.gd" id="1_x4hbv"]
 
 [node name="Minimap" type="TextureRect"]
+texture_filter = 1
 custom_minimum_size = Vector2(100, 100)
 offset_right = 100.0
 offset_bottom = 100.0

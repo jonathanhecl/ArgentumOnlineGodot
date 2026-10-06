@@ -10,7 +10,6 @@ const MAP_TILE_SIZE := 100
 const BORDER_PX := 10
 const INNER_SIZE := MAP_TILE_SIZE - 2 * BORDER_PX
 const DOT_SIZE := 5.0
-const DEFAULT_ALPHA := 0.3
 const HOVER_ALPHA := 1.0
 const ALPHA_FADE_DURATION := 0.2
 
@@ -24,13 +23,15 @@ var _crossfade_tween: Tween = null
 var _alpha_tween: Tween = null
 var _info_label: Label = null
 var _current_map_id: int = 0
+var _is_hovered := false
 
 func _ready() -> void:
 	_setup_info_label()
 	update_player_position(0, 0)
-	modulate.a = DEFAULT_ALPHA
+	modulate.a = Global.minimapOpacity
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	Global.minimap_opacity_changed.connect(_on_minimap_opacity_changed)
 
 func _setup_info_label() -> void:
 	_info_label = Label.new()
@@ -122,8 +123,9 @@ func _draw() -> void:
 		draw_texture_rect(_texture_old, Rect2(Vector2.ZERO, size), false, Color(1, 1, 1, _crossfade_alpha))
 
 	var dot_offset = Vector2(DOT_SIZE * 0.5, DOT_SIZE * 0.5)
-	var draw_pos = _player_dot_position - dot_offset
+	var draw_pos = (_player_dot_position - dot_offset).round()
 	draw_rect(Rect2(draw_pos, Vector2(DOT_SIZE, DOT_SIZE)), Color.RED, true)
+	draw_rect(Rect2(Vector2.ONE, size - Vector2(2, 2)), Color(0.66, 0.51, 0.22, 0.65), false, 1.0)
 
 
 func _set_alpha_smoothly(target_alpha: float) -> void:
@@ -133,10 +135,19 @@ func _set_alpha_smoothly(target_alpha: float) -> void:
 	_alpha_tween.tween_property(self, "modulate:a", target_alpha, ALPHA_FADE_DURATION)
 
 func _on_mouse_entered() -> void:
+	_is_hovered = true
 	_set_alpha_smoothly(HOVER_ALPHA)
 
 func _on_mouse_exited() -> void:
-	_set_alpha_smoothly(DEFAULT_ALPHA)
+	_is_hovered = false
+	_set_alpha_smoothly(Global.minimapOpacity)
+
+func _on_minimap_opacity_changed(value:float) -> void:
+	if _is_hovered:
+		return
+	if _alpha_tween and _alpha_tween.is_valid():
+		_alpha_tween.kill()
+	modulate.a = value
 
 func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
