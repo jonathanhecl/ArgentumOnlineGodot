@@ -23,7 +23,7 @@ grow_vertical = 2
 texture = ExtResource("1_850gq")
 script = ExtResource("1_j83ap")
 _merchantInventoryContainer = NodePath("ScrollContainer/MerchantInventory")
-_playerInventoryContainer = NodePath("PlayerInventory")
+_playerInventoryContainer = NodePath("PlayerInventoryScroll/PlayerInventory")
 _infoLabel = NodePath("Info")
 _itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
@@ -59,14 +59,19 @@ text_overrun_behavior = 0
 autowrap_mode = 3
 clip_text = true
 
-[node name="PlayerInventory" parent="." instance=ExtResource("2_cer8s")]
+[node name="PlayerInventoryScroll" type="ScrollContainer" parent="."]
 custom_minimum_size = Vector2(166, 256)
 layout_mode = 0
 offset_left = 259.0
 offset_top = 133.0
 offset_right = 425.0
 offset_bottom = 389.0
-columns = 4
+horizontal_scroll_mode = 0
+
+[node name="PlayerInventory" parent="PlayerInventoryScroll" instance=ExtResource("2_cer8s")]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 custom_minimum_size = Vector2(160, 256)
@@ -75,10 +80,12 @@ offset_left = 37.0
 offset_top = 133.0
 offset_right = 203.0
 offset_bottom = 389.0
+horizontal_scroll_mode = 0
 
 [node name="MerchantInventory" parent="ScrollContainer" instance=ExtResource("2_cer8s")]
 layout_mode = 2
-columns = 4
+size_flags_horizontal = 3
+columns = 3
 
 [node name="Quantity" type="SpinBox" parent="."]
 layout_mode = 1

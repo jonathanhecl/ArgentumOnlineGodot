@@ -25,8 +25,8 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_udis2")
 script = ExtResource("1_x0502")
-_bankInventoryContainer = NodePath("BankInventory")
-_playerInventoryContainer = NodePath("PlayerInventory")
+_bankInventoryContainer = NodePath("BankInventoryScroll/BankInventory")
+_playerInventoryContainer = NodePath("PlayerInventoryScroll/PlayerInventory")
 _infoLabel = NodePath("Info")
 _itemIcon = NodePath("ItemIcon")
 _quantitySpinBox = NodePath("Quantity")
@@ -52,23 +52,33 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="PlayerInventory" parent="." unique_id=1284779154 instance=ExtResource("2_udis2")]
-custom_minimum_size = Vector2(160, 160)
+[node name="PlayerInventoryScroll" type="ScrollContainer" parent="."]
+custom_minimum_size = Vector2(160, 256)
 layout_mode = 0
 offset_left = 266.0
 offset_top = 159.0
 offset_right = 426.0
 offset_bottom = 415.0
-columns = 5
+horizontal_scroll_mode = 0
 
-[node name="BankInventory" parent="." unique_id=2101610904 instance=ExtResource("2_udis2")]
+[node name="PlayerInventory" parent="PlayerInventoryScroll" unique_id=1284779154 instance=ExtResource("2_udis2")]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 3
+
+[node name="BankInventoryScroll" type="ScrollContainer" parent="."]
 custom_minimum_size = Vector2(160, 256)
 layout_mode = 0
 offset_left = 37.0
 offset_top = 159.0
 offset_right = 197.0
-offset_bottom = 351.0
-columns = 5
+offset_bottom = 415.0
+horizontal_scroll_mode = 0
+
+[node name="BankInventory" parent="BankInventoryScroll" unique_id=2101610904 instance=ExtResource("2_udis2")]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 3
 
 [node name="ItemIcon" type="TextureRect" parent="." unique_id=1620776567]
 layout_mode = 0

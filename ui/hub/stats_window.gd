@@ -10,24 +10,22 @@ const SKILL_NAMES = [
 const VALUE_COL_MIN_WIDTH := 56
 
 # Optional mapping from class id to name (adjust to your server mapping)
-const CLASS_NAMES := {
-	0: "-",
-	1: "Guerrero",
-	2: "Mago",
-	3: "Clérigo",
-	4: "Asesino",
-	5: "Bardo",
-	6: "Druida",
-	7: "Paladín",
-	8: "Cazador",
-}
+const CLASS_NAMES = preload("res://engine/autoload/consts.gd").ClassNames
+
+func _get_selected_class_id() -> int:
+	if Global.character_name.is_empty():
+		return Enums.Class.None
+	for character in Global.account_characters:
+		if character.get("name", "") == Global.character_name:
+			return int(character.get("class", Enums.Class.None))
+	return Enums.Class.None
 
 func _class_to_text(v) -> String:
 	match typeof(v):
 		TYPE_INT:
-			if CLASS_NAMES.has(v):
-				return String(CLASS_NAMES[v])
-			return "Clase %d" % int(v)
+			if int(v) == Enums.Class.None:
+				return String(CLASS_NAMES.get(_get_selected_class_id(), "-"))
+			return String(CLASS_NAMES.get(int(v), "Clase %d" % int(v)))
 		TYPE_STRING:
 			return String(v)
 		_:
@@ -146,7 +144,7 @@ func _build_ministats_labels() -> void:
 		["Criminales Matados", "0"],
 		["Usuarios Matados", "0"],
 		["NPCs Matados", "0"],
-		["Clase", "-"],
+		["Clase", _class_to_text(Enums.Class.None)],
 		["Pena de Cárcel", "0"]
 	]
 	for p in pairs:
@@ -248,8 +246,8 @@ func set_ministats(ministats:Dictionary) -> void:
 	var clase_nombre_keys = ["ClaseNombre", "ClaseName", "ClaseTexto", "ClaseStr"]
 	var clase_set := false
 	for k in clase_nombre_keys:
-		if ministats.has(k):
-			ministats_labels["Clase"].text = str(ministats[k])
+		if ministats.has(k) and not str(ministats[k]).strip_edges().is_empty():
+			ministats_labels["Clase"].text = str(ministats[k]).strip_edges()
 			clase_set = true
 			break
 	if !clase_set and ministats.has("Clase"):

@@ -23,6 +23,27 @@ Chronological log of non-obvious findings for ArgentumOnlineGodot. **Read this b
 
 ## Entries
 
+### 2026-10-05 — Ground items pop in instead of fading: `Color.WHITE` resets alpha after queued tween
+- **Context:** `MapContainer._check_object_visibility` — objects (Layer2/Layer3 server items) entering the screen core.
+- **Problem:** objects appeared instantly instead of a 0.4s fade-in.
+- **Root cause:** on the enter transition the code called `_fade_entity(entity, 1.0)` (tween from current alpha) and then immediately assigned `entity.modulate = Color.WHITE`, which sets `a=1` and kills the fade's starting frame.
+- **Fix:** assign `Color(1.0, 1.0, 1.0, entity.modulate.a)` instead — restores RGB while preserving the alpha the tween starts from.
+- **Rule:** `Color.WHITE` is an alpha reset, not just a color reset — when ordering a fade, write RGB explicitly and keep the current `modulate.a`.
+
+### 2026-10-05 — Wrong class name in stats window: duplicated outdated class map
+- **Context:** `ui/hub/stats_window.gd` showed the character's class ("Clase" in MiniStats).
+- **Problem:** Class name displayed wrong or "-"; e.g. a Warrior could show "Clérigo" and newer classes (Trabajador, Pirata, Cazador, Bandido, Paladín) had no name at all.
+- **Root cause:** a stale local `CLASS_NAMES` dict (shifted ids, only 0–8) duplicated the canonical `Consts.ClassNames` (Enums ids 1–12), and the initial "Clase" label ignored the class already known in `Global.account_characters`/`Global.character_name` — "-" appeared until MiniStats arrived. Whether the reported live "-" was a wrong map or simply missing stats was not proven (no live session to discriminate).
+- **Fix:** `CLASS_NAMES` now aliases `preload("res://engine/autoload/consts.gd").ClassNames`; `_get_selected_class_id()` looks up the active character by exact name; class 0/initial falls back to the selected character's class, valid MiniStats still take precedence; empty textual aliases fall through to the numeric id.
+- **Rule:** never duplicate a mapping that already exists in `Consts`/`Enums` — alias the canonical table so server-id drift can't desync the UI.
+
+### 2026-10-05 — Inventory icons looked dimmed: a full-size Label background, not the texture
+- **Context:** `ui/hub/inventory_slot.tscn` — icons in inventory/merchant/bank slots looked dark and quantity text covered the icon.
+- **Problem:** Icons appeared washed/dimmed even when the slot had no quantity text.
+- **Root cause:** `Quantity` Label was a full-cell direct child of the `PanelContainer` with a `StyleBoxFlat` `normal` background (`Color(0,0,0,0.65)`); a Label draws its stylebox over its whole rect regardless of text, so the translucent black box overlayed the icon permanently.
+- **Fix:** `Content` Control wrapper; `Icon` occupies the top 32px (`anchor_bottom=1`, `offset_bottom=-20`), `Quantity` is a text-only bottom 20px strip with no stylebox override, `Equipped` a small top-right strip. Slot min size 40×52; merchant/bank grids wrapped in `ScrollContainer`s (horizontal_scroll_mode=0, 3 columns) since taller slots overflow fixed wells.
+- **Rule:** if a texture looks dimmed, check for sibling Control styleboxes covering it before touching modulate/shaders — fix the layout, not the brightness.
+
 ### 2026-10-05 — `MOUSE_FILTER_PASS` no deja pasar el click a hermanos de abajo: consola transparente bloqueaba el mundo
 - **Context:** La `Console` (RichTextLabel invisible, rect (30,15)-(1273,184)) cubre la parte superior del `MainViewportContainer` en `screens/game_screen.tscn`.
 - **Problem:** Clicks sobre el área de la consola no llegaban al mundo: imposible clickear NPCs/objetos detrás del texto del chat.

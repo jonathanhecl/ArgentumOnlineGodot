@@ -651,7 +651,7 @@ func _check_object_visibility(entity: CanvasItem, viewport_size: Vector2) -> voi
 	entity.set_meta("_in_core", is_in_core)
 	if is_in_core:
 		_fade_entity(entity, 1.0)
-		entity.modulate = Color.WHITE
+		entity.modulate = Color(1.0, 1.0, 1.0, entity.modulate.a)
 		return
 	if _is_door_server_object(entity):
 		_fade_entity(entity, 1.0)

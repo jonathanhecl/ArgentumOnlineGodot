@@ -29,7 +29,7 @@ func SetQuantity(quantity:int) -> void:
 	
 func SetIcon(texture:Texture2D) -> void:
 	_item_icon = texture
-	$Icon.texture = texture
+	%Icon.texture = texture
 	
 func SetEquipped(equipped:bool) -> void:
 	%Equipped.visible = equipped
